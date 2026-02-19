@@ -9,6 +9,18 @@ For domain-specific guidance, see these AGENTS.md files:
 - [scripts/linters/AGENTS.md](scripts/linters/AGENTS.md) - Creating and maintaining custom linters
 - [test_data/AGENTS.md](test_data/AGENTS.md) - Test data structure and golden Wikibase JSON format
 
+## Guiding Principles
+
+- **Keep it simple** - Less is more, MVP first
+- **Avoid premature optimizations** - Caching can wait; build for scale to 1bn+ items first, then scale to 100k+ users
+- **Discrete components** - Keep components small and separated
+- **Framework choice** - Use Python with Pydantic v2 and FastAPI
+- **Iterate in small steps** - Start small, build incrementally
+- **One shard until MVP** - Scale horizontally only when needed
+- **For significant changes, ask user before editing**
+- **No backward compatibility** - Evolve freely without legacy support
+- **Internal IDs** - Never expose `internal_id` outside the VitessClient class
+
 ## Code Style Guidelines
 
 ### Python Version and Dependencies
@@ -31,6 +43,10 @@ from pydantic import BaseModel
 from models.internal_representation.values import StringValue
 from models.internal_representation.json_fields import JsonField
 ```
+
+**Rules:**
+- No `__future__` imports
+- No passing raw dicts or tuples between methods - use Pydantic BaseModels
 
 ### Naming Conventions
 
@@ -68,20 +84,39 @@ test_lexeme_processing.py
 test_json_import.py
 ```
 
+#### Data Model Suffixes
+New data models must be suffixed appropriately:
+- `*Request` - API request models
+- `*Response` - API response models
+- `*Record` - Vitess database records
+- `*Data` - S3 storage models
+```python
+class EntityJsonImportRequest(BaseModel):
+    """Request model for JSON import operations."""
+    pass
+
+class EntityJsonImportResponse(BaseModel):
+    """Response model for JSON import operations."""
+    pass
+```
+
 ### Type Hints
 ```python
 # Use modern type hints (Python 3.9+ style where possible)
 def parse_string_value(datavalue: dict[str, Any]) -> StringValue:
     pass
 
-# Use Union for multiple types
-from typing import Union
-value: Union[str, int, None]
+# Use | for multiple types
+value: str | int | None
 
 # Use generics
 from typing import List, Dict
 entities: List[Dict[str, Any]]
 ```
+
+**Rules:**
+- Never use `Optional` - use `T | None` instead
+- String defaults to `""` (empty string), never `None`
 
 ### Docstrings
 ```python
@@ -95,6 +130,10 @@ class EntityParser:
     """Handles parsing of Wikidata entities from JSON."""
     pass
 ```
+
+**Rules:**
+- Generally one class per file for all classes with at least 1 method
+- No string literals in code - use enums instead
 
 ### Error Handling
 
@@ -182,6 +221,11 @@ class EntityJsonImportRequest(BaseModel):
     batch_size: int = Field(default=100, ge=1, le=1000)
 ```
 
+**Rules:**
+- Use `.model_dump(mode="json")` to dump to JSON everywhere
+- When counting size of JSON, always use `len(xx.model_dump_json())`
+- Never pass unparsed JSON dicts between methods - use Pydantic models as soon as possible
+
 #### Logging
 ```python
 import logging
@@ -194,6 +238,12 @@ logger.info("Processing entity data")
 logger.warning("Potential issue detected")
 logger.error("Failed to process entity")
 ```
+
+**Rules:**
+- Add logger calls based on function size:
+  - 31-50 lines: at least 1 logger call
+  - 51-80 lines: at least 2 logger calls
+  - 81+ lines: at least 3 logger calls
 
 ### Testing Patterns
 
@@ -413,3 +463,29 @@ make coverage                 # Run tests with coverage report
 make lint-test-all   # Run lint + all tests (unit -> E2E -> contract -> integration)
 make lint-test-fast # Run lint + fast tests (unit -> e2e)
 ```
+
+## Landing the Plane (Session Completion)
+
+**When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
+
+**MANDATORY WORKFLOW:**
+
+1. **File issues for remaining work** - Create issues for anything that needs follow-up
+2. **Run quality gates** (if code changed) - Tests, linters, builds
+3. **Update issue status** - Close finished work, update in-progress items
+4. **PUSH TO REMOTE** - This is MANDATORY:
+   ```bash
+   git pull --rebase
+   bd sync
+   git push
+   git status  # MUST show "up to date with origin"
+   ```
+5. **Clean up** - Clear stashes, prune remote branches
+6. **Verify** - All changes committed AND pushed
+7. **Hand off** - Provide context for next session
+
+**CRITICAL RULES:**
+- Work is NOT complete until `git push` succeeds
+- NEVER stop before pushing - that leaves work stranded locally
+- NEVER say "ready to push when you are" - YOU must push
+- If push fails, resolve and retry until it succeeds
