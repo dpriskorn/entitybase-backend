@@ -20,6 +20,8 @@ nav:
       - SETUP.md
       - PROJECT_STRUCTURE.md
       - Value Proposition: docs/VALUE_PROPOSITION.md
+      - 🔍 Glossary: docs/GLOSSARY.md
+      - ⚡ Quick Reference: docs/QUICKREF.md
   - Architecture:
       - ARCHITECTURE/ARCHITECTURE.md
       - Storage: ARCHITECTURE/STORAGE-ARCHITECTURE.md
