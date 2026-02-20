@@ -1,7 +1,10 @@
-# ENTITY ARCHIVE PROCESS
+# Archive/Unarchive Process
+
+## Entity Archive Process
 
 Archiving an entity is performed through the standard ENTITY UPDATE PROCESS by setting is_archived=True in the update request. This blocks all future edits to the entity:
 
+```
 [EntityUpdateHandler - update.py]
 +--> Standard Update Validation (existence, etc.)
 +--> Check Archive Status: Ensure entity is not already archived
@@ -11,11 +14,13 @@ Archiving an entity is performed through the standard ENTITY UPDATE PROCESS by s
 +--> Update Entity Head: vitess.update_entity_head(entity_id, is_archived=True)
 +--> Publish Event: Appropriate change event
 +--> Return Success
+```
 
-# ENTITY UNARCHIVE PROCESS
+## Entity Unarchive Process
 
 Unarchiving an entity is performed through the standard ENTITY UPDATE PROCESS by setting is_archived=False in the update request. This allows edits again:
 
+```
 [EntityUpdateHandler - update.py]
 +--> Standard Update Validation (existence, etc.)
 +--> Check Archive Status: Ensure entity is currently archived
@@ -25,5 +30,6 @@ Unarchiving an entity is performed through the standard ENTITY UPDATE PROCESS by
 +--> Update Entity Head: vitess.update_entity_head(entity_id, is_archived=False)
 +--> Publish Event: Appropriate change event
 +--> Return Success
+```
 
 Note: Archiving/unarchiving uses the same underlying ENTITY UPDATE PROCESS infrastructure, with the is_archived flag controlling edit permissions. Archived entities cannot be edited until unarchived.

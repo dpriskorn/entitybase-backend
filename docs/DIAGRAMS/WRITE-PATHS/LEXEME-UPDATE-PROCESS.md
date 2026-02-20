@@ -1,5 +1,6 @@
-# LEXEME UPDATE PROCESS
+# Lexeme Update Process
 
+```
 [EntityUpdateHandler - update_lexeme()]
 +--> Validate Lexeme ID: re.match(r"^L\d+$", entity_id) -> Fail if invalid (400)
 +--> Check Entity Exists: vitess_client.entity_exists(entity_id) -> Fail if False (404)
@@ -42,3 +43,4 @@
 |    |    +--> Rollback Revision: vitess_client.delete_revision(entity_id, revision_id)
 |    +--> Raise HTTP 500
 +--> Return: EntityResponse
+```

@@ -1,7 +1,8 @@
-# TERM PATCH WRITE PATH
+# Terms PATCH Process
 
 ## Term PATCH Path (JSON Patch Operations on Aliases)
 
+```
 [Entitybase PATCH /entities/{type}/{id}/aliases/{lang} - entitybase/v1/*.py]
 +--> Receive PATCH Request with JSON Patch payload
 |    +--> Extract patch: request["patch"] array
@@ -42,9 +43,11 @@
 +--> Update Head Pointer: vitess.update_head_revision(entity_id, new_revision_id)
 +--> Publish Change Event: stream_producer.publish_change(TERM_PATCH event)
 +--> Return EntityResponse with updated entity data
+```
 
 ## Term PATCH Validation
 
+```
 [Entitybase PATCH endpoint validation]
 +--> Validate Entity ID: matches /^[A-Z]\d+$/
 +--> Validate Language Code: matches /^[a-z-]+$/
@@ -55,22 +58,27 @@
 |    +--> op: in ["add", "remove", "replace"]
 |    +--> path: matches /^\/(\d+|-)$/
 +--> Check Array Bounds: for index-based operations, 0 <= index < len(current_aliases)
+```
 
 ## Wikibase API Redirect
 
+```
 [Wikibase PATCH /entities/{type}/{id}/aliases/{lang} - wikibase/v1/*.py]
 +--> Receive Wikibase-format PATCH request
 +--> Return 307 Redirect to: /entitybase/v1/entities/{type}/{id}/aliases/{lang}
 +--> Preserve request body and method
+```
 
 ## Error Handling
 
+```
 +--> Invalid Patch Format: 400 Bad Request - "Invalid JSON Patch operation"
 +--> Entity Not Found: 404 Not Found
 +--> Permission Denied: 403 Forbidden
 +--> Array Index Out of Bounds: 400 Bad Request - "Invalid array index"
 +--> Unsupported Operation: 400 Bad Request - "Unsupported patch operation"
 +--> Storage Failure: 500 Internal Server Error
+```
 
 ## Key Differences from Full Entity Update
 
