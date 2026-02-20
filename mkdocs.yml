@@ -29,7 +29,7 @@ nav:
   - Diagrams: 
       - DIAGRAMS/index.md
       - Read Paths:
-          - Entity Get: DIAGRAMS/READ-PATHS/ENTITIES-GET-PROCESS.md
+          - Entity GET: DIAGRAMS/READ-PATHS/ENTITIES-GET-PROCESS.md
       - Write Paths:
           - Entity Create: DIAGRAMS/WRITE-PATHS/ENTITY-CREATE-PROCESS.md
           - Entity Update: DIAGRAMS/WRITE-PATHS/ENTITY-UPDATE-PROCESS.md
