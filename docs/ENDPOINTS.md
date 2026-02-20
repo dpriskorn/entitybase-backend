@@ -1,5 +1,7 @@
 # REST API Endpoints
 
+This API has 122 endpoints implemented, covering entity management (items, properties, lexemes), lexeme components (forms, senses, lemmas, glosses), entity terms (labels, descriptions, aliases), statements and claims, sitelinks, revision history, user management, and batch resolution endpoints.
+
 | Implemented | Method | Full Path | Description |
 |-------------|--------|-----------|-------------|
 | ✅ | GET | `/debug/entity/{entity_id}` | Debug endpoint to check entity in database. |
@@ -127,6 +129,4 @@
 
 | Status | Count |
 |--------|-------|
-| Implemented | 122 |
-| Not Implemented | 0 |
 | Total | 122 |
