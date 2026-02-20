@@ -21,20 +21,6 @@ nav:
       - PROJECT_STRUCTURE.md
       - Value Proposition: docs/VALUE_PROPOSITION.md
   - Architecture: ARCHITECTURE/ARCHITECTURE.md
-  - Features:
-      - features/ENDPOINTS.md
-      - features/IMMUTABLE-REVISIONS.md
-      - features/LEXEME-SUPPORT.md
-      - features/STATEMENT-DEDUPLICATION.md
-      - features/RDF-EXPORT.md
-      - features/ENTITY-PROTECTION.md
-      - features/HORIZONTAL-SCALING.md
-      - features/THANKS.md
-      - features/ENDORSEMENTS.md
-      - features/BULK-OPERATIONS.md
-  - Scaling:
-      - Vitess cost: ECONOMIC-ESTIMATIONS/VITESS-COST-ESTIMATION.md
-      - Hash Collisions: RISK/HASH-COLLISION.md
   - Diagrams: 
       - DIAGRAMS/index.md
       - Read Paths:
@@ -51,6 +37,20 @@ nav:
           - Redirect: DIAGRAMS/WRITE-PATHS/REDIRECT-WRITE-PROCESS.md
           - Statement Processing: DIAGRAMS/WRITE-PATHS/STATEMENT-PROCESSING-PATHS.md
           - Lexeme Update: DIAGRAMS/WRITE-PATHS/LEXEME-UPDATE-PROCESS.md
+  - Features:
+      - features/ENDPOINTS.md
+      - features/IMMUTABLE-REVISIONS.md
+      - features/LEXEME-SUPPORT.md
+      - features/STATEMENT-DEDUPLICATION.md
+      - features/RDF-EXPORT.md
+      - features/ENTITY-PROTECTION.md
+      - features/HORIZONTAL-SCALING.md
+      - features/THANKS.md
+      - features/ENDORSEMENTS.md
+      - features/BULK-OPERATIONS.md
+  - Scaling:
+      - Vitess cost: ECONOMIC-ESTIMATIONS/VITESS-COST-ESTIMATION.md
+      - Hash Collisions: RISK/HASH-COLLISION.md
 
 plugins:
   - search:
