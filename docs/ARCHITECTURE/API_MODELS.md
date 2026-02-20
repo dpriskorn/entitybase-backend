@@ -137,6 +137,19 @@ Schema for entity change events in API responses.
 - `changed_at` (datetime): Timestamp of the change
 - `edit_summary` (str): Summary of the edit
 
+## models/data/rest_api/v1/entitybase/response/entity/entity_status.py
+
+### EntityStatusResponse
+
+Response model for entity status changes (lock, archive, semi-protect).
+
+**Fields**:
+
+- `id` (str): Entity ID. Example: 'Q42'.
+- `revision_id` (int): Revision ID after status change. Example: 12345.
+- `status` (str): Status that was set. Example: 'locked', 'unlocked', 'archived', 'unarchived', 'semi_protected', 'unprotected'.
+- `idempotent` (bool): True if entity was already in the target state (no new revision created).
+
 ## models/data/rest_api/v1/entitybase/response/entity/entitybase.py
 
 ### EntityAliasesResponse

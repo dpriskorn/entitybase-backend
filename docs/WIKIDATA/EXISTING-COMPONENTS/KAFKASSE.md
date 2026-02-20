@@ -535,9 +535,6 @@ kafkaSse(req, res, ['events'], {
 
 ## References
 
-- [README.md](KafkaSSE/README.md) - Full usage documentation
-- [package.json](KafkaSSE/package.json) - Dependencies and scripts
-- [client.js](KafkaSSE/client.js) - Example EventSource client
-- [server.js](KafkaSSE/server.js) - Example HTTP server
+- [KafkaSSE repository](https://github.com/wikimedia/kafkasse) - Kafka to Server-Sent Events adapter
 - [node-rdkafka](https://github.com/Blizzard/node-rdkafka) - Kafka client library
 - [W3C EventSource](https://www.w3.org/TR/eventsource/) - SSE specification

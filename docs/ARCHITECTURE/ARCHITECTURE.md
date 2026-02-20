@@ -485,5 +485,5 @@ All settings managed via environment variables:
 - [BULK-OPERATIONS.md](./BULK-OPERATIONS.md) - Bulk operation support
 - [SCALING-PROPERTIES.md](./SCALING-PROPERTIES.md) - Scaling characteristics
 - [ARCHITECTURE-CHANGELOG.md](./ARCHITECTURE-CHANGELOG.md) - Architectural changes history
-- [RDF-BUILDER/](./RDF-BUILDER/) - RDF generation and diffing
-- [CHANGE-STREAMING/](./CHANGE-STREAMING/) - Event streaming architecture
+- [RDF-BUILDER/RDF-ENDPOINT-ARCHITECTURE.md](RDF-BUILDER/RDF-ENDPOINT-ARCHITECTURE.md) - RDF generation and diffing
+- [CHANGE-STREAMING/CHANGE-NOTIFICATION.md](CHANGE-STREAMING/CHANGE-NOTIFICATION.md) - Event streaming architecture

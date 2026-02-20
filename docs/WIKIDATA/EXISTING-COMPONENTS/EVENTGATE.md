@@ -313,6 +313,5 @@ eventgate/
 
 ## References
 
-- [README.md](eventgate/README.md) - Detailed usage and architecture documentation
-- [spec.yaml](eventgate/spec.yaml) - OpenAPI specification
-- [package.json](eventgate/package.json) - Full dependency list
+- [eventgate repository](https://github.com/wikimedia/eventgate) - Event production library
+- [EventGate schema documentation](https://www.mediawiki.org/wiki/Event_Platform/EventGate) - Usage and architecture

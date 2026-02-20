@@ -8,7 +8,7 @@ package "API Layer" as APILayer #LightBlue {
     "Admin" as AdminHandler
     "Thanks" as ThanksHandler
     "UserActivity" as UserActivityHandler
-    ... (33 total components)
+    ... (34 total components)
 }
 
 package "Service Layer" as ServiceLayer #LightGreen {
@@ -17,7 +17,7 @@ package "Service Layer" as ServiceLayer #LightGreen {
     "Snak" as SnakHandler
     "_PropertyCountHelper" as _PropertyCountHelper
     "EntityStatement" as EntityStatementService
-    ... (15 total components)
+    ... (18 total components)
 }
 
 package "Worker Layer" as WorkerLayer #LightYellow {

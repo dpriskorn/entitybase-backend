@@ -1,4 +1,5 @@
 # Entitybase Backend
+https://img.shields.io/badge/coverage-82.1%25-yellow
 
 A clean-room, billion-scale Wikibase JSON and RDF schema compatible backend architecture 
 based on immutable S3 snapshots and Vitess indexing.
@@ -40,9 +41,9 @@ The Entitybase Backend implements a microservices architecture designed for bill
                      │   Storage Stack     │    │   S3 Buckets        │
                      │                     │    │                     │
                      │ • S3 (immutable     │    │ • terms (metadata)  │
-                     │   snapshots)       │    │ • statements (dedup)│
-                     │ • Vitess (indexing)│    │ • references        │
-                     │ • Event streaming  │    │ • qualifiers        │
+                     │   snapshots)        │    │ • statements (dedup)│
+                     │ • Vitess (indexing) │    │ • references        │
+                     │ • Event streaming   │    │ • qualifiers        │
                      │                     │    │ • revisions (data)  │
                      │                     │    │ • sitelinks         │
                      │                     │    │ • snaks             │

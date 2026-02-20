@@ -14,7 +14,7 @@ help:
 	@echo "  make docs-generate - Generate documentation from code (statistics, endpoints, etc.)"
 	@echo "  make mkdocs-build - Build static documentation site"
 	@echo "  make mkdocs-serve - Serve documentation locally with live reload"
-	@echo "  make docs        - Run docs-generate + mkdocs-build"
+	@echo "  make docs        - Run docs-generate + mkdocs-build + mkdocs-serve"
 	@echo "  make lint-test-all - Run all lint + tests (unit -> E2E -> contract -> integration)"
 	@echo "  make lint-test-fast        - Run lint + fast tests (unit -> E2E)"
 	@echo "  make tests        - Run all tests (unit -> E2E -> contract -> integration)"
@@ -75,7 +75,7 @@ mkdocs-build:
 mkdocs-serve:
 	mkdocs serve
 
-docs: docs-generate mkdocs-build
+docs: docs-generate mkdocs-build mkdocs-serve
 
 test-unit: test-unit-01 test-unit-02 test-unit-03 test-unit-04
 

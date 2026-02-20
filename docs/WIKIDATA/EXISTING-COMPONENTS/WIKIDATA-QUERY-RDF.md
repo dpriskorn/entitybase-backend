@@ -75,4 +75,4 @@ mvn verify
 ## Documentation
 
 - [User Manual](https://www.mediawiki.org/wiki/Wikidata_query_service/User_Manual) - Complete usage guide
-- [Original README](./wikidata-query-rdf/README.md) - Detailed development notes
+- [Wikidata Query Service](https://query.wikidata.org/) - Query endpoint

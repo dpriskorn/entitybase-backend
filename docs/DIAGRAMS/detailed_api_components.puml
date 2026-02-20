@@ -14,6 +14,7 @@ package "API Handlers" as APIHandlers #LightBlue {
     "EntityJsonImport" as EntityJsonImportHandler
     "EntityRead" as EntityReadHandler
     "EntityRevert" as EntityRevertHandler
+    "EntityStatus" as EntityStatusHandler
     "EntityTransaction" as EntityTransaction
     "EntityUpdate" as EntityUpdateHandler
     "EntityUpdateLexemeMixin" as EntityUpdateLexemeMixin
