@@ -764,9 +764,7 @@ When to use which cache layer:
 
 ## References
 
-- **[CACHING-STRATEGY.md](./CACHING-STRATEGY.md)** - Detailed caching strategy
-- **[IDENTIFIER-STRATEGY.md](./IDENTIFIER-STRATEGY.md)** - Entity ID strategy (hybrid internal/external)
+- **[CACHING-STRATEGY.md](../CACHING-STRATEGY.md)** - Detailed caching strategy
 - **[STORAGE-ARCHITECTURE.md](../STORAGE-ARCHITECTURE.md)** - Vitess database design
 - **[ENTITY-MODEL.md](../ENTITY-MODEL.md)** - Entity data model
-- **[STORAGE-ARCHITECTURE.md](./STORAGE-ARCHITECTURE.md)** - S3 storage design
 - **[SCALING-PROPERTIES.md](../SCALING-PROPERTIES.md)** - System scaling characteristics

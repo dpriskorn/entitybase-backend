@@ -412,8 +412,6 @@ eventstreams/
 
 ## References
 
-- [README.md](eventstreams/README.md) - Detailed usage documentation
-- [spec.yaml](eventstreams/spec.yaml) - OpenAPI specification
-- [package.json](eventstreams/package.json) - Full dependency list
-- [KafkaSSE README](https://github.com/wikimedia/kafkasse) - Streaming library documentation
+- [EventStreams repository](https://github.com/wikimedia/eventstreams) - Event streaming service
+- [KafkaSSE](https://github.com/wikimedia/kafkasse) - Kafka to Server-Sent Events adapter
 - [Wikitech EventStreams](https://wikitech.wikimedia.org/wiki/EventStreams) - Operational documentation

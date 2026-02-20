@@ -526,7 +526,7 @@ Create test entity files:
 
 ### 7.1 Schema Versioning Policy
 
-Follow [S3-REVISION-SCHEMA-EVOLUTION.md](S3-REVISION-SCHEMA-EVOLUTION.md):
+Follow [S3-REVISION-SCHEMA-EVOLUTION.md](../S3/S3-REVISION-SCHEMA-EVOLUTION.md):
 
 - **MAJOR** versions (1.0 → 2.0): Breaking changes
   - Require all consumers to upgrade before deployment
@@ -608,7 +608,7 @@ GROUP BY schema_version;
 ## References
 
 - [JSON-VALIDATION-STRATEGY.md](JSON-VALIDATION-STRATEGY.md) - Overall validation strategy and Option A rationale
-- [S3-REVISION-SCHEMA-EVOLUTION.md](S3-REVISION-SCHEMA-EVOLUTION.md) - Schema versioning and migration policy
-- [STORAGE-ARCHITECTURE.md](STORAGE-ARCHITECTURE.md) - S3 and Vitess storage design
-- [CHANGE-NOTIFICATION.md](CHANGE-NOTIFICATION.md) - Event streaming and Kafka topics
-- [ENTITY-MODEL.md](ENTITY-MODEL.md) - Entity examples and structure
+- [S3-REVISION-SCHEMA-EVOLUTION.md](../S3/S3-REVISION-SCHEMA-EVOLUTION.md) - Schema versioning and migration policy
+- [STORAGE-ARCHITECTURE.md](../STORAGE-ARCHITECTURE.md) - S3 and Vitess storage design
+- [CHANGE-NOTIFICATION.md](../CHANGE-STREAMING/CHANGE-NOTIFICATION.md) - Event streaming and Kafka topics
+- [ENTITY-MODEL.md](../ENTITY-MODEL.md) - Entity examples and structure

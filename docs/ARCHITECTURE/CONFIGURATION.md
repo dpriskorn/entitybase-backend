@@ -291,6 +291,12 @@ All settings can be overridden using environment variables with the same name.
 - **Default**: `'2.0.0'`
 - **Description**: entity version
 
+### `dangling_property_id`
+
+- **Type**: `str`
+- **Default**: `'P6104'`
+- **Description**: entity dangling detection
+
 ### `user_agent`
 
 - **Type**: `str`

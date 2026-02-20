@@ -13,9 +13,12 @@ package "Services" as Services #LightGreen {
     "IdRange" as IdRange
     "IdRangeManager" as IdRangeManager
     "Redirect" as RedirectService
+    "RevisionParams" as RevisionParams
     "SnakHandler" as SnakHandler
     "StatementProcessingContext" as StatementProcessingContext
     "Statement" as StatementService
+    "StatusOperation" as StatusOperation
+    "Status" as StatusService
     "UserStats" as UserStatsService
     "_PropertyCountHelper" as _PropertyCountHelper
 }

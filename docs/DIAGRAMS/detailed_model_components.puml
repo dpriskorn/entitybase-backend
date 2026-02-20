@@ -45,6 +45,7 @@ package "Models" as Models #LightCyan {
     "EntityRevert" as EntityRevertResponse
     "EntitySitelinks" as EntitySitelinksResponse
     "EntityStatements" as EntityStatementsResponse
+    "EntityStatus" as EntityStatusResponse
     "FormRepresentation" as FormRepresentationResponse
     "FormRepresentations" as FormRepresentationsResponse
     "Form" as FormResponse

@@ -14,8 +14,6 @@ Changes to the RDF mapping are subject to the Stable Interface Policy.
 
 ## Data model
 
-![The data used in the description of a single item](Rdf%20mapping-vector.svg)
-
 The RDF format is a binding for the Wikibase data model and represents an export format for it. If the data model changes, the export format changes accordingly, and this document will be updated.
 
 This RDF binding is based on the one designed for the Wikidata Toolkit by Denny Vrandecic and Markus Krötzsch.
