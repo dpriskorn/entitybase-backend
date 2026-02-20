@@ -14,15 +14,15 @@ theme:
       accent: amber
 
 nav:
-  - Home: index.md
-  - Getting Started:
+  - 🏠 Home: index.md
+  - 🚀 Getting Started:
       - GETTING_STARTED.md
       - SETUP.md
       - PROJECT_STRUCTURE.md
       - Value Proposition: docs/VALUE_PROPOSITION.md
       - 🔍 Glossary: docs/GLOSSARY.md
       - ⚡ Quick Reference: docs/QUICKREF.md
-  - Architecture:
+  - 🏗️ Architecture:
       - ARCHITECTURE/ARCHITECTURE.md
       - Storage: ARCHITECTURE/STORAGE-ARCHITECTURE.md
       - Entity Model: ARCHITECTURE/ENTITY-MODEL.md
@@ -55,7 +55,7 @@ nav:
               - Redirect: DIAGRAMS/WRITE-PATHS/REDIRECT-WRITE-PROCESS.md
               - Statement Processing: DIAGRAMS/WRITE-PATHS/STATEMENT-PROCESSING-PATHS.md
               - Lexeme Update: DIAGRAMS/WRITE-PATHS/LEXEME-UPDATE-PROCESS.md
-  - Features:
+  - ✨ Features:
       - features/ENDPOINTS.md
       - features/IMMUTABLE-REVISIONS.md
       - features/LEXEME-SUPPORT.md
@@ -65,7 +65,7 @@ nav:
       - features/HORIZONTAL-SCALING.md
       - features/THANKS.md
       - features/ENDORSEMENTS.md
-  - Scaling:
+  - 📈 Scaling:
       - Vitess cost: ECONOMIC-ESTIMATIONS/VITESS-COST-ESTIMATION.md
       - Hash Collisions: RISK/HASH-COLLISION.md
 
