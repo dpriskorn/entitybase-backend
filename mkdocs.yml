@@ -20,23 +20,24 @@ nav:
       - SETUP.md
       - PROJECT_STRUCTURE.md
       - Value Proposition: docs/VALUE_PROPOSITION.md
-  - Architecture: ARCHITECTURE/ARCHITECTURE.md
-  - Diagrams: 
-      - DIAGRAMS/index.md
-      - Read Paths:
-          - Entity GET: DIAGRAMS/READ-PATHS/ENTITIES-GET-PROCESS.md
-      - Write Paths:
-          - Entity Create: DIAGRAMS/WRITE-PATHS/ENTITY-CREATE-PROCESS.md
-          - Entity Update: DIAGRAMS/WRITE-PATHS/ENTITY-UPDATE-PROCESS.md
-          - Terms PUT: DIAGRAMS/WRITE-PATHS/TERMS-PUT.md
-          - Terms PATCH: DIAGRAMS/WRITE-PATHS/TERMS-PATCH.md
-          - Terms DELETE: DIAGRAMS/WRITE-PATHS/TERMS-DELETE.md
-          - Delete/Undelete: DIAGRAMS/WRITE-PATHS/DELETE-UNDELETE-PROCESS.md
-          - Archive/Unarchive: DIAGRAMS/WRITE-PATHS/ARCHIVE-UNARCHIVE-PROCESS.md
-          - Lock/Unlock: DIAGRAMS/WRITE-PATHS/LOCK-UNLOCK-PROCESS.md
-          - Redirect: DIAGRAMS/WRITE-PATHS/REDIRECT-WRITE-PROCESS.md
-          - Statement Processing: DIAGRAMS/WRITE-PATHS/STATEMENT-PROCESSING-PATHS.md
-          - Lexeme Update: DIAGRAMS/WRITE-PATHS/LEXEME-UPDATE-PROCESS.md
+  - Architecture:
+      - ARCHITECTURE/ARCHITECTURE.md
+      - Diagrams: 
+          - DIAGRAMS/index.md
+          - Read Paths:
+              - Entity GET: DIAGRAMS/READ-PATHS/ENTITIES-GET-PROCESS.md
+          - Write Paths:
+              - Entity Create: DIAGRAMS/WRITE-PATHS/ENTITY-CREATE-PROCESS.md
+              - Entity Update: DIAGRAMS/WRITE-PATHS/ENTITY-UPDATE-PROCESS.md
+              - Terms PUT: DIAGRAMS/WRITE-PATHS/TERMS-PUT.md
+              - Terms PATCH: DIAGRAMS/WRITE-PATHS/TERMS-PATCH.md
+              - Terms DELETE: DIAGRAMS/WRITE-PATHS/TERMS-DELETE.md
+              - Delete/Undelete: DIAGRAMS/WRITE-PATHS/DELETE-UNDELETE-PROCESS.md
+              - Archive/Unarchive: DIAGRAMS/WRITE-PATHS/ARCHIVE-UNARCHIVE-PROCESS.md
+              - Lock/Unlock: DIAGRAMS/WRITE-PATHS/LOCK-UNLOCK-PROCESS.md
+              - Redirect: DIAGRAMS/WRITE-PATHS/REDIRECT-WRITE-PROCESS.md
+              - Statement Processing: DIAGRAMS/WRITE-PATHS/STATEMENT-PROCESSING-PATHS.md
+              - Lexeme Update: DIAGRAMS/WRITE-PATHS/LEXEME-UPDATE-PROCESS.md
   - Features:
       - features/ENDPOINTS.md
       - features/IMMUTABLE-REVISIONS.md
