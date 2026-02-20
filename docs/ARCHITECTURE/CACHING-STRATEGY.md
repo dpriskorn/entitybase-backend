@@ -2,7 +2,7 @@
 
 ## Overview
 
-Wikibase backend uses multiple cache layers to achieve sub-second response times while controlling infrastructure costs. This strategy is designed for 1M+ entities/week scale with efficient hit rates and appropriate TTL policies.
+Entitybase uses multiple cache layers to achieve sub-second response times while controlling infrastructure costs. This strategy is designed for 1M+ entities/week scale with efficient hit rates and appropriate TTL policies.
 
 ## Cache Architecture
 

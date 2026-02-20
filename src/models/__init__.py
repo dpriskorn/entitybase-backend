@@ -1,1 +1,1 @@
-"""Core models for the Wikibase backend system."""
+"""Core models for the Entitybase backend system."""

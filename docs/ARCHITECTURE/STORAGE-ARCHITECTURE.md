@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Wikibase backend uses a hybrid storage architecture combining **S3 for immutable content** and **Vitess for metadata and indexing**.
+Entitybase uses a hybrid storage architecture combining **S3 for immutable content** and **Vitess for metadata and indexing**.
 
 ### Core Principles
 

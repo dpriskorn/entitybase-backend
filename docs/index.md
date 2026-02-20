@@ -124,6 +124,7 @@ This can reduce storage by 50%+ for typical Wikibase datasets!
 |---------|------------|----------------|
 | **Interface** | REST API only | REST API + web UI + wiki pages |
 | **Wiki pages** | ❌ None | ✅ Article pages, talk pages, user pages |
+| **Frontend** | ❌ None | ✅ Wikibase UI (Vue) |
 | **Authentication** | ❌ None (planned) | ✅ Full user system |
 | **Capacity** | 1B+ entities, 1T+ statements | ~100M entities (Wikidata) |
 | **Storage** | Immutable S3 snapshots + Vitess | MySQL + blob storage |
