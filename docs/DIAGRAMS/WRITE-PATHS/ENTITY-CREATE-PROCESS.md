@@ -1,5 +1,6 @@
-# DIAGRAM ITEM WRITE PROCESS
+# Entity Create Process
 
+```
 [ItemCreateHandler - types.py]
 +--> Validate JSON
 +--> Create Transaction: tx = CreationTransaction()
@@ -19,3 +20,4 @@
 |    +--> Rollback: tx.rollback()  // Undo all operations
 |    +--> Raise HTTP 500
 +--> Return: EntityResponse
+```
