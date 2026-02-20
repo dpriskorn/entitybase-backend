@@ -25,7 +25,6 @@ nav:
       - features/STATEMENT-DEDUPLICATION.md
       - features/BULK-OPERATIONS.md
       - features/STALE_ENTITIES.md
-  - Wikidata: WIKIDATA/README.md
   - Diagrams: 
       - DIAGRAMS/index.md
       - Read Paths:
