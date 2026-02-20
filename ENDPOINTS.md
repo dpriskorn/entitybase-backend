@@ -1,1 +1,1 @@
-src/models/rest_api/ENDPOINTS.md
+docs/features/ENDPOINTS.md
