@@ -22,6 +22,21 @@ nav:
       - Value Proposition: docs/VALUE_PROPOSITION.md
   - Architecture:
       - ARCHITECTURE/ARCHITECTURE.md
+      - Storage: ARCHITECTURE/STORAGE-ARCHITECTURE.md
+      - Entity Model: ARCHITECTURE/ENTITY-MODEL.md
+      - Repositories: ARCHITECTURE/REPOSITORIES.md
+      - Workers: ARCHITECTURE/WORKERS.md
+      - Configuration: ARCHITECTURE/CONFIGURATION.md
+      - API Models: ARCHITECTURE/API_MODELS.md
+      - Services: ARCHITECTURE/SERVICES.md
+      - Concurrency Control: ARCHITECTURE/CONCURRENCY-CONTROL.md
+      - Consistency Model: ARCHITECTURE/CONSISTENCY-MODEL.md
+      - Caching Strategy: ARCHITECTURE/CACHING-STRATEGY.md
+      - Bulk Operations: ARCHITECTURE/BULK-OPERATIONS.md
+      - Scaling Properties: ARCHITECTURE/SCALING-PROPERTIES.md
+      - Architecture Changelog: ARCHITECTURE/ARCHITECTURE-CHANGELOG.md
+      - RDF Builder: ARCHITECTURE/RDF-BUILDER/RDF-ENDPOINT-ARCHITECTURE.md
+      - Change Streaming: ARCHITECTURE/CHANGE-STREAMING/CHANGE-NOTIFICATION.md
       - Diagrams: 
           - DIAGRAMS/index.md
           - Read Paths:
@@ -48,7 +63,6 @@ nav:
       - features/HORIZONTAL-SCALING.md
       - features/THANKS.md
       - features/ENDORSEMENTS.md
-      - features/BULK-OPERATIONS.md
   - Scaling:
       - Vitess cost: ECONOMIC-ESTIMATIONS/VITESS-COST-ESTIMATION.md
       - Hash Collisions: RISK/HASH-COLLISION.md
