@@ -31,7 +31,7 @@ Designed for **1 billion+ entities** and **1 trillion unique statements**, it st
 | **RDF/XML** | Not planned | Supported |
 | **NTriples** | Not planned | Supported |
 | **Change Streaming** | RDF change events (alpha) | None |
-| **Atomic Entity Updates** | No (multi-step operations) | Yes (single API call) |
+| **Batch Updates** | No (separate calls) | Yes (single API call) |
 
 > **Note**: Entitybase is in alpha. Wikibase Suite is production-ready.
 
