@@ -1,5 +1,5 @@
-site_name: Wikibase Backend
-site_description: Documentation for the Wikibase Backend project
+site_name: Entitybase Backend
+site_description: Documentation for the Entitybase Backend project
 
 theme:
   name: material
@@ -19,6 +19,7 @@ nav:
       - GETTING_STARTED.md
       - SETUP.md
       - PROJECT_STRUCTURE.md
+      - Value Proposition: docs/VALUE_PROPOSITION.md
   - Architecture: ARCHITECTURE/ARCHITECTURE.md
   - Features:
       - features/ENDPOINTS.md
