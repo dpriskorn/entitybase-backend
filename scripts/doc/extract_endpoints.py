@@ -87,6 +87,7 @@ def extract_endpoints_from_file(file_path: Path) -> list[dict[str, Any]]:
 def main() -> None:
     """Main function to extract all endpoints."""
     rest_api_dir = Path(__file__).parent.parent.parent / "src" / "models" / "rest_api"
+    output_file = Path(__file__).parent.parent.parent / "docs" / "ENDPOINTS.md"
 
     if not rest_api_dir.exists():
         print(f"REST API directory not found: {rest_api_dir}")
@@ -103,26 +104,36 @@ def main() -> None:
     # Sort by full path
     all_endpoints.sort(key=lambda x: x["full_path"])
 
-    # Print results
-    print("# REST API Endpoints\n")
-    print("| Implemented | Method | Full Path | Description |")
-    print("|-------------|--------|-----------|-------------|")
+    # Build output content
+    lines = [
+        "# REST API Endpoints\n",
+        "\n",
+        "| Implemented | Method | Full Path | Description |\n",
+        "|-------------|--------|-----------|-------------|\n",
+    ]
 
     for endpoint in all_endpoints:
         status = "✅" if endpoint["implemented"] else "❌"
-        print(
-            f"| {status} | {endpoint['method']} | `{endpoint['full_path']}` | {endpoint['description']} |"
+        lines.append(
+            f"| {status} | {endpoint['method']} | `{endpoint['full_path']}` | {endpoint['description']} |\n"
         )
 
     # Count implemented vs not
     implemented_count = sum(1 for e in all_endpoints if e["implemented"])
     not_implemented_count = len(all_endpoints) - implemented_count
 
-    print("\n| Status | Count |")
-    print("|--------|-------|")
-    print(f"| Implemented | {implemented_count} |")
-    print(f"| Not Implemented | {not_implemented_count} |")
-    print(f"| Total | {len(all_endpoints)} |")
+    lines.extend([
+        "\n",
+        "| Status | Count |\n",
+        "|--------|-------|\n",
+        f"| Implemented | {implemented_count} |\n",
+        f"| Not Implemented | {not_implemented_count} |\n",
+        f"| Total | {len(all_endpoints)} |\n",
+    ])
+
+    # Write to file
+    output_file.write_text("".join(lines), encoding="utf-8")
+    print(f"Generated {output_file}")
 
 
 if __name__ == "__main__":

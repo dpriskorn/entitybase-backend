@@ -9,7 +9,7 @@ git log --date=short --format='%ad' | sort | uniq -c | awk '{sum+=$1; count++} E
 ./scripts/shell/count-words.sh
 # ./scripts/shell/run-coverage.sh
 # python scripts/doc/update-coverage-stats.py
-python scripts/doc/extract_endpoints.py > src/models/rest_api/ENDPOINTS.md
+python scripts/doc/extract_endpoints.py
 python scripts/doc/generate_workers_overview.py > docs/ARCHITECTURE/WORKERS.md
 python scripts/doc/generate_services_overview.py > docs/ARCHITECTURE/SERVICES.md
 python scripts/doc/generate_api_models_overview.py > docs/ARCHITECTURE/API_MODELS.md
