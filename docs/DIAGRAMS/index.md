@@ -6,6 +6,7 @@ Visual diagrams showing how the Entitybase system works.
 
 - [System Architecture](png/system_architecture.png) - High-level system design
 - [Data Flow](png/data_flow.png) - How data moves through the system
+- [Detailed Data Flow](png/detailed_data_flow.png) - Full data flow with deduplication
 
 ## Components
 
