@@ -27,7 +27,7 @@ Designed for **1 billion+ entities** and **1 trillion unique statements**, it st
 | **Storage** | Immutable S3 snapshots + Vitess | MySQL + blob storage |
 | **Statement Deduplication** | Hash-based (~50%+ storage reduction) | None |
 | **JSON Output** | `/entities/{id}.json` | `wbgetentities` API |
-| **TTL Output** | Turtle | Full support |
+| **TTL Output** | Turtle (alpha) | Full support |
 | **RDF/XML** | Not planned | Supported |
 | **NTriples** | Not planned | Supported |
 | **Change Streaming** | RDF change events (alpha) | None |
