@@ -132,7 +132,7 @@ Everything else in the system derives from this rule.
 - `GET /stats` - Get general statistics
 - `GET /health` - Health check
 
-**Documentation**: See `src/models/rest_api/ENDPOINTS.md` for complete endpoint list.
+**Documentation**: See [ENDPOINTS.md](../ENDPOINTS.md) for complete endpoint list.
 
 ### 2. Service Layer
 

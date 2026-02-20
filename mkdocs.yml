@@ -102,6 +102,7 @@ nav:
       - RISK/HASH-COLLISION.md
   - Reference:
       - FILE-OVERVIEW.md
+      - ENDPOINTS.md
       - linters/json-dumps-allowlist.md
       - pydantic/json_dump/README.md
   - Archive:
