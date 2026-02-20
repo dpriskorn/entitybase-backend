@@ -14,7 +14,10 @@ OVERALL=$(pytest --collect-only -q tests/unit tests/integration tests/e2e 2>/dev
 UNIT_COUNT=$(grep -r "^def test_" tests/unit/ --include="*.py" | wc -l)
 INTEGRATION_COUNT=$(grep -r "^def test_" tests/integration/ --include="*.py" | wc -l)
 E2E_COUNT=$(grep -r "^def test_" tests/e2e/ --include="*.py" | wc -l)
-DISABLED_COUNT=$(grep -r "^def test_" tests/disabled/ --include="*.py" | wc -l)
+DISABLED_COUNT=0
+if [ -d "tests/disabled/" ]; then
+    DISABLED_COUNT=$(grep -r "^def test_" tests/disabled/ --include="*.py" | wc -l)
+fi
 
 echo "- Overall (pytest): $OVERALL"
 echo "- Unit: $UNIT_COUNT"
