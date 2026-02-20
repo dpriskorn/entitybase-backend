@@ -43,7 +43,7 @@ nav:
           - Statement Processing: DIAGRAMS/WRITE-PATHS/STATEMENT-PROCESSING-PATHS.md
           - Lexeme Update: DIAGRAMS/WRITE-PATHS/LEXEME-UPDATE-PROCESS.md
   - Scaling:
-      - ECONOMIC-ESTIMATIONS/VITESS-COST-ESTIMATION.md
+      - Vitess cost: ECONOMIC-ESTIMATIONS/VITESS-COST-ESTIMATION.md
       - Hash Collisions: RISK/HASH-COLLISION.md
 
 plugins:
