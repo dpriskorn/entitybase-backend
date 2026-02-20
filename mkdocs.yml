@@ -42,10 +42,9 @@ nav:
           - Redirect: DIAGRAMS/WRITE-PATHS/REDIRECT-WRITE-PROCESS.md
           - Statement Processing: DIAGRAMS/WRITE-PATHS/STATEMENT-PROCESSING-PATHS.md
           - Lexeme Update: DIAGRAMS/WRITE-PATHS/LEXEME-UPDATE-PROCESS.md
-  - Risk: RISK/HASH-COLLISION.md
   - Scaling:
       - ECONOMIC-ESTIMATIONS/VITESS-COST-ESTIMATION.md
-      - RISK/HASH-COLLISION.md
+      - Hash Collisions: RISK/HASH-COLLISION.md
 
 plugins:
   - search:
