@@ -1,4 +1,4 @@
-.PHONY: lint test test-fast coverage help ruff mypy radon vulture stop api api-no-cache docs check
+.PHONY: lint test test-fast coverage help ruff mypy radon vulture stop api api-no-cache docs docs-generate mkdocs-build mkdocs-serve check
 
 help:
 	@echo "Available targets:"
@@ -11,7 +11,10 @@ help:
 	@echo "  make mypy         - Run mypy type checker"
 	@echo "  make radon        - Run radon complexity checker"
 	@echo "  make vulture      - Run vulture dead code checker"
-	@echo "  make docs         - Update documentation"
+	@echo "  make docs-generate - Generate documentation from code (statistics, endpoints, etc.)"
+	@echo "  make mkdocs-build - Build static documentation site"
+	@echo "  make mkdocs-serve - Serve documentation locally with live reload"
+	@echo "  make docs        - Run docs-generate + mkdocs-build"
 	@echo "  make lint-test-all - Run all lint + tests (unit -> E2E -> contract -> integration)"
 	@echo "  make lint-test-fast        - Run lint + fast tests (unit -> E2E)"
 	@echo "  make tests        - Run all tests (unit -> E2E -> contract -> integration)"
@@ -63,8 +66,16 @@ vulture:
 test-contract: check
 	./scripts/shell/run-contract.sh
 
-docs:
+docs-generate:
 	./scripts/shell/update-docs.sh
+
+mkdocs-build:
+	mkdocs build
+
+mkdocs-serve:
+	mkdocs serve
+
+docs: docs-generate mkdocs-build
 
 test-unit: test-unit-01 test-unit-02 test-unit-03 test-unit-04
 
