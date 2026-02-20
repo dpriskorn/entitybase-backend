@@ -14,10 +14,26 @@ Designed for **1 billion+ entities** and **1 trillion unique statements**, it st
 - **122 REST Endpoints** — Full CRUD for entities, terms, statements, users, and more
 - **Complete Lexeme Support** — Forms, senses, lemmas, glosses, and lexical categories
 - **Statement Deduplication** — Hash-based storage reduces storage while enabling analytics
-- **RDF Export** — Turtle, RDF XML, and NTriples formats
+- **RDF Export** — Turtle format
 - **Entity Protection** — Full locks, semi-protection, archiving, and mass-edit protection
 - **User Features** — Watchlists, endorsements, thanks, and activity tracking
 - **Horizontal Scaling** — Vitess sharding + S3 for infinite scale
+
+## Comparison with Wikibase Suite
+
+| Feature | Entitybase | Wikibase Suite |
+|---------|------------|----------------|
+| **Capacity** | 1B+ entities, 1T+ statements | ~100M entities (Wikidata) |
+| **Storage** | Immutable S3 snapshots + Vitess | MySQL + blob storage |
+| **Statement Deduplication** | Hash-based (~50%+ storage reduction) | None |
+| **JSON Output** | `/entities/{id}.json` | `wbgetentities` API |
+| **TTL Output** | Turtle (alpha) | Full support |
+| **RDF/XML** | Not planned | Supported |
+| **NTriples** | Not planned | Supported |
+| **Change Streaming** | RDF change events (experimental) | EventStreams |
+| **Atomic Entity Updates** | No (multi-step operations) | Yes (single API call) |
+
+> **Note**: Entitybase is in alpha. Wikibase Suite is production-ready.
 
 ## Architecture
 
@@ -33,7 +49,10 @@ Client → REST API → Service Layer → Repository Layer
 
 ## Explore
 
+- [Getting Started](GETTING_STARTED.md) — Quick start guide
+- [Setup](SETUP.md) — Environment setup
+- [Project Structure](PROJECT_STRUCTURE.md) — Codebase overview
 - [Architecture](ARCHITECTURE/ARCHITECTURE.md) — Deep dive into system design
-- [API Endpoints](ENDPOINTS.md) — Complete REST API reference
+- [Features](features/ENDPOINTS.md) — API endpoints, statement deduplication, bulk operations
 - [Wikidata](WIKIDATA/README.md) — Wikidata integration
-- [Diagrams](DIAGRAMS/README.md) — Visual architecture
+- [Diagrams](DIAGRAMS/index.md) — Visual architecture

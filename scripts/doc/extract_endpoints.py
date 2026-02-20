@@ -87,7 +87,9 @@ def extract_endpoints_from_file(file_path: Path) -> list[dict[str, Any]]:
 def main() -> None:
     """Main function to extract all endpoints."""
     rest_api_dir = Path(__file__).parent.parent.parent / "src" / "models" / "rest_api"
-    output_file = Path(__file__).parent.parent.parent / "docs" / "ENDPOINTS.md"
+    output_file = (
+        Path(__file__).parent.parent.parent / "docs" / "features" / "ENDPOINTS.md"
+    )
 
     if not rest_api_dir.exists():
         print(f"REST API directory not found: {rest_api_dir}")
@@ -123,13 +125,6 @@ def main() -> None:
         lines.append(
             f"| {status} | {endpoint['method']} | `{endpoint['full_path']}` | {endpoint['description']} |\n"
         )
-
-    lines.extend([
-        "\n",
-        "| Status | Count |\n",
-        "|--------|-------|\n",
-        f"| Total | {len(all_endpoints)} |\n",
-    ])
 
     # Write to file
     output_file.write_text("".join(lines), encoding="utf-8")

@@ -126,7 +126,3 @@ This API has 122 endpoints implemented, covering entity management (items, prope
 | ✅ | GET | `/users/{user_id}/watchlist/stats` | Get user's watchlist statistics. |
 | ✅ | PUT | `/users/{user_id}/watchlist/toggle` | Enable or disable watchlist for user. |
 | ✅ | DELETE | `/users/{user_id}/watchlist/{watch_id}` | Remove a watchlist entry by ID. |
-
-| Status | Count |
-|--------|-------|
-| Total | 122 |
