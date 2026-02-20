@@ -1,6 +1,6 @@
 # S3 Storage Architecture
 
-This document outlines how Wikibase backend stores data in Amazon S3, including revision snapshots, metadata, and deduplicated content.
+This document outlines how Entitybase stores data in S3-compatible storage, including revision snapshots, metadata, and deduplicated content.
 
 ## Overview
 

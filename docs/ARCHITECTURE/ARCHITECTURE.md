@@ -1,8 +1,8 @@
-# Wikibase Backend Architecture
+# Entitybase Backend Architecture
 
 Immutable Revision Architecture (Vitess + S3)
 
-This document describes a clean-room, billion-scale Wikibase backend
+This document describes a clean-room, billion-scale Entitybase
 architecture based on immutable S3 snapshots, Vitess indexing, and a
 well-defined API boundary.
 

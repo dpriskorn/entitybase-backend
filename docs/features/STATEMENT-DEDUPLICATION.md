@@ -1,4 +1,4 @@
-# Statement-Level Revision Tracking Architecture
+# Statement Deduplication
 
 ## Executive Summary
 
