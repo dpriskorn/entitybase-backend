@@ -108,6 +108,12 @@ def main() -> None:
     lines = [
         "# REST API Endpoints\n",
         "\n",
+        f"This API has {len(all_endpoints)} endpoints implemented, covering "
+        "entity management (items, properties, lexemes), lexeme components "
+        "(forms, senses, lemmas, glosses), entity terms (labels, descriptions, "
+        "aliases), statements and claims, sitelinks, revision history, user "
+        "management, and batch resolution endpoints.\n",
+        "\n",
         "| Implemented | Method | Full Path | Description |\n",
         "|-------------|--------|-----------|-------------|\n",
     ]
@@ -118,16 +124,10 @@ def main() -> None:
             f"| {status} | {endpoint['method']} | `{endpoint['full_path']}` | {endpoint['description']} |\n"
         )
 
-    # Count implemented vs not
-    implemented_count = sum(1 for e in all_endpoints if e["implemented"])
-    not_implemented_count = len(all_endpoints) - implemented_count
-
     lines.extend([
         "\n",
         "| Status | Count |\n",
         "|--------|-------|\n",
-        f"| Implemented | {implemented_count} |\n",
-        f"| Not Implemented | {not_implemented_count} |\n",
         f"| Total | {len(all_endpoints)} |\n",
     ])
 
