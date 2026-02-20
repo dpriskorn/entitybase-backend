@@ -1,7 +1,8 @@
-# STATEMENT PROCESSING PATHS
+# Statement Processing Paths
 
 ## Statement Addition Path (During Entity Create/Update)
 
+```
 [Process Statements - update.py / statement_service.py]
 +--> Extract Claims: entity_data["claims"]
 +--> Extract Properties: StatementExtractor.extract_properties_from_claims(claims)
@@ -17,9 +18,11 @@
 |    |    |    +--> Else: vitess.increment_ref_count(hash)
 |    |    +--> Collect Hash for Entity Revision
 +--> Store in Revision: properties, property_counts, statements (hashes)
+```
 
 ## Statement Modification Path (During Entity Update)
 
+```
 [Process Statements - update.py / statement_service.py]
 +--> Extract New Claims: entity_data["claims"]
 +--> Extract New Properties: StatementExtractor.extract_properties_from_claims(claims)
@@ -32,9 +35,11 @@
 |    +--> Hash New Statement: StatementHasher.compute_hash(new_statement)
 |    +--> Deduplicate and Store New: deduplicate_and_store_statements()
 +--> Store Updated Revision: new properties, property_counts, statements
+```
 
 ## Statement Removal Path (During Entity Update)
 
+```
 [Process Statements - update.py / statement_service.py]
 +--> Extract New Claims: entity_data["claims"] (potentially with removed statements)
 +--> Compare with Previous Claims
@@ -45,9 +50,11 @@
 +--> Extract Properties: StatementExtractor.extract_properties_from_claims(claims)
 +--> Compute Property Counts: StatementExtractor.compute_property_counts_from_claims(claims)
 +--> Store Updated Revision: properties, property_counts, statements
+```
 
 ## Shared Deduplication Logic
 
+```
 [deduplicate_and_store_statements - statement_service.py]
 +--> For Each Statement Hash:
 |    +--> Validate Statement Schema (if validator)
@@ -56,5 +63,6 @@
 |    +--> Check Vitess Existence: vitess.statement_exists(hash)
 |    +--> If Not in Vitess: vitess.insert_statement_content(hash, ref_count=1)
 |    +--> Else: vitess.increment_ref_count(hash)
+```
 
 Note: All statement operations occur within entity updates. Individual statement CRUD is not supported; statements are managed as part of entity revisions with reference counting for deduplication.

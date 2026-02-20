@@ -1,5 +1,6 @@
-# ITEM UPDATE PROCESS
+# Entity Update Process
 
+```
 [EntityUpdateHandler - update.py]
 +--> Check Entity Exists: vitess_client.entity_exists(entity_id) -> Fail if False (404)
 +--> Check Deletion Status: vitess_client.is_entity_deleted(entity_id) -> Fail if True (410)
@@ -21,3 +22,4 @@
 |    +--> Rollback: tx.rollback()  // Undo statements, revision
 |    +--> Raise HTTP 500
 +--> Return: EntityResponse
+```

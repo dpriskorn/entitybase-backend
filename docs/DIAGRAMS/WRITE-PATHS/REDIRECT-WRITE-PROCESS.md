@@ -1,5 +1,8 @@
-# REDIRECT CREATE PROCESS
+# Redirect Process
 
+## Redirect Create Process
+
+```
 [RedirectHandler - redirect.py]
 +--> Validate Request: redirect_from_id != redirect_to_id
 +--> Check Entities Exist: redirect_from and redirect_to exist, not deleted/archived
@@ -10,9 +13,11 @@
 +--> Insert Redirect Record: vitess.create_redirect(redirect_from_id, redirect_to_id, revision_id)
 +--> Publish Event: stream_producer.publish_redirect_event(redirect_from_id, redirect_to_id, revision_id)
 +--> Return Success
+```
 
-# REDIRECT REVERT PROCESS
+## Redirect Revert Process
 
+```
 [RedirectHandler - redirect.py]
 +--> Validate Entity is Redirect: current_redirect_target = vitess.get_redirect_target(entity_id) != None
 +--> Get Revert Revision: revert_to_revision_id (from request or previous)
@@ -22,3 +27,4 @@
 +--> Clear Redirect: vitess.set_redirect_target(entity_id, None)
 +--> Publish Revert Event: stream_producer.publish_revert_event(entity_id, new_revision_id)
 +--> Return Success
+```

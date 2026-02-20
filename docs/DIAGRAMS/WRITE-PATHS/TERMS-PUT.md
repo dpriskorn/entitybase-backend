@@ -1,7 +1,8 @@
-# TERM PUT WRITE PATH
+# Terms PUT Process
 
 ## Term PUT Path (Setting Labels/Descriptions for Language)
 
+```
 [Entitybase PUT /entities/{type}/{id}/labels/{lang} or /descriptions/{lang} - entitybase/v1/*.py]
 +--> Receive PUT Request with term data payload
 |    +--> For Labels: Extract "value" field from request
@@ -31,9 +32,11 @@
 +--> Update Head Pointer: vitess.update_head_revision(entity_id, new_revision_id)
 +--> Publish Change Event: stream_producer.publish_change(TERM_PUT event)
 +--> Return EntityResponse with updated entity data
+```
 
 ## Term PUT Validation
 
+```
 [Entitybase PUT endpoint validation]
 +--> Validate Entity ID: matches /^[A-Z]\d+$/
 +--> Validate Language Code: matches /^[a-z-]+$/
@@ -43,6 +46,7 @@
 |    +--> For Descriptions: {"description": "string", "tags": [...], "bot": bool, "comment": "string"} (1-500 chars)
 +--> Check Entity State: not deleted, not locked/archived
 +--> Check User Permissions: can modify entity
+```
 
 ## Wikibase API Redirect
 
@@ -75,6 +79,7 @@
 
 ## Error Handling
 
+```
 +--> Entity Not Found: 404 Not Found
 +--> Entity Deleted: 410 Gone
 +--> Entity Locked/Archived: 409 Conflict
@@ -82,6 +87,7 @@
 +--> Term Value Too Long: 400 Bad Request
 +--> Permission Denied: 403 Forbidden
 +--> Storage Failure: 500 Internal Server Error
+```
 
 ## Key Differences from PATCH Operations
 

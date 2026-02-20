@@ -1,7 +1,10 @@
-# ENTITY LOCK PROCESS
+# Lock/Unlock Process
+
+## Entity Lock Process
 
 Locking an entity is performed through the standard ENTITY UPDATE PROCESS by setting is_locked=True in the update request. The process follows the same steps as entity update, with additional validation and state changes:
 
+```
 [EntityUpdateHandler - update.py]
 +--> Standard Update Validation (existence, protection, etc.)
 +--> Check Lock Status: Ensure entity is not already locked (unless overriding)
@@ -11,11 +14,13 @@ Locking an entity is performed through the standard ENTITY UPDATE PROCESS by set
 +--> Update Entity Head: vitess.update_entity_head(entity_id, is_locked=True)
 +--> Publish Event: ChangeType.LOCK_ADDED
 +--> Return Success
+```
 
-# ENTITY UNLOCK PROCESS
+## Entity Unlock Process
 
 Unlocking an entity is performed through the standard ENTITY UPDATE PROCESS by setting is_locked=False in the update request:
 
+```
 [EntityUpdateHandler - update.py]
 +--> Standard Update Validation (existence, protection, etc.)
 +--> Check Lock Status: Ensure entity is currently locked
@@ -25,5 +30,6 @@ Unlocking an entity is performed through the standard ENTITY UPDATE PROCESS by s
 +--> Update Entity Head: vitess.update_entity_head(entity_id, is_locked=False)
 +--> Publish Event: ChangeType.LOCK_REMOVED
 +--> Return Success
+```
 
 Note: Locking/unlocking uses the same underlying ENTITY UPDATE PROCESS infrastructure, with the is_locked flag controlling edit permissions.

@@ -1,7 +1,8 @@
-# TERM DELETE WRITE PATH
+# Terms DELETE Process
 
 ## Term DELETE Path (Removing Labels/Descriptions for Language)
 
+```
 [Entitybase DELETE /entities/{type}/{id}/labels/{lang} or /descriptions/{lang} - entitybase/v1/*.py]
 +--> Receive DELETE Request for specific term type and language
 +--> Validate Clients: vitess and s3 initialized
@@ -33,31 +34,38 @@
 +--> Update Head Pointer: vitess.update_head_revision(entity_id, new_revision_id)
 +--> Publish Change Event: stream_producer.publish_change(TERM_DELETE event)
 +--> Return EntityResponse with updated entity data
+```
 
 ## Term DELETE Validation
 
+```
 [Entitybase DELETE endpoint validation]
 +--> Validate Entity ID: matches /^[A-Z]\d+$/
 +--> Validate Language Code: matches /^[a-z-]+$/
 +--> Validate Term Type: in ['labels', 'descriptions']
 +--> Check Entity State: not deleted, not locked/archived
 +--> Check User Permissions: can modify entity
+```
 
 ## Wikibase API Redirect
 
+```
 [Wikibase DELETE /entities/{type}/{id}/labels/{lang} or /descriptions/{lang} - wikibase/v1/*.py]
 +--> Receive Wikibase DELETE request
 +--> Return 307 Redirect to: /entitybase/v1/entities/{type}/{id}/{term_type}/{lang}
 +--> Preserve DELETE method
+```
 
 ## Error Handling
 
+```
 +--> Entity Not Found: 404 Not Found
 +--> Entity Deleted: 410 Gone
 +--> Entity Locked/Archived: 409 Conflict
 +--> Invalid Language Code: 400 Bad Request
 +--> Permission Denied: 403 Forbidden
 +--> Storage Failure: 500 Internal Server Error
+```
 
 ## Key Differences from Term PATCH
 

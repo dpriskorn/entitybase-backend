@@ -1,5 +1,8 @@
-# ENTITY DELETE PROCESS
+# Delete/Undelete Process
 
+## Entity Delete Process
+
+```
 [EntityDeleteHandler - delete.py]
 +--> Validate Clients: vitess and s3 initialized
 +--> Check Entity Exists: vitess.entity_exists(entity_id) == True
@@ -14,7 +17,8 @@
 +--> Update Head Pointer: vitess.create_revision(entity_id, new_revision_id, revision_data, head_revision_id)
 +--> Publish Event: stream_producer.publish_change(EntityChangeEvent with SOFT_DELETE or HARD_DELETE)
 +--> Return EntityDeleteResponse
+```
 
-# ENTITY UNDELETE PROCESS
+## Entity Undelete Process
 
 Undelete is not implemented as a separate operation in the current codebase. Soft-deleted entities can be "undeleted" by performing an update operation that sets is_deleted=False in the revision data, effectively restoring the entity to an active state. This would follow the standard ENTITY UPDATE PROCESS.
