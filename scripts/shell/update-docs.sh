@@ -19,5 +19,5 @@ python scripts/doc/generate_repositories_overview.py > docs/ARCHITECTURE/REPOSIT
 python scripts/doc/update_schemas_readme.py > schemas/README.md
 python scripts/doc/generate_architecture_diagrams.py
 python scripts/doc/generate_pngs.py
-python scripts/generate-doc-tree.py > docs/FILE-OVERVIEW.md
+# python scripts/generate-doc-tree.py > docs/FILE-OVERVIEW.md
 ./scripts/generate-tree.sh
