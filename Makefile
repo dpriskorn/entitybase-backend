@@ -1,4 +1,4 @@
-.PHONY: lint test test-fast coverage help ruff mypy radon vulture stop api api-no-cache docs docs-generate mkdocs-build mkdocs-serve check
+.PHONY: lint test test-fast coverage help ruff mypy radon vulture stop api api-no-cache docs docs-generate docs-build docs-serve check
 
 help:
 	@echo "Available targets:"
@@ -12,9 +12,9 @@ help:
 	@echo "  make radon        - Run radon complexity checker"
 	@echo "  make vulture      - Run vulture dead code checker"
 	@echo "  make docs-generate - Generate documentation from code (statistics, endpoints, etc.)"
-	@echo "  make mkdocs-build - Build static documentation site"
-	@echo "  make mkdocs-serve - Serve documentation locally with live reload"
-	@echo "  make docs        - Run docs-generate + mkdocs-build + mkdocs-serve"
+	@echo "  make docs-build   - Build static documentation site (uses zensical)"
+	@echo "  make docs-serve   - Serve documentation locally with live reload (uses zensical)"
+	@echo "  make docs         - Run docs-generate + docs-build + docs-serve"
 	@echo "  make lint-test-all - Run all lint + tests (unit -> E2E -> contract -> integration)"
 	@echo "  make lint-test-fast        - Run lint + fast tests (unit -> E2E)"
 	@echo "  make tests        - Run all tests (unit -> E2E -> contract -> integration)"
@@ -69,13 +69,13 @@ test-contract: check
 docs-generate:
 	./scripts/shell/update-docs.sh
 
-mkdocs-build:
-	mkdocs build
+docs-build:
+	zensical build
 
-mkdocs-serve:
-	mkdocs serve
+docs-serve:
+	zensical serve
 
-docs: docs-generate mkdocs-build mkdocs-serve
+docs: docs-generate docs-build docs-serve
 
 test-unit: test-unit-01 test-unit-02 test-unit-03 test-unit-04
 
