@@ -23,11 +23,13 @@ but you probably rarely need to look up all at once.
 The latest official one, https://www.mediawiki.org/w/index.php?title=Wikibase/DataModel&oldid=7684672
 
 ## Can I set up a QLever instance that follows the changes in the Entitybase backend?
-Yes, it should work.
+Yes, it should work (not yet tested).
 
-The system is designed to output RDF change events just like Wikidata
-does using the same schema as WMF currently uses in production, but that feature is currently experimental. 
-See doc/ARCHITECTURE/CHANGE-STREAMING/CONTINUOUS-RDF-CHANGE-STREAMER.md
+The system outputs RDF change events using the same schema as WMF (`rdf_change/2.0.0`). 
+You can use [KafkaSSE](https://github.com/wikimedia/KafkaSSE/) to expose these events 
+as a standard SSE API that QLever can ingest for real-time updates.
+
+See [docs/ARCHITECTURE/CHANGE-STREAMING/CONTINUOUS-RDF-CHANGE-STREAMER.md](docs/ARCHITECTURE/CHANGE-STREAMING/CONTINUOUS-RDF-CHANGE-STREAMER.md)
 
 ## How can Entitybase scale better than Wikibase Suite?
 A few design choices of the Wikibase system make it unsuitable for storing 1 trillion statements. 
