@@ -288,7 +288,7 @@ All settings can be overridden using environment variables with the same name.
 ### `entity_version`
 
 - **Type**: `str`
-- **Default**: `'2.0.0'`
+- **Default**: `ENTITYBASE_VERSION`
 - **Description**: entity version
 
 ### `dangling_property_id`

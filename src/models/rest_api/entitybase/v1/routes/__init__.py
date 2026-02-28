@@ -9,6 +9,7 @@ from . import (
     resolve,
     thanks,
     users,
+    version,
 )
 
 if TYPE_CHECKING:
@@ -20,6 +21,7 @@ def include_routes(app: "FastAPI") -> None:
     from models.config.settings import settings
 
     app.include_router(health.health_router)
+    app.include_router(version.version_router)
     app.include_router(users.users_router, prefix=settings.api_prefix)
     app.include_router(thanks.thanks_router, prefix=settings.api_prefix)
     app.include_router(endorsements.endorsements_router, prefix=settings.api_prefix)

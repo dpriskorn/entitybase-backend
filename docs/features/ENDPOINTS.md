@@ -1,6 +1,6 @@
 # REST API Endpoints
 
-This API has 122 endpoints implemented, covering entity management (items, properties, lexemes), lexeme components (forms, senses, lemmas, glosses), entity terms (labels, descriptions, aliases), statements and claims, sitelinks, revision history, user management, and batch resolution endpoints.
+This API has 123 endpoints implemented, covering entity management (items, properties, lexemes), lexeme components (forms, senses, lemmas, glosses), entity terms (labels, descriptions, aliases), statements and claims, sitelinks, revision history, user management, and batch resolution endpoints.
 
 | Implemented | Method | Full Path | Description |
 |-------------|--------|-----------|-------------|
@@ -126,3 +126,4 @@ This API has 122 endpoints implemented, covering entity management (items, prope
 | ✅ | GET | `/users/{user_id}/watchlist/stats` | Get user's watchlist statistics. |
 | ✅ | PUT | `/users/{user_id}/watchlist/toggle` | Enable or disable watchlist for user. |
 | ✅ | DELETE | `/users/{user_id}/watchlist/{watch_id}` | Remove a watchlist entry by ID. |
+| ✅ | GET | `/version` | Return API and EntityBase versions. |

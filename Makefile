@@ -1,4 +1,4 @@
-.PHONY: lint test test-fast coverage help ruff mypy radon vulture stop api api-no-cache docs docs-generate docs-build docs-serve check
+.PHONY: lint test test-fast coverage help ruff mypy radon vulture stop api api-no-cache docs docs-generate docs-build docs-serve check release
 
 help:
 	@echo "Available targets:"
@@ -6,6 +6,7 @@ help:
 	@echo "  make api           - Run docker compose up and start the API locally using uvicorn with reload enabled"
 	@echo "  make api-no-cache  - Run docker compose up with --no-cache (force rebuild all layers)"
 	@echo "  make stop          - Stop docker and remove everything"
+	@echo "  make release       - Create release: update version, commit, and tag (e.g., v2026.2.28)"
 	@echo "  make lint         - Run all linters"
 	@echo "  make ruff         - Run ruff linter"
 	@echo "  make mypy         - Run mypy type checker"
@@ -47,6 +48,9 @@ api-no-cache:
 
 stop:
 	./scripts/shell/stop-docker-and-remove-everything.sh
+
+release:
+	./scripts/shell/run-release.sh
 
 lint:
 	./scripts/shell/run-linters.sh
