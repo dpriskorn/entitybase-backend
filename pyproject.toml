@@ -1,6 +1,6 @@
 [project]
 name = "entitybase-backend"
-version = "0.1.0"
+version = "v2026.2.28"
 description = ""
 authors = [
     {name = "Nizo Priskorn",email = "68460690+dpriskorn@users.noreply.github.com"}
