@@ -5,7 +5,7 @@ set -e
 if [ "$(docker ps -q | wc -l)" -gt 0 ]; then
   echo "Containers are running"
 else
-  echo "No containers are running, run ./run-api-local.sh before this"
+  echo "No containers are running, run 'make api' before this"
   exit 1
 fi
 
