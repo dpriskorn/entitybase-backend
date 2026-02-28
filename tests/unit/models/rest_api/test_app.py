@@ -9,11 +9,13 @@ class TestFastAPIApp:
 
     def test_app_initialization(self):
         """Test that the FastAPI app is initialized correctly."""
+        from models.config.version import API_VERSION
+
         from models.rest_api.main import app
 
         assert app is not None
         assert app.title == "EntityBase"
-        assert app.version == "1.0.0"
+        assert app.version == API_VERSION
 
     def test_app_has_lifespan_configured(self):
         """Test that app has lifespan configured."""
