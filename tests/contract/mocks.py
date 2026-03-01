@@ -158,6 +158,7 @@ class MockVitessClient:
         self._cursor = MockCursor()
         self._s3_client: Any = None
         self._pending_revisions: dict[tuple[str, int], int] = {}
+        self._revisions: dict[str, list[int]] = {}
 
     def set_s3_client(self, s3_client: Any) -> None:
         self._s3_client = s3_client
@@ -177,7 +178,8 @@ class MockVitessClient:
         return False
 
     def get_head(self, entity_id: str) -> int:
-        return 1 if self.entity_exists(entity_id) else 0
+        revisions = self._revisions.get(entity_id, [])
+        return max(revisions) if revisions else 0
 
     def get_history(self, entity_id: str) -> list[Any]:
         return (
@@ -205,9 +207,16 @@ class MockVitessClient:
         entity_data: Any,
         revision_id: int,
         content_hash: int,
-        expected_revision_id: int | None = None,
-    ) -> None:
+        expected_revision_id: int = 0,
+    ) -> bool:
+        current_head = self.get_head(entity_id)
+        if current_head != expected_revision_id:
+            return False
         self._pending_revisions[(entity_id, revision_id)] = content_hash
+        if entity_id not in self._revisions:
+            self._revisions[entity_id] = []
+        self._revisions[entity_id].append(revision_id)
+        return True
 
     def get_pending_revisions(self) -> dict[tuple[str, int], int]:
         return self._pending_revisions.copy()
@@ -374,6 +383,8 @@ class TestStateHandler:
             class MockEnumerationServiceClass(EnumerationService):
                 """Mock EnumerationService that inherits from real class."""
 
+                _entity_counters: dict[str, int] = {}
+
                 def __init__(self, **data: Any) -> None:
                     super().__init__(**data)
                     self._mock_mode = True
@@ -395,7 +406,12 @@ class TestStateHandler:
                         raise_validation_error(
                             f"Unsupported entity type: {entity_type}"
                         )
-                    return f"{type_mapping[entity_type]}1"
+                    counter_key = f"{entity_type}_counter"
+                    if counter_key not in self._entity_counters:
+                        self._entity_counters[counter_key] = 1
+                    entity_num = self._entity_counters[counter_key]
+                    self._entity_counters[counter_key] += 1
+                    return f"{type_mapping[entity_type]}{entity_num}"
 
                 @property
                 def range_manager(self) -> Any:
