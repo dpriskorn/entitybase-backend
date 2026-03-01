@@ -130,7 +130,6 @@ The Entitybase Backend implements a microservices architecture designed for bill
 - Integration with existing RDF builder infrastructure
 
 #### **Additional Services (Future)**
-- **Validation Worker**: Background validation of entity data
 - **Analytics Service**: Usage statistics and performance monitoring
 - **Replication Service**: Cross-region data replication
 - **Backup Service**: Automated S3/Vitess backup coordination
