@@ -141,6 +141,13 @@ preferences
 # Enum values (accessed dynamically)
 ENTITY_UNDELETE
 THANK_RECEIVED
+# False positives - Pydantic field validators (used automatically during model validation)
+validate_globe
+validate_text
+validate_numeric
+validate_bounds
+validate_time_format
+validate_calendarmodel
 # False positives - Pydantic field serializers (used in model serialization)
 serialize_timestamp
 serialize_changed_at
