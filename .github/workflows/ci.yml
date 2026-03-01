@@ -20,7 +20,7 @@ jobs:
       - run: pip install --upgrade pip wheel
       - run: poetry install --with=dev
       - run: poetry run ruff check src/ tests/
-      - run: poetry run mypy
+      - run: poetry run mypy src/
       - run: poetry run vulture
       - run: poetry run radon cc -a -s src/
 
