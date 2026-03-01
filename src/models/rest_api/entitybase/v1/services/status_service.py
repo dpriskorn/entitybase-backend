@@ -168,8 +168,6 @@ class StatusService(Service):
         idempotent = False
         new_revision_id = head_revision_id
 
-        target_status = self._get_target_state(operation, current_state)
-
         is_already_in_target_state = self._check_is_in_target_state(
             operation, current_state
         )
@@ -235,19 +233,6 @@ class StatusService(Service):
             rev_id=new_revision_id,
             status=self._get_status_string(operation),
             idempotent=idempotent,
-        )
-
-    def _get_target_state(
-        self, operation: StatusOperation, current_state: dict
-    ) -> EntityState:
-        """Get the target EntityState based on the operation."""
-        return EntityState(
-            sp=current_state.get("sp", False),
-            locked=current_state.get("locked", False),
-            archived=current_state.get("archived", False),
-            dangling=current_state.get("dangling", False),
-            mep=current_state.get("mep", False),
-            deleted=current_state.get("deleted", False),
         )
 
     def _check_is_in_target_state(

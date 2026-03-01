@@ -110,6 +110,7 @@ addressing_style
 validate_wbi
 from_
 is_autoconfirmed_user
+version_endpoint
 # Response model fields (Pydantic fields)
 has_more
 total_endorsements_given
