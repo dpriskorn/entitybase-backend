@@ -206,6 +206,7 @@ async def delete_entity(  # type: ignore[no-any-return]
 async def lock_entity(
     entity_id: str,
     req: Request,
+    headers: EditHeadersType,
     request: EntityStatusRequest = Body(default_factory=lambda: EntityStatusRequest()),
 ) -> EntityStatusResponse:
     """Lock an entity from edits."""
@@ -213,13 +214,14 @@ async def lock_entity(
     if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EntityStatusHandler(state=state)
-    return handler.lock(entity_id, request)
+    return handler.lock(entity_id, request, edit_headers=headers)
 
 
 @router.delete("/entities/{entity_id}/lock", response_model=EntityStatusResponse)
 async def unlock_entity(
     entity_id: str,
     req: Request,
+    headers: EditHeadersType,
     request: EntityStatusRequest = Body(default_factory=lambda: EntityStatusRequest()),
 ) -> EntityStatusResponse:
     """Remove lock from an entity."""
@@ -227,13 +229,14 @@ async def unlock_entity(
     if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EntityStatusHandler(state=state)
-    return handler.unlock(entity_id, request)
+    return handler.unlock(entity_id, request, edit_headers=headers)
 
 
 @router.post("/entities/{entity_id}/archive", response_model=EntityStatusResponse)
 async def archive_entity(
     entity_id: str,
     req: Request,
+    headers: EditHeadersType,
     request: EntityStatusRequest = Body(default_factory=lambda: EntityStatusRequest()),
 ) -> EntityStatusResponse:
     """Archive an entity."""
@@ -241,13 +244,14 @@ async def archive_entity(
     if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EntityStatusHandler(state=state)
-    return handler.archive(entity_id, request)
+    return handler.archive(entity_id, request, edit_headers=headers)
 
 
 @router.delete("/entities/{entity_id}/archive", response_model=EntityStatusResponse)
 async def unarchive_entity(
     entity_id: str,
     req: Request,
+    headers: EditHeadersType,
     request: EntityStatusRequest = Body(default_factory=lambda: EntityStatusRequest()),
 ) -> EntityStatusResponse:
     """Unarchive an entity."""
@@ -255,7 +259,7 @@ async def unarchive_entity(
     if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EntityStatusHandler(state=state)
-    return handler.unarchive(entity_id, request)
+    return handler.unarchive(entity_id, request, edit_headers=headers)
 
 
 @router.post("/entities/{entity_id}/semi-protect", response_model=EntityStatusResponse)

@@ -106,4 +106,48 @@ summary
 hash_entity_metadata
 # Misc handlers
 serialize_triples
+addressing_style
+validate_wbi
+from_
+is_autoconfirmed_user
+# Response model fields (Pydantic fields)
+has_more
+total_endorsements_given
+total_endorsements_active
+deletion_type
+deletion_status
+reverted_from_revision_id
+reverted_at
+redirects_to
+schema_uri
+triple_count_diff
+comment
+bot
+minor
+patrolled
+length
+server_name
+server_url
+s3
+vitess
+details
+entitybase_version
+direct
+statement_value
+statement_value_node
+size
+not_found
+preferences
+# Enum values (accessed dynamically)
+ENTITY_UNDELETE
+THANK_RECEIVED
+# FastAPI route handlers (registered with router, detected as unused by vulture)
+lock_entity
+unlock_entity
+archive_entity
+unarchive_entity
+semi_protect_entity
+unsemi_protect_entity
+mass_edit_protect_entity
+mass_edit_unprotect_entity
 

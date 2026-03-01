@@ -4,6 +4,7 @@ import logging
 from datetime import datetime, timezone
 from typing import cast
 
+from models.data.rest_api.v1.entitybase.request import UserActivityType
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.infrastructure.s3.entity_state import EntityState
 from models.data.infrastructure.s3.enums import EditType, EditData, EntityType
@@ -60,6 +61,19 @@ class EntityRevertHandler(Handler):
         await self._publish_change_event(
             entity_id, new_revision_id, head_revision, edit_headers
         )
+
+        # Log activity
+        if edit_headers.x_user_id > 0:
+            activity_result = (
+                self.state.vitess_client.user_repository.log_user_activity(
+                    user_id=edit_headers.x_user_id,
+                    activity_type=UserActivityType.ENTITY_REVERT,
+                    entity_id=entity_id,
+                    revision_id=new_revision_id,
+                )
+            )
+            if not activity_result.success:
+                logger.warning(f"Failed to log user activity: {activity_result.error}")
 
         return EntityRevertResponse(
             entity_id=entity_id,

@@ -4,6 +4,7 @@ import logging
 from datetime import datetime, timezone
 
 from models.data.infrastructure.stream.actions import EndorseAction
+from models.data.rest_api.v1.entitybase.request import UserActivityType
 from models.infrastructure.stream.event import EndorseChangeEvent
 from models.rest_api.entitybase.v1.handler import Handler
 from models.data.rest_api.v1.entitybase.request import EndorsementListRequest
@@ -40,6 +41,16 @@ class EndorsementHandler(Handler):
         )
         self._publish_endorsement_event(statement_hash, user_id, EndorseAction.ENDORSE)
 
+        # Log activity
+        activity_result = self.state.vitess_client.user_repository.log_user_activity(
+            user_id=user_id,
+            activity_type=UserActivityType.ENDORSEMENT_GIVEN,
+            entity_id="",
+            revision_id=0,
+        )
+        if not activity_result.success:
+            logger.warning(f"Failed to log user activity: {activity_result.error}")
+
         return EndorsementResponse(
             id=created_endorsement.id,
             user_id=created_endorsement.user_id,
@@ -67,6 +78,16 @@ class EndorsementHandler(Handler):
             statement_hash, user_id, must_be_active=False
         )
         self._publish_endorsement_event(statement_hash, user_id, EndorseAction.WITHDRAW)
+
+        # Log activity
+        activity_result = self.state.vitess_client.user_repository.log_user_activity(
+            user_id=user_id,
+            activity_type=UserActivityType.ENDORSEMENT_WITHDRAWN,
+            entity_id="",
+            revision_id=0,
+        )
+        if not activity_result.success:
+            logger.warning(f"Failed to log user activity: {activity_result.error}")
 
         return EndorsementResponse(
             id=withdrawn_endorsement.id,

@@ -2,6 +2,7 @@
 
 import logging
 
+from models.data.rest_api.v1.entitybase.request import UserActivityType
 from models.rest_api.entitybase.v1.handler import Handler
 from models.data.rest_api.v1.entitybase.request.thanks import ThanksListRequest
 from models.data.rest_api.v1.entitybase.response import (
@@ -58,6 +59,16 @@ class ThanksHandler(Handler):
         )
         if not created_thank:
             raise_validation_error("Failed to retrieve created thank", status_code=500)
+
+        # Log activity
+        activity_result = self.state.vitess_client.user_repository.log_user_activity(
+            user_id=from_user_id,
+            activity_type=UserActivityType.THANK_SENT,
+            entity_id=entity_id,
+            revision_id=revision_id,
+        )
+        if not activity_result.success:
+            logger.warning(f"Failed to log user activity: {activity_result.error}")
 
         return ThankResponse(
             thank_id=created_thank.id,
