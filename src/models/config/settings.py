@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any
 from pydantic import BaseModel
 
 from models.data.config.stream import StreamConfig
+from models.config.version import ENTITYBASE_VERSION
 
 if TYPE_CHECKING:
     from models.data.config.s3 import S3Config
@@ -72,7 +73,7 @@ class Settings(BaseModel):
     streaming_entity_diff_version: str = "2.0.0"
 
     # entity version
-    entity_version: str = "2.0.0"
+    entity_version: str = ENTITYBASE_VERSION
 
     # entity dangling detection
     dangling_property_id: str = "P6104"

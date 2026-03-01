@@ -77,6 +77,9 @@ class VitessConnectionManager(BaseModel):
 
     def _acquire_connection_from_pool(self) -> Connection:
         """Get a connection from pool or create new one."""
+        self._ensure_pool_initialized()
+        if self.pool is None:
+            raise RuntimeError("Connection pool not initialized")
         try:
             logger.debug(
                 f"Attempting to get connection from pool, pool size: {self.pool.qsize()}"
@@ -98,6 +101,8 @@ class VitessConnectionManager(BaseModel):
         """Acquire a connection from pool."""
         logger.debug("=== acquire() START ===")
         self._ensure_pool_initialized()
+        if self.connection_semaphore is None:
+            raise RuntimeError("Connection semaphore not initialized")
 
         try:
             logger.debug(f"Acquiring semaphore (timeout={self.config.pool_timeout}s)")

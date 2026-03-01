@@ -133,7 +133,7 @@ class IncrementalRDFWorker(Worker):
             await self.consumer.stop()
         if self.producer:
             await self.producer.stop()
-        if self.vitess_client:
+        if self.vitess_client and self.vitess_client.connection_manager:
             self.vitess_client.connection_manager.close()
         logger.debug("All clients cleaned up")
 

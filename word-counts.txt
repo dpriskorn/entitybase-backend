@@ -5,7 +5,7 @@
    173 docs/features/ENTITY-PROTECTION.md
    835 docs/features/STATEMENT-DEDUPLICATION.md
     19 docs/features/BULK-OPERATIONS.md
-  1778 docs/features/ENDPOINTS.md
+  1791 docs/features/ENDPOINTS.md
    207 docs/features/LEXEME-SUPPORT.md
    206 docs/features/IMMUTABLE-REVISIONS.md
    193 docs/features/HORIZONTAL-SCALING.md
@@ -14,7 +14,7 @@
    171 docs/features/ENDORSEMENTS.md
    872 docs/QUICKREF.md
     73 docs/ARCHITECTURE/CONCURRENCY-CONTROL.md
-  3906 docs/ARCHITECTURE/API_MODELS.md
+  3924 docs/ARCHITECTURE/API_MODELS.md
     77 docs/ARCHITECTURE/REPOSITORIES.md
    379 docs/ARCHITECTURE/WORKERS.md
   1036 docs/ARCHITECTURE/INCREMENTAL-RDF-UPDATER.md
@@ -67,4 +67,4 @@
   1015 docs/index.md
   1062 docs/GLOSSARY.md
    122 docs/SETUP.md
- 75411 total
+ 75442 total

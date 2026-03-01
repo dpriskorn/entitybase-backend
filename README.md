@@ -60,7 +60,7 @@ The Entitybase Backend implements a microservices architecture designed for bill
   - `PUT /item/Q{id}` - Update items
   - `GET /item/Q{id}` - Read items
   - `DELETE /item/Q{id}` - Delete items
-  - Similar endpoints for properties (`/property/P{id}`), lexemes (`/lexeme/L{id}`), and entity schemas (`/entityschema/E{id}`)
+  - Similar endpoints for properties (`/property/P{id}`), lexemes (`/lexeme/L{id}`)
 - **Validation & business logic** for all entity operations
 - **Statement deduplication** and RDF generation integration
 
@@ -130,7 +130,6 @@ The Entitybase Backend implements a microservices architecture designed for bill
 - Integration with existing RDF builder infrastructure
 
 #### **Additional Services (Future)**
-- **Validation Worker**: Background validation of entity data
 - **Analytics Service**: Usage statistics and performance monitoring
 - **Replication Service**: Cross-region data replication
 - **Backup Service**: Automated S3/Vitess backup coordination

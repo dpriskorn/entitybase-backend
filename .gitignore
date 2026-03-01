@@ -39,3 +39,5 @@ test_data/properties/*.json
 /integration.log
 /.beads
 /site/
+/.cache/
+/draft/

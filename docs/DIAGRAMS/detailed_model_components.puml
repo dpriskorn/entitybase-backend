@@ -121,6 +121,7 @@ package "Models" as Models #LightCyan {
     "User" as UserResponse
     "UserStatsData" as UserStatsData
     "UserStats" as UserStatsResponse
+    "Version" as VersionResponse
     "WatchCounts" as WatchCounts
     "WatchlistEntry" as WatchlistEntryResponse
     "Watchlist" as WatchlistResponse

@@ -799,6 +799,15 @@ Response model for Turtle format entity data.
 
 - `turtle` (str): Entity data in Turtle format
 
+### VersionResponse
+
+Response model for version endpoint.
+
+**Fields**:
+
+- `api_version` (str): API version
+- `entitybase_version` (str): EntityBase version
+
 ### WatchCounts
 
 Model for user watch counts.

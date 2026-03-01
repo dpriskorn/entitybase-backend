@@ -15,6 +15,7 @@ from starlette.responses import Response as StarletteResponse
 # from starlette.exceptions import StarletteHTTPException
 
 from models.config.settings import settings
+from models.config.version import API_VERSION
 from models.rest_api.entitybase.v1.endpoints import v1_router
 from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.entitybase.v1.routes import include_routes
@@ -61,7 +62,7 @@ class StartupMiddleware(BaseHTTPMiddleware):
     async def dispatch(
         self, request: StarletteRequest, call_next: Any
     ) -> StarletteResponse:
-        allowed_paths = {"/health", "/docs", "/openapi.json", "/redoc"}
+        allowed_paths = {"/health", "/docs", "/openapi.json", "/redoc", "/version"}
         request_path = request.url.path
 
         if request_path not in allowed_paths:
@@ -156,7 +157,7 @@ async def _stop_stream_producer(
 
 app = FastAPI(
     title="EntityBase",
-    version="1.0.0",
+    version=API_VERSION,
     openapi_version="3.1",
     lifespan=lifespan,
     response_model_by_alias=True,
