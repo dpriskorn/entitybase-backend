@@ -5,6 +5,7 @@ import logging
 import os
 from abc import ABC, abstractmethod
 from datetime import datetime
+from types import SimpleNamespace
 from typing import Any
 
 from pydantic import Field
@@ -27,6 +28,11 @@ class BaseStatsWorker(Worker, ABC):
     )
     running: bool = Field(default=False)
     last_run: datetime | None = None
+
+    @property
+    def state(self) -> SimpleNamespace:
+        """Return state object for service compatibility."""
+        return SimpleNamespace(vitess_client=self.vitess_client)
 
     @abstractmethod
     async def run_daily_computation(self) -> None:
