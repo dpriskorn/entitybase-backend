@@ -3,6 +3,7 @@
 import logging
 from typing import Any
 
+from fastapi import HTTPException
 from pydantic import BaseModel
 
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
@@ -144,6 +145,9 @@ class EntityUpdateTermsMixin(BaseModel):
 
             tx.commit()
             return response
+        except HTTPException:
+            tx.rollback()
+            raise
         except Exception as e:
             logger.error(f"Delete label failed for {entity_id}: {e}", exc_info=True)
             tx.rollback()
@@ -266,6 +270,9 @@ class EntityUpdateTermsMixin(BaseModel):
 
             tx.commit()
             return response
+        except HTTPException:
+            tx.rollback()
+            raise
         except Exception as e:
             logger.error(
                 f"Delete description failed for {entity_id}: {e}", exc_info=True
@@ -423,6 +430,9 @@ class EntityUpdateTermsMixin(BaseModel):
 
             tx.commit()
             return response
+        except HTTPException:
+            tx.rollback()
+            raise
         except Exception as e:
             logger.error(f"Add alias failed for {entity_id}: {e}", exc_info=True)
             tx.rollback()
@@ -506,6 +516,9 @@ class EntityUpdateTermsMixin(BaseModel):
 
             tx.commit()
             return response
+        except HTTPException:
+            tx.rollback()
+            raise
         except Exception as e:
             logger.error(f"Delete aliases failed for {entity_id}: {e}", exc_info=True)
             tx.rollback()

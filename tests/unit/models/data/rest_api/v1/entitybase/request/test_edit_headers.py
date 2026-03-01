@@ -56,10 +56,61 @@ class TestEditHeaders:
         """Test model_dump() works correctly."""
         edit_headers = EditHeaders(x_user_id=123, x_edit_summary="test")
         dumped = edit_headers.model_dump()
-        assert dumped == {"x_user_id": 123, "x_edit_summary": "test"}
+        assert dumped == {
+            "x_user_id": 123,
+            "x_edit_summary": "test",
+            "x_base_revision_id": 0,
+        }
 
     def test_model_dump_by_alias(self):
         """Test model_dump(by_alias=True) works correctly."""
         edit_headers = EditHeaders(x_user_id=123, x_edit_summary="test")
         dumped = edit_headers.model_dump(by_alias=True)
-        assert dumped == {"X-User-ID": 123, "X-Edit-Summary": "test"}
+        assert dumped == {
+            "X-User-ID": 123,
+            "X-Edit-Summary": "test",
+            "X-Base-Revision-ID": 0,
+        }
+
+    def test_base_revision_id_default_zero(self):
+        """Test base_revision_id defaults to 0."""
+        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="test")
+        assert edit_headers.x_base_revision_id == 0
+
+    def test_base_revision_id_positive(self):
+        """Test positive base_revision_id works."""
+        edit_headers = EditHeaders(
+            x_user_id=123,
+            x_edit_summary="test",
+            x_base_revision_id=42,
+        )
+        assert edit_headers.x_base_revision_id == 42
+
+    def test_base_revision_id_negative_fails(self):
+        """Test negative base_revision_id raises ValidationError."""
+        with pytest.raises(ValidationError):
+            EditHeaders(x_user_id=123, x_edit_summary="test", x_base_revision_id=-1)
+
+    def test_model_dump_with_base_revision_id(self):
+        """Test model_dump() includes base_revision_id."""
+        edit_headers = EditHeaders(
+            x_user_id=123, x_edit_summary="test", x_base_revision_id=42
+        )
+        dumped = edit_headers.model_dump()
+        assert dumped == {
+            "x_user_id": 123,
+            "x_edit_summary": "test",
+            "x_base_revision_id": 42,
+        }
+
+    def test_model_dump_by_alias_with_header(self):
+        """Test model_dump(by_alias=True) uses header name."""
+        edit_headers = EditHeaders(
+            x_user_id=123, x_edit_summary="test", x_base_revision_id=42
+        )
+        dumped = edit_headers.model_dump(by_alias=True)
+        assert dumped == {
+            "X-User-ID": 123,
+            "X-Edit-Summary": "test",
+            "X-Base-Revision-ID": 42,
+        }

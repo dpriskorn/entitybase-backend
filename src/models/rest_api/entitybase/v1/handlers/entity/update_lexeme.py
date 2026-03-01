@@ -4,6 +4,7 @@ import logging
 import re
 from typing import Any
 
+from fastapi import HTTPException
 from pydantic import BaseModel
 
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
@@ -130,6 +131,9 @@ class EntityUpdateLexemeMixin(BaseModel):
             logger.warning(f"Lexeme revision not found during update for {entity_id}")
             tx.rollback()
             raise_validation_error(f"Entity not found: {entity_id}", status_code=404)
+        except HTTPException:
+            tx.rollback()
+            raise
         except Exception as e:
             logger.error(f"Lexeme update failed for {entity_id}: {e}", exc_info=True)
             tx.rollback()
