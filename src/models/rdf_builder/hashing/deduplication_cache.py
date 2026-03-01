@@ -4,12 +4,15 @@ Implements MediaWiki's HashDedupeBag pattern to avoid duplicate value node block
 Follows same algorithm as mediawiki-extensions-Wikibase/repo/includes/Rdf/HashDedupeBag.php
 """
 
+import logging
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 from models.data.rest_api.v1.entitybase.response import DeduplicationStatsResponse
 from models.rest_api.utils import raise_validation_error
+
+logger = logging.getLogger(__name__)
 
 
 class HashDedupeBag(BaseModel):
@@ -79,11 +82,11 @@ class HashDedupeBag(BaseModel):
             full_key = namespace + hash_
             if full_key in self.bag:
                 self.hits += 1
-                print(f"DEDUPE HIT for {hash_}")
+                logger.debug(f"DEDUPE HIT for {hash_}")
                 return True
             self.misses += 1
             self.bag[full_key] = hash_
-            print(f"DEDUPE MISS for {hash_}")
+            logger.debug(f"DEDUPE MISS for {hash_}")
             return False
         else:
             # For other namespaces, use lossy deduplication
