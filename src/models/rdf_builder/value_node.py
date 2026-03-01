@@ -5,8 +5,6 @@ import logging
 import re
 from typing import Any
 
-from models.rdf_builder.hashing.value_node_hasher import ValueNodeHasher
-
 logger = logging.getLogger(__name__)
 
 
