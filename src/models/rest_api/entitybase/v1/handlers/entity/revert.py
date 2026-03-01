@@ -199,7 +199,7 @@ class EntityRevertHandler(Handler):
 
     async def _store_revision(
         self, entity_id: str, new_revision_id: int, new_revision_data: RevisionData
-    ) -> str:
+    ) -> int:
         """Store revision to S3 and database."""
         logger.debug("Converting revision to dict and computing hash")
         import json

@@ -332,7 +332,7 @@ class JsonDumpWorker(Worker):
 
     def _calculate_seconds_until_next_run(self) -> int:
         """Calculate seconds until next scheduled run."""
-        return calculate_seconds_until_next_run(settings.json_dump_schedule)
+        return int(calculate_seconds_until_next_run(settings.json_dump_schedule))
 
     def _generate_checksum(self, filepath: Path) -> str:
         """Generate SHA256 checksum for a file."""

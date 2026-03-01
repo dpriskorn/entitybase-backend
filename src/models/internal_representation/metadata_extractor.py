@@ -1,7 +1,7 @@
 """Metadata extraction utilities for Wikibase entities."""
 
 import json
-from typing import Any
+from typing import Any, cast
 
 from pydantic import BaseModel
 
@@ -14,7 +14,7 @@ class MetadataExtractor(BaseModel):
         """Generate a 64-bit rapidhash for a string."""
         from rapidhash import rapidhash
 
-        return rapidhash(content.encode("utf-8"))  # type: ignore[no-any-return]
+        return cast(int, rapidhash(content.encode("utf-8")))
 
     @staticmethod
     def hash_metadata(metadata: Any) -> int:
