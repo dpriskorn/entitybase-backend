@@ -4,31 +4,12 @@ Implements MediaWiki's HashDedupeBag pattern to avoid duplicate value node block
 Follows same algorithm as mediawiki-extensions-Wikibase/repo/includes/Rdf/HashDedupeBag.php
 """
 
-from typing import Protocol, Any
+from typing import Any
 
 from pydantic import BaseModel, Field
 
 from models.data.rest_api.v1.entitybase.response import DeduplicationStatsResponse
 from models.rest_api.utils import raise_validation_error
-
-
-class DedupeBag(Protocol):
-    """Interface for hash-based deduplication."""
-
-    def already_seen(self, hash_: str, namespace: str = "") -> bool:
-        """Check if hash+namespace seen before.
-
-        False negatives are acceptable (may return False even if seen before).
-        False positives are NOT acceptable (must never return True if not seen before).
-
-        Args:
-            hash_: Full hash string to check
-            namespace: Optional namespace for compartmentalized tracking
-
-        Returns:
-            True if definitely seen before, False if maybe not seen
-        """
-        ...
 
 
 class HashDedupeBag(BaseModel):
