@@ -191,12 +191,24 @@ class UpdateTransaction(EntityTransaction):
         logger.debug(
             f"[UpdateTransaction.create_revision] entity_id={entity_id}, vitess_client={id(self.state.vitess_client)}, id_resolver={id(self.state.vitess_client.id_resolver)}"
         )
-        self.state.vitess_client.create_revision(
+        expected_revision_id = edit_headers.x_base_revision_id
+        revision_created = self.state.vitess_client.create_revision(
             entity_id=entity_id,
             entity_data=revision_data,
             revision_id=new_revision_id,
             content_hash=content_hash,
+            expected_revision_id=expected_revision_id,
         )
+        if not revision_created:
+            from models.rest_api.utils import raise_validation_error
+
+            current_head = self.state.vitess_client.get_head(entity_id)
+            raise_validation_error(
+                f"Conflict: entity was modified by another edit. "
+                f"Expected base revision {expected_revision_id}, but current revision is {current_head}. "
+                f"Please retry with the latest revision ID.",
+                status_code=409,
+            )
 
         s3_revision_data = S3RevisionData(
             schema=settings.s3_schema_revision_version,
@@ -301,12 +313,24 @@ class UpdateTransaction(EntityTransaction):
         logger.debug(f"Content hash: {content_hash}")
 
         logger.debug("Creating revision in Vitess")
-        self.state.vitess_client.create_revision(
+        expected_revision_id = edit_headers.x_base_revision_id
+        revision_created = self.state.vitess_client.create_revision(
             entity_id=entity_id,
             entity_data=revision_data,
             revision_id=new_revision_id,
             content_hash=content_hash,
+            expected_revision_id=expected_revision_id,
         )
+        if not revision_created:
+            from models.rest_api.utils import raise_validation_error
+
+            current_head = self.state.vitess_client.get_head(entity_id)
+            raise_validation_error(
+                f"Conflict: entity was modified by another edit. "
+                f"Expected base revision {expected_revision_id}, but current revision is {current_head}. "
+                f"Please retry with the latest revision ID.",
+                status_code=409,
+            )
 
         s3_revision_data = S3RevisionData(
             schema=settings.s3_schema_revision_version,

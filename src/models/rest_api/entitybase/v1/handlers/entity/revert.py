@@ -237,12 +237,21 @@ class EntityRevertHandler(Handler):
         self.state.s3_client.store_revision(content_hash, s3_revision_data)
 
         logger.debug("Inserting revision in Vitess")
-        self.state.vitess_client.insert_revision(
+        revision_created = self.state.vitess_client.insert_revision(
             entity_id,
             new_revision_id,
             new_revision_data,
             content_hash,
         )
+        if not revision_created:
+            from models.rest_api.utils import raise_validation_error
+
+            current_head = self.state.vitess_client.get_head(entity_id)
+            raise_validation_error(
+                f"Conflict: entity was modified by another edit. "
+                f"Please retry with the latest revision ID.",
+                status_code=409,
+            )
 
         return content_hash
 

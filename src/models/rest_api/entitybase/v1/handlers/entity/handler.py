@@ -82,6 +82,7 @@ class EntityHandler(Handler):
             entity_type=ctx.entity_type,
             edit_type=ctx.edit_type,
             edit_summary=ctx.edit_headers.x_edit_summary,
+            base_revision_id=ctx.edit_headers.x_base_revision_id,
             is_creation=ctx.is_creation,
             vitess_client=self.state.vitess_client,
             s3_client=self.state.s3_client,
@@ -193,12 +194,23 @@ class EntityHandler(Handler):
             logger.debug(
                 f"_create_revision_new: creating revision in Vitess for {ctx.entity_id}"
             )
-            ctx.vitess_client.create_revision(
+            revision_created = ctx.vitess_client.create_revision(
                 entity_id=ctx.entity_id,
                 entity_data=revision_data,
                 revision_id=new_revision_id,
                 content_hash=content_hash,
+                expected_revision_id=ctx.base_revision_id,
             )
+            if not revision_created:
+                from models.rest_api.utils import raise_validation_error
+
+                current_head = ctx.vitess_client.get_head(ctx.entity_id)
+                raise_validation_error(
+                    f"Conflict: entity was modified by another edit. "
+                    f"Expected base revision {ctx.base_revision_id}, but current revision is {current_head}. "
+                    f"Please retry with the latest revision ID.",
+                    status_code=409,
+                )
 
             logger.info(
                 f"_create_revision_new SUCCESS: entity_id={ctx.entity_id}, rev={new_revision_id}"

@@ -167,13 +167,23 @@ class RedirectService(Service):
         )
 
         logger.debug("Creating revision in Vitess")
-        self.vitess_client.create_revision(
+        revision_created = self.vitess_client.create_revision(
             entity_id=request.redirect_from_id,
             revision_id=redirect_revision_data.revision_id,
             entity_data=redirect_revision_data,
             expected_revision_id=from_head_revision_id,
             content_hash=content_hash,
         )
+        if not revision_created:
+            from models.rest_api.utils import raise_validation_error
+
+            current_head = self.vitess_client.get_head(request.redirect_from_id)
+            raise_validation_error(
+                f"Conflict: entity was modified by another edit. "
+                f"Expected base revision {from_head_revision_id}, but current revision is {current_head}. "
+                f"Please retry with the latest revision ID.",
+                status_code=409,
+            )
 
         self.vitess_client.create_redirect(
             redirect_from_entity_id=request.redirect_from_id,

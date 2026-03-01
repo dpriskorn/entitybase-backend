@@ -17,6 +17,12 @@ class EditHeaders(BaseModel):
         max_length=200,
         description="Edit summary",
     )
+    x_base_revision_id: int = Field(
+        default=0,
+        alias="X-Base-Revision-ID",
+        ge=0,
+        description="Expected base revision ID for optimistic locking (0 to skip check)",
+    )
 
     model_config = {"populate_by_name": True}
 

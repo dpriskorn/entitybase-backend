@@ -26,25 +26,6 @@ class TermUpdateContext(BaseModel):
     value: str = Field(..., description="Term value")
 
 
-class EntityHeadUpdateContext(BaseModel):
-    """Context for entity head update operations."""
-
-    entity_id: str = Field(..., description="Entity ID")
-    expected_head: int = Field(
-        default=0, description="Expected current head revision ID"
-    )
-    new_head: int = Field(default=0, description="New head revision ID")
-    is_semi_protected: bool = Field(default=False, description="Semi-protection status")
-    is_locked: bool = Field(default=False, description="Lock status")
-    is_archived: bool = Field(default=False, description="Archive status")
-    is_dangling: bool = Field(default=False, description="Dangling status")
-    is_mass_edit_protected: bool = Field(
-        default=False, description="Mass edit protection status"
-    )
-    is_deleted: bool = Field(default=False, description="Deletion status")
-    is_redirect: bool = Field(default=False, description="Redirect status")
-
-
 class GeneralStatisticsContext(BaseModel):
     """Context for general statistics insertion."""
 
@@ -126,6 +107,7 @@ class RevisionContext(BaseModel):
     entity_type: EntityType
     edit_type: EditType | None = Field(default=None)
     edit_summary: str = ""
+    base_revision_id: int = 0
     is_creation: bool = False
     vitess_client: Any
     s3_client: Any
