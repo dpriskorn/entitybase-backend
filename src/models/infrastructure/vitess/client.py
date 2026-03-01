@@ -161,10 +161,18 @@ class VitessClient(Client):
         revision_id: int,
         content_hash: int,
         expected_revision_id: int = 0,
-    ) -> None:
-        """Create a new revision."""
-        self.revision_repository.insert_revision(
-            entity_id, revision_id, entity_data, content_hash, expected_revision_id
+    ) -> bool:
+        """Create a new revision.
+
+        Returns:
+            True if revision was created successfully.
+            False if CAS failed (expected_revision_id didn't match current head).
+        """
+        return cast(
+            bool,
+            self.revision_repository.insert_revision(
+                entity_id, revision_id, entity_data, content_hash, expected_revision_id
+            ),
         )
 
     def create_tables(self) -> None:
@@ -206,13 +214,16 @@ class VitessClient(Client):
         entity_data: Any,  # type_: RevisionData
         content_hash: int,
         expected_revision_id: int = 0,
-    ) -> None:
-        self.revision_repository.insert_revision(
-            entity_id=entity_id,
-            revision_id=revision_id,
-            entity_data=entity_data,
-            content_hash=content_hash,
-            expected_revision_id=expected_revision_id,
+    ) -> bool:
+        return cast(
+            bool,
+            self.revision_repository.insert_revision(
+                entity_id=entity_id,
+                revision_id=revision_id,
+                entity_data=entity_data,
+                content_hash=content_hash,
+                expected_revision_id=expected_revision_id,
+            ),
         )
 
     def is_entity_deleted(self, entity_id: str) -> bool:

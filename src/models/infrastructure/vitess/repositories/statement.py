@@ -11,27 +11,6 @@ logger = logging.getLogger(__name__)
 class StatementRepository(Repository):
     """Repository for statement-related database operations."""
 
-    def insert_content(self, content_hash: int) -> OperationResult:
-        """Insert statement content hash if it doesn't exist."""
-        try:
-            with self.vitess_client.cursor as cursor:
-                cursor.execute(
-                    "SELECT 1 FROM statement_content WHERE content_hash = %s",
-                    (content_hash,),
-                )
-                if cursor.fetchone() is not None:
-                    return OperationResult(
-                        success=False, error="Content hash already exists"
-                    )
-
-                cursor.execute(
-                    "INSERT INTO statement_content (content_hash) VALUES (%s)",
-                    (content_hash,),
-                )
-                return OperationResult(success=True)
-        except Exception as e:
-            return OperationResult(success=False, error=str(e))
-
     def increment_ref_count(self, content_hash: int) -> OperationResult:
         """Increment reference count for statement content."""
         if content_hash <= 0:
@@ -126,10 +105,3 @@ class StatementRepository(Repository):
                 "DELETE FROM statement_content WHERE content_hash = %s AND ref_count <= 0",
                 (content_hash,),
             )
-
-    def get_all_statement_hashes(self) -> list[int]:
-        """Get all statement content hashes."""
-        with self.vitess_client.cursor as cursor:
-            cursor.execute("SELECT content_hash FROM statement_content")
-            result = [row[0] for row in cursor.fetchall()]
-            return result

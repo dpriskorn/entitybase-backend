@@ -40,19 +40,33 @@ class RevisionRepository(Repository):
         entity_data: RevisionData,
         content_hash: int,
         expected_revision_id: int = 0,
-    ) -> None:
-        """Insert a revision from RevisionData model."""
+    ) -> bool:
+        """Insert a revision from RevisionData model.
+
+        Returns:
+            True if revision was created successfully.
+            False if CAS failed (expected_revision_id didn't match current head).
+        """
         if not expected_revision_id:
             logger.debug(
                 f"insert_revision: calling create for {entity_id}, revision {revision_id}"
             )
-            self.create(entity_id, revision_id, entity_data, content_hash)
+            return cast(
+                bool, self.create(entity_id, revision_id, entity_data, content_hash)
+            )
         else:
             logger.debug(
                 f"insert_revision: calling create_with_cas for {entity_id}, revision {revision_id}, expected {expected_revision_id}"
             )
-            self.create_with_cas(
-                entity_id, revision_id, entity_data, content_hash, expected_revision_id
+            return cast(
+                bool,
+                self.create_with_cas(
+                    entity_id,
+                    revision_id,
+                    entity_data,
+                    content_hash,
+                    expected_revision_id,
+                ),
             )
 
     @validate_call
@@ -260,8 +274,12 @@ class RevisionRepository(Repository):
         revision_id: int,
         entity_data: RevisionData,
         content_hash: int,
-    ) -> None:
-        """Create a new revision for an entity."""
+    ) -> bool:
+        """Create a new revision for an entity.
+
+        Returns:
+            True always (revision created successfully).
+        """
         logger.debug(f"Creating revision {revision_id} for entity {entity_id}")
         internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         logger.debug(
@@ -288,7 +306,7 @@ class RevisionRepository(Repository):
                 logger.debug(
                     f"Revision {revision_id} for entity {entity_id} already exists, skipping"
                 )
-                return
+                return True
 
             cursor.execute(
                 """INSERT INTO entity_revisions
@@ -339,3 +357,4 @@ class RevisionRepository(Repository):
         logger.debug(
             f"Successfully created revision {revision_id} for entity {entity_id}"
         )
+        return True

@@ -121,12 +121,23 @@ class CreationTransaction(EntityTransaction):
         revision_json = json.dumps(revision_dict, sort_keys=True)
         content_hash = MetadataExtractor.hash_string(revision_json)
 
-        self.state.vitess_client.create_revision(
+        revision_created = self.state.vitess_client.create_revision(
             entity_id=entity_id,
             entity_data=revision_data,
             revision_id=1,
             content_hash=content_hash,
+            expected_revision_id=edit_headers.x_base_revision_id,
         )
+        if not revision_created:
+            from models.rest_api.utils import raise_validation_error
+
+            current_head = self.state.vitess_client.get_head(entity_id)
+            raise_validation_error(
+                f"Conflict: entity was modified by another edit. "
+                f"Expected base revision {edit_headers.x_base_revision_id}, but current revision is {current_head}. "
+                f"Please retry with the latest revision ID.",
+                status_code=409,
+            )
 
         s3_revision_data = S3RevisionData(
             schema=settings.s3_schema_revision_version,

@@ -1,1 +1,2 @@
 src/models/infrastructure/vitess/connection.py:278
+src/models/infrastructure/vitess/connection.py:283

@@ -18,6 +18,7 @@ help:
 	@echo "  make docs         - Run docs-generate + docs-build + docs-serve"
 	@echo "  make lint-test-all - Run all lint + tests (unit -> E2E -> contract -> integration)"
 	@echo "  make lint-test-fast        - Run lint + fast tests (unit -> E2E -> contract)"
+	@echo "  make test-fast        - Run fast tests (unit -> E2E -> contract)"
 	@echo "  make tests        - Run all tests (unit -> E2E -> contract -> integration)"
 	@echo "  make test-unit   - Run unit tests only (fast feedback)"
 	@echo "  make test-e2e     - Run all e2e tests"
@@ -130,6 +131,8 @@ tests: check test-unit test-e2e test-contract test-integration
 lint-test-all: lint tests
 
 lint-test-fast: lint test-unit-e2e-contract
+
+test-fast: test-unit-e2e-contract
 
 coverage: check
 	./scripts/shell/run-coverage.sh

@@ -4,6 +4,7 @@ import logging
 from datetime import datetime, timezone
 from typing import cast
 
+from models.data.rest_api.v1.entitybase.request import UserActivityType
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.infrastructure.s3.entity_state import EntityState
 from models.data.infrastructure.s3.enums import EditType, EditData, EntityType
@@ -60,6 +61,19 @@ class EntityRevertHandler(Handler):
         await self._publish_change_event(
             entity_id, new_revision_id, head_revision, edit_headers
         )
+
+        # Log activity
+        if edit_headers.x_user_id > 0:
+            activity_result = (
+                self.state.vitess_client.user_repository.log_user_activity(
+                    user_id=edit_headers.x_user_id,
+                    activity_type=UserActivityType.ENTITY_REVERT,
+                    entity_id=entity_id,
+                    revision_id=new_revision_id,
+                )
+            )
+            if not activity_result.success:
+                logger.warning(f"Failed to log user activity: {activity_result.error}")
 
         return EntityRevertResponse(
             entity_id=entity_id,
@@ -223,12 +237,21 @@ class EntityRevertHandler(Handler):
         self.state.s3_client.store_revision(content_hash, s3_revision_data)
 
         logger.debug("Inserting revision in Vitess")
-        self.state.vitess_client.insert_revision(
+        revision_created = self.state.vitess_client.insert_revision(
             entity_id,
             new_revision_id,
             new_revision_data,
             content_hash,
         )
+        if not revision_created:
+            from models.rest_api.utils import raise_validation_error
+
+            current_head = self.state.vitess_client.get_head(entity_id)
+            raise_validation_error(
+                f"Conflict: entity was modified by another edit. "
+                f"Please retry with the latest revision ID.",
+                status_code=409,
+            )
 
         return content_hash
 
