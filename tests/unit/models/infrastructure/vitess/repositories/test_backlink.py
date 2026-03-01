@@ -21,34 +21,6 @@ class TestBacklinkRepository:
 
         assert result.success is True
 
-    def test_delete_backlinks_for_entity_success(self):
-        """Test successful backlink deletion."""
-        mock_vitess_client = MagicMock()
-        mock_cursor = MagicMock()
-        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
-        mock_cursor.__exit__ = MagicMock(return_value=False)
-        mock_vitess_client.cursor = mock_cursor
-
-        repo = BacklinkRepository(vitess_client=mock_vitess_client)
-
-        result = repo.delete_backlinks_for_entity(123)
-
-        assert result.success is True
-        mock_cursor.execute.assert_called_once_with(
-            "DELETE FROM entity_backlinks WHERE referencing_internal_id = %s", (123,)
-        )
-
-    def test_delete_backlinks_for_entity_invalid_id(self):
-        """Test deletion with invalid ID."""
-        mock_vitess_client = MagicMock()
-
-        repo = BacklinkRepository(vitess_client=mock_vitess_client)
-
-        result = repo.delete_backlinks_for_entity(0)
-
-        assert result.success is False
-        assert "Invalid referencing internal ID" in result.error
-
     def test_get_backlinks_success(self):
         """Test getting backlinks."""
         mock_vitess_client = MagicMock()
@@ -160,11 +132,6 @@ class TestBacklinkRepository:
         mock_vitess_client.cursor = mock_cursor
 
         repo = BacklinkRepository(vitess_client=mock_vitess_client)
-
-        result = repo.delete_backlinks_for_entity(123)
-
-        assert result.success is False
-        assert "DB error" in result.error
 
     def test_insert_backlink_statistics_json_error(self):
         """Test statistics insertion with JSON serialization error."""

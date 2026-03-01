@@ -141,7 +141,11 @@ preferences
 # Enum values (accessed dynamically)
 ENTITY_UNDELETE
 THANK_RECEIVED
-# FastAPI route handlers (registered with router, detected as unused by vulture)
+# False positives - Pydantic field serializers (used in model serialization)
+serialize_timestamp
+serialize_changed_at
+# False positive - property used internally by generate_unique_id()
+counter
 lock_entity
 unlock_entity
 archive_entity

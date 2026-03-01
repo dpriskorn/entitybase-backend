@@ -58,9 +58,6 @@ class Settings(BaseModel):
 
     # logging
     log_level: str = "INFO"
-    # test_log_level: str = "INFO"
-    test_log_http_requests: bool = False
-    test_show_progress: bool = True
 
     # streaming
     streaming_enabled: bool = False

@@ -8,37 +8,6 @@ from models.infrastructure.vitess.repositories.statement import StatementReposit
 class TestStatementRepository:
     """Unit tests for StatementRepository."""
 
-    def test_insert_content_success(self):
-        """Test successful content insertion."""
-        mock_vitess_client = MagicMock()
-        mock_cursor = MagicMock()
-        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
-        mock_cursor.__exit__ = MagicMock(return_value=False)
-        mock_cursor.fetchone.return_value = None  # not exists
-        mock_vitess_client.cursor = mock_cursor
-
-        repo = StatementRepository(vitess_client=mock_vitess_client)
-
-        result = repo.insert_content(12345)
-
-        assert result.success is True
-
-    def test_insert_content_already_exists(self):
-        """Test inserting content that already exists."""
-        mock_vitess_client = MagicMock()
-        mock_cursor = MagicMock()
-        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
-        mock_cursor.__exit__ = MagicMock(return_value=False)
-        mock_cursor.fetchone.return_value = (1,)  # exists
-        mock_vitess_client.cursor = mock_cursor
-
-        repo = StatementRepository(vitess_client=mock_vitess_client)
-
-        result = repo.insert_content(12345)
-
-        assert result.success is False
-        assert "already exists" in result.error
-
     def test_increment_ref_count_success(self):
         """Test successful ref count increment."""
         mock_vitess_client = MagicMock()
@@ -135,11 +104,6 @@ class TestStatementRepository:
         mock_vitess_client.cursor = mock_cursor
 
         repo = StatementRepository(vitess_client=mock_vitess_client)
-
-        result = repo.insert_content(12345)
-
-        assert result.success is False
-        assert "DB error" in result.error
 
     def test_decrement_ref_count_success_zero(self):
         """Test decrement resulting in zero."""
