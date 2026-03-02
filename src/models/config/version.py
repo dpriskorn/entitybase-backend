@@ -30,7 +30,7 @@ def get_release_version() -> str:
 def get_api_version() -> str:
     """Get full API version (api_version.release_version) from pyproject.toml."""
     try:
-        pyproject_path = Path(__file__).parent.parent.parent.parent / "pyproject.toml"
+        pyproject_path = Path("/app/pyproject.toml")
         with open(pyproject_path, "rb") as f:
             data: Any = tomllib.load(f)
         api_version: str = data["project"]["api_version"]
