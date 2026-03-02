@@ -33,6 +33,20 @@ from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
 
+
+class StatusOperation(str, Enum):
+    """Enum for status operations."""
+
+    LOCK = "lock"
+    UNLOCK = "unlock"
+    ARCHIVE = "archive"
+    UNARCHIVE = "unarchive"
+    SEMI_PROTECT = "semi_protect"
+    UNSEMI_PROTECT = "unsemi_protect"
+    MASS_EDIT_PROTECT = "mass_edit_protect"
+    MASS_EDIT_UNPROTECT = "mass_edit_unprotect"
+
+
 from dataclasses import dataclass
 
 
