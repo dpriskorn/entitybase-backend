@@ -73,6 +73,7 @@ services:
       MINIO_ACCESS_KEY: fakekey
       MINIO_SECRET_KEY: fakesecret
       PYTHONPATH: /app/src
+      CI: "true"
     depends_on:
       minio:
         condition: service_healthy
@@ -95,6 +96,7 @@ services:
       VITESS_DATABASE: entitybase
       VITESS_USER: root
       VITESS_PASSWORD: ""
+      CI: "true"
     mem_limit: 512m
     cpus: 0.5
 
@@ -113,6 +115,7 @@ services:
       VITESS_DATABASE: entitybase
       VITESS_USER: root
       VITESS_PASSWORD: ""
+      CI: "true"
     depends_on:
       create-tables:
         condition: service_completed_successfully
@@ -154,6 +157,7 @@ services:
       JSON_DUMP_COMPRESSION: "true"
       JSON_DUMP_GENERATE_CHECKSUMS: "true"
       LOG_LEVEL: "INFO"
+      CI: "true"
     depends_on:
       create-tables:
         condition: service_completed_successfully
@@ -232,6 +236,7 @@ services:
       BACKLINK_STATS_SCHEDULE: "0 2 * * *"
       BACKLINK_STATS_TOP_LIMIT: "100"
       LOG_LEVEL: "INFO"
+      CI: "true"
     depends_on:
       create-tables:
         condition: service_completed_successfully
@@ -262,6 +267,7 @@ services:
       GENERAL_STATS_ENABLED: "true"
       GENERAL_STATS_SCHEDULE: "0 2 * * *"
       LOG_LEVEL: "INFO"
+      CI: "true"
     depends_on:
       create-tables:
         condition: service_completed_successfully
@@ -292,6 +298,7 @@ services:
       USER_STATS_ENABLED: "true"
       USER_STATS_SCHEDULE: "0 2 * * *"
       LOG_LEVEL: "INFO"
+      CI: "true"
     depends_on:
       create-tables:
         condition: service_completed_successfully
