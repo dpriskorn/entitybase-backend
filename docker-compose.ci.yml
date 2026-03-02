@@ -354,6 +354,7 @@ services:
       LOG_LEVEL: "DEBUG"
       ENVIRONMENT: "dev"
       USER_AGENT: "Entitybase/1.0 User:So9q"
+      CI: "true"
     command: uvicorn models.rest_api.main:app --host 0.0.0.0 --port 8000
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
@@ -379,6 +380,8 @@ services:
     command: pytest tests/ -m integration -v -n 0 --tb=auto --log-cli-level=DEBUG --durations=10 --exitfirst
     networks:
       - default
+    environment:
+      CI: "true"
     mem_limit: 1g
     cpus: 1.0
 
@@ -393,6 +396,8 @@ services:
     command: pytest -m e2e -v -n 0 --tb=long --log-cli-level=DEBUG --exitfirst
     networks:
       - default
+    environment:
+      CI: "true"
     mem_limit: 1g
     cpus: 1.0
 
