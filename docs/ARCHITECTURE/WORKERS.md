@@ -2,8 +2,8 @@
 
 ## Backlink Statistics Worker
 
-**Class**: `BacklinkStatisticsWorker`
-**Location**: `models/workers/backlink_statistics/backlink_statistics_worker.py`
+**Class**: ``
+**Location**: `models/workers/backlink_statistics/__main__.py`
 **Purpose**: 
 
 **Configuration**:
@@ -31,8 +31,8 @@
 
 ## General Stats Worker
 
-**Class**: `GeneralStatsWorker`
-**Location**: `models/workers/general_stats/general_stats_worker.py`
+**Class**: ``
+**Location**: `models/workers/general_stats/__main__.py`
 **Purpose**: 
 
 **Health Checks**: Available via worker health endpoint
