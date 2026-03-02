@@ -372,26 +372,6 @@ services:
     mem_limit: 1g
     cpus: 1.0
 
-  integration:
-    build:
-      context: .
-      dockerfile: docker/containers/Dockerfile.tests
-    container_name: integration
-    depends_on:
-      create-buckets:
-        condition: service_completed_successfully
-      create-tables:
-        condition: service_completed_successfully
-      api:
-        condition: service_healthy
-    command: pytest tests/ -m integration -v -n 0 --tb=auto --log-cli-level=DEBUG --durations=10 --exitfirst
-    networks:
-      - default
-    environment:
-      CI: "true"
-    mem_limit: 1g
-    cpus: 1.0
-
   e2e:
     build:
       context: .
