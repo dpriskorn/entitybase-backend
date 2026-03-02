@@ -76,9 +76,18 @@ jobs:
             echo "Waiting for API..."
             sleep 2
           done
-      - name: Run unit tests
-        run: docker compose -f docker-compose.ci.yml run --rm integration pytest tests/unit -v --tb=short
-        timeout-minutes: 15
+      - name: Run unit tests (01 - config, data, services, validation, json_parser)
+        run: docker compose -f docker-compose.ci.yml run --rm integration pytest tests/unit -k "config or data or services or validation or json_parser" -v --tb=short
+        timeout-minutes: 10
+      - name: Run unit tests (02 - internal_representation, workers)
+        run: docker compose -f docker-compose.ci.yml run --rm integration pytest tests/unit -k "internal_representation or workers" -v --tb=short
+        timeout-minutes: 10
+      - name: Run unit tests (03 - infrastructure, rdf_builder)
+        run: docker compose -f docker-compose.ci.yml run --rm integration pytest tests/unit -k "infrastructure or rdf_builder" -v --tb=short
+        timeout-minutes: 10
+      - name: Run unit tests (04 - rest_api)
+        run: docker compose -f docker-compose.ci.yml run --rm integration pytest tests/unit -k "rest_api" -v --tb=short
+        timeout-minutes: 10
       - name: Down containers
         if: always()
         run: docker compose -f docker-compose.ci.yml down -v
