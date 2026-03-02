@@ -61,7 +61,7 @@ class TestEntityUpdateTermsMixin:
 
         mock_terms_repo.decrement_ref_count.assert_called_once_with(12345)
         mock_terms_repo.delete_term.assert_called_once_with(12345)
-        mock_s3._delete_metadata.assert_called()
+        mock_s3.delete_metadata.assert_called()
 
     @patch("models.rest_api.entitybase.v1.handlers.entity.update_terms.TermsRepository")
     def test_decrement_term_ref_count_handles_failure(
@@ -81,7 +81,7 @@ class TestEntityUpdateTermsMixin:
 
         mock_terms_repo.decrement_ref_count.assert_called_once_with(12345)
         mock_terms_repo.delete_term.assert_not_called()
-        mock_s3._delete_metadata.assert_not_called()
+        mock_s3.delete_metadata.assert_not_called()
 
     @patch("models.rest_api.entitybase.v1.handlers.entity.update_terms.TermsRepository")
     def test_decrement_term_ref_count_deletes_all_metadata_types(
@@ -99,4 +99,4 @@ class TestEntityUpdateTermsMixin:
 
         mixin._decrement_term_ref_count(12345)
 
-        assert mock_s3._delete_metadata.call_count == 3
+        assert mock_s3.delete_metadata.call_count == 3

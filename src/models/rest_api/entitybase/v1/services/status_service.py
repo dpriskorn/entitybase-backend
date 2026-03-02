@@ -33,18 +33,6 @@ from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
 
-from dataclasses import dataclass
-
-
-@dataclass
-class RevisionParams:
-    """Parameters for building a revision."""
-
-    entity_id: str
-    current_revision: S3RevisionData
-    new_revision_id: int
-    operation: StatusOperation
-
 
 class StatusOperation(str, Enum):
     """Enum for status operations."""
@@ -57,6 +45,19 @@ class StatusOperation(str, Enum):
     UNSEMI_PROTECT = "unsemi_protect"
     MASS_EDIT_PROTECT = "mass_edit_protect"
     MASS_EDIT_UNPROTECT = "mass_edit_unprotect"
+
+
+from dataclasses import dataclass
+
+
+@dataclass
+class RevisionParams:
+    """Parameters for building a revision."""
+
+    entity_id: str
+    current_revision: S3RevisionData
+    new_revision_id: int
+    operation: StatusOperation
 
 
 _STATUS_TARGET_MAP: dict[StatusOperation, tuple[str, bool]] = {

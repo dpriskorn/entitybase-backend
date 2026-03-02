@@ -89,6 +89,9 @@ class TestUserHandler:
         request = WatchlistToggleRequest(enabled=False)
 
         mock_vitess_client.user_repository.user_exists.return_value = True
+        mock_vitess_client.user_repository.disable_watchlist.return_value = MagicMock(
+            success=True
+        )
 
         result = handler.toggle_watchlist(12345, request)
 
@@ -96,6 +99,6 @@ class TestUserHandler:
         assert result.user_id == 12345
         assert result.enabled is False
         mock_vitess_client.user_repository.user_exists.assert_called_once_with(12345)
-        mock_vitess_client.user_repository.set_watchlist_enabled.assert_called_once_with(
-            12345, False
+        mock_vitess_client.user_repository.disable_watchlist.assert_called_once_with(
+            12345
         )

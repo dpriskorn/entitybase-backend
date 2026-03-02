@@ -1,10 +1,24 @@
 """Application version constants."""
 
+import os
 import tomllib
 from importlib.metadata import version
 from pathlib import Path
 
 from typing import Any
+
+
+def get_pyproject_path() -> Path:
+    """Get path to pyproject.toml based on environment."""
+    possible_paths = [
+        Path("/app/pyproject.toml"),
+        Path(__file__).parent.parent.parent.parent / "pyproject.toml",
+        Path.cwd() / "pyproject.toml",
+    ]
+    for path in possible_paths:
+        if path.exists():
+            return path
+    raise FileNotFoundError(f"pyproject.toml not found in any of: {possible_paths}")
 
 
 def get_release_version() -> str:
@@ -15,7 +29,7 @@ def get_release_version() -> str:
         pass
 
     try:
-        pyproject_path = Path(__file__).parent.parent.parent.parent / "pyproject.toml"
+        pyproject_path = get_pyproject_path()
         with open(pyproject_path, "rb") as f:
             data: Any = tomllib.load(f)
         raw_version: str = data["project"]["version"]
@@ -28,9 +42,9 @@ def get_release_version() -> str:
 
 
 def get_api_version() -> str:
-    """Get full API version (api_version.release_version) from pyproject.toml."""
+    """Get full API.release_version) from version (api_version pyproject.toml."""
     try:
-        pyproject_path = Path(__file__).parent.parent.parent.parent / "pyproject.toml"
+        pyproject_path = get_pyproject_path()
         with open(pyproject_path, "rb") as f:
             data: Any = tomllib.load(f)
         api_version: str = data["project"]["api_version"]

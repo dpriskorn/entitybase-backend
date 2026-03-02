@@ -10,7 +10,7 @@ WORKDIR /app
 ENV PYTHONPATH=/app
 
 COPY requirements.txt ./
-COPY pyproject.toml /pyproject.toml
+COPY pyproject.toml /app/pyproject.toml
 
 RUN pip install --no-cache-dir -r requirements.txt
 

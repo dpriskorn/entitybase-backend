@@ -421,7 +421,7 @@ class UpdateTransaction(EntityTransaction):
         """Rollback form representation by deleting from S3."""
         logger.info(f"[UpdateTransaction] Rolling back form representation {hash_val}")
         try:
-            self.state.s3_client._delete_metadata(
+            self.state.s3_client.delete_metadata(
                 MetadataType.FORM_REPRESENTATIONS, hash_val
             )
         except Exception as e:
@@ -433,7 +433,7 @@ class UpdateTransaction(EntityTransaction):
         """Rollback sense gloss by deleting from S3."""
         logger.info(f"[UpdateTransaction] Rolling back sense gloss {hash_val}")
         try:
-            self.state.s3_client._delete_metadata(MetadataType.SENSE_GLOSSES, hash_val)
+            self.state.s3_client.delete_metadata(MetadataType.SENSE_GLOSSES, hash_val)
         except Exception as e:
             logger.warning(
                 f"[UpdateTransaction] Failed to rollback sense gloss {hash_val}: {e}"
@@ -443,7 +443,7 @@ class UpdateTransaction(EntityTransaction):
         """Rollback lemma by deleting from S3."""
         logger.info(f"[UpdateTransaction] Rolling back lemma {hash_val}")
         try:
-            self.state.s3_client._delete_metadata(MetadataType.LEMMAS, hash_val)
+            self.state.s3_client.delete_metadata(MetadataType.LEMMAS, hash_val)
         except Exception as e:
             logger.warning(
                 f"[UpdateTransaction] Failed to rollback lemma {hash_val}: {e}"

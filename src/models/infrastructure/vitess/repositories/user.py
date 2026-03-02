@@ -138,6 +138,10 @@ class UserRepository(Repository):
         """Disable watchlist for user (idempotent)."""
         return self.set_watchlist_enabled(user_id, False)
 
+    def enable_watchlist(self, user_id: int) -> OperationResult:
+        """Enable watchlist for user (idempotent)."""
+        return self.set_watchlist_enabled(user_id, True)
+
     def log_user_activity(
         self,
         user_id: int,
