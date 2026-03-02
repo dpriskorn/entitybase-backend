@@ -171,9 +171,9 @@ class EntityUpdateTermsMixin(BaseModel):
         new_count = result.data if result.data else 0
         if new_count == 0:
             terms_repo.delete_term(hash_value)
-            self.state.s3_client._delete_metadata(MetadataType.LABELS, hash_value)
-            self.state.s3_client._delete_metadata(MetadataType.DESCRIPTIONS, hash_value)
-            self.state.s3_client._delete_metadata(MetadataType.ALIASES, hash_value)
+            self.state.s3_client.delete_metadata(MetadataType.LABELS, hash_value)
+            self.state.s3_client.delete_metadata(MetadataType.DESCRIPTIONS, hash_value)
+            self.state.s3_client.delete_metadata(MetadataType.ALIASES, hash_value)
             logger.info(f"Cleaned up orphaned term hash {hash_value}")
 
     async def update_description(
