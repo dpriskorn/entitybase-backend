@@ -1,6 +1,6 @@
 [project]
 name = "entitybase-backend"
-version = "v2026.2.28"
+version = "v2026.3.2"
 api_version = "v1"
 description = ""
 authors = [
