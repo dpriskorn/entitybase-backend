@@ -37,15 +37,15 @@ jobs:
         uses: docker/setup-buildx-action@v3
       - name: Build docker images
         run: |
-          docker-compose -f docker-compose.tests.yml build \
+          docker compose -f docker-compose.tests.yml build \
             api idworker integration e2e create-buckets create-tables
       - name: Start infrastructure services
         run: |
-          docker-compose -f docker-compose.tests.yml up -d mysql minio redpanda
+          docker compose -f docker-compose.tests.yml up -d mysql minio redpanda
       - name: Wait for MySQL to be ready
         timeout-minutes: 2
         run: |
-          until docker-compose -f docker-compose.tests.yml exec -T mysql mysqladmin ping -h localhost --silent; do
+          until docker compose -f docker-compose.tests.yml exec -T mysql mysqladmin ping -h localhost --silent; do
             echo "Waiting for MySQL..."
             sleep 2
           done
@@ -61,19 +61,19 @@ jobs:
       - name: Wait for Redpanda to be ready
         timeout-minutes: 2
         run: |
-          until docker-compose -f docker-compose.tests.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
+          until docker compose -f docker-compose.tests.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
             echo "Waiting for Redpanda..."
             sleep 2
           done
           echo "Redpanda is ready"
       - name: Setup database tables
-        run: docker-compose -f docker-compose.tests.yml run --rm create-tables
+        run: docker compose -f docker-compose.tests.yml run --rm create-tables
       - name: Setup S3 buckets
-        run: docker-compose -f docker-compose.tests.yml run --rm create-buckets
+        run: docker compose -f docker-compose.tests.yml run --rm create-buckets
       - name: Start idworker
-        run: docker-compose -f docker-compose.tests.yml up -d idworker
+        run: docker compose -f docker-compose.tests.yml up -d idworker
       - name: Start API
-        run: docker-compose -f docker-compose.tests.yml up -d api
+        run: docker compose -f docker-compose.tests.yml up -d api
         timeout-minutes: 2
       - name: Wait for API to be healthy
         timeout-minutes: 2
@@ -88,7 +88,7 @@ jobs:
         run: echo "value=${{ github.run_id }}-${{ github.run_attempt }}" >> $GITHUB_OUTPUT
       - name: Save docker compose files
         run: |
-          docker-compose -f docker-compose.tests.yml ps > services-status-before-tests.txt
+          docker compose -f docker-compose.tests.yml ps > services-status-before-tests.txt
 
   test-unit-01:
     needs: setup
@@ -101,11 +101,11 @@ jobs:
         uses: docker/setup-buildx-action@v3
       - name: Start infrastructure services
         run: |
-          docker-compose -f docker-compose.tests.yml up -d mysql minio redpanda
+          docker compose -f docker-compose.tests.yml up -d mysql minio redpanda
       - name: Wait for MySQL to be ready
         timeout-minutes: 2
         run: |
-          until docker-compose -f docker-compose.tests.yml exec -T mysql mysqladmin ping -h localhost --silent; do
+          until docker compose -f docker-compose.tests.yml exec -T mysql mysqladmin ping -h localhost --silent; do
             echo "Waiting for MySQL..."
             sleep 2
           done
@@ -119,18 +119,18 @@ jobs:
       - name: Wait for Redpanda to be ready
         timeout-minutes: 2
         run: |
-          until docker-compose -f docker-compose.tests.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
+          until docker compose -f docker-compose.tests.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
             echo "Waiting for Redpanda..."
             sleep 2
           done
       - name: Setup database tables
-        run: docker-compose -f docker-compose.tests.yml run --rm create-tables
+        run: docker compose -f docker-compose.tests.yml run --rm create-tables
       - name: Setup S3 buckets
-        run: docker-compose -f docker-compose.tests.yml run --rm create-buckets
+        run: docker compose -f docker-compose.tests.yml run --rm create-buckets
       - name: Start idworker
-        run: docker-compose -f docker-compose.tests.yml up -d idworker
+        run: docker compose -f docker-compose.tests.yml up -d idworker
       - name: Start API
-        run: docker-compose -f docker-compose.tests.yml up -d api
+        run: docker compose -f docker-compose.tests.yml up -d api
         timeout-minutes: 2
       - name: Wait for API to be healthy
         timeout-minutes: 2
@@ -140,11 +140,11 @@ jobs:
             sleep 2
           done
       - name: Run unit tests (01 - config, data, services, validation, json_parser)
-        run: docker-compose -f docker-compose.tests.yml run --rm integration pytest tests/unit -k "config or data or services or validation or json_parser" -v --tb=short
+        run: docker compose -f docker-compose.tests.yml run --rm integration pytest tests/unit -k "config or data or services or validation or json_parser" -v --tb=short
         timeout-minutes: 8
       - name: Down containers
         if: always()
-        run: docker-compose -f docker-compose.tests.yml down -v
+        run: docker compose -f docker-compose.tests.yml down -v
 
   test-unit-02:
     needs: setup
@@ -157,11 +157,11 @@ jobs:
         uses: docker/setup-buildx-action@v3
       - name: Start infrastructure services
         run: |
-          docker-compose -f docker-compose.tests.yml up -d mysql minio redpanda
+          docker compose -f docker-compose.tests.yml up -d mysql minio redpanda
       - name: Wait for MySQL to be ready
         timeout-minutes: 2
         run: |
-          until docker-compose -f docker-compose.tests.yml exec -T mysql mysqladmin ping -h localhost --silent; do
+          until docker compose -f docker-compose.tests.yml exec -T mysql mysqladmin ping -h localhost --silent; do
             echo "Waiting for MySQL..."
             sleep 2
           done
@@ -175,18 +175,18 @@ jobs:
       - name: Wait for Redpanda to be ready
         timeout-minutes: 2
         run: |
-          until docker-compose -f docker-compose.tests.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
+          until docker compose -f docker-compose.tests.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
             echo "Waiting for Redpanda..."
             sleep 2
           done
       - name: Setup database tables
-        run: docker-compose -f docker-compose.tests.yml run --rm create-tables
+        run: docker compose -f docker-compose.tests.yml run --rm create-tables
       - name: Setup S3 buckets
-        run: docker-compose -f docker-compose.tests.yml run --rm create-buckets
+        run: docker compose -f docker-compose.tests.yml run --rm create-buckets
       - name: Start idworker
-        run: docker-compose -f docker-compose.tests.yml up -d idworker
+        run: docker compose -f docker-compose.tests.yml up -d idworker
       - name: Start API
-        run: docker-compose -f docker-compose.tests.yml up -d api
+        run: docker compose -f docker-compose.tests.yml up -d api
         timeout-minutes: 2
       - name: Wait for API to be healthy
         timeout-minutes: 2
@@ -196,11 +196,11 @@ jobs:
             sleep 2
           done
       - name: Run unit tests (02 - internal_representation, workers)
-        run: docker-compose -f docker-compose.tests.yml run --rm integration pytest tests/unit -k "internal_representation or workers" -v --tb=short
+        run: docker compose -f docker-compose.tests.yml run --rm integration pytest tests/unit -k "internal_representation or workers" -v --tb=short
         timeout-minutes: 8
       - name: Down containers
         if: always()
-        run: docker-compose -f docker-compose.tests.yml down -v
+        run: docker compose -f docker-compose.tests.yml down -v
 
   test-unit-03:
     needs: setup
@@ -213,11 +213,11 @@ jobs:
         uses: docker/setup-buildx-action@v3
       - name: Start infrastructure services
         run: |
-          docker-compose -f docker-compose.tests.yml up -d mysql minio redpanda
+          docker compose -f docker-compose.tests.yml up -d mysql minio redpanda
       - name: Wait for MySQL to be ready
         timeout-minutes: 2
         run: |
-          until docker-compose -f docker-compose.tests.yml exec -T mysql mysqladmin ping -h localhost --silent; do
+          until docker compose -f docker-compose.tests.yml exec -T mysql mysqladmin ping -h localhost --silent; do
             echo "Waiting for MySQL..."
             sleep 2
           done
@@ -231,18 +231,18 @@ jobs:
       - name: Wait for Redpanda to be ready
         timeout-minutes: 2
         run: |
-          until docker-compose -f docker-compose.tests.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
+          until docker compose -f docker-compose.tests.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
             echo "Waiting for Redpanda..."
             sleep 2
           done
       - name: Setup database tables
-        run: docker-compose -f docker-compose.tests.yml run --rm create-tables
+        run: docker compose -f docker-compose.tests.yml run --rm create-tables
       - name: Setup S3 buckets
-        run: docker-compose -f docker-compose.tests.yml run --rm create-buckets
+        run: docker compose -f docker-compose.tests.yml run --rm create-buckets
       - name: Start idworker
-        run: docker-compose -f docker-compose.tests.yml up -d idworker
+        run: docker compose -f docker-compose.tests.yml up -d idworker
       - name: Start API
-        run: docker-compose -f docker-compose.tests.yml up -d api
+        run: docker compose -f docker-compose.tests.yml up -d api
         timeout-minutes: 2
       - name: Wait for API to be healthy
         timeout-minutes: 2
@@ -252,11 +252,11 @@ jobs:
             sleep 2
           done
       - name: Run unit tests (03 - infrastructure, rdf_builder)
-        run: docker-compose -f docker-compose.tests.yml run --rm integration pytest tests/unit -k "infrastructure or rdf_builder" -v --tb=short
+        run: docker compose -f docker-compose.tests.yml run --rm integration pytest tests/unit -k "infrastructure or rdf_builder" -v --tb=short
         timeout-minutes: 8
       - name: Down containers
         if: always()
-        run: docker-compose -f docker-compose.tests.yml down -v
+        run: docker compose -f docker-compose.tests.yml down -v
 
   test-unit-04:
     needs: setup
@@ -269,11 +269,11 @@ jobs:
         uses: docker/setup-buildx-action@v3
       - name: Start infrastructure services
         run: |
-          docker-compose -f docker-compose.tests.yml up -d mysql minio redpanda
+          docker compose -f docker-compose.tests.yml up -d mysql minio redpanda
       - name: Wait for MySQL to be ready
         timeout-minutes: 2
         run: |
-          until docker-compose -f docker-compose.tests.yml exec -T mysql mysqladmin ping -h localhost --silent; do
+          until docker compose -f docker-compose.tests.yml exec -T mysql mysqladmin ping -h localhost --silent; do
             echo "Waiting for MySQL..."
             sleep 2
           done
@@ -287,18 +287,18 @@ jobs:
       - name: Wait for Redpanda to be ready
         timeout-minutes: 2
         run: |
-          until docker-compose -f docker-compose.tests.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
+          until docker compose -f docker-compose.tests.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
             echo "Waiting for Redpanda..."
             sleep 2
           done
       - name: Setup database tables
-        run: docker-compose -f docker-compose.tests.yml run --rm create-tables
+        run: docker compose -f docker-compose.tests.yml run --rm create-tables
       - name: Setup S3 buckets
-        run: docker-compose -f docker-compose.tests.yml run --rm create-buckets
+        run: docker compose -f docker-compose.tests.yml run --rm create-buckets
       - name: Start idworker
-        run: docker-compose -f docker-compose.tests.yml up -d idworker
+        run: docker compose -f docker-compose.tests.yml up -d idworker
       - name: Start API
-        run: docker-compose -f docker-compose.tests.yml up -d api
+        run: docker compose -f docker-compose.tests.yml up -d api
         timeout-minutes: 2
       - name: Wait for API to be healthy
         timeout-minutes: 2
@@ -308,11 +308,11 @@ jobs:
             sleep 2
           done
       - name: Run unit tests (04 - rest_api)
-        run: docker-compose -f docker-compose.tests.yml run --rm integration pytest tests/unit -k "rest_api" -v --tb=short
+        run: docker compose -f docker-compose.tests.yml run --rm integration pytest tests/unit -k "rest_api" -v --tb=short
         timeout-minutes: 8
       - name: Down containers
         if: always()
-        run: docker-compose -f docker-compose.tests.yml down -v
+        run: docker compose -f docker-compose.tests.yml down -v
 
   test-e2e:
     needs: [test-unit-01, test-unit-02, test-unit-03, test-unit-04]
@@ -325,11 +325,11 @@ jobs:
         uses: docker/setup-buildx-action@v3
       - name: Start infrastructure services
         run: |
-          docker-compose -f docker-compose.tests.yml up -d mysql minio redpanda
+          docker compose -f docker-compose.tests.yml up -d mysql minio redpanda
       - name: Wait for MySQL to be ready
         timeout-minutes: 2
         run: |
-          until docker-compose -f docker-compose.tests.yml exec -T mysql mysqladmin ping -h localhost --silent; do
+          until docker compose -f docker-compose.tests.yml exec -T mysql mysqladmin ping -h localhost --silent; do
             echo "Waiting for MySQL..."
             sleep 2
           done
@@ -343,18 +343,18 @@ jobs:
       - name: Wait for Redpanda to be ready
         timeout-minutes: 2
         run: |
-          until docker-compose -f docker-compose.tests.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
+          until docker compose -f docker-compose.tests.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
             echo "Waiting for Redpanda..."
             sleep 2
           done
       - name: Setup database tables
-        run: docker-compose -f docker-compose.tests.yml run --rm create-tables
+        run: docker compose -f docker-compose.tests.yml run --rm create-tables
       - name: Setup S3 buckets
-        run: docker-compose -f docker-compose.tests.yml run --rm create-buckets
+        run: docker compose -f docker-compose.tests.yml run --rm create-buckets
       - name: Start idworker
-        run: docker-compose -f docker-compose.tests.yml up -d idworker
+        run: docker compose -f docker-compose.tests.yml up -d idworker
       - name: Start API
-        run: docker-compose -f docker-compose.tests.yml up -d api
+        run: docker compose -f docker-compose.tests.yml up -d api
         timeout-minutes: 2
       - name: Wait for API to be healthy
         timeout-minutes: 2
@@ -364,11 +364,11 @@ jobs:
             sleep 2
           done
       - name: Run e2e tests
-        run: docker-compose -f docker-compose.tests.yml run --rm e2e pytest tests/e2e -v --tb=short
+        run: docker compose -f docker-compose.tests.yml run --rm e2e pytest tests/e2e -v --tb=short
         timeout-minutes: 10
       - name: Down containers
         if: always()
-        run: docker-compose -f docker-compose.tests.yml down -v
+        run: docker compose -f docker-compose.tests.yml down -v
 
   test-contract:
     needs: test-e2e
@@ -381,11 +381,11 @@ jobs:
         uses: docker/setup-buildx-action@v3
       - name: Start infrastructure services
         run: |
-          docker-compose -f docker-compose.tests.yml up -d mysql minio redpanda
+          docker compose -f docker-compose.tests.yml up -d mysql minio redpanda
       - name: Wait for MySQL to be ready
         timeout-minutes: 2
         run: |
-          until docker-compose -f docker-compose.tests.yml exec -T mysql mysqladmin ping -h localhost --silent; do
+          until docker compose -f docker-compose.tests.yml exec -T mysql mysqladmin ping -h localhost --silent; do
             echo "Waiting for MySQL..."
             sleep 2
           done
@@ -399,18 +399,18 @@ jobs:
       - name: Wait for Redpanda to be ready
         timeout-minutes: 2
         run: |
-          until docker-compose -f docker-compose.tests.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
+          until docker compose -f docker-compose.tests.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
             echo "Waiting for Redpanda..."
             sleep 2
           done
       - name: Setup database tables
-        run: docker-compose -f docker-compose.tests.yml run --rm create-tables
+        run: docker compose -f docker-compose.tests.yml run --rm create-tables
       - name: Setup S3 buckets
-        run: docker-compose -f docker-compose.tests.yml run --rm create-buckets
+        run: docker compose -f docker-compose.tests.yml run --rm create-buckets
       - name: Start idworker
-        run: docker-compose -f docker-compose.tests.yml up -d idworker
+        run: docker compose -f docker-compose.tests.yml up -d idworker
       - name: Start API
-        run: docker-compose -f docker-compose.tests.yml up -d api
+        run: docker compose -f docker-compose.tests.yml up -d api
         timeout-minutes: 2
       - name: Wait for API to be healthy
         timeout-minutes: 2
@@ -420,11 +420,11 @@ jobs:
             sleep 2
           done
       - name: Run contract tests
-        run: docker-compose -f docker-compose.tests.yml run --rm integration pytest tests/contract -v --tb=short
+        run: docker compose -f docker-compose.tests.yml run --rm integration pytest tests/contract -v --tb=short
         timeout-minutes: 10
       - name: Down containers
         if: always()
-        run: docker-compose -f docker-compose.tests.yml down -v
+        run: docker compose -f docker-compose.tests.yml down -v
 
   test-integration-01:
     needs: test-contract
@@ -437,11 +437,11 @@ jobs:
         uses: docker/setup-buildx-action@v3
       - name: Start infrastructure services
         run: |
-          docker-compose -f docker-compose.tests.yml up -d mysql minio redpanda
+          docker compose -f docker-compose.tests.yml up -d mysql minio redpanda
       - name: Wait for MySQL to be ready
         timeout-minutes: 2
         run: |
-          until docker-compose -f docker-compose.tests.yml exec -T mysql mysqladmin ping -h localhost --silent; do
+          until docker compose -f docker-compose.tests.yml exec -T mysql mysqladmin ping -h localhost --silent; do
             echo "Waiting for MySQL..."
             sleep 2
           done
@@ -455,18 +455,18 @@ jobs:
       - name: Wait for Redpanda to be ready
         timeout-minutes: 2
         run: |
-          until docker-compose -f docker-compose.tests.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
+          until docker compose -f docker-compose.tests.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
             echo "Waiting for Redpanda..."
             sleep 2
           done
       - name: Setup database tables
-        run: docker-compose -f docker-compose.tests.yml run --rm create-tables
+        run: docker compose -f docker-compose.tests.yml run --rm create-tables
       - name: Setup S3 buckets
-        run: docker-compose -f docker-compose.tests.yml run --rm create-buckets
+        run: docker compose -f docker-compose.tests.yml run --rm create-buckets
       - name: Start idworker
-        run: docker-compose -f docker-compose.tests.yml up -d idworker
+        run: docker compose -f docker-compose.tests.yml up -d idworker
       - name: Start API
-        run: docker-compose -f docker-compose.tests.yml up -d api
+        run: docker compose -f docker-compose.tests.yml up -d api
         timeout-minutes: 2
       - name: Wait for API to be healthy
         timeout-minutes: 2
@@ -476,11 +476,11 @@ jobs:
             sleep 2
           done
       - name: Run integration tests (01 - first 50)
-        run: docker-compose -f docker-compose.tests.yml run --rm integration pytest tests/integration -k "test_app or test_id_resolver or test_connection_pool" -v --tb=short
+        run: docker compose -f docker-compose.tests.yml run --rm integration pytest tests/integration -k "test_app or test_id_resolver or test_connection_pool" -v --tb=short
         timeout-minutes: 10
       - name: Down containers
         if: always()
-        run: docker-compose -f docker-compose.tests.yml down -v
+        run: docker compose -f docker-compose.tests.yml down -v
 
   test-integration-02:
     needs: test-integration-01
@@ -493,11 +493,11 @@ jobs:
         uses: docker/setup-buildx-action@v3
       - name: Start infrastructure services
         run: |
-          docker-compose -f docker-compose.tests.yml up -d mysql minio redpanda
+          docker compose -f docker-compose.tests.yml up -d mysql minio redpanda
       - name: Wait for MySQL to be ready
         timeout-minutes: 2
         run: |
-          until docker-compose -f docker-compose.tests.yml exec -T mysql mysqladmin ping -h localhost --silent; do
+          until docker compose -f docker-compose.tests.yml exec -T mysql mysqladmin ping -h localhost --silent; do
             echo "Waiting for MySQL..."
             sleep 2
           done
@@ -511,18 +511,18 @@ jobs:
       - name: Wait for Redpanda to be ready
         timeout-minutes: 2
         run: |
-          until docker-compose -f docker-compose.tests.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
+          until docker compose -f docker-compose.tests.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
             echo "Waiting for Redpanda..."
             sleep 2
           done
       - name: Setup database tables
-        run: docker-compose -f docker-compose.tests.yml run --rm create-tables
+        run: docker compose -f docker-compose.tests.yml run --rm create-tables
       - name: Setup S3 buckets
-        run: docker-compose -f docker-compose.tests.yml run --rm create-buckets
+        run: docker compose -f docker-compose.tests.yml run --rm create-buckets
       - name: Start idworker
-        run: docker-compose -f docker-compose.tests.yml up -d idworker
+        run: docker compose -f docker-compose.tests.yml up -d idworker
       - name: Start API
-        run: docker-compose -f docker-compose.tests.yml up -d api
+        run: docker compose -f docker-compose.tests.yml up -d api
         timeout-minutes: 2
       - name: Wait for API to be healthy
         timeout-minutes: 2
@@ -532,11 +532,11 @@ jobs:
             sleep 2
           done
       - name: Run integration tests (02 - mid 50)
-        run: docker-compose -f docker-compose.tests.yml run --rm integration pytest tests/integration -k "test_entity or test_item or test_property" -v --tb=short
+        run: docker compose -f docker-compose.tests.yml run --rm integration pytest tests/integration -k "test_entity or test_item or test_property" -v --tb=short
         timeout-minutes: 10
       - name: Down containers
         if: always()
-        run: docker-compose -f docker-compose.tests.yml down -v
+        run: docker compose -f docker-compose.tests.yml down -v
 
   test-integration-03:
     needs: test-integration-02
@@ -549,11 +549,11 @@ jobs:
         uses: docker/setup-buildx-action@v3
       - name: Start infrastructure services
         run: |
-          docker-compose -f docker-compose.tests.yml up -d mysql minio redpanda
+          docker compose -f docker-compose.tests.yml up -d mysql minio redpanda
       - name: Wait for MySQL to be ready
         timeout-minutes: 2
         run: |
-          until docker-compose -f docker-compose.tests.yml exec -T mysql mysqladmin ping -h localhost --silent; do
+          until docker compose -f docker-compose.tests.yml exec -T mysql mysqladmin ping -h localhost --silent; do
             echo "Waiting for MySQL..."
             sleep 2
           done
@@ -567,18 +567,18 @@ jobs:
       - name: Wait for Redpanda to be ready
         timeout-minutes: 2
         run: |
-          until docker-compose -f docker-compose.tests.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
+          until docker compose -f docker-compose.tests.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
             echo "Waiting for Redpanda..."
             sleep 2
           done
       - name: Setup database tables
-        run: docker-compose -f docker-compose.tests.yml run --rm create-tables
+        run: docker compose -f docker-compose.tests.yml run --rm create-tables
       - name: Setup S3 buckets
-        run: docker-compose -f docker-compose.tests.yml run --rm create-buckets
+        run: docker compose -f docker-compose.tests.yml run --rm create-buckets
       - name: Start idworker
-        run: docker-compose -f docker-compose.tests.yml up -d idworker
+        run: docker compose -f docker-compose.tests.yml up -d idworker
       - name: Start API
-        run: docker-compose -f docker-compose.tests.yml up -d api
+        run: docker compose -f docker-compose.tests.yml up -d api
         timeout-minutes: 2
       - name: Wait for API to be healthy
         timeout-minutes: 2
@@ -588,11 +588,11 @@ jobs:
             sleep 2
           done
       - name: Run integration tests (03 - late 50a)
-        run: docker-compose -f docker-compose.tests.yml run --rm integration pytest tests/integration -k "test_qualifier or test_reference or test_snak" -v --tb=short
+        run: docker compose -f docker-compose.tests.yml run --rm integration pytest tests/integration -k "test_qualifier or test_reference or test_snak" -v --tb=short
         timeout-minutes: 10
       - name: Down containers
         if: always()
-        run: docker-compose -f docker-compose.tests.yml down -v
+        run: docker compose -f docker-compose.tests.yml down -v
 
   test-integration-04:
     needs: test-integration-03
@@ -605,11 +605,11 @@ jobs:
         uses: docker/setup-buildx-action@v3
       - name: Start infrastructure services
         run: |
-          docker-compose -f docker-compose.tests.yml up -d mysql minio redpanda
+          docker compose -f docker-compose.tests.yml up -d mysql minio redpanda
       - name: Wait for MySQL to be ready
         timeout-minutes: 2
         run: |
-          until docker-compose -f docker-compose.tests.yml exec -T mysql mysqladmin ping -h localhost --silent; do
+          until docker compose -f docker-compose.tests.yml exec -T mysql mysqladmin ping -h localhost --silent; do
             echo "Waiting for MySQL..."
             sleep 2
           done
@@ -623,18 +623,18 @@ jobs:
       - name: Wait for Redpanda to be ready
         timeout-minutes: 2
         run: |
-          until docker-compose -f docker-compose.tests.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
+          until docker compose -f docker-compose.tests.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
             echo "Waiting for Redpanda..."
             sleep 2
           done
       - name: Setup database tables
-        run: docker-compose -f docker-compose.tests.yml run --rm create-tables
+        run: docker compose -f docker-compose.tests.yml run --rm create-tables
       - name: Setup S3 buckets
-        run: docker-compose -f docker-compose.tests.yml run --rm create-buckets
+        run: docker compose -f docker-compose.tests.yml run --rm create-buckets
       - name: Start idworker
-        run: docker-compose -f docker-compose.tests.yml up -d idworker
+        run: docker compose -f docker-compose.tests.yml up -d idworker
       - name: Start API
-        run: docker-compose -f docker-compose.tests.yml up -d api
+        run: docker compose -f docker-compose.tests.yml up -d api
         timeout-minutes: 2
       - name: Wait for API to be healthy
         timeout-minutes: 2
@@ -644,7 +644,7 @@ jobs:
             sleep 2
           done
       - name: Run integration tests (04 - late 50b)
-        run: docker-compose -f docker-compose.tests.yml run --rm integration pytest tests/integration -k "test_statement or test_watchlist or test_user" -v --tb=short
+        run: docker compose -f docker-compose.tests.yml run --rm integration pytest tests/integration -k "test_statement or test_watchlist or test_user" -v --tb=short
         timeout-minutes: 15
       - name: Upload test reports
         if: always()
@@ -667,10 +667,10 @@ jobs:
       - name: Show container logs
         if: failure()
         run: |
-          docker-compose -f docker-compose.tests.yml logs --tail=100 mysql
-          docker-compose -f docker-compose.tests.yml logs --tail=100 api
-          docker-compose -f docker-compose.tests.yml logs --tail=100 integration
-          docker-compose -f docker-compose.tests.yml logs --tail=100 e2e
+          docker compose -f docker-compose.tests.yml logs --tail=100 mysql
+          docker compose -f docker-compose.tests.yml logs --tail=100 api
+          docker compose -f docker-compose.tests.yml logs --tail=100 integration
+          docker compose -f docker-compose.tests.yml logs --tail=100 e2e
       - name: Down containers
         if: always()
-        run: docker-compose -f docker-compose.tests.yml down -v
+        run: docker compose -f docker-compose.tests.yml down -v
