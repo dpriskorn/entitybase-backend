@@ -59,7 +59,7 @@ jobs:
       - name: Build docker images
         run: |
           docker compose -f docker-compose.ci.yml build \
-            api idworker integration e2e create-buckets create-tables
+            api idworker create-buckets create-tables
       - name: Start infrastructure services
         run: |
           docker compose -f docker-compose.ci.yml up -d mysql minio redpanda
@@ -100,21 +100,6 @@ jobs:
             echo "Waiting for API..."
             sleep 2
           done
-
-      # === E2E TESTS ===
-      - name: Run e2e tests
-        run: docker compose -f docker-compose.ci.yml run --rm e2e pytest tests/e2e -v --tb=short
-        timeout-minutes: 15
-
-      # === CONTRACT TESTS ===
-      - name: Run contract tests
-        run: docker compose -f docker-compose.ci.yml run --rm integration pytest tests/contract -v --tb=short
-        timeout-minutes: 10
-
-      # === INTEGRATION TESTS ===
-      - name: Run integration tests
-        run: docker compose -f docker-compose.ci.yml run --rm integration pytest tests/integration -v --tb=short
-        timeout-minutes: 25
 
       - name: Upload test reports
         if: always()

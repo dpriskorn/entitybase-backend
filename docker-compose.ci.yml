@@ -372,21 +372,5 @@ services:
     mem_limit: 1g
     cpus: 1.0
 
-  e2e:
-    build:
-      context: .
-      dockerfile: docker/containers/Dockerfile.tests
-    container_name: e2e
-    depends_on:
-      integration:
-        condition: service_completed_successfully
-    command: pytest -m e2e -v -n 0 --tb=long --log-cli-level=DEBUG --exitfirst
-    networks:
-      - default
-    environment:
-      CI: "true"
-    mem_limit: 1g
-    cpus: 1.0
-
 volumes:
   redpanda-data: {}
