@@ -72,6 +72,13 @@ class EntityDeleteHandler(Handler):
             old_statements = current_revision.revision.get("statements", [])
             delete_service.decrement_statement_references(old_statements)
 
+            old_hashes = current_revision.revision.get("hashes", {})
+            delete_service.decrement_term_references(
+                old_hashes.get("labels", {}),
+                old_hashes.get("descriptions", {}),
+                old_hashes.get("aliases", {}),
+            )
+
         content_hash, s3_revision_data = delete_service.store_deletion_revision(
             revision_data
         )

@@ -194,6 +194,54 @@ class DeleteService(Service):
                     f"Failed to decrement ref count for statement {statement_hash}: {e}"
                 )
 
+    def decrement_term_references(
+        self,
+        labels_hashes: dict[str, str],
+        descriptions_hashes: dict[str, str],
+        aliases_hashes: dict[str, list[str]],
+    ) -> None:
+        """Decrement reference counts for terms during hard delete.
+
+        Args:
+            labels_hashes: Dict of language -> hash for labels
+            descriptions_hashes: Dict of language -> hash for descriptions
+            aliases_hashes: Dict of language -> list of hashes for aliases
+        """
+        from models.infrastructure.vitess.repositories.terms import TermsRepository
+
+        terms_repo = TermsRepository(vitess_client=self.vitess_client)
+
+        for hash_value in labels_hashes.values():
+            try:
+                result = terms_repo.decrement_ref_count(int(hash_value))
+                if result.success and result.data == 0:
+                    terms_repo.delete_term(int(hash_value))
+            except Exception as e:
+                logger.warning(
+                    f"Failed to decrement ref count for label {hash_value}: {e}"
+                )
+
+        for hash_value in descriptions_hashes.values():
+            try:
+                result = terms_repo.decrement_ref_count(int(hash_value))
+                if result.success and result.data == 0:
+                    terms_repo.delete_term(int(hash_value))
+            except Exception as e:
+                logger.warning(
+                    f"Failed to decrement ref count for description {hash_value}: {e}"
+                )
+
+        for alias_hashes in aliases_hashes.values():
+            for hash_value in alias_hashes:
+                try:
+                    result = terms_repo.decrement_ref_count(int(hash_value))
+                    if result.success and result.data == 0:
+                        terms_repo.delete_term(int(hash_value))
+                except Exception as e:
+                    logger.warning(
+                        f"Failed to decrement ref count for alias {hash_value}: {e}"
+                    )
+
     def store_deletion_revision(
         self, revision_data: RevisionData
     ) -> tuple[int, S3RevisionData]:

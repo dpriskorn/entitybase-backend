@@ -16,7 +16,8 @@ from models.data.rest_api.v1.entitybase.request.entity.context import (
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.request import UserActivityType
-from models.data.infrastructure.s3.enums import EntityType
+from models.data.infrastructure.s3.enums import EntityType, MetadataType
+from models.infrastructure.vitess.repositories.terms import TermsRepository
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.utils import infer_entity_type_from_id, raise_validation_error
 
@@ -97,6 +98,7 @@ class EntityUpdateTermsMixin(BaseModel):
         if language_code not in labels_hashes:
             return current_entity
 
+        removed_hash = labels_hashes[language_code]
         updated_labels_hashes = dict(labels_hashes)
         del updated_labels_hashes[language_code]
 
@@ -115,6 +117,8 @@ class EntityUpdateTermsMixin(BaseModel):
                 existing_hashes=updated_hashes,
                 existing_revision=current_entity.entity_data.revision,
             )
+
+            self._decrement_term_ref_count(int(removed_hash))
 
             edit_context = EditContext(
                 user_id=edit_headers.x_user_id,
@@ -154,6 +158,23 @@ class EntityUpdateTermsMixin(BaseModel):
             raise_validation_error(
                 f"Delete label failed: {type(e).__name__}: {str(e)}", status_code=500
             )
+
+    def _decrement_term_ref_count(self, hash_value: int) -> None:
+        """Decrement ref_count for a term hash and clean up if orphaned."""
+        terms_repo = TermsRepository(vitess_client=self.state.vitess_client)
+        result = terms_repo.decrement_ref_count(hash_value)
+        if not result.success:
+            logger.warning(
+                f"Failed to decrement ref_count for term {hash_value}: {result.error}"
+            )
+            return
+        new_count = result.data if result.data else 0
+        if new_count == 0:
+            terms_repo.delete_term(hash_value)
+            self.state.s3_client._delete_metadata(MetadataType.LABELS, hash_value)
+            self.state.s3_client._delete_metadata(MetadataType.DESCRIPTIONS, hash_value)
+            self.state.s3_client._delete_metadata(MetadataType.ALIASES, hash_value)
+            logger.info(f"Cleaned up orphaned term hash {hash_value}")
 
     async def update_description(
         self,
@@ -222,6 +243,7 @@ class EntityUpdateTermsMixin(BaseModel):
         if language_code not in descriptions_hashes:
             return current_entity
 
+        removed_hash = descriptions_hashes[language_code]
         updated_descriptions_hashes = dict(descriptions_hashes)
         del updated_descriptions_hashes[language_code]
 
@@ -240,6 +262,8 @@ class EntityUpdateTermsMixin(BaseModel):
                 existing_hashes=updated_hashes,
                 existing_revision=current_entity.entity_data.revision,
             )
+
+            self._decrement_term_ref_count(int(removed_hash))
 
             edit_context = EditContext(
                 user_id=edit_headers.x_user_id,
@@ -468,6 +492,7 @@ class EntityUpdateTermsMixin(BaseModel):
         if language_code not in aliases_hashes:
             return current_entity
 
+        removed_hashes = aliases_hashes[language_code]
         updated_aliases_hashes = dict(aliases_hashes)
         del updated_aliases_hashes[language_code]
 
@@ -486,6 +511,9 @@ class EntityUpdateTermsMixin(BaseModel):
                 existing_hashes=updated_hashes,
                 existing_revision=current_entity.entity_data.revision,
             )
+
+            for hash_value in removed_hashes:
+                self._decrement_term_ref_count(int(hash_value))
 
             edit_context = EditContext(
                 user_id=edit_headers.x_user_id,

@@ -1,6 +1,6 @@
 """Unit tests for DeleteService."""
 
-from unittest.mock import MagicMock, AsyncMock
+from unittest.mock import MagicMock, AsyncMock, patch
 
 import pytest
 
@@ -262,3 +262,76 @@ class TestDeleteService:
         service.log_delete_activity(123, "Q42", 3)
 
         assert True  # No exception raised
+
+    # decrement_term_references
+    @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
+    def test_decrement_term_references_success(self, mock_terms_repo_class) -> None:
+        """Test decrementing term references for labels, descriptions, aliases."""
+        mock_state = MagicMock()
+        mock_vitess = MagicMock()
+        mock_state.vitess_client = mock_vitess
+
+        mock_terms_repo = MagicMock()
+        mock_terms_repo_class.return_value = mock_terms_repo
+        mock_decrement_result = MagicMock()
+        mock_decrement_result.success = True
+        mock_decrement_result.data = 1
+        mock_terms_repo.decrement_ref_count.return_value = mock_decrement_result
+
+        service = DeleteService(state=mock_state)
+        service.decrement_term_references(
+            labels_hashes={"en": "12345"},
+            descriptions_hashes={"en": "67890"},
+            aliases_hashes={"en": ["11111", "22222"]},
+        )
+
+        assert mock_terms_repo.decrement_ref_count.call_count == 4
+        mock_terms_repo.delete_term.assert_not_called()
+
+    @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
+    def test_decrement_term_references_deletes_orphaned(
+        self, mock_terms_repo_class
+    ) -> None:
+        """Test that terms with ref_count=0 are deleted."""
+        mock_state = MagicMock()
+        mock_vitess = MagicMock()
+        mock_state.vitess_client = mock_vitess
+
+        mock_terms_repo = MagicMock()
+        mock_terms_repo_class.return_value = mock_terms_repo
+        mock_decrement_result = MagicMock()
+        mock_decrement_result.success = True
+        mock_decrement_result.data = 0
+        mock_terms_repo.decrement_ref_count.return_value = mock_decrement_result
+
+        service = DeleteService(state=mock_state)
+        service.decrement_term_references(
+            labels_hashes={"en": "12345"},
+            descriptions_hashes={},
+            aliases_hashes={},
+        )
+
+        mock_terms_repo.decrement_ref_count.assert_called_once_with(12345)
+        mock_terms_repo.delete_term.assert_called_once_with(12345)
+
+    @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
+    def test_decrement_term_references_handles_failure(
+        self, mock_terms_repo_class
+    ) -> None:
+        """Test decrementing term references handles failures gracefully."""
+        mock_state = MagicMock()
+        mock_vitess = MagicMock()
+        mock_state.vitess_client = mock_vitess
+
+        mock_terms_repo = MagicMock()
+        mock_terms_repo_class.return_value = mock_terms_repo
+        mock_terms_repo.decrement_ref_count.side_effect = Exception("DB error")
+
+        service = DeleteService(state=mock_state)
+        service.decrement_term_references(
+            labels_hashes={"en": "12345"},
+            descriptions_hashes={},
+            aliases_hashes={},
+        )
+
+        assert True  # No exception raised, just logged

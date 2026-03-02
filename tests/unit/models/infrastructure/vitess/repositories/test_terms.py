@@ -3,7 +3,6 @@
 from unittest.mock import MagicMock
 
 from models.infrastructure.vitess.repositories.terms import TermsRepository
-from models.data.rest_api.v1.entitybase.response import TermsResponse
 
 
 class TestTermsRepository:
@@ -23,6 +22,17 @@ class TestTermsRepository:
 
         assert result.success is True
 
+    def test_insert_term_invalid_hash(self):
+        """Test inserting term with invalid hash."""
+        mock_vitess_client = MagicMock()
+
+        repo = TermsRepository(vitess_client=mock_vitess_client)
+
+        result = repo.insert_term(0, "test term", "label")
+
+        assert result.success is False
+        assert "Invalid hash value" in result.error
+
     def test_insert_term_database_error(self):
         """Test inserting term with database error."""
         mock_vitess_client = MagicMock()
@@ -39,105 +49,77 @@ class TestTermsRepository:
         assert result.success is False
         assert "DB error" in result.error
 
-    def test_get_term_found(self):
-        """Test getting term when it exists."""
+    def test_increment_ref_count_success(self):
+        """Test incrementing ref_count successfully."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
         mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
         mock_cursor.__exit__ = MagicMock(return_value=False)
-        mock_cursor.fetchone.return_value = ("test term", "label")
+        mock_cursor.fetchone.return_value = (5,)
         mock_vitess_client.cursor = mock_cursor
 
         repo = TermsRepository(vitess_client=mock_vitess_client)
 
-        result = repo.get_term(12345)
+        result = repo.increment_ref_count(12345)
 
-        assert result == ("test term", "label")
+        assert result.success is True
+        assert result.data == 5
 
-    def test_get_term_not_found(self):
-        """Test getting term when it doesn't exist."""
+    def test_increment_ref_count_invalid_hash(self):
+        """Test incrementing ref_count with invalid hash."""
+        mock_vitess_client = MagicMock()
+
+        repo = TermsRepository(vitess_client=mock_vitess_client)
+
+        result = repo.increment_ref_count(0)
+
+        assert result.success is False
+        assert "Invalid hash value" in result.error
+
+    def test_decrement_ref_count_success(self):
+        """Test decrementing ref_count successfully."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
         mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
         mock_cursor.__exit__ = MagicMock(return_value=False)
-        mock_cursor.fetchone.return_value = None
+        mock_cursor.fetchone.return_value = (4,)
         mock_vitess_client.cursor = mock_cursor
 
         repo = TermsRepository(vitess_client=mock_vitess_client)
 
-        result = repo.get_term(12345)
+        result = repo.decrement_ref_count(12345)
 
-        assert result is None
+        assert result.success is True
+        assert result.data == 4
 
-    def test_batch_get_terms_success(self):
-        """Test batch getting terms successfully."""
+    def test_decrement_ref_count_invalid_hash(self):
+        """Test decrementing ref_count with invalid hash."""
+        mock_vitess_client = MagicMock()
+
+        repo = TermsRepository(vitess_client=mock_vitess_client)
+
+        result = repo.decrement_ref_count(-1)
+
+        assert result.success is False
+        assert "Invalid hash value" in result.error
+
+    def test_get_ref_count_found(self):
+        """Test getting ref_count when term exists."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
         mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
         mock_cursor.__exit__ = MagicMock(return_value=False)
-        mock_cursor.fetchall.return_value = [
-            (12345, "term1", "label"),
-            (67890, "term2", "alias"),
-        ]
+        mock_cursor.fetchone.return_value = (10,)
         mock_vitess_client.cursor = mock_cursor
 
         repo = TermsRepository(vitess_client=mock_vitess_client)
 
-        result = repo.batch_get_terms([12345, 67890])
+        result = repo.get_ref_count(12345)
 
-        assert isinstance(result, TermsResponse)
-        assert 12345 in result.terms
-        assert 67890 in result.terms
-        assert result.terms[12345] == ("term1", "label")
+        assert result == 10
 
-    def test_batch_get_terms_empty_list(self):
-        """Test batch getting terms with empty list."""
-        mock_vitess_client = MagicMock()
-
-        repo = TermsRepository(vitess_client=mock_vitess_client)
-
-        result = repo.batch_get_terms([])
-
-        assert isinstance(result, TermsResponse)
-        assert result.terms == {}
-
-    def test_batch_get_terms_partial_results(self):
-        """Test batch getting terms with some not found."""
-        mock_vitess_client = MagicMock()
-        mock_cursor = MagicMock()
-        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
-        mock_cursor.__exit__ = MagicMock(return_value=False)
-        mock_cursor.fetchall.return_value = [
-            (12345, "term1", "label")
-            # 67890 not found
-        ]
-        mock_vitess_client.cursor = mock_cursor
-
-        repo = TermsRepository(vitess_client=mock_vitess_client)
-
-        result = repo.batch_get_terms([12345, 67890])
-
-        assert isinstance(result, TermsResponse)
-        assert 12345 in result.terms
-        assert 67890 not in result.terms
-
-    def test_hash_exists_true(self):
-        """Test checking if hash exists when it does."""
-        mock_vitess_client = MagicMock()
-        mock_cursor = MagicMock()
-        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
-        mock_cursor.__exit__ = MagicMock(return_value=False)
-        mock_cursor.fetchone.return_value = (1,)
-        mock_vitess_client.cursor = mock_cursor
-
-        repo = TermsRepository(vitess_client=mock_vitess_client)
-
-        result = repo.hash_exists(12345)
-
-        assert result is True
-
-    def test_hash_exists_false(self):
-        """Test checking if hash exists when it doesn't."""
+    def test_get_ref_count_not_found(self):
+        """Test getting ref_count when term doesn't exist."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
         mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
@@ -147,6 +129,60 @@ class TestTermsRepository:
 
         repo = TermsRepository(vitess_client=mock_vitess_client)
 
-        result = repo.hash_exists(12345)
+        result = repo.get_ref_count(12345)
 
-        assert result is False
+        assert result == 0
+
+    def test_get_ref_count_invalid_hash(self):
+        """Test getting ref_count with invalid hash."""
+        mock_vitess_client = MagicMock()
+
+        repo = TermsRepository(vitess_client=mock_vitess_client)
+
+        result = repo.get_ref_count(0)
+
+        assert result == 0
+
+    def test_get_orphaned_success(self):
+        """Test getting orphaned terms."""
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
+        mock_cursor.fetchall.return_value = [
+            (12345, "label"),
+            (67890, "description"),
+        ]
+        mock_vitess_client.cursor = mock_cursor
+
+        repo = TermsRepository(vitess_client=mock_vitess_client)
+
+        result = repo.get_orphaned(older_than_days=1, limit=100)
+
+        assert result.success is True
+        assert result.data == [(12345, "label"), (67890, "description")]
+
+    def test_get_orphaned_invalid_params(self):
+        """Test getting orphaned terms with invalid params."""
+        mock_vitess_client = MagicMock()
+
+        repo = TermsRepository(vitess_client=mock_vitess_client)
+
+        result = repo.get_orphaned(older_than_days=0, limit=100)
+
+        assert result.success is False
+        assert "Invalid parameters" in result.error
+
+    def test_delete_term(self):
+        """Test deleting a term."""
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
+        mock_vitess_client.cursor = mock_cursor
+
+        repo = TermsRepository(vitess_client=mock_vitess_client)
+
+        repo.delete_term(12345)
+
+        mock_cursor.execute.assert_called_once()

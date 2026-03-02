@@ -179,7 +179,9 @@ class SchemaRepository(Repository):
                     hash BIGINT UNSIGNED PRIMARY KEY,
                     term TEXT NOT NULL,
                     term_type ENUM('label', 'alias', 'description', 'form_representation', 'sense_gloss') NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    ref_count INT DEFAULT 1,
+                    INDEX idx_ref_count (ref_count DESC)
                 )
                 """
             )
