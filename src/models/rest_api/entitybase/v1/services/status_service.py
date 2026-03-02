@@ -60,19 +60,6 @@ class RevisionParams:
     operation: StatusOperation
 
 
-class StatusOperation(str, Enum):
-    """Enum for status operations."""
-
-    LOCK = "lock"
-    UNLOCK = "unlock"
-    ARCHIVE = "archive"
-    UNARCHIVE = "unarchive"
-    SEMI_PROTECT = "semi_protect"
-    UNSEMI_PROTECT = "unsemi_protect"
-    MASS_EDIT_PROTECT = "mass_edit_protect"
-    MASS_EDIT_UNPROTECT = "mass_edit_unprotect"
-
-
 _STATUS_TARGET_MAP: dict[StatusOperation, tuple[str, bool]] = {
     StatusOperation.LOCK: ("locked", True),
     StatusOperation.UNLOCK: ("locked", False),
