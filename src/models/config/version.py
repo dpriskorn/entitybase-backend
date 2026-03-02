@@ -10,9 +10,15 @@ from typing import Any
 
 def get_pyproject_path() -> Path:
     """Get path to pyproject.toml based on environment."""
-    if os.environ.get("CI"):
-        return Path("/app/pyproject.toml")
-    return Path(__file__).parent.parent.parent.parent / "pyproject.toml"
+    possible_paths = [
+        Path("/app/pyproject.toml"),
+        Path(__file__).parent.parent.parent.parent / "pyproject.toml",
+        Path.cwd() / "pyproject.toml",
+    ]
+    for path in possible_paths:
+        if path.exists():
+            return path
+    raise FileNotFoundError(f"pyproject.toml not found in any of: {possible_paths}")
 
 
 def get_release_version() -> str:
