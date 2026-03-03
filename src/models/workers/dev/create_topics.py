@@ -70,8 +70,7 @@ class CreateTopics(BaseModel):
             await admin_client.start()
 
             # Get existing topics
-            cluster_metadata = await admin_client.get_metadata()
-            existing_topics = set(cluster_metadata.topics)
+            existing_topics = await admin_client.list_topics()
 
             logger.info(f"Existing topics: {existing_topics}")
 
@@ -80,7 +79,7 @@ class CreateTopics(BaseModel):
             for topic in self.required_topics:
                 if topic not in existing_topics:
                     new_topic = NewTopic(
-                        topic=topic,
+                        name=topic,
                         num_partitions=1,
                         replication_factor=1,
                     )
@@ -93,10 +92,10 @@ class CreateTopics(BaseModel):
             if topics_to_create:
                 await admin_client.create_topics(topics_to_create)
                 logger.info(f"Created {len(topics_to_create)} topics")
-                for topic in topics_to_create:
-                    results[topic] = "created"
+                for topic_obj in topics_to_create:
+                    results[topic_obj.name] = "created"
 
-            await admin_client.stop()
+            await admin_client.close()
 
         except Exception as e:
             logger.error(f"Failed to create topics: {e}")
@@ -106,7 +105,7 @@ class CreateTopics(BaseModel):
 
     async def topic_health_check(self) -> TopicHealthCheckResult:
         """Check if all required topics exist and are accessible."""
-        issues: List[str] = {}
+        issues: List[str] = []
         topics_status: Dict[str, Any] = {}
 
         if not self.kafka_bootstrap_servers:
@@ -122,10 +121,9 @@ class CreateTopics(BaseModel):
             )
             await admin_client.start()
 
-            cluster_metadata = await admin_client.get_metadata()
-            existing_topics = set(cluster_metadata.topics)
+            existing_topics = await admin_client.list_topics()
 
-            await admin_client.stop()
+            await admin_client.close()
 
             for topic in self.required_topics:
                 if topic in existing_topics:
