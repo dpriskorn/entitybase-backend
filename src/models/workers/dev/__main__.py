@@ -21,6 +21,9 @@ from models.workers.dev.create_buckets import CreateBuckets
 # noinspection PyPep8
 from models.workers.dev.create_tables import CreateTables
 
+# noinspection PyPep8
+from models.workers.dev.create_topics import CreateTopics
+
 
 def setup_logging() -> None:
     """Setup logging for CLI usage."""
@@ -87,6 +90,22 @@ def main() -> int:
     )
     tables_health_parser.set_defaults(func=run_tables_health)
 
+    # Topics component
+    topics_parser = subparsers.add_parser("topics", help="Manage Kafka topics")
+    topics_subparsers = topics_parser.add_subparsers(
+        dest="operation", help="Topic operations"
+    )
+
+    topics_setup_parser = topics_subparsers.add_parser(
+        "setup", help="Create and setup Kafka topics"
+    )
+    topics_setup_parser.set_defaults(func=run_topics_setup)
+
+    topics_health_parser = topics_subparsers.add_parser(
+        "health", help="Check topic health"
+    )
+    topics_health_parser.set_defaults(func=run_topics_health)
+
     args = parser.parse_args()
 
     if not hasattr(args, "component") or not args.component:
@@ -147,6 +166,22 @@ async def run_tables_health(args: argparse.Namespace) -> bool:
     print(
         f"Healthy tables: {health_status['healthy_tables']}/{health_status['total_tables']}"
     )
+    return health_status["overall_status"] == "healthy"
+
+
+async def run_topics_setup(args: argparse.Namespace) -> bool:
+    """Run topic setup operation."""
+    create_topics = CreateTopics()
+    results = await create_topics.run_setup()
+    print(f"Topics setup completed: {results['setup_status']}")
+    return results["setup_status"] == "completed"
+
+
+async def run_topics_health(args: argparse.Namespace) -> bool:
+    """Run topic health check operation."""
+    create_topics = CreateTopics()
+    health_status = await create_topics.topic_health_check()
+    print(f"Topic health status: {health_status['overall_status']}")
     return health_status["overall_status"] == "healthy"
 
 
