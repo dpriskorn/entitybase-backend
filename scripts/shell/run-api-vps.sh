@@ -14,8 +14,6 @@ echo "📦 Creating buckets and tables..."
 docker compose -f docker-compose.tests.yml up create-buckets create-tables
 
 echo "📦 Creating Kafka topics..."
-echo "⏳ Waiting for Redpanda Kafka API to be ready..."
-sleep 30
 docker compose -f docker-compose.tests.yml up --build create-topics || exit 1
 
 echo "✅ Setup complete! Starting API..."
