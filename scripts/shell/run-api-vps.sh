@@ -16,9 +16,6 @@ docker compose -f docker-compose.tests.yml up create-buckets create-tables
 echo "📦 Creating Kafka topics..."
 docker compose -f docker-compose.tests.yml up create-topics
 
-echo "🔍 Running linters and type checks..."
-make lint mypy
-
 echo "✅ Setup complete! Starting API..."
 
 # Load environment variables
