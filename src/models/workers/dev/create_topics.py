@@ -50,6 +50,10 @@ class CreateTopics(BaseModel):
         self.kafka_bootstrap_servers = os.getenv(
             "KAFKA_BOOTSTRAP_SERVERS", settings.kafka_bootstrap_servers
         )
+        logger.info(
+            f"KAFKA_BOOTSTRAP_SERVERS env var: {os.getenv('KAFKA_BOOTSTRAP_SERVERS')}"
+        )
+        logger.info(f"Using bootstrap servers: {self.kafka_bootstrap_servers}")
         self.required_topics = [
             os.getenv(
                 "KAFKA_ENTITY_CHANGE_TOPIC", settings.kafka_entitychange_json_topic
