@@ -205,6 +205,13 @@ Use either the setup script or dev worker CLI to create these buckets automatica
 - **Property endpoints**: `/property` for property entities (P IDs)
 - **Lexeme endpoints**: `/lexeme` for lexeme entities (L IDs)
 
+## Companion Software
+
+The following companion projects are available separately:
+
+* [entitybase-sse](https://github.com/dpriskorn/entitybase-sse) - Server-Sent Events implementation for streaming RDF diffs to [QLever](https://github.com/ad-freiburg/qlever)
+* [entitybase-import](https://github.com/dpriskorn/entitybase-import) - Data import tools for importing wikibase-json
+
 # License
 GPLv3+ 
 
