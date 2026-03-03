@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Development worker for Kafka/Redpanda topic creation and management."""
 
+import asyncio
 import logging
 import os
 import sys
 from typing import Any, Dict, List, TypedDict
 
 from aiokafka.admin import AIOKafkaAdminClient, NewTopic  # type: ignore[import-untyped]
+from aiokafka.errors import NodeNotReadyError  # type: ignore[import-untyped]
 from pydantic import BaseModel
 
 
@@ -45,12 +47,14 @@ class CreateTopics(BaseModel):
     required_topics: List[str] = []
 
     def model_post_init(self, context: Any) -> None:
-        from models.config.settings import Settings
-
-        self.kafka_bootstrap_servers = settings.kafka_bootstrap_servers
+        self.kafka_bootstrap_servers = os.getenv(
+            "KAFKA_BOOTSTRAP_SERVERS", settings.kafka_bootstrap_servers
+        )
         self.required_topics = [
-            settings.kafka_entitychange_json_topic,
-            settings.kafka_entity_diff_topic,
+            os.getenv(
+                "KAFKA_ENTITY_CHANGE_TOPIC", settings.kafka_entitychange_json_topic
+            ),
+            os.getenv("KAFKA_ENTITY_DIFF_TOPIC", settings.kafka_entity_diff_topic),
         ]
 
     async def ensure_topics_exist(self) -> Dict[str, str]:
@@ -63,43 +67,55 @@ class CreateTopics(BaseModel):
             )
             return results
 
-        try:
-            admin_client = AIOKafkaAdminClient(
-                bootstrap_servers=self.kafka_bootstrap_servers,
-            )
-            await admin_client.start()
+        max_retries = 5
+        retry_delay = 3
 
-            # Get existing topics
-            existing_topics = await admin_client.list_topics()
+        for attempt in range(max_retries):
+            try:
+                admin_client = AIOKafkaAdminClient(
+                    bootstrap_servers=self.kafka_bootstrap_servers,
+                )
+                await admin_client.start()
 
-            logger.info(f"Existing topics: {existing_topics}")
+                existing_topics = await admin_client.list_topics()
 
-            # Create topics that don't exist
-            topics_to_create: List[NewTopic] = []
-            for topic in self.required_topics:
-                if topic not in existing_topics:
-                    new_topic = NewTopic(
-                        name=topic,
-                        num_partitions=1,
-                        replication_factor=1,
-                    )
-                    topics_to_create.append(new_topic)
-                    logger.info(f"Will create topic: {topic}")
+                logger.info(f"Existing topics: {existing_topics}")
+
+                topics_to_create: List[NewTopic] = []
+                for topic in self.required_topics:
+                    if topic not in existing_topics:
+                        new_topic = NewTopic(
+                            name=topic,
+                            num_partitions=1,
+                            replication_factor=1,
+                        )
+                        topics_to_create.append(new_topic)
+                        logger.info(f"Will create topic: {topic}")
+                    else:
+                        results[topic] = "exists"
+                        logger.info(f"Topic already exists: {topic}")
+
+                if topics_to_create:
+                    await admin_client.create_topics(topics_to_create)
+                    logger.info(f"Created {len(topics_to_create)} topics")
+                    for topic_obj in topics_to_create:
+                        results[topic_obj.name] = "created"
+
+                await admin_client.close()
+                break
+
+            except NodeNotReadyError as e:
+                logger.warning(
+                    f"Redpanda not ready (attempt {attempt + 1}/{max_retries}): {e}"
+                )
+                if attempt < max_retries - 1:
+                    await asyncio.sleep(retry_delay * (attempt + 1))
                 else:
-                    results[topic] = "exists"
-                    logger.info(f"Topic already exists: {topic}")
-
-            if topics_to_create:
-                await admin_client.create_topics(topics_to_create)
-                logger.info(f"Created {len(topics_to_create)} topics")
-                for topic_obj in topics_to_create:
-                    results[topic_obj.name] = "created"
-
-            await admin_client.close()
-
-        except Exception as e:
-            logger.error(f"Failed to create topics: {e}")
-            raise
+                    logger.error("Max retries reached for topic creation")
+                    raise
+            except Exception as e:
+                logger.error(f"Failed to create topics: {e}")
+                raise
 
         return results
 
