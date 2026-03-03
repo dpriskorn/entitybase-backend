@@ -7,6 +7,68 @@ This document describes how to set up and run the Enitybase Backend development 
 - Docker and Docker Compose installed
 - Git
 
+## Python Environment Setup
+
+This project requires Python >= 3.13. We recommend using [pyenv](https://github.com/pyenv/pyenv) to manage Python versions without modifying the system Python.
+
+### Installing pyenv
+
+1. Install dependencies:
+   ```bash
+   sudo apt install -y build-essential libssl-dev zlib1g-dev libbz2-dev \
+   libreadline-dev libsqlite3-dev curl libncursesw5-dev xz-utils tk-dev \
+   libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+   ```
+
+2. Install pyenv:
+   ```bash
+   curl https://pyenv.run | bash
+   ```
+
+3. Add to your ~/.bashrc:
+   ```bash
+   echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
+   echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+   eval "$(pyenv init -)"
+   ```
+
+4. Restart your shell or run: `source ~/.bashrc`
+
+### Installing Python
+
+```bash
+# Install Python 3.14 (recommended)
+pyenv install 3.14.0
+
+# Or Python 3.13 (minimum required)
+pyenv install 3.13.0
+```
+
+### Setting Up the Project
+
+```bash
+cd entitybase-backend
+
+# Set local Python version for this project
+pyenv local 3.14.0
+
+# Verify
+python --version  # Should show 3.14.0
+
+# Install Poetry (if not installed)
+curl -sS https://install.python-poetry.org | python3.14 -
+
+# Create virtual environment and install dependencies
+poetry env use python
+poetry install --with dev
+```
+
+### Notes
+
+- **Do NOT** create a symlink to system `/usr/bin/python` - this can break apt and system tools
+- pyenv builds Python from source, which may take a few minutes
+- For VPS setups, you may need to log out and back in after adding yourself to the docker group
+
 ## Setup
 
 1. Clone the repository:
@@ -65,6 +127,7 @@ This project uses a Makefile for common development tasks. Run `make help` to se
 | Command | Description |
 |---------|-------------|
 | `make api` | Start the API locally using uvicorn with reload enabled (requires Docker for MySQL and MinIO) |
+| `make api-vps` | Simplified API startup for VPS environments (no docs generation, no rebuild) |
 
 ### Linting and Code Quality
 
@@ -132,3 +195,31 @@ This project uses a Makefile for common development tasks. Run `make help` to se
 ## Troubleshooting
 
 If you encounter issues with persistent data, ensure volumes are properly pruned as described in the setup steps.
+
+### Docker Permission Denied
+
+If you get "permission denied while trying to connect to the docker API":
+
+```bash
+# Add your user to the docker group
+sudo usermod -aG docker $USER
+
+# Log out and log back in, or run:
+newgrp docker
+```
+
+### Python Command Not Found
+
+If scripts fail with "python: command not found", ensure you have set up pyenv and activated it:
+
+```bash
+# Verify pyenv is working
+pyenv --version
+
+# Set local Python version in project
+cd entitybase-backend
+pyenv local 3.14.0
+
+# Verify python command works
+python --version
+```

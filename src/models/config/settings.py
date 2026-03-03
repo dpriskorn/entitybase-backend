@@ -80,6 +80,7 @@ class Settings(BaseModel):
 
     # other
     user_agent: str = "Entitybase/1.0 User:So9q"
+    api_description: str = ""
 
     # workers
     backlink_stats_enabled: bool = True
@@ -211,6 +212,7 @@ class Settings(BaseModel):
         """Load other configuration from environment variables."""
         self.log_level = os.getenv("LOG_LEVEL", self.log_level)
         self.user_agent = os.getenv("USER_AGENT", self.user_agent)
+        self.api_description = os.getenv("API_DESCRIPTION", self.api_description)
 
     def _load_rdf_config(self) -> None:
         """Load RDF configuration from environment variables."""

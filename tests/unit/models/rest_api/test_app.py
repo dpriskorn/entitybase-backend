@@ -14,7 +14,7 @@ class TestFastAPIApp:
         from models.rest_api.main import app
 
         assert app is not None
-        assert app.title == "EntityBase"
+        assert app.title == "Entitybase-backend"
         assert app.version == API_VERSION
 
     def test_app_has_lifespan_configured(self):

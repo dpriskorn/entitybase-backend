@@ -155,13 +155,17 @@ async def _stop_stream_producer(
         logger.info(log_message)
 
 
-app = FastAPI(
-    title="EntityBase",
-    version=API_VERSION,
-    openapi_version="3.1",
-    lifespan=lifespan,
-    response_model_by_alias=True,
-)
+app_kwargs: dict = {
+    "title": "Entitybase-backend",
+    "version": API_VERSION,
+    "openapi_version": "3.1",
+    "lifespan": lifespan,
+    "response_model_by_alias": True,
+}
+if settings.api_description:
+    app_kwargs["description"] = settings.api_description
+
+app = FastAPI(**app_kwargs)
 app.add_middleware(StartupMiddleware)
 
 
