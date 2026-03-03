@@ -22,5 +22,4 @@ export PYTHONPATH=src
 echo "🐍 Starting API with uvicorn..."
 exec uvicorn models.rest_api.main:app \
   --host 0.0.0.0 \
-  --port 8000 \
-  --reload
+  --port 8080
