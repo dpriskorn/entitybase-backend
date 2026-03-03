@@ -2,6 +2,8 @@
 cd "$(dirname "$0")/../.."
 set -e
 
+source .venv/bin/activate
+
 echo "🚀 Starting Docker services (MySQL, MinIO, Redpanda)..."
 docker compose -f docker-compose.tests.yml up -d mysql minio redpanda
 

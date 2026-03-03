@@ -2,6 +2,8 @@
 cd "$(dirname "$0")/../.."
 set -e
 
+source .venv/bin/activate
+
 echo "🚀 Starting docker containers..."
 ./scripts/shell/run-docker-build-tests.sh "$@"
 echo "✅ Docker build completed"
