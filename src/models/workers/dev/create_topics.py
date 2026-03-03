@@ -34,9 +34,6 @@ logger = logging.getLogger(__name__)
 src_path = os.path.join(os.path.dirname(__file__), "..", "..")
 sys.path.insert(0, src_path)
 
-# noinspection PyPep8
-from models.config.settings import settings
-
 
 class CreateTopics(BaseModel):
     """Development worker for Kafka/Redpanda topic creation and management."""
@@ -48,17 +45,15 @@ class CreateTopics(BaseModel):
 
     def model_post_init(self, context: Any) -> None:
         self.kafka_bootstrap_servers = os.getenv(
-            "KAFKA_BOOTSTRAP_SERVERS", settings.kafka_bootstrap_servers
+            "KAFKA_BOOTSTRAP_SERVERS", "redpanda:9092"
         )
         logger.info(
             f"KAFKA_BOOTSTRAP_SERVERS env var: {os.getenv('KAFKA_BOOTSTRAP_SERVERS')}"
         )
         logger.info(f"Using bootstrap servers: {self.kafka_bootstrap_servers}")
         self.required_topics = [
-            os.getenv(
-                "KAFKA_ENTITY_CHANGE_TOPIC", settings.kafka_entitychange_json_topic
-            ),
-            os.getenv("KAFKA_ENTITY_DIFF_TOPIC", settings.kafka_entity_diff_topic),
+            os.getenv("KAFKA_ENTITY_CHANGE_TOPIC", "entitybase.entity_change"),
+            os.getenv("KAFKA_ENTITY_DIFF_TOPIC", "entitybase.entity_diff"),
         ]
 
     async def ensure_topics_exist(self) -> Dict[str, str]:
