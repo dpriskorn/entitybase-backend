@@ -26,6 +26,8 @@ src/models/infrastructure/vitess/repositories/revision.py:321
 src/models/infrastructure/vitess/repositories/user.py:345
 src/models/infrastructure/vitess/repositories/user.py:346
 src/models/infrastructure/vitess/repositories/user.py:347
+src/models/infrastructure/vitess/repositories/user.py:350
+src/models/infrastructure/vitess/repositories/user.py:351
 
 # backlink.py - Serializes top entities dict for database storage
 src/models/infrastructure/vitess/repositories/backlink.py:135

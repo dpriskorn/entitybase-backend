@@ -103,4 +103,4 @@ async def test_sitelinks_by_site(api_prefix: str) -> None:
         site_resp = await client.get(
             f"{api_prefix}/entities/{entity_id}/sitelinks/enwiki"
         )
-        assert site_resp.status_code in [200, 404]
+        assert site_resp.status_code == 404
