@@ -25,6 +25,9 @@ class SettingsResponse(BaseModel):
     vitess_host: str
     vitess_port: int
     vitess_database: str
+    vitess_pool_size: int
+    vitess_max_overflow: int
+    vitess_pool_timeout: int
     wikibase_repository_name: str
     property_registry_path: str
     log_level: str
@@ -66,4 +69,5 @@ def settings_to_response(settings: Any) -> SettingsResponse:
     """Convert Settings object to SettingsResponse, excluding sensitive fields."""
     exclude = {"s3_access_key", "s3_secret_key", "vitess_password", "vitess_user"}
     data = settings.model_dump(exclude=exclude)
+    data["property_registry_path"] = str(data["property_registry_path"])
     return SettingsResponse(**data)
