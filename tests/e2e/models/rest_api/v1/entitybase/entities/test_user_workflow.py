@@ -24,17 +24,12 @@ async def test_user_workflow(api_prefix: str) -> None:
             user_id = unique_user_id
 
             # Create entity to watch
-            entity_data = {
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Watch Test Item"}},
-            }
-            response = await client.post(
+            response = await client.get(
                 f"{api_prefix}/entities/items",
-                json=entity_data,
                 headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
             )
             assert response.status_code == 200
-            entity_id = response.json()["id"]
+            entity_id = response.json()["data"]["entity_id"]
 
             # Add to watchlist
             watch_data = {"entity_id": entity_id, "properties": ["P31"]}

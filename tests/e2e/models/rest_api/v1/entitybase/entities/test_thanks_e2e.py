@@ -22,12 +22,12 @@ async def test_send_thank(api_prefix: str) -> None:
             "type": "item",
             "labels": {"en": {"language": "en", "value": "Thanks Test"}},
         }
-        response = await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=entity_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        entity_id = response.json()["id"]
+        assert response.status_code == 200
+        entity_id = response.json()["data"]["entity_id"]
         revision_id = 1
 
         # Send thank (will fail for non-existent user but endpoint works)
@@ -49,16 +49,12 @@ async def test_get_revision_thanks(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create entity
-        entity_data = {
-            "type": "item",
-            "labels": {"en": {"language": "en", "value": "Revision Thanks Test"}},
-        }
-        response = await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=entity_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        entity_id = response.json()["id"]
+        assert response.status_code == 200
+        entity_id = response.json()["data"]["entity_id"]
         revision_id = 1
 
         # Get thanks for revision

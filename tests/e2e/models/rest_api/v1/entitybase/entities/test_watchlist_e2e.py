@@ -22,16 +22,12 @@ async def test_add_watch(api_prefix: str) -> None:
         await client.post(f"{api_prefix}/users", json=user_data)
 
         # Create entity
-        entity_data = {
-            "type": "item",
-            "labels": {"en": {"language": "en", "value": "Watch Test"}},
-        }
-        response = await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=entity_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        entity_id = response.json()["id"]
+        assert response.status_code == 200
+        entity_id = response.json()["data"]["entity_id"]
 
         # Add watch
         watch_data = {"entity_id": entity_id, "properties": ["P31"]}
@@ -55,16 +51,12 @@ async def test_get_watchlist(api_prefix: str) -> None:
         await client.post(f"{api_prefix}/users", json=user_data)
 
         # Create entity
-        entity_data = {
-            "type": "item",
-            "labels": {"en": {"language": "en", "value": "Watchlist Test"}},
-        }
-        response = await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=entity_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        entity_id = response.json()["id"]
+        assert response.status_code == 200
+        entity_id = response.json()["data"]["entity_id"]
 
         # Add watch
         watch_data = {"entity_id": entity_id, "properties": ["P31"]}
@@ -92,16 +84,12 @@ async def test_remove_watch_by_id(api_prefix: str) -> None:
         await client.post(f"{api_prefix}/users", json=user_data)
 
         # Create entity
-        entity_data = {
-            "type": "item",
-            "labels": {"en": {"language": "en", "value": "Watch Remove Test"}},
-        }
-        response = await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=entity_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        entity_id = response.json()["id"]
+        assert response.status_code == 200
+        entity_id = response.json()["data"]["entity_id"]
 
         # Add watch
         watch_data = {"entity_id": entity_id, "properties": ["P31"]}
@@ -151,16 +139,12 @@ async def test_remove_watch_by_entity(api_prefix: str) -> None:
         await client.post(f"{api_prefix}/users", json=user_data)
 
         # Create entity
-        entity_data = {
-            "type": "item",
-            "labels": {"en": {"language": "en", "value": "Watch Remove Entity Test"}},
-        }
-        response = await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=entity_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        entity_id = response.json()["id"]
+        assert response.status_code == 200
+        entity_id = response.json()["data"]["entity_id"]
 
         # Add watch
         watch_data = {"entity_id": entity_id, "properties": ["P31"]}

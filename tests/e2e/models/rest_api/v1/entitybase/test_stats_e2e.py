@@ -39,14 +39,25 @@ async def test_get_entity_property_counts(
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Create entity with statements
-        response = await client.post(
+        # Create entity
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=sample_item_with_statements,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        entity_id = response.json()["id"]
+        entity_id = response.json()["data"]["entity_id"]
+
+        # Add a statement with P31
+        statement_data = {
+            "property_id": "P31",
+            "value": {"id": "Q5"},
+            "value_type": "wikibase-item",
+        }
+        await client.post(
+            f"{api_prefix}/entities/{entity_id}/statements",
+            json=statement_data,
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
 
         # Get property counts
         response = await client.get(
@@ -73,13 +84,12 @@ async def test_get_entity_property_counts_empty(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create entity without statements
-        response = await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=sample_item_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        entity_id = response.json()["id"]
+        entity_id = response.json()["data"]["entity_id"]
 
         # Get property counts
         response = await client.get(
