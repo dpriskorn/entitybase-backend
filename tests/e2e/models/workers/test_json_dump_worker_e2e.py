@@ -58,7 +58,7 @@ async def test_weekly_dump_full_workflow_e2e(api_prefix: str) -> None:
             headers=headers,
         )
         assert response.status_code == 200
-        entity_id = response.json()["id"]
+        entity_id = response.json()["data"]["entity_id"]
         logger.info(f"Created item entity: {entity_id}")
 
         # Update labels
@@ -160,7 +160,7 @@ async def test_concurrent_dumps(api_prefix: str) -> None:
                 headers=headers,
             )
             assert response.status_code == 200
-            entity_id = response.json()["id"]
+            entity_id = response.json()["data"]["entity_id"]
 
             # Update labels
             await client.put(
