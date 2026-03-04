@@ -60,7 +60,7 @@ class EntityTransaction(BaseModel, ABC):
         )
         self.state.vitess_client.entity_repository.delete(entity_id, revision_id)
 
-    def publish_event(
+    async def publish_event(
         self,
         event_context: EventPublishContext,
         edit_context: EditContext,
@@ -82,6 +82,7 @@ class EntityTransaction(BaseModel, ABC):
             type=ChangeType(event_context.change_type),
             from_rev=event_context.from_revision_id,
             at=changed_at,
+            user_id=str(edit_context.user_id),
             summary=edit_context.edit_summary,
         )
         # TODO: Publish to stream
