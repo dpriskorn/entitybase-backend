@@ -7,7 +7,7 @@ set -e
 #./scripts/linters/basemodel_linter.py
 #./scripts/shell/run-data-lint.sh
 #./scripts/shell/run-str-lint.sh
-./scripts/linters/check_async_calls.py
+./scripts/linters/check_async_calls.py src/
 ./scripts/shell/run-int-lint.sh
 ./scripts/linters/value_error_linter.py
 ./scripts/shell/run-assert-linter.sh
