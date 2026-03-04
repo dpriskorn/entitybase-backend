@@ -49,13 +49,12 @@ async def test_add_property_to_entity(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create property first
-        property_data = sample_property_data.copy()
-        property_data["id"] = "P31"
-        response = await client.get(
+        property_response = await client.get(
             f"{api_prefix}/entities/properties",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code == 200
+        assert property_response.status_code == 200
+        property_id = property_response.json()["data"]["entity_id"]
 
         # Create entity
         response = await client.get(
@@ -72,7 +71,7 @@ async def test_add_property_to_entity(
                     "id": "TESTCLAIM123",
                     "mainsnak": {
                         "snaktype": "value",
-                        "property": "P31",
+                        "property": property_id,
                         "datavalue": {"value": {"id": "Q5"}, "type": "wikibase-item"},
                     },
                     "type": "statement",
@@ -81,7 +80,7 @@ async def test_add_property_to_entity(
             ]
         }
         response = await client.post(
-            f"{api_prefix}/entities/{entity_id}/properties/P31",
+            f"{api_prefix}/entities/{entity_id}/properties/{property_id}",
             json=claim_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )

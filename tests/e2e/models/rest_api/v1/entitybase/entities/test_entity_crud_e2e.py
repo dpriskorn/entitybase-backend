@@ -171,22 +171,30 @@ async def test_revert_entity(api_prefix: str) -> None:
         assert create_response.status_code == 200
         entity_id = create_response.json()["data"]["entity_id"]
 
-        await client.put(
+        # First update
+        put_response1 = await client.put(
             f"{api_prefix}/entities/{entity_id}/labels/en",
             json={"language": "en", "value": "First revision"},
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
+        assert put_response1.status_code == 200
 
-        await client.put(
+        # Second update
+        put_response2 = await client.put(
             f"{api_prefix}/entities/{entity_id}/labels/en",
             json={"language": "en", "value": "Second revision"},
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
+        assert put_response2.status_code == 200
 
         revisions_response = await client.get(
             f"{api_prefix}/entities/{entity_id}/revisions"
         )
+        assert revisions_response.status_code == 200
         revisions = revisions_response.json()
+        assert len(revisions) >= 2, (
+            f"Expected at least 2 revisions, got {len(revisions)}"
+        )
         first_rev_id = revisions[1]["revision_id"]
 
         revert_response = await client.post(

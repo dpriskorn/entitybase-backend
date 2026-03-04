@@ -25,6 +25,15 @@ async def test_get_sitelink(api_prefix: str, sample_sitelink) -> None:
         assert response.status_code == 200
         entity_id = response.json()["data"]["entity_id"]
 
+        # Add sitelink first
+        sitelink_data = {"site": "enwiki", "title": "Test Article", "badges": []}
+        add_response = await client.post(
+            f"{api_prefix}/entities/{entity_id}/sitelinks/enwiki",
+            json=sitelink_data,
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+        assert add_response.status_code == 200
+
         # Get sitelink
         response = await client.get(
             f"{api_prefix}/entities/{entity_id}/sitelinks/enwiki"
