@@ -79,7 +79,7 @@ class Settings(BaseModel):
     api_prefix: str = "/v1/entitybase"
 
     # other
-    user_agent: str = "Entitybase/1.0 User:So9q"
+    user_agent: str = f"Entitybase/{ENTITYBASE_VERSION} User:So9q"
     api_description: str = ""
 
     # workers
