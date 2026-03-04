@@ -2,4 +2,4 @@ fastapi==0.127.1
 uvicorn==0.40.0
 pydantic==2.12.5
 pymysql==1.1.2
-wikibaseintegrator==0.12.0
+wikibaseintegrator==0.12.15
