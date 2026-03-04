@@ -1,5 +1,6 @@
 models.internal_representation.entity.Entity
 # REST API endpoints
+get_settings
 list_items
 list_properties
 list_lexemes

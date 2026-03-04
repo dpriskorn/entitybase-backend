@@ -7,7 +7,7 @@ import ast
 import sys
 from pathlib import Path
 
-ALLOWLIST_FILE = Path(__file__).parent.resolve() / "allowlists" / "custom" / "response-key-length.txt"
+ALLOWLIST_FILE = Path(__file__).parent.resolve().parent.parent / "config" / "linters" / "allowlists" / "custom" / "response-key-length.txt"
 
 
 def load_allowlist() -> set[str]:
