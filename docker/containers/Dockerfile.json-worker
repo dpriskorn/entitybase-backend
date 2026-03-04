@@ -8,28 +8,22 @@ RUN echo "Building with requirements hash: $REQUIREMENTS_HASH"
 WORKDIR /app
 
 # Copy requirements first for better caching
-COPY requirements-idworker.txt ./
+COPY requirements-json-worker.txt ./
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements-idworker.txt
+RUN pip install --no-cache-dir -r requirements-json-worker.txt
 
 # Copy application code
 COPY src/ ./
 
 # Set environment variables
 ENV PYTHONPATH=/app
-ENV WORKER_ID=id-worker
-ENV VITESS_HOST=vitess
-ENV VITESS_PORT=15309
-ENV VITESS_DATABASE=page
-ENV VITESS_USER=root
-ENV VITESS_PASSWORD=
 
 # Expose health check port
-EXPOSE 8001
+# JSON dump worker uses 8002
 
 # Run the worker
-CMD ["python", "-m", "models.workers.id_generation.id_generation_worker"]
+CMD ["python", "-m", "models.workers.json_dumps.json_dump_worker"]

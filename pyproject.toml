@@ -38,6 +38,33 @@ package-mode = true
 packages = [{include = "models", from = "src"}]
 
 [dependency-groups]
+idworker = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "pymysql",
+]
+stats-worker = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "pymysql",
+]
+json-worker = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "pymysql",
+    "boto3",
+]
+ttl-worker = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "pymysql",
+    "boto3",
+    "rdflib",
+]
 # We use a version of pytest that is compatible with pytest-asyncio
 dev = [
     "pytest (>=9.0)",
