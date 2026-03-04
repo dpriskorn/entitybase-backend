@@ -90,7 +90,7 @@ class ItemCreateHandler(EntityCreateHandler):
             from_revision_id=0,
             changed_at=datetime.now(),
         )
-        ctx.tx.publish_event(event_context, edit_context)
+        await ctx.tx.publish_event(event_context, edit_context)
         logger.debug("🔍 HANDLER: Event published successfully")
 
         ctx.tx.commit()
