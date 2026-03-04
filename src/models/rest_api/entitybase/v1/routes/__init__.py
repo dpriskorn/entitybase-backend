@@ -7,6 +7,7 @@ from . import (
     entities,
     health,
     resolve,
+    settings,
     thanks,
     users,
     version,
