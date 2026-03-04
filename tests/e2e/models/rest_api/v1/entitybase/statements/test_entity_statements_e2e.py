@@ -23,20 +23,18 @@ async def test_add_statement(
 
         property_data = sample_property_data.copy()
         property_data["id"] = "P31"
-        response = await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/properties",
-            json=property_data,
             headers=headers,
         )
         assert response.status_code == 200
 
-        response = await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=sample_item_data,
             headers=headers,
         )
         assert response.status_code == 200
-        entity_id = response.json()["id"]
+        entity_id = response.json()["data"]["entity_id"]
 
         statement_data = {
             "claim": {
@@ -79,13 +77,12 @@ async def test_remove_statement(api_prefix: str, sample_item_with_statements) ->
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create entity with statements
-        response = await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=sample_item_with_statements,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        entity_id = response.json()["id"]
+        entity_id = response.json()["data"]["entity_id"]
 
         # Get statement hash
         response = await client.get(f"{api_prefix}/entities/{entity_id}")
@@ -104,7 +101,6 @@ async def test_remove_statement(api_prefix: str, sample_item_with_statements) ->
         # Remove statement
         response = await client.delete(
             f"{api_prefix}/entities/{entity_id}/statements/{statement_hash}",
-            json={},
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
@@ -130,13 +126,12 @@ async def test_replace_statement(api_prefix: str, sample_item_with_statements) -
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create entity with statements
-        response = await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=sample_item_with_statements,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        entity_id = response.json()["id"]
+        entity_id = response.json()["data"]["entity_id"]
 
         # Get statement hash
         response = await client.get(f"{api_prefix}/entities/{entity_id}")

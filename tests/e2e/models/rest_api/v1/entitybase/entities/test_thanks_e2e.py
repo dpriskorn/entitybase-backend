@@ -13,21 +13,18 @@ sys.path.insert(0, "src")
 async def test_send_thank(api_prefix: str) -> None:
     from models.rest_api.main import app
 
+    from tests.e2e.conftest import get_entity_id_from_response
+
     """E2E test: Send a thank for a specific revision."""
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create entity
-        entity_data = {
-            "type": "item",
-            "labels": {"en": {"language": "en", "value": "Thanks Test"}},
-        }
         response = await client.get(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code == 200
-        entity_id = response.json()["data"]["entity_id"]
+        entity_id = get_entity_id_from_response(response)
         revision_id = 1
 
         # Send thank (will fail for non-existent user but endpoint works)
@@ -44,6 +41,8 @@ async def test_send_thank(api_prefix: str) -> None:
 async def test_get_revision_thanks(api_prefix: str) -> None:
     from models.rest_api.main import app
 
+    from tests.e2e.conftest import get_entity_id_from_response
+
     """E2E test: Get all thanks for a specific revision."""
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
@@ -53,8 +52,7 @@ async def test_get_revision_thanks(api_prefix: str) -> None:
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code == 200
-        entity_id = response.json()["data"]["entity_id"]
+        entity_id = get_entity_id_from_response(response)
         revision_id = 1
 
         # Get thanks for revision

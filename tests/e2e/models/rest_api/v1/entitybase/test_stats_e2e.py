@@ -1,11 +1,14 @@
 """E2E tests for statistics and activity endpoints."""
 
+import logging
 import pytest
 import sys
 
 from httpx import ASGITransport, AsyncClient
 
 sys.path.insert(0, "src")
+
+logger = logging.getLogger(__name__)
 
 
 @pytest.mark.e2e
@@ -20,6 +23,10 @@ async def test_get_general_stats(api_prefix: str) -> None:
         response = await client.get(f"{api_prefix}/stats")
         # Returns 400 if general_daily_stats table is empty
         # or 200 if stats exist
+        if response.status_code != 200:
+            logger.error(
+                f"Stats endpoint failed: {response.status_code} - {response.text}"
+            )
         assert response.status_code == 200
         if response.status_code == 200:
             data = response.json()
@@ -36,6 +43,8 @@ async def test_get_entity_property_counts(
     """E2E test: Get statement counts per property for an entity's head revision."""
     from models.rest_api.main import app
 
+    from tests.e2e.conftest import get_entity_id_from_response
+
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
@@ -44,8 +53,7 @@ async def test_get_entity_property_counts(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code == 200
-        entity_id = response.json()["data"]["entity_id"]
+        entity_id = get_entity_id_from_response(response)
 
         # Add a statement with P31
         statement_data = {
@@ -63,6 +71,10 @@ async def test_get_entity_property_counts(
         response = await client.get(
             f"{api_prefix}/entities/{entity_id}/property_counts"
         )
+        if response.status_code != 200:
+            logger.error(
+                f"Property counts endpoint failed: {response.status_code} - {response.text}"
+            )
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, dict) or isinstance(data, list)
@@ -80,6 +92,8 @@ async def test_get_entity_property_counts_empty(
     """E2E test: Get property counts for entity with no statements."""
     from models.rest_api.main import app
 
+    from tests.e2e.conftest import get_entity_id_from_response
+
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
@@ -88,13 +102,16 @@ async def test_get_entity_property_counts_empty(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code == 200
-        entity_id = response.json()["data"]["entity_id"]
+        entity_id = get_entity_id_from_response(response)
 
         # Get property counts
         response = await client.get(
             f"{api_prefix}/entities/{entity_id}/property_counts"
         )
+        if response.status_code != 200:
+            logger.error(
+                f"Property counts endpoint failed: {response.status_code} - {response.text}"
+            )
         assert response.status_code == 200
         data = response.json()
         # Empty entity should return empty result

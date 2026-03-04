@@ -10,24 +10,42 @@ sys.path.insert(0, "src")
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-async def test_batch_statements(api_prefix: str, sample_item_with_statements) -> None:
+async def test_batch_statements(api_prefix: str) -> None:
     """E2E test: Retrieve multiple statements by their content hashes."""
     from models.rest_api.main import app
 
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Create entity with statements
-        response = await client.post(
+        # Create empty entity
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=sample_item_with_statements,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        data = response.json()
+        entity_id = response.json()["data"]["entity_id"]
+
+        # Add a statement to the entity
+        statement_data = {
+            "claim": {
+                "id": "TESTCLAIM131",
+                "mainsnak": {
+                    "snaktype": "value",
+                    "property": "P31",
+                    "datavalue": {"value": {"id": "Q5"}, "type": "wikibase-item"},
+                },
+                "type": "statement",
+                "rank": "normal",
+            }
+        }
+        response = await client.post(
+            f"{api_prefix}/entities/{entity_id}/statements",
+            json=statement_data,
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+        assert response.status_code == 200
 
         # Get statement hashes
-        entity_id = data["id"]
         response = await client.get(f"{api_prefix}/entities/{entity_id}")
         assert response.status_code == 200
         entity_data = response.json()

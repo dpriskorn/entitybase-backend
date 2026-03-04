@@ -198,9 +198,8 @@ async def test_get_batch_statements(api_prefix: str) -> None:
                 }
             ],
         }
-        response = await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=create_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
