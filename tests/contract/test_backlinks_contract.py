@@ -20,16 +20,12 @@ async def test_backlinks_response_schema(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_resp = await client.post(
+        create_resp = await client.get(
             f"{api_prefix}/entities/items",
-            json={
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test Entity"}},
-            },
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_resp.status_code == 200
-        entity_id = create_resp.json()["id"]
+        entity_id = create_resp.json()["data"]["entity_id"]
 
         response = await client.get(f"{api_prefix}/entities/{entity_id}/backlinks")
 
@@ -49,16 +45,12 @@ async def test_backlinks_pagination(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_resp = await client.post(
+        create_resp = await client.get(
             f"{api_prefix}/entities/items",
-            json={
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test"}},
-            },
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_resp.status_code == 200
-        entity_id = create_resp.json()["id"]
+        entity_id = create_resp.json()["data"]["entity_id"]
 
         response = await client.get(
             f"{api_prefix}/entities/{entity_id}/backlinks?limit=10&offset=0"
@@ -76,16 +68,12 @@ async def test_backlinks_empty_response(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_resp = await client.post(
+        create_resp = await client.get(
             f"{api_prefix}/entities/items",
-            json={
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test"}},
-            },
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_resp.status_code == 200
-        entity_id = create_resp.json()["id"]
+        entity_id = create_resp.json()["data"]["entity_id"]
 
         response = await client.get(f"{api_prefix}/entities/{entity_id}/backlinks")
 
@@ -119,16 +107,12 @@ async def test_backlink_response_fields(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_resp = await client.post(
+        create_resp = await client.get(
             f"{api_prefix}/entities/items",
-            json={
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test"}},
-            },
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_resp.status_code == 200
-        entity_id = create_resp.json()["id"]
+        entity_id = create_resp.json()["data"]["entity_id"]
 
         response = await client.get(f"{api_prefix}/entities/{entity_id}/backlinks")
 
@@ -149,16 +133,12 @@ async def test_backlinks_pagination_response(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_resp = await client.post(
+        create_resp = await client.get(
             f"{api_prefix}/entities/items",
-            json={
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test"}},
-            },
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_resp.status_code == 200
-        entity_id = create_resp.json()["id"]
+        entity_id = create_resp.json()["data"]["entity_id"]
 
         response = await client.get(
             f"{api_prefix}/entities/{entity_id}/backlinks?limit=25&offset=50"
@@ -180,16 +160,12 @@ async def test_backlinks_empty_list_type(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_resp = await client.post(
+        create_resp = await client.get(
             f"{api_prefix}/entities/items",
-            json={
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test"}},
-            },
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_resp.status_code == 200
-        entity_id = create_resp.json()["id"]
+        entity_id = create_resp.json()["data"]["entity_id"]
 
         response = await client.get(f"{api_prefix}/entities/{entity_id}/backlinks")
 
@@ -209,16 +185,12 @@ async def test_backlinks_limit_default_value(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_resp = await client.post(
+        create_resp = await client.get(
             f"{api_prefix}/entities/items",
-            json={
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test"}},
-            },
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_resp.status_code == 200
-        entity_id = create_resp.json()["id"]
+        entity_id = create_resp.json()["data"]["entity_id"]
 
         response = await client.get(f"{api_prefix}/entities/{entity_id}/backlinks")
 

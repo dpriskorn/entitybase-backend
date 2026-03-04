@@ -177,6 +177,9 @@ class MockVitessClient:
     def is_entity_deleted(self, entity_id: str) -> bool:
         return False
 
+    def is_entity_locked(self, entity_id: str) -> bool:
+        return False
+
     def get_head(self, entity_id: str) -> int:
         revisions = self._revisions.get(entity_id, [])
         return max(revisions) if revisions else 0

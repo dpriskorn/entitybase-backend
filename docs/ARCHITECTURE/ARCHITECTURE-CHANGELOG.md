@@ -2,6 +2,70 @@
 
 This file tracks architectural changes, feature additions, and modifications to entitybase-backend.
 
+## [2026-03-04] Kafka Event Producer Caching Fix
+
+### Summary
+
+Fixed a critical resource leak where Kafka event producers were being created on every API request instead of being reused. This caused "Unclosed AIOKafkaProducer" warnings and prevented events from being reliably published to the Kafka/Redpanda stream.
+
+### Motivation
+
+- **Resource Leak**: Each API request created a new Kafka producer without closing the previous one
+- **Unreliable Events**: Events were not being published consistently due to resource churn
+- **Memory Issues**: Accumulation of unclosed producers caused memory warnings
+
+### Changes
+
+#### Modified Files
+
+1. **`src/models/rest_api/entitybase/v1/handlers/state.py`**
+   - Added `cached_entity_change_stream_producer` field for caching the producer instance
+   - Added `cached_entitydiff_stream_producer` field for entity diff producer
+   - Modified `entity_change_stream_producer` property to return cached instance instead of creating new one
+   - Modified `entitydiff_stream_producer` property similarly
+   - Added `async_shutdown()` method to properly close producers on app shutdown
+
+2. **`src/models/rest_api/main.py`**
+   - Updated `_cleanup_app_state()` to call `async_shutdown()` on state handler
+   - Removed redundant `_stop_stream_producer()` helper function
+
+3. **`src/models/rest_api/entitybase/v1/handlers/entity/handler.py`**
+   - Added info-level logging when publishing events (entity, revision, type, topic)
+   - Added success logging after event is published
+   - Added warning when stream producer is unavailable
+
+4. **`src/models/infrastructure/stream/producer.py`**
+   - Added logging when producer is starting lazily
+   - Added logging before/after sending events to Kafka
+   - Added detailed error logging with traceback
+
+### Behavior Change
+
+**Before**: Each API call that published events created a new Kafka producer
+```
+Request 1 → New Producer A → Never closed
+Request 2 → New Producer B → Never closed  
+Request 3 → New Producer C → Never closed
+...
+```
+
+**After**: Single cached producer is reused across all requests
+```
+Request 1 → Producer (created, cached)
+Request 2 → Producer (reused)
+Request 3 → Producer (reused)
+...
+App shutdown → Producer (properly closed)
+```
+
+### Benefits
+
+- **Fixed Memory Leaks**: No more "Unclosed AIOKafkaProducer" warnings
+- **Reliable Event Publishing**: Events now consistently published to Kafka
+- **Reduced Resource Usage**: Single producer instance vs. many per request
+- **Proper Shutdown**: Producers are cleanly closed when app shuts down
+- **Better Observability**: Added logging to debug event publishing issues
+
 ## [2026-02-18] Auto-compute Dangling Status from Property
 
 ### Summary

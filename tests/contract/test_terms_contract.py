@@ -26,11 +26,16 @@ async def test_label_response_schema(api_prefix: str) -> None:
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]
+        revision_id = create_resp.json()["data"]["revision_id"]
 
         await client.put(
             f"{api_prefix}/entities/{entity_id}/labels/en",
             json={"language": "en", "value": "Test Label"},
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={
+                "X-Edit-Summary": "test",
+                "X-User-ID": "0",
+                "X-Base-Revision-ID": str(revision_id),
+            },
         )
 
         label_resp = await client.get(f"{api_prefix}/entities/{entity_id}/labels/en")
@@ -56,11 +61,16 @@ async def test_description_response_schema(api_prefix: str) -> None:
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]
+        revision_id = create_resp.json()["data"]["revision_id"]
 
         await client.put(
             f"{api_prefix}/entities/{entity_id}/descriptions/en",
             json={"language": "en", "value": "Test Description"},
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={
+                "X-Edit-Summary": "test",
+                "X-User-ID": "0",
+                "X-Base-Revision-ID": str(revision_id),
+            },
         )
 
         desc_resp = await client.get(
@@ -88,11 +98,16 @@ async def test_aliases_response_schema(api_prefix: str) -> None:
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]
+        revision_id = create_resp.json()["data"]["revision_id"]
 
         await client.put(
             f"{api_prefix}/entities/{entity_id}/aliases/en",
-            json=[{"value": "Test Alias"}],
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            json=["Test Alias"],
+            headers={
+                "X-Edit-Summary": "test",
+                "X-User-ID": "0",
+                "X-Base-Revision-ID": str(revision_id),
+            },
         )
 
         aliases_resp = await client.get(f"{api_prefix}/entities/{entity_id}/aliases/en")
