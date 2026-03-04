@@ -16,6 +16,8 @@ RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements-ttl-worker.txt
 
+COPY pyproject.toml /app/pyproject.toml
+
 # Copy application code
 COPY src/ ./
 
