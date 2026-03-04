@@ -2,6 +2,7 @@
 
 import pytest
 import logging
+from unittest.mock import AsyncMock
 
 
 class TestFastAPIApp:
@@ -39,6 +40,7 @@ class TestFastAPIApp:
         app_mock = FastAPI()
         mock_state_handler = mocker.Mock()
         mock_state_handler.start.return_value = None
+        mock_state_handler.async_shutdown = AsyncMock()
 
         mocker.patch(
             "models.rest_api.main.StateHandler", return_value=mock_state_handler
@@ -59,6 +61,7 @@ class TestFastAPIApp:
         app_mock = FastAPI()
         mock_state_handler = mocker.Mock()
         mock_state_handler.start.return_value = None
+        mock_state_handler.async_shutdown = AsyncMock()
 
         mocker.patch(
             "models.rest_api.main.StateHandler", return_value=mock_state_handler
@@ -80,6 +83,7 @@ class TestFastAPIApp:
         app_mock = FastAPI()
         mock_state_handler = mocker.Mock()
         mock_state_handler.start.side_effect = RuntimeError("Startup failed")
+        mock_state_handler.async_shutdown = AsyncMock()
 
         mocker.patch(
             "models.rest_api.main.StateHandler", return_value=mock_state_handler
