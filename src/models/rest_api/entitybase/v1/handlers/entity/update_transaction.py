@@ -381,7 +381,7 @@ class UpdateTransaction(EntityTransaction):
                 user=str(edit_context.user_id),
                 summary=edit_context.edit_summary,
             )
-            self.state.entity_change_stream_producer.publish_change(event)
+            self.state.entity_change_stream_producer.publish(event)
         # Events are fire-and-forget, no rollback needed
 
     def _rollback_statement(self, hash_val: int) -> None:

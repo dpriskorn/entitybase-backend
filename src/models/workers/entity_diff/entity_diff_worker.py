@@ -134,7 +134,7 @@ class EntityDiffWorker(Worker):
             patrolled=False,
         )
 
-        await self.rdf_stream_producer.publish_change(event)
+        await self.rdf_stream_producer.publish(event)
 
 
 # Convenience functions for testing

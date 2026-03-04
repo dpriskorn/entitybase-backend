@@ -163,7 +163,7 @@ class EndorsementHandler(Handler):
                 act=action,
                 ts=datetime.now(timezone.utc),
             )
-            self.state.vitess_client.stream_producer.publish_change(event)
+            self.state.vitess_client.stream_producer.publish(event)
 
     def get_statement_endorsements(
         self,

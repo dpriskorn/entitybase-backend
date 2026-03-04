@@ -42,7 +42,7 @@ class StreamProducerClient(Client):
             self.producer = None
             logger.info("Stopped Kafka producer")
 
-    async def publish_change(self, event: Any) -> None:
+    async def publish(self, event: Any) -> None:
         """Publish an event to Kafka."""
         if not self.producer:
             await self.start()

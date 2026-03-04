@@ -206,7 +206,7 @@ class RedirectService(Service):
                 user=str(edit_headers.x_user_id),
                 summary=edit_headers.x_edit_summary,
             )
-            await self.state.entity_change_stream_producer.publish_event(event)
+            await self.state.entity_change_stream_producer.publish(event)
 
         return EntityRedirectResponse(
             redirect_from_id=request.redirect_from_id,

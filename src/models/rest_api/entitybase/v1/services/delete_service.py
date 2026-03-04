@@ -284,7 +284,7 @@ class DeleteService(Service):
         """
         if self.state.entity_change_stream_producer:
             try:
-                await self.state.entity_change_stream_producer.publish_change(
+                await self.state.entity_change_stream_producer.publish(
                     EntityChangeEvent(
                         id=entity_id,
                         rev=new_revision_id,

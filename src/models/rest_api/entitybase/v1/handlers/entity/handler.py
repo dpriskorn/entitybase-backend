@@ -354,7 +354,7 @@ class EntityHandler(Handler):
                 logger.debug(
                     f"Publishing event to stream for entity {ctx.entity_id} revision {result.revision_id}"
                 )
-                await ctx.stream_producer.publish_change(event)
+                await ctx.stream_producer.publish(event)
             except Exception as e:
                 logger.warning(f"Failed to publish event for {ctx.entity_id}: {e}")
 

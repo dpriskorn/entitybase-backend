@@ -273,4 +273,4 @@ class EntityRevertHandler(Handler):
                 user=str(edit_headers.x_user_id),
                 summary=edit_headers.x_edit_summary,
             )
-            await self.state.entity_change_stream_producer.publish_change(event)
+            await self.state.entity_change_stream_producer.publish(event)
