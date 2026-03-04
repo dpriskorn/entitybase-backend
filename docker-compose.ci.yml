@@ -31,7 +31,7 @@ services:
     volumes:
       - /data
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:9000/minio/health/live"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -125,7 +125,7 @@ services:
       redpanda:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8001/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -167,7 +167,7 @@ services:
       minio:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8002/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -210,7 +210,7 @@ services:
       minio:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8003/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -242,7 +242,7 @@ services:
       create-tables:
         condition: service_completed_successfully
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8004/health"]
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8004/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -273,7 +273,7 @@ services:
       create-tables:
         condition: service_completed_successfully
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8005/health"]
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8005/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -304,7 +304,7 @@ services:
       create-tables:
         condition: service_completed_successfully
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8006/health"]
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8006/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -365,7 +365,7 @@ services:
       CI: "true"
     command: uvicorn models.rest_api.main:app --host 0.0.0.0 --port 8000
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8000/health"]
       interval: 5s
       timeout: 3s
       retries: 10
