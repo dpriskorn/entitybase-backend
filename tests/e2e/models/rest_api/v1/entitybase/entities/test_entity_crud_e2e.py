@@ -198,7 +198,8 @@ async def test_revert_entity(api_prefix: str) -> None:
         first_rev_id = revisions[1]["revision_id"]
 
         revert_response = await client.post(
-            f"{api_prefix}/entities/{entity_id}/revert/{first_rev_id}",
+            f"{api_prefix}/entities/{entity_id}/revert",
+            json={"to_revision_id": first_rev_id},
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert revert_response.status_code == 200
