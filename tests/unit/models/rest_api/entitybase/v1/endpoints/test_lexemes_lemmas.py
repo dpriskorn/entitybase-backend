@@ -455,7 +455,7 @@ class TestFormRepresentationUpdates:
         mock_req.app.state.state_handler = mock_state
 
         with patch(
-            "models.rest_api.entitybase.v1.endpoints.lexeme_forms.EntityUpdateHandler",
+            "models.rest_api.entitybase.v1.endpoints.lexeme_senses.EntityUpdateHandler",
             return_value=mock_update_handler,
         ):
             result = await add_sense_gloss(
