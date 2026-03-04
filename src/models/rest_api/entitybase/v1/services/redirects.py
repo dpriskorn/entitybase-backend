@@ -14,11 +14,11 @@ from models.data.rest_api.v1.entitybase.response import (
     EntityRedirectResponse,
 )
 from models.data.rest_api.v1.entitybase.response import EntityRevertResponse
+from models.infrastructure.stream.event import EntityChangeEvent
 from models.rest_api.entitybase.v1.service import Service
 from models.rest_api.utils import raise_validation_error
 
 if TYPE_CHECKING:
-    from models.infrastructure.stream.event import EntityChangeEvent
     from models.data.infrastructure.stream.change_type import ChangeType
 
 logger = logging.getLogger(__name__)
