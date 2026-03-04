@@ -3,3 +3,4 @@ uvicorn==0.40.0
 pydantic==2.12.5
 pymysql==1.1.2
 boto3==1.42.59
+wikibaseintegrator==0.12.0
