@@ -1,4 +1,7 @@
+<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/e0bdd375-24f0-41d4-87a4-bfaa82519d12" />
+
 # Entitybase Backend
+
 ![coverage](https://img.shields.io/badge/coverage-82.1%25-yellow)
 
 A clean-room, billion-scale Wikibase JSON and RDF schema compatible backend architecture 
