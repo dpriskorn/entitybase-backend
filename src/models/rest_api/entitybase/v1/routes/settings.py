@@ -19,5 +19,4 @@ settings_router = APIRouter(tags=["settings"])
 def get_settings() -> SettingsResponse:
     """Get current application settings (excludes sensitive values)."""
     logger.debug("Settings requested")
-    data = settings_to_response(settings)
-    return SettingsResponse(**data)
+    return settings_to_response(settings)

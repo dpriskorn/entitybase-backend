@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 
 from pydantic import BaseModel
 
@@ -62,7 +62,8 @@ class SettingsResponse(BaseModel):
     ttl_dump_generate_checksums: bool
 
 
-def settings_to_response(settings: Any) -> Dict[str, Any]:
-    """Convert Settings object to response dict, excluding sensitive fields."""
+def settings_to_response(settings: Any) -> SettingsResponse:
+    """Convert Settings object to SettingsResponse, excluding sensitive fields."""
     exclude = {"s3_access_key", "s3_secret_key", "vitess_password", "vitess_user"}
-    return settings.model_dump(exclude=exclude)
+    data = settings.model_dump(exclude=exclude)
+    return SettingsResponse(**data)
