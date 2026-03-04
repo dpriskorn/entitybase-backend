@@ -104,7 +104,7 @@ services:
     container_name: idworker
     build:
       context: .
-      dockerfile: docker/containers/Dockerfile.id-generator
+      dockerfile: docker/containers/Dockerfile.idworker
     ports:
       - "8001:8001"
     environment:
