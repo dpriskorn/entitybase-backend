@@ -86,9 +86,7 @@ class EntityHandler(Handler):
             is_creation=ctx.is_creation,
             vitess_client=self.state.vitess_client,
             s3_client=self.state.s3_client,
-            stream_producer=self.state.stream_producer
-            if hasattr(self.state, "stream_producer")
-            else None,
+            stream_producer=self.state.entity_change_stream_producer,
             validator=ctx.validator,
         )
 
