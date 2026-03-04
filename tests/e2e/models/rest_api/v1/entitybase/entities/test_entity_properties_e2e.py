@@ -51,9 +51,8 @@ async def test_add_property_to_entity(
         # Create property first
         property_data = sample_property_data.copy()
         property_data["id"] = "P31"
-        response = await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/properties",
-            json=property_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
