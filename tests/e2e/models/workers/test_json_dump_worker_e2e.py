@@ -63,16 +63,16 @@ async def test_weekly_dump_full_workflow_e2e(api_prefix: str) -> None:
 
         # Update labels
         response = await client.put(
-            f"{api_prefix}/entities/{entity_id}/labels",
-            json={"en": {"language": "en", "value": "Douglas Adams"}},
+            f"{api_prefix}/entities/{entity_id}/labels/en",
+            json={"language": "en", "value": "Douglas Adams"},
             headers=headers,
         )
         assert response.status_code == 200
 
         # Update descriptions
         response = await client.put(
-            f"{api_prefix}/entities/{entity_id}/descriptions",
-            json={"en": {"language": "en", "value": "British science fiction writer"}},
+            f"{api_prefix}/entities/{entity_id}/descriptions/en",
+            json={"language": "en", "value": "British science fiction writer"},
             headers=headers,
         )
         assert response.status_code == 200

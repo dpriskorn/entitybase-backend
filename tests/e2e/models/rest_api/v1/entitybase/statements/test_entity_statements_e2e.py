@@ -21,13 +21,13 @@ async def test_add_statement(
     ) as client:
         headers = {"X-Edit-Summary": "E2E test", "X-User-ID": "0"}
 
-        property_data = sample_property_data.copy()
-        property_data["id"] = "P31"
-        response = await client.get(
+        # Create property first
+        property_response = await client.get(
             f"{api_prefix}/entities/properties",
             headers=headers,
         )
-        assert response.status_code == 200
+        assert property_response.status_code == 200
+        property_id = property_response.json()["data"]["entity_id"]
 
         response = await client.get(
             f"{api_prefix}/entities/items",
@@ -41,7 +41,7 @@ async def test_add_statement(
                 "id": "TESTCLAIM123",
                 "mainsnak": {
                     "snaktype": "value",
-                    "property": "P31",
+                    "property": property_id,
                     "datavalue": {"value": {"id": "Q5"}, "type": "wikibase-item"},
                 },
                 "type": "statement",

@@ -17,6 +17,14 @@ async def test_batch_statements(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
+        # Create property first
+        property_response = await client.get(
+            f"{api_prefix}/entities/properties",
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+        assert property_response.status_code == 200
+        property_id = property_response.json()["data"]["entity_id"]
+
         # Create empty entity
         response = await client.get(
             f"{api_prefix}/entities/items",
@@ -31,7 +39,7 @@ async def test_batch_statements(api_prefix: str) -> None:
                 "id": "TESTCLAIM131",
                 "mainsnak": {
                     "snaktype": "value",
-                    "property": "P31",
+                    "property": property_id,
                     "datavalue": {"value": {"id": "Q5"}, "type": "wikibase-item"},
                 },
                 "type": "statement",
