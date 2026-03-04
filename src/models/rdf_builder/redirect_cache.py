@@ -8,6 +8,7 @@ from typing import Any, List
 
 import requests
 
+from models.config.settings import settings
 from models.data.rest_api.v1.entitybase.response import (
     RedirectBatchResponse,
     MetadataLoadResponse,
@@ -39,9 +40,7 @@ def fetch_entity_redirects_batch(entity_ids: list[str]) -> RedirectBatchResponse
                     "format": "json",
                 },
                 timeout=60,
-                headers={
-                    "User-Agent": "WikibaseBackend/1.0 (research@wikibase-backend.org)"
-                },
+                headers={"User-Agent": settings.user_agent},
             )
             response.raise_for_status()
 

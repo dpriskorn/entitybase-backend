@@ -6,9 +6,14 @@ Usage:
 """
 
 import csv
+import sys
 from pathlib import Path
 
 import requests
+
+sys.path.insert(0, "src")
+
+from models.config.settings import settings
 
 SPARQL_ENDPOINT = "https://query.wikidata.org/sparql"
 
@@ -29,7 +34,7 @@ def main() -> None:
         SPARQL_ENDPOINT,
         params={"query": query, "format": "json"},
         timeout=60,
-        headers={"User-Agent": "WikibaseBackend/1.0 (research@wikibase-backend.org)"},
+        headers={"User-Agent": settings.user_agent},
     )
     response.raise_for_status()
 
