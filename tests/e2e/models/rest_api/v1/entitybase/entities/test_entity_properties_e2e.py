@@ -20,13 +20,12 @@ async def test_get_entity_properties(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create entity with statements
-        response = await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=sample_item_with_statements,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        entity_id = response.json()["id"]
+        entity_id = response.json()["data"]["entity_id"]
 
         # Get properties
         response = await client.get(f"{api_prefix}/entities/{entity_id}/properties")
@@ -60,13 +59,12 @@ async def test_add_property_to_entity(
         assert response.status_code == 200
 
         # Create entity
-        response = await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=sample_item_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        entity_id = response.json()["id"]
+        entity_id = response.json()["data"]["entity_id"]
 
         # Add property claim - use valid Wikibase statement JSON format
         claim_data = {
@@ -103,13 +101,12 @@ async def test_get_entity_property_hashes(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create entity with statements
-        response = await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=sample_item_with_statements,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        entity_id = response.json()["id"]
+        entity_id = response.json()["data"]["entity_id"]
 
         # Get property hashes
         response = await client.get(f"{api_prefix}/entities/{entity_id}/properties/P31")
@@ -136,13 +133,12 @@ async def test_get_entity_property_hashes_alternative_endpoint(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create entity with statements
-        response = await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=sample_item_with_statements,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        entity_id = response.json()["id"]
+        entity_id = response.json()["data"]["entity_id"]
 
         # Get property hashes via alternative endpoint
         response = await client.get(f"{api_prefix}/entities/{entity_id}/properties/P31")

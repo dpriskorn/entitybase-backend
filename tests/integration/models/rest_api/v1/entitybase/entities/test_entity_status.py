@@ -15,23 +15,17 @@ async def test_status_flags_returned_in_response(api_prefix: str) -> None:
 
     logger = logging.getLogger(__name__)
 
-    entity_data = {
-        "id": "Q90005",
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Test"}},
-    }
-
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=entity_data,
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
         assert response.status_code == 200
+        entity_id = response.json()["data"]["entity_id"]
 
-        response = await client.get(f"{api_prefix}/entities/Q90005")
+        response = await client.get(f"{api_prefix}/entities/{entity_id}")
         assert response.status_code == 200
         data = response.json()
         assert "state" in data
@@ -53,28 +47,23 @@ async def test_lock_entity(api_prefix: str) -> None:
 
     logger = logging.getLogger(__name__)
 
-    entity_data = {
-        "id": "Q91001",
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Test Lock"}},
-    }
-
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=entity_data,
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
+        assert response.status_code == 200
+        entity_id = response.json()["data"]["entity_id"]
 
         response = await client.post(
-            f"{api_prefix}/entities/Q91001/lock",
+            f"{api_prefix}/entities/{entity_id}/lock",
             headers={"X-Edit-Summary": "lock entity", "X-User-ID": "0"},
         )
         assert response.status_code == 200
         data = response.json()
-        assert data["id"] == "Q91001"
+        assert data["id"] == entity_id
         assert data["status"] == "locked"
         assert data["idempotent"] is False
         assert data["rev_id"] == 2
@@ -90,33 +79,28 @@ async def test_unlock_entity(api_prefix: str) -> None:
 
     logger = logging.getLogger(__name__)
 
-    entity_data = {
-        "id": "Q91002",
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Test Unlock"}},
-    }
-
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=entity_data,
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
+        assert response.status_code == 200
+        entity_id = response.json()["data"]["entity_id"]
 
         await client.post(
-            f"{api_prefix}/entities/Q91002/lock",
+            f"{api_prefix}/entities/{entity_id}/lock",
             headers={"X-Edit-Summary": "lock entity", "X-User-ID": "0"},
         )
 
         response = await client.delete(
-            f"{api_prefix}/entities/Q91002/lock",
+            f"{api_prefix}/entities/{entity_id}/lock",
             headers={"X-Edit-Summary": "unlock entity", "X-User-ID": "0"},
         )
         assert response.status_code == 200
         data = response.json()
-        assert data["id"] == "Q91002"
+        assert data["id"] == entity_id
         assert data["status"] == "unlocked"
         assert data["idempotent"] is False
         assert data["rev_id"] == 3
@@ -132,33 +116,28 @@ async def test_lock_idempotent(api_prefix: str) -> None:
 
     logger = logging.getLogger(__name__)
 
-    entity_data = {
-        "id": "Q91003",
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Test Idempotent"}},
-    }
-
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=entity_data,
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
+        assert response.status_code == 200
+        entity_id = response.json()["data"]["entity_id"]
 
         await client.post(
-            f"{api_prefix}/entities/Q91003/lock",
+            f"{api_prefix}/entities/{entity_id}/lock",
             headers={"X-Edit-Summary": "lock entity", "X-User-ID": "0"},
         )
 
         response = await client.post(
-            f"{api_prefix}/entities/Q91003/lock",
+            f"{api_prefix}/entities/{entity_id}/lock",
             headers={"X-Edit-Summary": "lock again", "X-User-ID": "0"},
         )
         assert response.status_code == 200
         data = response.json()
-        assert data["id"] == "Q91003"
+        assert data["id"] == entity_id
         assert data["status"] == "locked"
         assert data["idempotent"] is True
 
@@ -173,28 +152,23 @@ async def test_archive_entity(api_prefix: str) -> None:
 
     logger = logging.getLogger(__name__)
 
-    entity_data = {
-        "id": "Q91004",
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Test Archive"}},
-    }
-
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=entity_data,
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
+        assert response.status_code == 200
+        entity_id = response.json()["data"]["entity_id"]
 
         response = await client.post(
-            f"{api_prefix}/entities/Q91004/archive",
+            f"{api_prefix}/entities/{entity_id}/archive",
             headers={"X-Edit-Summary": "archive entity", "X-User-ID": "0"},
         )
         assert response.status_code == 200
         data = response.json()
-        assert data["id"] == "Q91004"
+        assert data["id"] == entity_id
         assert data["status"] == "archived"
         assert data["idempotent"] is False
 
@@ -209,33 +183,28 @@ async def test_unarchive_entity(api_prefix: str) -> None:
 
     logger = logging.getLogger(__name__)
 
-    entity_data = {
-        "id": "Q91005",
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Test Unarchive"}},
-    }
-
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=entity_data,
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
+        assert response.status_code == 200
+        entity_id = response.json()["data"]["entity_id"]
 
         await client.post(
-            f"{api_prefix}/entities/Q91005/archive",
+            f"{api_prefix}/entities/{entity_id}/archive",
             headers={"X-Edit-Summary": "archive entity", "X-User-ID": "0"},
         )
 
         response = await client.delete(
-            f"{api_prefix}/entities/Q91005/archive",
+            f"{api_prefix}/entities/{entity_id}/archive",
             headers={"X-Edit-Summary": "unarchive entity", "X-User-ID": "0"},
         )
         assert response.status_code == 200
         data = response.json()
-        assert data["id"] == "Q91005"
+        assert data["id"] == entity_id
         assert data["status"] == "unarchived"
         assert data["idempotent"] is False
 
@@ -250,28 +219,23 @@ async def test_semi_protect_entity(api_prefix: str) -> None:
 
     logger = logging.getLogger(__name__)
 
-    entity_data = {
-        "id": "Q91006",
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Test Semi-Protect"}},
-    }
-
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=entity_data,
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
+        assert response.status_code == 200
+        entity_id = response.json()["data"]["entity_id"]
 
         response = await client.post(
-            f"{api_prefix}/entities/Q91006/semi-protect",
+            f"{api_prefix}/entities/{entity_id}/semi-protect",
             headers={"X-Edit-Summary": "semi-protect entity", "X-User-ID": "0"},
         )
         assert response.status_code == 200
         data = response.json()
-        assert data["id"] == "Q91006"
+        assert data["id"] == entity_id
         assert data["status"] == "semi_protected"
         assert data["idempotent"] is False
 
@@ -286,28 +250,23 @@ async def test_mass_edit_protect_entity(api_prefix: str) -> None:
 
     logger = logging.getLogger(__name__)
 
-    entity_data = {
-        "id": "Q91007",
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Test Mass Edit Protect"}},
-    }
-
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=entity_data,
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
+        assert response.status_code == 200
+        entity_id = response.json()["data"]["entity_id"]
 
         response = await client.post(
-            f"{api_prefix}/entities/Q91007/mass-edit-protect",
+            f"{api_prefix}/entities/{entity_id}/mass-edit-protect",
             headers={"X-Edit-Summary": "mass-edit-protect entity", "X-User-ID": "0"},
         )
         assert response.status_code == 200
         data = response.json()
-        assert data["id"] == "Q91007"
+        assert data["id"] == entity_id
         assert data["status"] == "mass_edit_protected"
         assert data["idempotent"] is False
 
@@ -322,33 +281,28 @@ async def test_mass_edit_unprotect_entity(api_prefix: str) -> None:
 
     logger = logging.getLogger(__name__)
 
-    entity_data = {
-        "id": "Q91008",
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Test Mass Edit Unprotect"}},
-    }
-
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=entity_data,
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
+        assert response.status_code == 200
+        entity_id = response.json()["data"]["entity_id"]
 
         await client.post(
-            f"{api_prefix}/entities/Q91008/mass-edit-protect",
+            f"{api_prefix}/entities/{entity_id}/mass-edit-protect",
             headers={"X-Edit-Summary": "mass-edit-protect entity", "X-User-ID": "0"},
         )
 
         response = await client.delete(
-            f"{api_prefix}/entities/Q91008/mass-edit-protect",
+            f"{api_prefix}/entities/{entity_id}/mass-edit-protect",
             headers={"X-Edit-Summary": "mass-edit-unprotect entity", "X-User-ID": "0"},
         )
         assert response.status_code == 200
         data = response.json()
-        assert data["id"] == "Q91008"
+        assert data["id"] == entity_id
         assert data["status"] == "mass_edit_unprotected"
         assert data["idempotent"] is False
 

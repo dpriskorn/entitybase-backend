@@ -43,6 +43,7 @@ class TestFastAPIApp:
         mocker.patch(
             "models.rest_api.main.StateHandler", return_value=mock_state_handler
         )
+        mocker.patch("models.rest_api.main.settings.streaming_enabled", new=False)
 
         async with lifespan(app_mock) as _:
             assert hasattr(app_mock.state, "state_handler")
@@ -62,6 +63,7 @@ class TestFastAPIApp:
         mocker.patch(
             "models.rest_api.main.StateHandler", return_value=mock_state_handler
         )
+        mocker.patch("models.rest_api.main.settings.streaming_enabled", new=False)
 
         with caplog.at_level(logging.DEBUG):
             async with lifespan(app_mock) as _:

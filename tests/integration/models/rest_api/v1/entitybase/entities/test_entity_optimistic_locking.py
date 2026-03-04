@@ -18,23 +18,16 @@ async def test_update_without_base_revision_always_succeeds(api_prefix: str) -> 
     """
     from models.rest_api.main import app
 
-    entity_id = "Q80001"
-
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_response = await client.post(
+        create_response = await client.get(
             f"{api_prefix}/entities/items",
-            json={
-                "id": entity_id,
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test Entity"}},
-                "edit_summary": "create entity",
-            },
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
         assert create_response.status_code == 200
-        assert create_response.json()["rev_id"] == 1
+        entity_id = create_response.json()["data"]["entity_id"]
+        assert create_response.json()["data"]["revision_id"] == 1
 
         first_update = await client.put(
             f"{api_prefix}/entities/{entity_id}/labels/en",
@@ -61,23 +54,16 @@ async def test_update_with_correct_base_revision_succeeds(api_prefix: str) -> No
     """Test that updating with correct base revision succeeds."""
     from models.rest_api.main import app
 
-    entity_id = "Q80002"
-
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_response = await client.post(
+        create_response = await client.get(
             f"{api_prefix}/entities/items",
-            json={
-                "id": entity_id,
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test Entity"}},
-                "edit_summary": "create entity",
-            },
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
         assert create_response.status_code == 200
-        assert create_response.json()["rev_id"] == 1
+        entity_id = create_response.json()["data"]["entity_id"]
+        assert create_response.json()["data"]["revision_id"] == 1
 
         update_response = await client.put(
             f"{api_prefix}/entities/{entity_id}/labels/en",
@@ -100,23 +86,16 @@ async def test_update_with_stale_base_revision_returns_409(api_prefix: str) -> N
     """Test that updating with stale base revision returns 409 Conflict."""
     from models.rest_api.main import app
 
-    entity_id = "Q80003"
-
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_response = await client.post(
+        create_response = await client.get(
             f"{api_prefix}/entities/items",
-            json={
-                "id": entity_id,
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test Entity"}},
-                "edit_summary": "create entity",
-            },
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
         assert create_response.status_code == 200
-        assert create_response.json()["rev_id"] == 1
+        entity_id = create_response.json()["data"]["entity_id"]
+        assert create_response.json()["data"]["revision_id"] == 1
 
         first_update = await client.put(
             f"{api_prefix}/entities/{entity_id}/labels/en",
@@ -155,23 +134,16 @@ async def test_update_after_stale_revision_succeeds(api_prefix: str) -> None:
     """
     from models.rest_api.main import app
 
-    entity_id = "Q80004"
-
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_response = await client.post(
+        create_response = await client.get(
             f"{api_prefix}/entities/items",
-            json={
-                "id": entity_id,
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Original"}},
-                "edit_summary": "create",
-            },
             headers={"X-Edit-Summary": "create entity", "X-User-ID": "0"},
         )
         assert create_response.status_code == 200
-        assert create_response.json()["rev_id"] == 1
+        entity_id = create_response.json()["data"]["entity_id"]
+        assert create_response.json()["data"]["revision_id"] == 1
 
         first_update = await client.put(
             f"{api_prefix}/entities/{entity_id}/labels/en",

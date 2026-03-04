@@ -73,19 +73,13 @@ async def test_entity_lifecycle(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create entity
-        create_data = {
-            "type": "item",
-            "labels": {"en": {"language": "en", "value": "Test Item"}},
-            "descriptions": {"en": {"language": "en", "value": "E2E test item"}},
-        }
-        response = await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=create_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
         entity_data = response.json()
-        entity_id = entity_data["id"]
+        entity_id = entity_data["data"]["entity_id"]
         assert entity_id.startswith("Q")
 
         # Read entity

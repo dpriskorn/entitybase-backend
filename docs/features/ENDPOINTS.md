@@ -8,9 +8,10 @@ This API has 123 endpoints implemented, covering entity management (items, prope
 | ✅ | GET | `/debug/entity_head/{entity_id}` | Debug endpoint to check entity_head table. |
 | ✅ | GET | `/entities` | List entities based on type, status, edit_type, limit, and offset. |
 | ✅ | GET | `/entities/items` | List all items (Q-prefixed entities). |
-| ✅ | POST | `/entities/items` | Create a new item entity. |
+| ✅ | GET | `/entities/items` | Create a new empty item entity (headers only, no body). |
 | ✅ | GET | `/entities/lexemes` | List all lexemes (L-prefixed entities). |
-| ✅ | POST | `/entities/lexemes` | Create a new lexeme entity. |
+| ✅ | POST | `/entities/lexemes` | Create a new lexeme entity (requires body with lemmas, language, lexical_category). |
+| ✅ | GET | `/entities/properties` | Create a new empty property entity (headers only, no body). |
 | ✅ | GET | `/entities/lexemes/forms/{form_id}` | Get single form by ID (accepts L42-F1 or F1 format). |
 | ✅ | DELETE | `/entities/lexemes/forms/{form_id}` | Delete a form by ID. |
 | ✅ | GET | `/entities/lexemes/forms/{form_id}/representation` | Get all representations for a form. |

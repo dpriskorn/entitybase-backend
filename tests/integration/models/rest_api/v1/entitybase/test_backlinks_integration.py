@@ -21,19 +21,13 @@ class TestBacklinksIntegration:
         async with AsyncClient(
             transport=ASGITransport(app=app), base_url="http://test"
         ) as client:
-            entity_data = {
-                "labels": {"en": {"language": "en", "value": "Test Entity"}},
-                "claims": {},
-            }
-
-            response = await client.post(
+            response = await client.get(
                 f"{api_prefix}/entities/items",
-                json=entity_data,
                 headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
             )
             assert response.status_code == 200
             result = response.json()
-            entity_id = result["id"]
+            entity_id = result["data"]["entity_id"]
 
             backlinks_response = await client.get(
                 f"{api_prefix}/entities/{entity_id}/backlinks"
@@ -54,18 +48,12 @@ class TestBacklinksIntegration:
         ) as client:
             headers = {"X-Edit-Summary": "test", "X-User-ID": "0"}
 
-            entity_data = {
-                "labels": {"en": {"language": "en", "value": "Test Entity"}},
-                "claims": {},
-            }
-
-            response = await client.post(
+            response = await client.get(
                 f"{api_prefix}/entities/items",
-                json=entity_data,
                 headers=headers,
             )
             assert response.status_code == 200
-            entity_id = response.json()["id"]
+            entity_id = response.json()["data"]["entity_id"]
 
             response = await client.get(f"{api_prefix}/entities/{entity_id}/backlinks")
             assert response.status_code == 200
@@ -114,18 +102,12 @@ class TestBacklinksIntegration:
         ) as client:
             headers = {"X-Edit-Summary": "test", "X-User-ID": "0"}
 
-            entity_data = {
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Backlink Test"}},
-            }
-
-            response = await client.post(
+            response = await client.get(
                 f"{api_prefix}/entities/items",
-                json=entity_data,
                 headers=headers,
             )
             assert response.status_code == 200
-            entity_id = response.json()["id"]
+            entity_id = response.json()["data"]["entity_id"]
 
             response = await client.get(f"{api_prefix}/entities/{entity_id}/backlinks")
             assert response.status_code == 200

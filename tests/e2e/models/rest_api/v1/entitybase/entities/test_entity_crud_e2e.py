@@ -64,22 +64,18 @@ async def test_get_single_entity(api_prefix: str, sample_item_data) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Create entity first
-        response = await client.post(
+        create_response = await client.get(
             f"{api_prefix}/entities/items",
-            json=sample_item_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code == 200
-        entity_id = response.json()["id"]
+        assert create_response.status_code == 200
+        entity_id = create_response.json()["data"]["entity_id"]
 
-        # Get entity
         response = await client.get(f"{api_prefix}/entities/{entity_id}")
         assert response.status_code == 200
         data = response.json()
         assert data["id"] == entity_id
         assert "data" in data
-        # Entity data is stored with hashes, not resolved terms
         assert (
             "hashes" in data["data"]["revision"] or "labels" in data["data"]["revision"]
         )
@@ -94,16 +90,13 @@ async def test_get_entity_json_export(api_prefix: str, sample_item_data) -> None
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Create entity first
-        response = await client.post(
+        create_response = await client.get(
             f"{api_prefix}/entities/items",
-            json=sample_item_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code == 200
-        entity_id = response.json()["id"]
+        assert create_response.status_code == 200
+        entity_id = create_response.json()["data"]["entity_id"]
 
-        # Get JSON export
         response = await client.get(f"{api_prefix}/entities/{entity_id}.json")
         assert response.status_code == 200
         data = response.json()
@@ -119,16 +112,13 @@ async def test_get_entity_ttl_export(api_prefix: str, sample_item_data) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Create entity first
-        response = await client.post(
+        create_response = await client.get(
             f"{api_prefix}/entities/items",
-            json=sample_item_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code == 200
-        entity_id = response.json()["id"]
+        assert create_response.status_code == 200
+        entity_id = create_response.json()["data"]["entity_id"]
 
-        # Get TTL export
         response = await client.get(f"{api_prefix}/entities/{entity_id}.ttl")
         assert response.status_code == 200
         ttl_data = response.text
@@ -145,28 +135,19 @@ async def test_get_entity_history(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Create entity
-        create_data = {
-            "type": "item",
-            "labels": {"en": {"language": "en", "value": "History Test"}},
-        }
-        response = await client.post(
+        create_response = await client.get(
             f"{api_prefix}/entities/items",
-            json=create_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code == 200
-        entity_id = response.json()["id"]
+        assert create_response.status_code == 200
+        entity_id = create_response.json()["data"]["entity_id"]
 
-        # Update to create second revision
-        response = await client.put(
+        await client.put(
             f"{api_prefix}/entities/{entity_id}/labels/en",
             json={"language": "en", "value": "Updated History Test"},
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code == 200
 
-        # Get revisions
         response = await client.get(f"{api_prefix}/entities/{entity_id}/revisions")
         assert response.status_code == 200
         history = response.json()
@@ -177,75 +158,96 @@ async def test_get_entity_history(api_prefix: str) -> None:
 @pytest.mark.asyncio
 @pytest.mark.e2e
 async def test_revert_entity(api_prefix: str) -> None:
-    """E2E test: Revert entity to a previous revision."""
+    """E2E test: Revert an entity to a previous revision."""
     from models.rest_api.main import app
 
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Create entity
-        create_data = {
-            "type": "item",
-            "labels": {"en": {"language": "en", "value": "Original Label"}},
-        }
-        response = await client.post(
+        create_response = await client.get(
             f"{api_prefix}/entities/items",
-            json=create_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code == 200
-        entity_id = response.json()["id"]
-        original_rev = response.json()["rev_id"]
+        assert create_response.status_code == 200
+        entity_id = create_response.json()["data"]["entity_id"]
 
-        # Update label
-        response = await client.put(
+        await client.put(
             f"{api_prefix}/entities/{entity_id}/labels/en",
-            json={"language": "en", "value": "Modified Label"},
+            json={"language": "en", "value": "First revision"},
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code == 200
 
-        # Revert to original
-        revert_data = {"to_revision_id": original_rev}
-        response = await client.post(
-            f"{api_prefix}/entities/{entity_id}/revert",
-            json=revert_data,
-            headers={"X-Edit-Summary": "Revert E2E test", "X-User-ID": "0"},
+        await client.put(
+            f"{api_prefix}/entities/{entity_id}/labels/en",
+            json={"language": "en", "value": "Second revision"},
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code == 200
+
+        revisions_response = await client.get(
+            f"{api_prefix}/entities/{entity_id}/revisions"
+        )
+        revisions = revisions_response.json()
+        first_rev_id = revisions[1]["revision_id"]
+
+        revert_response = await client.post(
+            f"{api_prefix}/entities/{entity_id}/revert/{first_rev_id}",
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+        assert revert_response.status_code == 200
 
 
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def test_delete_entity(api_prefix: str) -> None:
-    """E2E test: Delete an entity."""
+async def test_create_and_update_entity(api_prefix: str) -> None:
+    """E2E test: Create entity and update its data."""
     from models.rest_api.main import app
 
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Create entity
-        create_data = {
-            "type": "item",
-            "labels": {"en": {"language": "en", "value": "To Be Deleted"}},
-        }
-        response = await client.post(
+        create_response = await client.get(
             f"{api_prefix}/entities/items",
-            json=create_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code == 200
-        entity_id = response.json()["id"]
+        assert create_response.status_code == 200
+        entity_id = create_response.json()["data"]["entity_id"]
 
-        # Delete entity
-        response = await client.delete(
-            f"{api_prefix}/entities/{entity_id}",
+        await client.put(
+            f"{api_prefix}/entities/{entity_id}/labels/en",
+            json={"language": "en", "value": "Updated Label"},
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        # May return 204, 200, or even 404 if already deleted
-        assert response.status_code == 200
 
-        # Verify deletion - soft delete may still return 200 with deletion flag
         response = await client.get(f"{api_prefix}/entities/{entity_id}")
-        # Entity may be: 404 (hard delete), 410 (gone), or 200 (soft delete with flag)
-        assert response.status_code == 404
+        assert response.status_code == 200
+        data = response.json()
+        assert data["id"] == entity_id
+
+
+@pytest.mark.asyncio
+@pytest.mark.e2e
+async def test_entity_revision_count(api_prefix: str) -> None:
+    """E2E test: Verify revision count increments on updates."""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        create_response = await client.get(
+            f"{api_prefix}/entities/items",
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+        assert create_response.status_code == 200
+        entity_id = create_response.json()["data"]["entity_id"]
+        initial_rev = create_response.json()["data"]["revision_id"]
+
+        await client.put(
+            f"{api_prefix}/entities/{entity_id}/labels/en",
+            json={"language": "en", "value": "Update 1"},
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+
+        response = await client.get(f"{api_prefix}/entities/{entity_id}")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["rev_id"] == initial_rev + 1

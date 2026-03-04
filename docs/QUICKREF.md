@@ -24,9 +24,9 @@ curl http://localhost:8000/health
 
 | Action | Method | Endpoint | Example |
 |--------|--------|----------|---------|
-| Create | POST | `/entities/items` | [See tutorial](TUTORIAL.md) |
+| Create | GET | `/entities/items` | Creates empty item, returns entity_id |
 | Read | GET | `/entities/items/{id}` | `GET /entities/items/Q1` |
-| Update | PUT | `/entities/items/{id}` | `PUT /entities/items/Q1` |
+| Update | PUT | `/entities/items/{id}/labels/{lang}` | Add labels |
 | Delete | DELETE | `/entities/items/{id}` | `DELETE /entities/items/Q1` |
 | List | GET | `/entities` | `?entity_type=item` |
 | JSON format | GET | `/entities/items/{id}.json` | `GET /entities/items/Q1.json` |

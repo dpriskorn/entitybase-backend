@@ -17,21 +17,13 @@ async def test_add_watch(api_prefix: str, initialized_app: None) -> None:
     ) as client:
         headers = {"X-Edit-Summary": "test", "X-User-ID": "0"}
 
-        # Create Q42 entity first
-        Q42_data = {
-            "id": "Q42",
-            "type": "item",
-            "labels": {"en": {"language": "en", "value": "Douglas Adams"}},
-            "descriptions": {
-                "en": {"language": "en", "value": "British science fiction writer"}
-            },
-        }
-        response = await client.post(
+        # Create entity first
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=Q42_data,
             headers=headers,
         )
         assert response.status_code == 200
+        entity_id = response.json()["data"]["entity_id"]
 
         # Register user
         await client.post(
@@ -43,7 +35,7 @@ async def test_add_watch(api_prefix: str, initialized_app: None) -> None:
         # Add watch
         response = await client.post(
             f"{api_prefix}/users/12345/watchlist",
-            json={"entity_id": "Q42", "properties": ["P31"]},
+            json={"entity_id": entity_id, "properties": ["P31"]},
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
@@ -82,21 +74,13 @@ async def test_remove_watch(api_prefix: str, initialized_app: None) -> None:
     ) as client:
         headers = {"X-Edit-Summary": "test", "X-User-ID": "0"}
 
-        # Create Q42 entity first
-        Q42_data = {
-            "id": "Q42",
-            "type": "item",
-            "labels": {"en": {"language": "en", "value": "Douglas Adams"}},
-            "descriptions": {
-                "en": {"language": "en", "value": "British science fiction writer"}
-            },
-        }
-        response = await client.post(
+        # Create entity first
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=Q42_data,
             headers=headers,
         )
         assert response.status_code == 200
+        entity_id = response.json()["data"]["entity_id"]
 
         # Register user and add watch
         await client.post(
@@ -106,14 +90,14 @@ async def test_remove_watch(api_prefix: str, initialized_app: None) -> None:
         )
         await client.post(
             f"{api_prefix}/users/12345/watchlist",
-            json={"entity_id": "Q42", "properties": ["P31"]},
+            json={"entity_id": entity_id, "properties": ["P31"]},
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
 
         # Remove watch
         response = await client.post(
             f"{api_prefix}/users/12345/watchlist/remove",
-            json={"entity_id": "Q42", "properties": ["P31"]},
+            json={"entity_id": entity_id, "properties": ["P31"]},
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
@@ -132,21 +116,13 @@ async def test_get_watchlist(api_prefix: str, initialized_app: None) -> None:
     ) as client:
         headers = {"X-Edit-Summary": "test", "X-User-ID": "0"}
 
-        # Create Q42 entity first
-        Q42_data = {
-            "id": "Q42",
-            "type": "item",
-            "labels": {"en": {"language": "en", "value": "Douglas Adams"}},
-            "descriptions": {
-                "en": {"language": "en", "value": "British science fiction writer"}
-            },
-        }
-        response = await client.post(
+        # Create entity first
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=Q42_data,
             headers=headers,
         )
         assert response.status_code == 200
+        entity_id = response.json()["data"]["entity_id"]
 
         # Register user and add watch
         await client.post(
@@ -156,7 +132,7 @@ async def test_get_watchlist(api_prefix: str, initialized_app: None) -> None:
         )
         await client.post(
             f"{api_prefix}/users/12345/watchlist",
-            json={"entity_id": "Q42", "properties": ["P31"]},
+            json={"entity_id": entity_id, "properties": ["P31"]},
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
 
@@ -166,7 +142,7 @@ async def test_get_watchlist(api_prefix: str, initialized_app: None) -> None:
         data = response.json()
         assert data["user_id"] == 12345
         assert len(data["watches"]) == 1
-        assert data["watches"][0]["entity_id"] == "Q42"
+        assert data["watches"][0]["entity_id"] == entity_id
         assert data["watches"][0]["properties"] == ["P31"]
 
 
@@ -197,21 +173,13 @@ async def test_remove_watch_by_id(api_prefix: str, initialized_app: None) -> Non
     ) as client:
         headers = {"X-Edit-Summary": "test", "X-User-ID": "0"}
 
-        # Create Q42 entity first
-        Q42_data = {
-            "id": "Q42",
-            "type": "item",
-            "labels": {"en": {"language": "en", "value": "Douglas Adams"}},
-            "descriptions": {
-                "en": {"language": "en", "value": "British science fiction writer"}
-            },
-        }
-        response = await client.post(
+        # Create entity first
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=Q42_data,
             headers=headers,
         )
         assert response.status_code == 200
+        entity_id = response.json()["data"]["entity_id"]
 
         # Register user and add watch
         await client.post(
@@ -221,7 +189,7 @@ async def test_remove_watch_by_id(api_prefix: str, initialized_app: None) -> Non
         )
         await client.post(
             f"{api_prefix}/users/12345/watchlist",
-            json={"entity_id": "Q42", "properties": ["P31"]},
+            json={"entity_id": entity_id, "properties": ["P31"]},
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
 

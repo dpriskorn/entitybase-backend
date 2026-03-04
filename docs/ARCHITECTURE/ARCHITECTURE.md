@@ -79,9 +79,9 @@ Everything else in the system derives from this rule.
 - `DELETE /entities/{entity_id}` - Delete entity
 
 #### Type-Specific Creation
-- `POST /entities/items` - Create item (auto-assigns Q-ID)
-- `POST /entities/properties` - Create property (auto-assigns P-ID)
-- `POST /entities/lexemes` - Create lexeme (auto-assigns L-ID)
+- `GET /entities/items` - Create empty item (headers only, returns entity_id)
+- `GET /entities/properties` - Create empty property (headers only, returns entity_id)
+- `POST /entities/lexemes` - Create lexeme (requires body with lemmas, language, lexical_category)
 - `PUT /entities/items/{item_id}` - Update item
 - `PUT /entities/properties/{property_id}` - Update property
 - `PUT /entities/lexemes/{lexeme_id}` - Update lexeme
