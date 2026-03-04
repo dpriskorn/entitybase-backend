@@ -115,6 +115,7 @@ services:
       VITESS_DATABASE: entitybase
       VITESS_USER: root
       VITESS_PASSWORD: ""
+      LOG_LEVEL: "INFO"
       CI: "true"
     depends_on:
       create-tables:

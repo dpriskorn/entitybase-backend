@@ -192,10 +192,11 @@ async def main() -> None:
         WORKER_ID: Unique worker identifier.
         VITESS_HOST, VITESS_PORT, VITESS_DATABASE, VITESS_USER, VITESS_PASSWORD:
         Database connection parameters.
+        LOG_LEVEL: Logging level (DEBUG, INFO, WARNING, ERROR). Defaults to INFO.
     """
-    # Configure logging
+    log_level = os.getenv("LOG_LEVEL", "INFO")
     logging.basicConfig(
-        level=logging.INFO,
+        level=getattr(logging, log_level.upper(), logging.INFO),
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
 

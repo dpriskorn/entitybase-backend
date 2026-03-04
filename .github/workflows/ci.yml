@@ -255,6 +255,7 @@ jobs:
         run: |
           docker compose -f docker-compose.ci.yml logs --tail=100 mysql
           docker compose -f docker-compose.ci.yml logs --tail=100 api
+          docker compose -f docker-compose.ci.yml logs --tail=100 idworker
       - name: Down containers
         if: always()
         run: docker compose -f docker-compose.ci.yml down -v
