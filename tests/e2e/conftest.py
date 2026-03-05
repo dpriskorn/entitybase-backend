@@ -79,9 +79,9 @@ def db_conn():
         conn.close()
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(scope="class")
 def db_cleanup(db_conn):
-    """Clean up database tables after each E2E test."""
+    """Clean up database tables after each test class (faster than per-test)."""
     yield
     tables = [
         "entity_id_mapping",
@@ -103,16 +103,11 @@ def db_cleanup(db_conn):
         "general_daily_stats",
     ]
     with db_conn.cursor() as cursor:
-        cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
         for table in tables:
             try:
-                cursor.execute(f"TRUNCATE TABLE {table}")
-            except pymysql.err.ProgrammingError as e:
-                if "doesn't exist" in str(e):
-                    continue
-                else:
-                    raise
-        cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
+                cursor.execute(f"DELETE FROM {table}")
+            except pymysql.err.ProgrammingError:
+                continue
     db_conn.commit()
 
 
