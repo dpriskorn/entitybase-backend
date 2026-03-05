@@ -114,6 +114,7 @@ jobs:
           S3_SECRET_KEY: fakesecret
           S3_BUCKET: testbucket
           REST_API_URL: http://localhost:8000
+          STREAMING_ENABLED: "false"
         run: poetry run pytest tests/e2e -k "entity_crud or entity_lifecycle or entitybase_properties or entity_properties_e2e or entity_revisions_e2e or entity_sitelinks_e2e" -v --tb=short
         timeout-minutes: 15
 
@@ -129,6 +130,7 @@ jobs:
           S3_SECRET_KEY: fakesecret
           S3_BUCKET: testbucket
           REST_API_URL: http://localhost:8000
+          STREAMING_ENABLED: "false"
         run: poetry run pytest tests/e2e -k "item_terms_e2e or property_terms_e2e or lexemes_e2e or lexeme_forms_e2e or lexeme_senses_e2e or redirects_e2e" -v --tb=short
         timeout-minutes: 15
 
@@ -144,6 +146,7 @@ jobs:
           S3_SECRET_KEY: fakesecret
           S3_BUCKET: testbucket
           REST_API_URL: http://localhost:8000
+          STREAMING_ENABLED: "false"
         run: poetry run pytest tests/e2e -k "watchlist_e2e or thanks_e2e or endorsements or user_management_e2e or user_workflow or stats_e2e" -v --tb=short
         timeout-minutes: 15
 
@@ -159,6 +162,7 @@ jobs:
           S3_SECRET_KEY: fakesecret
           S3_BUCKET: testbucket
           REST_API_URL: http://localhost:8000
+          STREAMING_ENABLED: "false"
         run: poetry run pytest tests/e2e -k "hash_resolution_e2e or entity_statements_e2e or batch_operations_e2e or hash_operations_e2e or health_import_e2e or json_dump_worker_e2e or revision_with_content_hash" -v --tb=short
         timeout-minutes: 15
 
