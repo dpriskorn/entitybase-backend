@@ -20,7 +20,7 @@ async def test_backlinks_response_schema(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_resp = await client.get(
+        create_resp = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -45,7 +45,7 @@ async def test_backlinks_pagination(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_resp = await client.get(
+        create_resp = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -68,7 +68,7 @@ async def test_backlinks_empty_response(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_resp = await client.get(
+        create_resp = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -107,7 +107,7 @@ async def test_backlink_response_fields(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_resp = await client.get(
+        create_resp = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -133,7 +133,7 @@ async def test_backlinks_pagination_response(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_resp = await client.get(
+        create_resp = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -160,7 +160,7 @@ async def test_backlinks_empty_list_type(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_resp = await client.get(
+        create_resp = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -185,7 +185,7 @@ async def test_backlinks_limit_default_value(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_resp = await client.get(
+        create_resp = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )

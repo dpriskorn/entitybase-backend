@@ -16,13 +16,19 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.get("/entities/items", response_model=OperationResult[EntityIdResult])
+@router.post("/entities/items", response_model=OperationResult[EntityIdResult])
 async def create_item(
     req: Request,
     headers: EditHeadersType,
+    request: EntityCreateRequest | None = None,
 ) -> OperationResult[EntityIdResult]:
     """Create a new empty item entity."""
-    logger.info("🔍 ENDPOINT: Received GET request to create item")
+    if request is not None:
+        raise_validation_error(
+            "Request body not supported for item creation. Use empty POST request.",
+            status_code=422,
+        )
+    logger.info("🔍 ENDPOINT: Received POST request to create item")
 
     try:
         state = req.app.state.state_handler
@@ -31,7 +37,7 @@ async def create_item(
         validator = req.app.state.state_handler.validator
         enumeration_service = req.app.state.state_handler.enumeration_service
 
-        request = EntityCreateRequest(type="item")
+        entity_request = EntityCreateRequest(type="item")
 
         handler = ItemCreateHandler(
             state=state, enumeration_service=enumeration_service
@@ -39,7 +45,7 @@ async def create_item(
         logger.debug("🔍 ENDPOINT: Handler created, calling create_entity")
 
         result = await handler.create_entity(
-            request, edit_headers=headers, validator=validator
+            entity_request, edit_headers=headers, validator=validator
         )
         logger.info(f"🔍 ENDPOINT: Item creation successful: {result.id}")
 

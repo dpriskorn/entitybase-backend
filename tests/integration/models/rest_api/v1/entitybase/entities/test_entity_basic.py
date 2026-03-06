@@ -16,7 +16,7 @@ async def test_health_check() -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get("/health")
+        response = await client.post("/health")
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "ok"
@@ -34,7 +34,7 @@ async def test_create_item() -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get(
+        response = await client.post(
             "/v1/entitybase/entities/items",
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
@@ -56,14 +56,14 @@ async def test_get_item() -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_response = await client.get(
+        create_response = await client.post(
             "/v1/entitybase/entities/items",
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
         assert create_response.status_code == 200
         entity_id = create_response.json()["data"]["entity_id"]
 
-        response = await client.get(f"/v1/entitybase/entities/{entity_id}")
+        response = await client.post(f"/v1/entitybase/entities/{entity_id}")
         assert response.status_code == 200
 
         result = response.json()
@@ -92,7 +92,7 @@ async def test_create_item_already_exists() -> None:
         )
         assert response.status_code == 200
 
-        response = await client.get(
+        response = await client.post(
             "/v1/entitybase/entities/items",
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
@@ -111,7 +111,7 @@ async def test_get_item_history() -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_response = await client.get(
+        create_response = await client.post(
             "/v1/entitybase/entities/items",
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
@@ -124,7 +124,7 @@ async def test_get_item_history() -> None:
             headers={"X-Edit-Summary": "update entity", "X-User-ID": "0"},
         )
 
-        response = await client.get(f"/v1/entitybase/entities/{entity_id}/revisions")
+        response = await client.post(f"/v1/entitybase/entities/{entity_id}/revisions")
         assert response.status_code == 200
 
         history = response.json()
@@ -145,7 +145,7 @@ async def test_entity_not_found() -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get("/v1/entitybase/entities/Q88888")
+        response = await client.post("/v1/entitybase/entities/Q88888")
         assert response.status_code == 404
         assert "not found" in response.json()["message"].lower()
         logger.info("✓ 404 handling passed")

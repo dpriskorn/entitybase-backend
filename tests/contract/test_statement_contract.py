@@ -20,7 +20,7 @@ async def test_statement_response_schema(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_resp = await client.get(
+        create_resp = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -52,7 +52,7 @@ async def test_statement_hash_type(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_resp = await client.get(
+        create_resp = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -72,7 +72,7 @@ async def test_statement_batch_response(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_resp = await client.get(
+        create_resp = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )

@@ -1,6 +1,6 @@
 # REST API Endpoints
 
-This API has 123 endpoints implemented, covering entity management (items, properties, lexemes), lexeme components (forms, senses, lemmas, glosses), entity terms (labels, descriptions, aliases), statements and claims, sitelinks, revision history, user management, and batch resolution endpoints.
+This API has 124 endpoints implemented, covering entity management (items, properties, lexemes), lexeme components (forms, senses, lemmas, glosses), entity terms (labels, descriptions, aliases), statements and claims, sitelinks, revision history, user management, and batch resolution endpoints.
 
 | Implemented | Method | Full Path | Description |
 |-------------|--------|-----------|-------------|
@@ -8,10 +8,9 @@ This API has 123 endpoints implemented, covering entity management (items, prope
 | ✅ | GET | `/debug/entity_head/{entity_id}` | Debug endpoint to check entity_head table. |
 | ✅ | GET | `/entities` | List entities based on type, status, edit_type, limit, and offset. |
 | ✅ | GET | `/entities/items` | List all items (Q-prefixed entities). |
-| ✅ | GET | `/entities/items` | Create a new empty item entity (headers only, no body). |
+| ✅ | POST | `/entities/items` | Create a new empty item entity. |
 | ✅ | GET | `/entities/lexemes` | List all lexemes (L-prefixed entities). |
-| ✅ | POST | `/entities/lexemes` | Create a new lexeme entity (requires body with lemmas, language, lexical_category). |
-| ✅ | GET | `/entities/properties` | Create a new empty property entity (headers only, no body). |
+| ✅ | POST | `/entities/lexemes` | Create a new lexeme entity. |
 | ✅ | GET | `/entities/lexemes/forms/{form_id}` | Get single form by ID (accepts L42-F1 or F1 format). |
 | ✅ | DELETE | `/entities/lexemes/forms/{form_id}` | Delete a form by ID. |
 | ✅ | GET | `/entities/lexemes/forms/{form_id}/representation` | Get all representations for a form. |
@@ -42,7 +41,7 @@ This API has 123 endpoints implemented, covering entity management (items, prope
 | ✅ | GET | `/entities/lexemes/{lexeme_id}/senses` | List all senses for a lexeme, sorted by numeric suffix. |
 | ✅ | POST | `/entities/lexemes/{lexeme_id}/senses` | Create a new sense for a lexeme. |
 | ✅ | GET | `/entities/properties` | List all properties (P-prefixed entities). |
-| ✅ | POST | `/entities/properties` | Create a new property entity. |
+| ✅ | POST | `/entities/properties` | Create a new empty property entity. |
 | ✅ | GET | `/entities/{entity_id}` | Retrieve a single entity by its ID. |
 | ✅ | DELETE | `/entities/{entity_id}` | Delete an entity. |
 | ✅ | GET | `/entities/{entity_id}.json` | Get entity data in JSON format. |
@@ -102,6 +101,7 @@ This API has 123 endpoints implemented, covering entity management (items, prope
 | ✅ | GET | `/resolve/sitelinks/{hashes}` | Get batch sitelink titles by hashes. |
 | ✅ | GET | `/resolve/snaks/{hashes}` | Fetch snaks by hash(es). |
 | ✅ | GET | `/resolve/statements/{hashes}` | Fetch statements by hash(es). |
+| ✅ | GET | `/settings` | Get current application settings (excludes sensitive values). |
 | ✅ | GET | `/statements/batch` | Get statement hashes for multiple entities. |
 | ✅ | POST | `/statements/cleanup-orphaned` | Clean up orphaned statements that are no longer referenced. |
 | ✅ | GET | `/statements/most_used` | Get most used statements based on reference count. |

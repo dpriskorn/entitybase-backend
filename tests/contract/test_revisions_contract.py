@@ -20,7 +20,7 @@ async def test_revision_response_fields(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_resp = await client.get(
+        create_resp = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -43,7 +43,7 @@ async def test_revision_list_pagination(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_resp = await client.get(
+        create_resp = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -66,7 +66,7 @@ async def test_revision_content_hash(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_resp = await client.get(
+        create_resp = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )

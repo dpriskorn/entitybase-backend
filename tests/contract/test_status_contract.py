@@ -20,7 +20,7 @@ async def test_lock_response_schema(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_resp = await client.get(
+        create_resp = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -50,7 +50,7 @@ async def test_unlock_response_schema(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_resp = await client.get(
+        create_resp = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -85,7 +85,7 @@ async def test_archive_response_schema(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_resp = await client.get(
+        create_resp = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -115,7 +115,7 @@ async def test_unarchive_response_schema(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_resp = await client.get(
+        create_resp = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -150,7 +150,7 @@ async def test_semi_protect_response_schema(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_resp = await client.get(
+        create_resp = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -180,7 +180,7 @@ async def test_mass_edit_protect_response_schema(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_resp = await client.get(
+        create_resp = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -213,7 +213,7 @@ async def test_status_idempotent_flag(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_resp = await client.get(
+        create_resp = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )

@@ -171,6 +171,12 @@ All settings can be overridden using environment variables with the same name.
 - **Default**: `'/v1/entitybase'`
 - **Description**: API configuration
 
+### `api_description`
+
+- **Type**: `str`
+- **Default**: `''`
+- **Description**: No description available
+
 ## Workers Settings
 
 ### `backlink_stats_enabled`
@@ -240,13 +246,13 @@ All settings can be overridden using environment variables with the same name.
 ### `kafka_entitychange_json_topic`
 
 - **Type**: `str`
-- **Default**: `'entitybase.entity_change'`
+- **Default**: `''`
 - **Description**: No description available
 
 ### `kafka_entity_diff_topic`
 
 - **Type**: `str`
-- **Default**: `'wikibase.entity_diff'`
+- **Default**: `''`
 - **Description**: No description available
 
 ### `streaming_entity_change_version`
@@ -288,7 +294,7 @@ All settings can be overridden using environment variables with the same name.
 ### `user_agent`
 
 - **Type**: `str`
-- **Default**: `'Entitybase/1.0 User:So9q'`
+- **Default**: `f'Entitybase/{ENTITYBASE_VERSION} User:So9q'`
 - **Description**: other
 
 ### `user_stats_enabled`

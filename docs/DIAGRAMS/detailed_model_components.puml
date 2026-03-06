@@ -31,6 +31,7 @@ package "Models" as Models #LightCyan {
     "EntityDelete" as EntityDeleteResponse
     "EntityDescriptions" as EntityDescriptionsResponse
     "EntityHistoryEntry" as EntityHistoryEntry
+    "EntityIdResult" as EntityIdResult
     "EntityJsonImport" as EntityJsonImportResponse
     "EntityJson" as EntityJsonResponse
     "EntityLabels" as EntityLabelsResponse
@@ -93,6 +94,7 @@ package "Models" as Models #LightCyan {
     "Sense" as SenseResponse
     "Senses" as SensesResponse
     "SerializableQualifierValue" as SerializableQualifierValue
+    "Settings" as SettingsResponse
     "SingleEndorsementStats" as SingleEndorsementStatsResponse
     "SitelinkValue" as SitelinkValue
     "Sitelinks" as SitelinksResponse
