@@ -1,4 +1,4 @@
-<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/e0bdd375-24f0-41d4-87a4-bfaa82519d12" />
+<img width="200" height="200" alt="image" src="https://github.com/user-attachments/assets/e0bdd375-24f0-41d4-87a4-bfaa82519d12" />
 
 # Entitybase Backend
 
