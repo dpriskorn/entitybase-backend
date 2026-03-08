@@ -1,12 +1,12 @@
 """Wikidata import service."""
 
 import logging
-import os
 from typing import Any, Dict
 
 import requests
 from pydantic import BaseModel
 
+from models.config.settings import settings
 from models.data.infrastructure.s3.enums import EditType
 from models.data.raw_entity import RawEntityData
 from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 WIKIDATA_API_URL = "https://www.wikidata.org/w/api.php"
-USER_AGENT = os.getenv("USER_AGENT", "Entitybase/1.0 User:So9q")
+USER_AGENT = settings.user_agent
 
 
 class WikidataImportService(BaseModel):

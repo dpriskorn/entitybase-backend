@@ -102,7 +102,7 @@ class EntityDiffWorker(Worker):
             # Required schema fields
             meta={
                 "dt": datetime.now(timezone.utc).isoformat() + "Z",
-                "stream": "wikibase.entity_diff",
+                "stream": "entitybase.entity_diff",
                 "id": f"{request.entity_id}-{response.triple_count_v2}",
                 "domain": "wikibase.org",  # TODO: Make configurable
                 "uri": f"https://www.wikidata.org/wiki/{request.entity_id}",
@@ -134,7 +134,7 @@ class EntityDiffWorker(Worker):
             patrolled=False,
         )
 
-        await self.rdf_stream_producer.publish_change(event)
+        await self.rdf_stream_producer.publish(event)
 
 
 # Convenience functions for testing

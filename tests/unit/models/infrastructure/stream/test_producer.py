@@ -84,7 +84,7 @@ class TestStreamProducerClient:
             user_id="test-user",
         )
 
-        await self.client.publish_change(event)
+        await self.client.publish(event)
 
         mock_producer.send_and_wait.assert_called_once_with(
             topic="test-topic",
@@ -102,7 +102,7 @@ class TestStreamProducerClient:
         event.hash = "abc123"
         event.entity_id = None  # No entity_id, should use hash
 
-        await self.client.publish_change(event)
+        await self.client.publish(event)
 
         mock_producer.send_and_wait.assert_called_once_with(
             topic="test-topic",
@@ -120,7 +120,7 @@ class TestStreamProducerClient:
 
         event = MagicMock()
 
-        await self.client.publish_change(event)
+        await self.client.publish(event)
 
         # Should start producer and publish
         mock_producer_class.assert_called_once()
@@ -137,7 +137,7 @@ class TestStreamProducerClient:
         event.entity_id = None
         event.hash = None  # No key available
 
-        await self.client.publish_change(event)
+        await self.client.publish(event)
 
         # Should log error and return without publishing
         mock_producer.send_and_wait.assert_not_called()
@@ -157,7 +157,7 @@ class TestStreamProducerClient:
             user_id="test-user",
         )
 
-        await self.client.publish_change(event)
+        await self.client.publish(event)
 
         # Should log error but not raise
 

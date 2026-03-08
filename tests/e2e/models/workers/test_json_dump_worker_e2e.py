@@ -53,13 +53,29 @@ async def test_weekly_dump_full_workflow_e2e(api_prefix: str) -> None:
                 "en": {"language": "en", "value": "British science fiction writer"}
             },
         }
-        response = await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=Q42_data,
             headers=headers,
         )
         assert response.status_code == 200
-        logger.info("Created item entity")
+        entity_id = response.json()["data"]["entity_id"]
+        logger.info(f"Created item entity: {entity_id}")
+
+        # Update labels
+        response = await client.put(
+            f"{api_prefix}/entities/{entity_id}/labels/en",
+            json={"language": "en", "value": "Douglas Adams"},
+            headers=headers,
+        )
+        assert response.status_code == 200
+
+        # Update descriptions
+        response = await client.put(
+            f"{api_prefix}/entities/{entity_id}/descriptions/en",
+            json={"language": "en", "value": "British science fiction writer"},
+            headers=headers,
+        )
+        assert response.status_code == 200
 
         P31_data = {
             "type": "property",
@@ -68,9 +84,8 @@ async def test_weekly_dump_full_workflow_e2e(api_prefix: str) -> None:
                 "en": {"language": "en", "value": f"instance of {uuid.uuid4().hex[:8]}"}
             },
         }
-        response = await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/properties",
-            json=P31_data,
             headers=headers,
         )
         assert response.status_code == 200
@@ -140,16 +155,19 @@ async def test_concurrent_dumps(api_prefix: str) -> None:
         headers = {"X-Edit-Summary": "E2E concurrent dump test", "X-User-ID": "0"}
 
         for i in range(1, 4):
-            item_data = {
-                "id": f"Q99{i}",
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": f"Test Item {i}"}},
-            }
-            await client.post(
+            response = await client.get(
                 f"{api_prefix}/entities/items",
-                json=item_data,
                 headers=headers,
             )
-            logger.info(f"Created Q99{i} entity")
+            assert response.status_code == 200
+            entity_id = response.json()["data"]["entity_id"]
+
+            # Update labels
+            await client.put(
+                f"{api_prefix}/entities/{entity_id}/labels",
+                json={"en": {"language": "en", "value": f"Test Item {i}"}},
+                headers=headers,
+            )
+            logger.info(f"Created {entity_id} entity")
 
     logger.info("=== test_concurrent_dumps END ===")

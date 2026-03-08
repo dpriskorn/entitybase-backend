@@ -140,10 +140,10 @@ class EntityUpdateHandler(
                 from_revision_id=head_revision_id,
                 changed_at=None,
             )
-            tx.publish_event(event_context, edit_context)
+            await tx.publish_event(event_context, edit_context)
 
             if edit_headers.x_user_id:
-                activity_result = (
+                activity_result = await (
                     self.state.vitess_client.user_repository.log_user_activity(
                         user_id=edit_headers.x_user_id,
                         activity_type=UserActivityType.ENTITY_EDIT,

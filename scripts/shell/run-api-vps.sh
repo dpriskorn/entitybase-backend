@@ -13,6 +13,9 @@ sleep 30
 echo "📦 Creating buckets and tables..."
 docker compose -f docker-compose.tests.yml up create-buckets create-tables
 
+echo "📦 Creating Kafka topics..."
+docker compose -f docker-compose.tests.yml up --build create-topics || exit 1
+
 echo "✅ Setup complete! Starting API..."
 
 # Load environment variables

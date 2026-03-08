@@ -7,6 +7,7 @@ from . import (
     entities,
     health,
     resolve,
+    settings as settings_module,
     thanks,
     users,
     version,
@@ -22,6 +23,7 @@ def include_routes(app: "FastAPI") -> None:
 
     app.include_router(health.health_router)
     app.include_router(version.version_router)
+    app.include_router(settings_module.settings_router)
     app.include_router(users.users_router, prefix=settings.api_prefix)
     app.include_router(thanks.thanks_router, prefix=settings.api_prefix)
     app.include_router(endorsements.endorsements_router, prefix=settings.api_prefix)

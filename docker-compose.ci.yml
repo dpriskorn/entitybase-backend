@@ -34,7 +34,7 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
     mem_limit: 512m
     cpus: 0.5
 
@@ -104,7 +104,7 @@ services:
     container_name: idworker
     build:
       context: .
-      dockerfile: docker/containers/Dockerfile.id-generator
+      dockerfile: docker/containers/Dockerfile.idworker
     ports:
       - "8001:8001"
     environment:
@@ -115,6 +115,7 @@ services:
       VITESS_DATABASE: entitybase
       VITESS_USER: root
       VITESS_PASSWORD: ""
+      LOG_LEVEL: "INFO"
       CI: "true"
     depends_on:
       create-tables:
@@ -124,7 +125,7 @@ services:
       redpanda:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8001/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -166,7 +167,7 @@ services:
       minio:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8002/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -209,7 +210,7 @@ services:
       minio:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8003/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -241,7 +242,7 @@ services:
       create-tables:
         condition: service_completed_successfully
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8004/health"]
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8004/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -272,7 +273,7 @@ services:
       create-tables:
         condition: service_completed_successfully
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8005/health"]
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8005/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -303,7 +304,7 @@ services:
       create-tables:
         condition: service_completed_successfully
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8006/health"]
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8006/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -356,15 +357,15 @@ services:
 
       STREAMING_ENABLED: "false"
       KAFKA_BROKERS: redpanda:9092
-      KAFKA_ENTITY_CHANGE_TOPIC: wikibase.entity_change
-      KAFKA_ENTITY_DIFF_TOPIC: wikibase.entity_diff
+      KAFKA_ENTITY_CHANGE_TOPIC: entitybase.entity_change
+      KAFKA_ENTITY_DIFF_TOPIC: entitybase.entity_diff
       LOG_LEVEL: "DEBUG"
       ENVIRONMENT: "dev"
       USER_AGENT: "Entitybase/1.0 User:So9q"
       CI: "true"
     command: uvicorn models.rest_api.main:app --host 0.0.0.0 --port 8000
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8000/health"]
       interval: 5s
       timeout: 3s
       retries: 10

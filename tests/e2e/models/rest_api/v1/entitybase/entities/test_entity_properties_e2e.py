@@ -20,13 +20,12 @@ async def test_get_entity_properties(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create entity with statements
-        response = await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=sample_item_with_statements,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        entity_id = response.json()["id"]
+        entity_id = response.json()["data"]["entity_id"]
 
         # Get properties
         response = await client.get(f"{api_prefix}/entities/{entity_id}/properties")
@@ -50,23 +49,20 @@ async def test_add_property_to_entity(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create property first
-        property_data = sample_property_data.copy()
-        property_data["id"] = "P31"
-        response = await client.post(
+        property_response = await client.get(
             f"{api_prefix}/entities/properties",
-            json=property_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code == 200
+        assert property_response.status_code == 200
+        property_id = property_response.json()["data"]["entity_id"]
 
         # Create entity
-        response = await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=sample_item_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        entity_id = response.json()["id"]
+        entity_id = response.json()["data"]["entity_id"]
 
         # Add property claim - use valid Wikibase statement JSON format
         claim_data = {
@@ -75,7 +71,7 @@ async def test_add_property_to_entity(
                     "id": "TESTCLAIM123",
                     "mainsnak": {
                         "snaktype": "value",
-                        "property": "P31",
+                        "property": property_id,
                         "datavalue": {"value": {"id": "Q5"}, "type": "wikibase-item"},
                     },
                     "type": "statement",
@@ -84,7 +80,7 @@ async def test_add_property_to_entity(
             ]
         }
         response = await client.post(
-            f"{api_prefix}/entities/{entity_id}/properties/P31",
+            f"{api_prefix}/entities/{entity_id}/properties/{property_id}",
             json=claim_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
@@ -103,13 +99,12 @@ async def test_get_entity_property_hashes(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create entity with statements
-        response = await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=sample_item_with_statements,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        entity_id = response.json()["id"]
+        entity_id = response.json()["data"]["entity_id"]
 
         # Get property hashes
         response = await client.get(f"{api_prefix}/entities/{entity_id}/properties/P31")
@@ -136,13 +131,12 @@ async def test_get_entity_property_hashes_alternative_endpoint(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create entity with statements
-        response = await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=sample_item_with_statements,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        entity_id = response.json()["id"]
+        entity_id = response.json()["data"]["entity_id"]
 
         # Get property hashes via alternative endpoint
         response = await client.get(f"{api_prefix}/entities/{entity_id}/properties/P31")

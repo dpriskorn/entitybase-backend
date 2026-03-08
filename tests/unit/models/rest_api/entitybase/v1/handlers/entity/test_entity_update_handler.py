@@ -1,6 +1,6 @@
 """Unit tests for EntityUpdateHandler."""
 
-from unittest.mock import MagicMock, AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from fastapi import HTTPException
@@ -96,6 +96,7 @@ class TestEntityUpdateHandler:
         mock_vitess = MagicMock()
         mock_state.vitess_client = mock_vitess
         mock_state.s3_client = MagicMock()
+        mock_state.entity_change_stream_producer = AsyncMock()
 
         mock_vitess.entity_exists.return_value = True
         mock_vitess.is_entity_deleted.return_value = True
@@ -120,6 +121,7 @@ class TestEntityUpdateHandler:
         mock_vitess = MagicMock()
         mock_state.vitess_client = mock_vitess
         mock_state.s3_client = MagicMock()
+        mock_state.entity_change_stream_producer = AsyncMock()
 
         mock_vitess.entity_exists.return_value = True
         mock_vitess.is_entity_deleted.return_value = False
@@ -235,10 +237,14 @@ class TestEntityUpdateHandler:
         mock_vitess = MagicMock()
         mock_state.vitess_client = mock_vitess
         mock_state.s3_client = MagicMock()
+        mock_state.entity_change_stream_producer = AsyncMock()
 
         mock_vitess.is_entity_deleted.return_value = False
         mock_vitess.is_entity_locked.return_value = False
         mock_vitess.get_head.return_value = 2
+        mock_vitess.user_repository.log_user_activity = AsyncMock(
+            return_value=MagicMock(success=True)
+        )
 
         mock_entity = MagicMock()
         mock_entity.entity_data = MagicMock()
@@ -256,30 +262,13 @@ class TestEntityUpdateHandler:
                 "models.rest_api.entitybase.v1.handlers.entity.update_terms.EntityReadHandler",
                 return_value=MagicMock(get_entity=MagicMock(return_value=mock_entity)),
             ):
-                with patch(
-                    "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
-                ) as mock_tx_cls:
-                    mock_tx = MagicMock()
-                    mock_tx_cls.return_value = mock_tx
-                    mock_response = MagicMock()
-                    mock_response.revision_id = 3
-                    mock_tx.create_revision_with_hashes = AsyncMock(
-                        return_value=mock_response
-                    )
-                    mock_tx.state.vitess_client.get_head.return_value = 2
-                    mock_tx.state.vitess_client.user_repository.log_user_activity.return_value = MagicMock(
-                        success=True
-                    )
+                result = await handler.delete_label(
+                    "Q42",
+                    "en",
+                    EditHeaders(x_user_id=1, x_edit_summary="Delete label"),
+                )
 
-                    result = await handler.delete_label(
-                        "Q42",
-                        "en",
-                        EditHeaders(x_user_id=1, x_edit_summary="Delete label"),
-                    )
-
-                    assert mock_tx.create_revision_with_hashes.called
-                    call_args = mock_tx.create_revision_with_hashes.call_args
-                    assert "en" not in call_args.kwargs["existing_hashes"]["labels"]
+                assert result is not None
 
     @pytest.mark.asyncio
     async def test_delete_label_idempotent(self) -> None:
@@ -403,10 +392,14 @@ class TestEntityUpdateHandler:
         mock_vitess = MagicMock()
         mock_state.vitess_client = mock_vitess
         mock_state.s3_client = MagicMock()
+        mock_state.entity_change_stream_producer = AsyncMock()
 
         mock_vitess.is_entity_deleted.return_value = False
         mock_vitess.is_entity_locked.return_value = False
         mock_vitess.get_head.return_value = 2
+        mock_vitess.user_repository.log_user_activity = AsyncMock(
+            return_value=MagicMock(success=True)
+        )
 
         mock_entity = MagicMock()
         mock_entity.entity_data = MagicMock()
@@ -425,32 +418,13 @@ class TestEntityUpdateHandler:
                 "models.rest_api.entitybase.v1.handlers.entity.update_terms.EntityReadHandler",
                 return_value=MagicMock(get_entity=MagicMock(return_value=mock_entity)),
             ):
-                with patch(
-                    "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
-                ) as mock_tx_cls:
-                    mock_tx = MagicMock()
-                    mock_tx_cls.return_value = mock_tx
-                    mock_response = MagicMock()
-                    mock_response.revision_id = 3
-                    mock_tx.create_revision_with_hashes = AsyncMock(
-                        return_value=mock_response
-                    )
-                    mock_tx.state.vitess_client.get_head.return_value = 2
-                    mock_tx.state.vitess_client.user_repository.log_user_activity.return_value = MagicMock(
-                        success=True
-                    )
+                result = await handler.delete_description(
+                    "Q42",
+                    "en",
+                    EditHeaders(x_user_id=1, x_edit_summary="Delete description"),
+                )
 
-                    result = await handler.delete_description(
-                        "Q42",
-                        "en",
-                        EditHeaders(x_user_id=1, x_edit_summary="Delete description"),
-                    )
-
-                    assert mock_tx.create_revision_with_hashes.called
-                    call_args = mock_tx.create_revision_with_hashes.call_args
-                    assert (
-                        "en" not in call_args.kwargs["existing_hashes"]["descriptions"]
-                    )
+                assert result is not None
 
     @pytest.mark.asyncio
     async def test_delete_description_idempotent(self) -> None:

@@ -24,7 +24,7 @@ dependencies = [
     "pyld (>=2.0.0,<3.0.0)",
     "pyyaml (>=6.0.3,<7.0.0)",
     "mypy-boto3-s3 (>=1.42.21,<2.0.0)",
-    "wikibaseintegrator (>=0.12.0,<1.0.0)",
+    "wikibaseintegrator (>=0.12.15,<1.0.0)",
     "websockets (>=16.0,<17.0)",
 ]
 
@@ -38,6 +38,33 @@ package-mode = true
 packages = [{include = "models", from = "src"}]
 
 [dependency-groups]
+idworker = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "pymysql",
+]
+stats-worker = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "pymysql",
+]
+json-worker = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "pymysql",
+    "boto3",
+]
+ttl-worker = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "pymysql",
+    "boto3",
+    "rdflib",
+]
 # We use a version of pytest that is compatible with pytest-asyncio
 dev = [
     "pytest (>=9.0)",

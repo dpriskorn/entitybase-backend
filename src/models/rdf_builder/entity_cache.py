@@ -7,6 +7,7 @@ from pathlib import Path
 
 import requests
 
+from models.config.settings import settings
 from models.data.rest_api.v1.entitybase.response import (
     EntityMetadataResponse,
     EntityMetadataBatchResponse,
@@ -50,9 +51,7 @@ def fetch_entity_metadata_batch(entity_ids: list[str]) -> EntityMetadataBatchRes
                 "https://query.wikidata.org/sparql",
                 params={"query": query, "format": "json"},
                 timeout=60,
-                headers={
-                    "User-Agent": "WikibaseBackend/1.0 (research@wikibase-backend.org)"
-                },
+                headers={"User-Agent": settings.user_agent},
             )
             response.raise_for_status()
 

@@ -262,7 +262,7 @@ class IncrementalRDFWorker(Worker):
         event_data = RDFChangeEventBuilder.build(event_config)
 
         if self.producer:
-            await self.producer.publish_change(event_data)
+            await self.producer.publish(event_data)
             logger.info(f"Published RDF change event for {entity_id} rev {rev_id}")
 
     async def _fetch_entity_data(
@@ -313,7 +313,7 @@ class IncrementalRDFWorker(Worker):
         event_data = RDFChangeEventBuilder.build(event_config)
 
         if self.producer:
-            await self.producer.publish_change(event_data)
+            await self.producer.publish(event_data)
             logger.info(f"Published delete event for {entity_id}")
 
 

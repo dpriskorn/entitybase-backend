@@ -14,12 +14,11 @@ from models.data.rest_api.v1.entitybase.response import (
     EntityRedirectResponse,
 )
 from models.data.rest_api.v1.entitybase.response import EntityRevertResponse
+from models.infrastructure.stream.event import EntityChangeEvent
 from models.rest_api.entitybase.v1.service import Service
 from models.rest_api.utils import raise_validation_error
 
-if TYPE_CHECKING:
-    from models.infrastructure.stream.event import EntityChangeEvent
-    from models.data.infrastructure.stream.change_type import ChangeType
+from models.data.infrastructure.stream.change_type import ChangeType
 
 logger = logging.getLogger(__name__)
 
@@ -206,7 +205,7 @@ class RedirectService(Service):
                 user=str(edit_headers.x_user_id),
                 summary=edit_headers.x_edit_summary,
             )
-            await self.state.entity_change_stream_producer.publish_event(event)
+            await self.state.entity_change_stream_producer.publish(event)
 
         return EntityRedirectResponse(
             redirect_from_id=request.redirect_from_id,

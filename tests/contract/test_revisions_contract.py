@@ -22,15 +22,11 @@ async def test_revision_response_fields(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            json={
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test"}},
-            },
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_resp.status_code == 200
-        entity_id = create_resp.json()["id"]
-        rev_id = create_resp.json()["rev_id"]
+        entity_id = create_resp.json()["data"]["entity_id"]
+        rev_id = create_resp.json()["data"]["revision_id"]
 
         revisions_resp = await client.get(
             f"{api_prefix}/entities/{entity_id}/revision/{rev_id}"
@@ -49,15 +45,11 @@ async def test_revision_list_pagination(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            json={
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test"}},
-            },
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_resp.status_code == 200
-        entity_id = create_resp.json()["id"]
-        rev_id = create_resp.json()["rev_id"]
+        entity_id = create_resp.json()["data"]["entity_id"]
+        rev_id = create_resp.json()["data"]["revision_id"]
 
         revisions_resp = await client.get(
             f"{api_prefix}/entities/{entity_id}/revision/{rev_id}"
@@ -76,14 +68,10 @@ async def test_revision_content_hash(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            json={
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test"}},
-            },
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_resp.status_code == 200
-        entity_id = create_resp.json()["id"]
+        entity_id = create_resp.json()["data"]["entity_id"]
 
         get_resp = await client.get(f"{api_prefix}/entities/{entity_id}")
         assert get_resp.status_code == 200

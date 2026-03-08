@@ -22,14 +22,10 @@ async def test_entity_response_required_fields(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            json={
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test Entity"}},
-            },
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_resp.status_code == 200
-        entity_id = create_resp.json()["id"]
+        entity_id = create_resp.json()["data"]["entity_id"]
 
         get_resp = await client.get(f"{api_prefix}/entities/{entity_id}")
         assert get_resp.status_code == 200
@@ -51,14 +47,10 @@ async def test_entity_data_structure(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            json={
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test Entity"}},
-            },
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_resp.status_code == 200
-        entity_id = create_resp.json()["id"]
+        entity_id = create_resp.json()["data"]["entity_id"]
 
         get_resp = await client.get(f"{api_prefix}/entities/{entity_id}")
         assert get_resp.status_code == 200
@@ -79,15 +71,13 @@ async def test_entity_type_field(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            json={
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test Item"}},
-            },
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_resp.status_code == 200
 
-        get_resp = await client.get(f"{api_prefix}/entities/{create_resp.json()['id']}")
+        get_resp = await client.post(
+            f"{api_prefix}/entities/{create_resp.json()['data']['entity_id']}"
+        )
         assert get_resp.status_code == 200
         data = get_resp.json()
 
@@ -109,14 +99,10 @@ async def test_entity_id_format(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            json={
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test"}},
-            },
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_resp.status_code == 200
-        entity_id = create_resp.json()["id"]
+        entity_id = create_resp.json()["data"]["entity_id"]
 
         assert (
             entity_id.startswith("Q")
@@ -136,15 +122,13 @@ async def test_entity_revision_is_integer(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            json={
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test"}},
-            },
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_resp.status_code == 200
 
-        get_resp = await client.get(f"{api_prefix}/entities/{create_resp.json()['id']}")
+        get_resp = await client.post(
+            f"{api_prefix}/entities/{create_resp.json()['data']['entity_id']}"
+        )
         assert get_resp.status_code == 200
         data = get_resp.json()
 
@@ -162,16 +146,12 @@ async def test_entity_revisions_list(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            json={
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test"}},
-            },
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_resp.status_code == 200
-        entity_id = create_resp.json()["id"]
+        entity_id = create_resp.json()["data"]["entity_id"]
 
-        revisions_resp = await client.get(
+        revisions_resp = await client.post(
             f"{api_prefix}/entities/{entity_id}/revisions"
         )
         assert revisions_resp.status_code == 200
@@ -189,5 +169,5 @@ async def test_entity_not_found(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get(f"{api_prefix}/entities/Q99999999999")
+        response = await client.post(f"{api_prefix}/entities/Q99999999999")
         assert response.status_code == 404

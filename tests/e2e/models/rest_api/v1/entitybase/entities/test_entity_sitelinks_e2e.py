@@ -18,18 +18,21 @@ async def test_get_sitelink(api_prefix: str, sample_sitelink) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create entity
-        create_data = {
-            "type": "item",
-            "labels": {"en": {"language": "en", "value": "Sitelink Test"}},
-            "sitelinks": {"enwiki": sample_sitelink},
-        }
-        response = await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=create_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        entity_id = response.json()["id"]
+        entity_id = response.json()["data"]["entity_id"]
+
+        # Add sitelink first
+        sitelink_data = {"site": "enwiki", "title": "Test Article", "badges": []}
+        add_response = await client.post(
+            f"{api_prefix}/entities/{entity_id}/sitelinks/enwiki",
+            json=sitelink_data,
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+        assert add_response.status_code == 200
 
         # Get sitelink
         response = await client.get(
@@ -51,13 +54,12 @@ async def test_add_sitelink(api_prefix: str, sample_item_data) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create entity
-        response = await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=sample_item_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        entity_id = response.json()["id"]
+        entity_id = response.json()["data"]["entity_id"]
 
         # Add sitelink
         sitelink_data = {"site": "enwiki", "title": "New Article", "badges": []}
@@ -86,21 +88,13 @@ async def test_update_sitelink(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Create entity with sitelink
-        create_data = {
-            "type": "item",
-            "labels": {"en": {"language": "en", "value": "Sitelink Update Test"}},
-            "sitelinks": {
-                "enwiki": {"site": "enwiki", "title": "Old Title", "badges": []}
-            },
-        }
-        response = await client.post(
+        # Create entity
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=create_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        entity_id = response.json()["id"]
+        entity_id = response.json()["data"]["entity_id"]
 
         # Update sitelink
         update_data = {"site": "enwiki", "title": "Updated Title", "badges": []}
@@ -129,21 +123,13 @@ async def test_delete_sitelink(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Create entity with sitelink
-        create_data = {
-            "type": "item",
-            "labels": {"en": {"language": "en", "value": "Sitelink Delete Test"}},
-            "sitelinks": {
-                "enwiki": {"site": "enwiki", "title": "To Delete", "badges": []}
-            },
-        }
-        response = await client.post(
+        # Create entity
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json=create_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        entity_id = response.json()["id"]
+        entity_id = response.json()["data"]["entity_id"]
 
         # Delete sitelink
         response = await client.delete(

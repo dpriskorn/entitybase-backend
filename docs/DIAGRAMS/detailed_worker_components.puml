@@ -11,6 +11,7 @@ package "Workers" as Workers #LightYellow {
     "ChangedProperties" as ChangedProperties
     "CreateBuckets" as CreateBuckets
     "CreateTables" as CreateTables
+    "CreateTopics" as CreateTopics
     "DumpMetadata" as DumpMetadata
     "EntityDiffRequest" as EntityDiffRequest
     "EntityDiffResponse" as EntityDiffResponse
@@ -30,6 +31,8 @@ package "Workers" as Workers #LightYellow {
     "RDFSerializer" as RDFSerializer
     "TableHealthCheckResult" as TableHealthCheckResult
     "TableSetupResult" as TableSetupResult
+    "TopicHealthCheckResult" as TopicHealthCheckResult
+    "TopicSetupResult" as TopicSetupResult
     "TtlDump" as TtlDumpWorker
     "UserStats" as UserStatsWorker
     "Vitess" as VitessWorker

@@ -15,26 +15,26 @@ async def test_query_locked_entities(api_prefix: str) -> None:
 
     logger = logging.getLogger(__name__)
 
-    entity_data = {
-        "id": "Q90010",
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Locked"}},
-    }
-
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json={**entity_data, "is_locked": True},
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
+        )
+        assert response.status_code == 200
+        entity_id = response.json()["data"]["entity_id"]
+
+        await client.post(
+            f"{api_prefix}/entities/{entity_id}/lock",
+            headers={"X-Edit-Summary": "lock entity", "X-User-ID": "0"},
         )
 
         response = await client.get(f"{api_prefix}/entities?status=locked")
         assert response.status_code == 200
         result = response.json()
         entities = result["entities"]
-        assert any(e["entity_id"] == "Q90010" for e in entities)
+        assert any(e["entity_id"] == entity_id for e in entities)
 
         logger.info("✓ Query locked entities works")
 
@@ -47,26 +47,26 @@ async def test_query_semi_protected_entities(api_prefix: str) -> None:
 
     logger = logging.getLogger(__name__)
 
-    entity_data = {
-        "id": "Q90011",
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Protected"}},
-    }
-
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json={**entity_data, "is_semi_protected": True},
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
+        )
+        assert response.status_code == 200
+        entity_id = response.json()["data"]["entity_id"]
+
+        await client.post(
+            f"{api_prefix}/entities/{entity_id}/semi-protect",
+            headers={"X-Edit-Summary": "semi-protect entity", "X-User-ID": "0"},
         )
 
         response = await client.get(f"{api_prefix}/entities?status=semi_protected")
         assert response.status_code == 200
         result = response.json()
         entities = result["entities"]
-        assert any(e["entity_id"] == "Q90011" for e in entities)
+        assert any(e["entity_id"] == entity_id for e in entities)
 
         logger.info("✓ Query semi-protected entities works")
 
@@ -79,26 +79,26 @@ async def test_query_archived_entities(api_prefix: str) -> None:
 
     logger = logging.getLogger(__name__)
 
-    entity_data = {
-        "id": "Q90012",
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Archived"}},
-    }
-
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json={**entity_data, "is_archived": True},
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
+        )
+        assert response.status_code == 200
+        entity_id = response.json()["data"]["entity_id"]
+
+        await client.post(
+            f"{api_prefix}/entities/{entity_id}/archive",
+            headers={"X-Edit-Summary": "archive entity", "X-User-ID": "0"},
         )
 
         response = await client.get(f"{api_prefix}/entities?status=archived")
         assert response.status_code == 200
         result = response.json()
         entities = result["entities"]
-        assert any(e["entity_id"] == "Q90012" for e in entities)
+        assert any(e["entity_id"] == entity_id for e in entities)
 
         logger.info("✓ Query archived entities works")
 
@@ -111,23 +111,15 @@ async def test_query_dangling_entities(api_prefix: str) -> None:
 
     logger = logging.getLogger(__name__)
 
-    entity_data = {
-        "id": "Q90013",
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Dangling"}},
-    }
-
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_response = await client.post(
+        create_response = await client.get(
             f"{api_prefix}/entities/items",
-            json={**entity_data, "is_dangling": True},
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
-        assert create_response.status_code in (200, 201), (
-            f"Create failed: {create_response.status_code} {create_response.text}"
-        )
+        assert create_response.status_code == 200
+        entity_id = create_response.json()["data"]["entity_id"]
         logger.info(f"Created entity: {create_response.json()}")
 
         response = await client.get(f"{api_prefix}/entities?status=dangling")
@@ -135,9 +127,7 @@ async def test_query_dangling_entities(api_prefix: str) -> None:
         result = response.json()
         entities = result["entities"]
         logger.info(f"Entities returned: {entities}")
-        assert any(
-            e.get("entity_id") == "Q90013" or e.get("id") == "Q90013" for e in entities
-        )
+        assert any(e.get("entity_id") == entity_id for e in entities)
 
         logger.info("✓ Query dangling entities works")
 
@@ -153,23 +143,14 @@ async def test_list_entities_by_type(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Create some test entities
-        await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json={
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test Item"}},
-            },
-            headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "create test item", "X-User-ID": "0"},
         )
-        await client.post(
+        assert response.status_code == 200
+
+        response = await client.get(
             f"{api_prefix}/entities/lexemes",
-            json={
-                "type": "lexeme",
-                "lemmas": {"en": {"language": "en", "value": "test"}},
-                "lexicalCategory": "Q1084",
-                "language": "Q1860",
-            },
             headers={"X-Edit-Summary": "create lexeme", "X-User-ID": "0"},
         )
 
@@ -204,25 +185,25 @@ async def test_query_by_edit_type(api_prefix: str) -> None:
 
     logger = logging.getLogger(__name__)
 
-    entity_data = {
-        "id": "Q90014",
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Test"}},
-    }
-
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        await client.post(
+        response = await client.get(
             f"{api_prefix}/entities/items",
-            json={**entity_data, "is_locked": True, "edit_type": "lock-added"},
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
+        )
+        assert response.status_code == 200
+        entity_id = response.json()["data"]["entity_id"]
+
+        await client.post(
+            f"{api_prefix}/entities/{entity_id}/lock",
+            headers={"X-Edit-Summary": "lock-added", "X-User-ID": "0"},
         )
 
         response = await client.get(f"{api_prefix}/entities?edit_type=lock-added")
         assert response.status_code == 200
         result = response.json()
         entities = result["entities"]
-        assert any(e["entity_id"] == "Q90014" for e in entities)
+        assert any(e["entity_id"] == entity_id for e in entities)
 
         logger.info("✓ Query by edit_type works")

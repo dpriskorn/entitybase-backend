@@ -86,9 +86,7 @@ class EntityHandler(Handler):
             is_creation=ctx.is_creation,
             vitess_client=self.state.vitess_client,
             s3_client=self.state.s3_client,
-            stream_producer=self.state.stream_producer
-            if hasattr(self.state, "stream_producer")
-            else None,
+            stream_producer=self.state.entity_change_stream_producer,
             validator=ctx.validator,
         )
 
@@ -346,19 +344,36 @@ class EntityHandler(Handler):
                 change_type = edit_type_to_change_type(
                     ctx.edit_type or EditType.UNSPECIFIED
                 )
+                user_id = str(ctx.edit_headers.x_user_id) if ctx.edit_headers else "0"
                 event = EntityChangeEvent(
                     id=ctx.entity_id,
                     rev=result.revision_id,
                     type=change_type,
                     at=datetime.now(timezone.utc),
+                    user=user_id,
                     summary=ctx.edit_summary,
                 )
-                logger.debug(
-                    f"Publishing event to stream for entity {ctx.entity_id} revision {result.revision_id}"
+                logger.info(
+                    f"Publishing event to stream: entity={ctx.entity_id}, "
+                    f"revision={result.revision_id}, type={change_type}, "
+                    f"topic={ctx.stream_producer.config.topic}"
                 )
-                await ctx.stream_producer.publish_change(event)
+                await ctx.stream_producer.publish(event)
+                logger.info(
+                    f"Successfully published event for entity {ctx.entity_id} "
+                    f"revision {result.revision_id}"
+                )
             except Exception as e:
-                logger.warning(f"Failed to publish event for {ctx.entity_id}: {e}")
+                logger.error(
+                    f"Failed to publish event for {ctx.entity_id} revision "
+                    f"{result.revision_id}: {type(e).__name__}: {e}",
+                    exc_info=True
+                )
+        elif not ctx.stream_producer:
+            logger.warning(
+                f"Stream producer not available, skipping event publish for "
+                f"entity {ctx.entity_id} revision {result.revision_id}"
+            )
 
     @staticmethod
     async def _build_entity_response(

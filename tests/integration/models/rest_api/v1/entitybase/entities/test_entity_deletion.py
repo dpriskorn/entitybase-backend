@@ -15,24 +15,19 @@ async def test_hard_delete_entity(api_prefix: str) -> None:
 
     logger = logging.getLogger(__name__)
 
-    entity_data = {
-        "id": "Q99002",
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "To Hard Delete"}},
-    }
-
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        await client.post(
+        create_response = await client.get(
             f"{api_prefix}/entities/items",
-            json=entity_data,
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
+        assert create_response.status_code == 200
+        entity_id = create_response.json()["data"]["entity_id"]
 
         delete_response = await client.request(
             "DELETE",
-            f"{api_prefix}/entities/Q99002",
+            f"{api_prefix}/entities/{entity_id}",
             json={"delete_type": "hard"},
             headers={
                 "X-Edit-Summary": "delete entity",
@@ -43,12 +38,11 @@ async def test_hard_delete_entity(api_prefix: str) -> None:
         assert delete_response.status_code == 200
 
         result = delete_response.json()
-        assert result["id"] == "Q99002"
+        assert result["id"] == entity_id
         assert result["is_deleted"] is True
         assert result["del_type"] == "hard"
 
-        # Verify entity no longer accessible (hard delete hides)
-        get_response = await client.get(f"{api_prefix}/entities/Q99002")
+        get_response = await client.get(f"{api_prefix}/entities/{entity_id}")
         assert get_response.status_code == 404
         assert "deleted" in get_response.json()["message"].lower()
 
@@ -63,24 +57,19 @@ async def test_hard_delete_prevents_undelete(api_prefix: str) -> None:
 
     logger = logging.getLogger(__name__)
 
-    entity_data = {
-        "id": "Q99004",
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "To Hard Delete"}},
-    }
-
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        await client.post(
+        create_response = await client.get(
             f"{api_prefix}/entities/items",
-            json=entity_data,
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
+        assert create_response.status_code == 200
+        entity_id = create_response.json()["data"]["entity_id"]
 
         await client.request(
             "DELETE",
-            f"{api_prefix}/entities/Q99004",
+            f"{api_prefix}/entities/{entity_id}",
             json={"delete_type": "hard"},
             headers={
                 "X-Edit-Summary": "delete entity",
@@ -92,7 +81,7 @@ async def test_hard_delete_prevents_undelete(api_prefix: str) -> None:
         response = await client.post(
             f"{api_prefix}/entities/items",
             json={
-                "id": "Q99004",
+                "id": entity_id,
                 "type": "item",
                 "labels": {"en": {"language": "en", "value": "Undeleted"}},
             },

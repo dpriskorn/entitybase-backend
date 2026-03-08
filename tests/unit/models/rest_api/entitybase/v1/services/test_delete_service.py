@@ -183,14 +183,14 @@ class TestDeleteService:
         """Test publishing delete event successfully."""
         mock_state = MagicMock()
         mock_producer = MagicMock()
-        mock_producer.publish_change = AsyncMock()
+        mock_producer.publish = AsyncMock()
         mock_state.entity_change_stream_producer = mock_producer
 
         service = DeleteService(state=mock_state)
         edit_context = EditContext(user_id=123, edit_summary="Delete entity")
         await service.publish_delete_event("Q42", 3, 2, edit_context)
 
-        mock_producer.publish_change.assert_called_once()
+        mock_producer.publish.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_publish_delete_event_no_producer(self) -> None:

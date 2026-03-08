@@ -114,13 +114,14 @@ class TestEndorsementHandler:
             EndorsementHandler,
         )
 
-        mock_state.vitess_client.stream_producer = MagicMock()
+        mock_producer = MagicMock()
+        mock_state.vitess_client.stream_producer = mock_producer
 
         EndorsementHandler._publish_endorsement_event(
             mock_handler, 12345, 1, EndorseAction.ENDORSE
         )
 
-        mock_state.vitess_client.stream_producer.publish_change.assert_called_once()
+        mock_producer.publish.assert_called_once()
 
     def test_publish_endorsement_event_without_producer(self, mock_handler, mock_state):
         """Test _publish_endorsement_event when no producer exists."""

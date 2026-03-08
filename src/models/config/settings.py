@@ -62,8 +62,8 @@ class Settings(BaseModel):
     # streaming
     streaming_enabled: bool = False
     kafka_bootstrap_servers: str = ""
-    kafka_entitychange_json_topic: str = "entitybase.entity_change"
-    kafka_entity_diff_topic: str = "wikibase.entity_diff"
+    kafka_entitychange_json_topic: str = ""
+    kafka_entity_diff_topic: str = ""
     streaming_entity_change_version: str = "1.0.0"
     streaming_endorsechange_version: str = "1.0.0"
     streaming_newthank_version: str = "1.0.0"
@@ -79,7 +79,7 @@ class Settings(BaseModel):
     api_prefix: str = "/v1/entitybase"
 
     # other
-    user_agent: str = "Entitybase/1.0 User:So9q"
+    user_agent: str = f"Entitybase/{ENTITYBASE_VERSION} User:So9q"
     api_description: str = ""
 
     # workers

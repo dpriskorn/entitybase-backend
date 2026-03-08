@@ -2,6 +2,7 @@
 
 import pytest
 import logging
+from unittest.mock import AsyncMock
 
 
 class TestFastAPIApp:
@@ -39,10 +40,12 @@ class TestFastAPIApp:
         app_mock = FastAPI()
         mock_state_handler = mocker.Mock()
         mock_state_handler.start.return_value = None
+        mock_state_handler.async_shutdown = AsyncMock()
 
         mocker.patch(
             "models.rest_api.main.StateHandler", return_value=mock_state_handler
         )
+        mocker.patch("models.rest_api.main.settings.streaming_enabled", new=False)
 
         async with lifespan(app_mock) as _:
             assert hasattr(app_mock.state, "state_handler")
@@ -58,10 +61,12 @@ class TestFastAPIApp:
         app_mock = FastAPI()
         mock_state_handler = mocker.Mock()
         mock_state_handler.start.return_value = None
+        mock_state_handler.async_shutdown = AsyncMock()
 
         mocker.patch(
             "models.rest_api.main.StateHandler", return_value=mock_state_handler
         )
+        mocker.patch("models.rest_api.main.settings.streaming_enabled", new=False)
 
         with caplog.at_level(logging.DEBUG):
             async with lifespan(app_mock) as _:
@@ -78,6 +83,7 @@ class TestFastAPIApp:
         app_mock = FastAPI()
         mock_state_handler = mocker.Mock()
         mock_state_handler.start.side_effect = RuntimeError("Startup failed")
+        mock_state_handler.async_shutdown = AsyncMock()
 
         mocker.patch(
             "models.rest_api.main.StateHandler", return_value=mock_state_handler

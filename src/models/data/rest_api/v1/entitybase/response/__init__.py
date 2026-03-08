@@ -88,7 +88,7 @@ from .rdf import (
     RedirectBatchResponse,
     WikibasePredicatesResponse,
 )
-from .result import RevisionIdResult, RevisionResult
+from .result import EntityIdResult, RevisionIdResult, RevisionResult
 from .statement import (
     BatchStatementsResponse,
     MostUsedStatementsResponse,
@@ -170,6 +170,7 @@ __all__ = [
     "EntityStatusResponse",
     "EntitySitelinksResponse",
     "EntityStatementsResponse",
+    "EntityIdResult",
     "FullRevisionResponse",
     "GeneralStatsData",
     "GeneralStatsResponse",

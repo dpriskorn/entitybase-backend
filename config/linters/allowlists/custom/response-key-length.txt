@@ -1,0 +1,3 @@
+# Allowlist for long field names in SettingsResponse
+# These field names are long because they mirror the Settings class
+entitybase/response/settings.py
