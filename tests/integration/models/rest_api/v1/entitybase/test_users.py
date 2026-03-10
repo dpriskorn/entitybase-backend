@@ -344,6 +344,7 @@ async def test_watchlist_add(api_prefix: str, initialized_app: None) -> None:
             headers=headers,
         )
         assert response.status_code == 200
+        entity_id = response.json()["data"]["entity_id"]
 
         # Create user
         await client.post(
@@ -360,7 +361,7 @@ async def test_watchlist_add(api_prefix: str, initialized_app: None) -> None:
 
         response = await client.post(
             f"{api_prefix}/users/12345/watchlist",
-            json={"entity_id": "Q42", "properties": ["P31"]},
+            json={"entity_id": entity_id, "properties": ["P31"]},
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
