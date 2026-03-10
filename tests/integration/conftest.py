@@ -1,4 +1,5 @@
 import logging
+import os
 import sys
 import time
 
@@ -9,6 +10,10 @@ import requests
 from botocore.exceptions import ClientError
 
 sys.path.insert(0, "src")
+
+os.environ["STREAMING_ENABLED"] = "false"
+os.environ.pop("KAFKA_BOOTSTRAP_SERVERS", None)
+
 # noinspection PyPep8
 from models.config.settings import settings
 
