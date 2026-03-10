@@ -23,28 +23,6 @@ jobs:
       - run: poetry run mypy src/
       - run: poetry run radon cc -a -s src/
 
-  coverage:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install poetry
-        run: pipx install poetry
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-          cache: 'poetry'
-      - run: pip install --upgrade pip wheel
-      - run: poetry install --with=dev
-      - name: Run unit tests with coverage
-        run: poetry run pytest tests/unit -v --tb=short --cov=src --cov-report=xml --cov-report=term
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          file: ./coverage.xml
-          flags: unittests
-          name: unit-tests
-
   test:
     needs: lint
     runs-on: ubuntu-latest
