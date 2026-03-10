@@ -99,7 +99,7 @@ async def test_get_entity_property_hashes(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create entity with statements
-        response = await client.get(
+        response = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
