@@ -17,7 +17,7 @@ async def test_create_property(api_prefix: str, sample_property_data) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get(
+        response = await client.post(
             f"{api_prefix}/entities/properties",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
@@ -35,7 +35,7 @@ async def test_get_property_aliases(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get(
+        response = await client.post(
             f"{api_prefix}/entities/properties",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
@@ -73,7 +73,7 @@ async def test_update_property_aliases(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get(
+        response = await client.post(
             f"{api_prefix}/entities/properties",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
@@ -111,7 +111,7 @@ async def test_get_property_description(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get(
+        response = await client.post(
             f"{api_prefix}/entities/properties",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
