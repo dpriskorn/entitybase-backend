@@ -10,6 +10,9 @@ import requests
 
 sys.path.insert(0, "src")
 
+os.environ["STREAMING_ENABLED"] = "false"
+os.environ.pop("KAFKA_BOOTSTRAP_SERVERS", None)
+
 logger = logging.getLogger(__name__)
 
 
