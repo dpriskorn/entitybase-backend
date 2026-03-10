@@ -18,7 +18,7 @@ async def test_batch_statements(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create property first
-        property_response = await client.get(
+        property_response = await client.post(
             f"{api_prefix}/entities/properties",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
@@ -26,7 +26,7 @@ async def test_batch_statements(api_prefix: str) -> None:
         property_id = property_response.json()["data"]["entity_id"]
 
         # Create empty entity
-        response = await client.get(
+        response = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )

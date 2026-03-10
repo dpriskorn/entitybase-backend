@@ -53,7 +53,7 @@ async def test_weekly_dump_full_workflow_e2e(api_prefix: str) -> None:
                 "en": {"language": "en", "value": "British science fiction writer"}
             },
         }
-        response = await client.get(
+        response = await client.post(
             f"{api_prefix}/entities/items",
             headers=headers,
         )
@@ -84,7 +84,7 @@ async def test_weekly_dump_full_workflow_e2e(api_prefix: str) -> None:
                 "en": {"language": "en", "value": f"instance of {uuid.uuid4().hex[:8]}"}
             },
         }
-        response = await client.get(
+        response = await client.post(
             f"{api_prefix}/entities/properties",
             headers=headers,
         )

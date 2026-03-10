@@ -49,7 +49,7 @@ async def test_get_entity_property_counts(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create entity
-        response = await client.get(
+        response = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
@@ -98,7 +98,7 @@ async def test_get_entity_property_counts_empty(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create entity without statements
-        response = await client.get(
+        response = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
