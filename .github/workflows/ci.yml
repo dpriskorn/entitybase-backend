@@ -110,7 +110,7 @@ jobs:
       - name: Upload e2e coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
-          file: ./coverage.xml
+          files: ./coverage.xml
           flags: e2e-basics
           name: e2e-basics
 
@@ -197,7 +197,7 @@ jobs:
       - name: Upload integration coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
-          file: ./coverage.xml
+          files: ./coverage.xml
           flags: integration
           name: integration-tests
 
