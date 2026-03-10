@@ -14,7 +14,6 @@ jobs:
   # TEMPORARILY DISABLED: test:
   test:
     if: false  # Temporarily disabled
-    needs: lint
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
