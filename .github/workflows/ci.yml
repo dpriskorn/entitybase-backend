@@ -24,19 +24,19 @@ jobs:
           poetry run python scripts/linters/check_async_calls.py src/
           poetry run python scripts/linters/check_int_fields.py src/
           poetry run python scripts/linters/value_error_linter.py
-          poetry run python scripts/shell/run-assert-linter.sh
-          poetry run python scripts/shell/run-response-model-lint.sh
-          poetry run python scripts/shell/run-logger-lint.sh
-          poetry run python scripts/shell/run-long-files-lint.sh
-          poetry run python scripts/shell/run-dict-lint.sh
-          poetry run python scripts/shell/run-pydantic-field-lint.sh
-          poetry run python scripts/shell/run-any-lint.sh
-          poetry run python scripts/shell/run-tuple-lint.sh
-          poetry run python scripts/shell/run-key-length-lint.sh
-          poetry run python scripts/shell/run-init-lint.sh
-          poetry run python scripts/shell/run-backslash-lint.sh
-          poetry run python scripts/shell/run-json-lint.sh
-          poetry run python scripts/shell/run-status-code-lint.sh
+          bash scripts/shell/run-assert-linter.sh
+          bash scripts/shell/run-response-model-lint.sh
+          bash scripts/shell/run-logger-lint.sh
+          bash scripts/shell/run-long-files-lint.sh
+          bash scripts/shell/run-dict-lint.sh
+          bash scripts/shell/run-pydantic-field-lint.sh
+          bash scripts/shell/run-any-lint.sh
+          bash scripts/shell/run-tuple-lint.sh
+          bash scripts/shell/run-key-length-lint.sh
+          bash scripts/shell/run-init-lint.sh
+          bash scripts/shell/run-backslash-lint.sh
+          bash scripts/shell/run-json-lint.sh
+          bash scripts/shell/run-status-code-lint.sh
       - name: Run external linters
         run: |
           poetry run ruff check src/
