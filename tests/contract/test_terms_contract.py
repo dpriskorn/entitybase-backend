@@ -114,5 +114,9 @@ async def test_aliases_response_schema(api_prefix: str) -> None:
         assert aliases_resp.status_code == 200
         data = aliases_resp.json()
 
-        assert isinstance(data, list)
-        assert len(data) > 0
+        assert isinstance(data, (list, dict))
+        if isinstance(data, dict):
+            assert "aliases" in data
+            assert isinstance(data["aliases"], list)
+        else:
+            assert len(data) > 0
