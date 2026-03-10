@@ -20,7 +20,7 @@ async def test_get_entity_properties(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create entity with statements
-        response = await client.get(
+        response = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
@@ -49,7 +49,7 @@ async def test_add_property_to_entity(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create property first
-        property_response = await client.get(
+        property_response = await client.post(
             f"{api_prefix}/entities/properties",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
@@ -57,7 +57,7 @@ async def test_add_property_to_entity(
         property_id = property_response.json()["data"]["entity_id"]
 
         # Create entity
-        response = await client.get(
+        response = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
@@ -131,7 +131,7 @@ async def test_get_entity_property_hashes_alternative_endpoint(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create entity with statements
-        response = await client.get(
+        response = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
