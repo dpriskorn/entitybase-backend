@@ -338,18 +338,9 @@ async def test_watchlist_add(api_prefix: str, initialized_app: None) -> None:
     ) as client:
         headers = {"X-Edit-Summary": "test", "X-User-ID": "0"}
 
-        # Create Q42 entity first
-        Q42_data = {
-            "id": "Q42",
-            "type": "item",
-            "labels": {"en": {"language": "en", "value": "Douglas Adams"}},
-            "descriptions": {
-                "en": {"language": "en", "value": "British science fiction writer"}
-            },
-        }
+        # Create entity first
         response = await client.post(
             f"{api_prefix}/entities/items",
-            json=Q42_data,
             headers=headers,
         )
         assert response.status_code == 200
@@ -388,18 +379,9 @@ async def test_watchlist_get(api_prefix: str, initialized_app: None) -> None:
     ) as client:
         headers = {"X-Edit-Summary": "test", "X-User-ID": "0"}
 
-        # Create Q42 entity first
-        Q42_data = {
-            "id": "Q42",
-            "type": "item",
-            "labels": {"en": {"language": "en", "value": "Douglas Adams"}},
-            "descriptions": {
-                "en": {"language": "en", "value": "British science fiction writer"}
-            },
-        }
+        # Create entity first
         await client.post(
             f"{api_prefix}/entities/items",
-            json=Q42_data,
             headers=headers,
         )
 
