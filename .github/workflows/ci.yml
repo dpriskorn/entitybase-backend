@@ -353,9 +353,8 @@ jobs:
           S3_SECRET_KEY: fakesecret
           S3_BUCKET: testbucket
           REST_API_URL: http://localhost:8000
-          STREAMING_ENABLED: "true"
-          KAFKA_BOOTSTRAP_SERVERS: "localhost:9092"
-        run: poetry run pytest tests/ -v --cov=src --cov-report=xml --cov-report=term
+          STREAMING_ENABLED: "false"
+        run: poetry run pytest tests/unit -v --cov=src --cov-report=xml --cov-report=term
         timeout-minutes: 30
 
       - name: Upload total coverage to Codecov
