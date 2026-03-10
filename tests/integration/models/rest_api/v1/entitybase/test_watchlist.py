@@ -18,7 +18,7 @@ async def test_add_watch(api_prefix: str, initialized_app: None) -> None:
         headers = {"X-Edit-Summary": "test", "X-User-ID": "0"}
 
         # Create entity first
-        response = await client.get(
+        response = await client.post(
             f"{api_prefix}/entities/items",
             headers=headers,
         )
@@ -75,7 +75,7 @@ async def test_remove_watch(api_prefix: str, initialized_app: None) -> None:
         headers = {"X-Edit-Summary": "test", "X-User-ID": "0"}
 
         # Create entity first
-        response = await client.get(
+        response = await client.post(
             f"{api_prefix}/entities/items",
             headers=headers,
         )
@@ -117,7 +117,7 @@ async def test_get_watchlist(api_prefix: str, initialized_app: None) -> None:
         headers = {"X-Edit-Summary": "test", "X-User-ID": "0"}
 
         # Create entity first
-        response = await client.get(
+        response = await client.post(
             f"{api_prefix}/entities/items",
             headers=headers,
         )
@@ -174,7 +174,7 @@ async def test_remove_watch_by_id(api_prefix: str, initialized_app: None) -> Non
         headers = {"X-Edit-Summary": "test", "X-User-ID": "0"}
 
         # Create entity first
-        response = await client.get(
+        response = await client.post(
             f"{api_prefix}/entities/items",
             headers=headers,
         )

@@ -18,7 +18,7 @@ async def test_hard_delete_entity(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_response = await client.get(
+        create_response = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
@@ -60,7 +60,7 @@ async def test_hard_delete_prevents_undelete(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_response = await client.get(
+        create_response = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
