@@ -129,30 +129,9 @@ async def _initialize_app_state(app_: FastAPI, state_handler: StateHandler) -> N
 async def _cleanup_app_state(app_: FastAPI) -> None:
     """Cleanup app state on shutdown."""
     if hasattr(app_.state, "state_handler") and app_.state.state_handler:
+        await app_.state.state_handler.async_shutdown()
         app_.state.state_handler.disconnect()
         logger.info("All clients disconnected")
-
-    await _stop_stream_producer(
-        app_, "entitychange_stream_producer", "entitychange_stream_producer stopped"
-    )
-    await _stop_stream_producer(
-        app_, "entitydiff_stream_producer", "entitydiff_stream_producer stopped"
-    )
-
-
-async def _stop_stream_producer(
-    app_: FastAPI, producer_attr: str, log_message: str
-) -> None:
-    """Stop a stream producer if it exists."""
-    if (
-        hasattr(app_.state, "state_handler")
-        and app_.state.state_handler
-        and settings.streaming_enabled
-        and getattr(app_.state.state_handler, producer_attr, None)
-    ):
-        producer = getattr(app_.state.state_handler, producer_attr)
-        await producer.stop()
-        logger.info(log_message)
 
 
 app_kwargs: dict = {

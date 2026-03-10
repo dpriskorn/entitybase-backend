@@ -3,6 +3,17 @@
 from pydantic import BaseModel, Field
 
 
+class EntityIdResult(BaseModel):
+    """Model for entity creation result with ID and revision."""
+
+    entity_id: str = Field(
+        description="The new entity ID (e.g., 'Q123')",
+    )
+    revision_id: int = Field(
+        description="The revision ID of the created entity",
+    )
+
+
 class RevisionIdResult(BaseModel):
     """Model for operations that return a revision ID."""
 

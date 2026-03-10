@@ -17,35 +17,33 @@ async def test_create_redirect(api_prefix: str, sample_item_data) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Create source entity
         response = await client.post(
             f"{api_prefix}/entities/items",
-            json=sample_item_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        source_id = response.json()["id"]
+        source_id = response.json()["data"]["entity_id"]
 
-        # Create target entity
-        target_data = {
-            "type": "item",
-            "labels": {"en": {"language": "en", "value": "Redirect Target"}},
-        }
         response = await client.post(
             f"{api_prefix}/entities/items",
-            json=target_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        target_id = response.json()["id"]
+        assert response.status_code == 200
+        target_id = response.json()["data"]["entity_id"]
 
-        # Create redirect
+        response = await client.put(
+            f"{api_prefix}/entities/{target_id}/labels/en",
+            json={"language": "en", "value": "Redirect Target"},
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+        assert response.status_code == 200
+
         redirect_data = {"redirect_from_id": source_id, "redirect_to_id": target_id}
         response = await client.post(
             f"{api_prefix}/redirects",
             json=redirect_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        # May succeed or fail depending on implementation
         assert response.status_code == 200
 
 
@@ -58,20 +56,17 @@ async def test_revert_redirect(api_prefix: str, sample_item_data) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Create source entity
         response = await client.post(
             f"{api_prefix}/entities/items",
-            json=sample_item_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        entity_id = response.json()["id"]
+        assert response.status_code == 200
+        entity_id = response.json()["data"]["entity_id"]
 
-        # Try to revert redirect (will fail if no redirect exists)
         revert_data = {"revert_to_revision_id": 1}
         response = await client.post(
             f"{api_prefix}/entities/{entity_id}/revert-redirect",
             json=revert_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        # May succeed or fail depending on whether redirect exists
         assert response.status_code == 404

@@ -32,17 +32,19 @@ json_import = importlib.import_module(
 v1_router = APIRouter()
 
 # Include sub-routers
-v1_router.include_router(entities.router, tags=["entities"])
-v1_router.include_router(entities_labels.router, tags=["entities"])
-v1_router.include_router(entities_descriptions.router, tags=["entities"])
-v1_router.include_router(entities_aliases.router, tags=["entities"])
+# IMPORTANT: Register specific entity routes (items, properties, lexemes) BEFORE
+# the general /entities/{entity_id} route to avoid path parameter conflicts
 v1_router.include_router(items.router, tags=["items"])
 v1_router.include_router(lexemes.router, tags=["lexemes"])
 v1_router.include_router(lexeme_forms.router, tags=["lexemes"])
 v1_router.include_router(lexeme_senses.router, tags=["lexemes"])
 v1_router.include_router(properties.router, tags=["properties"])
-v1_router.include_router(statements.router, tags=["statements"])
 v1_router.include_router(admin.admin_router, tags=["list"])
+v1_router.include_router(entities.router, tags=["entities"])
+v1_router.include_router(entities_labels.router, tags=["entities"])
+v1_router.include_router(entities_descriptions.router, tags=["entities"])
+v1_router.include_router(entities_aliases.router, tags=["entities"])
+v1_router.include_router(statements.router, tags=["statements"])
 v1_router.include_router(redirects.redirects_router, tags=["redirects"])
 v1_router.include_router(watchlist.watchlist_router, tags=["watchlist"])
 v1_router.include_router(stats.stats_router, tags=["statistics"])

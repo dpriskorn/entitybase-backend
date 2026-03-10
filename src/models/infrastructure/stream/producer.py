@@ -42,9 +42,12 @@ class StreamProducerClient(Client):
             self.producer = None
             logger.info("Stopped Kafka producer")
 
-    async def publish_change(self, event: Any) -> None:
+    async def publish(self, event: Any) -> None:
         """Publish an event to Kafka."""
         if not self.producer:
+            logger.info(
+                f"Producer not started, starting now for topic {self.config.topic}"
+            )
             await self.start()
 
         try:
@@ -56,11 +59,20 @@ class StreamProducerClient(Client):
                 logger.error(f"Event {event} has no key field")
                 return
 
+            logger.info(
+                f"Sending event to Kafka: topic={self.config.topic}, "
+                f"key={key}, event_type={type(event).__name__}"
+            )
             await self.producer.send_and_wait(
                 topic=self.config.topic,
                 key=str(key).encode("utf-8"),
                 value=event,
             )
-            logger.debug(f"Published event: {event}")
+            logger.info(
+                f"Successfully sent event to Kafka: topic={self.config.topic}, key={key}"
+            )
         except Exception as e:
-            logger.error(f"Failed to publish event: {e}")
+            logger.error(
+                f"Failed to publish event to Kafka: {type(e).__name__}: {e}",
+                exc_info=True,
+            )

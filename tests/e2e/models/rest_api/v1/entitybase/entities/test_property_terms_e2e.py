@@ -19,12 +19,11 @@ async def test_create_property(api_prefix: str, sample_property_data) -> None:
     ) as client:
         response = await client.post(
             f"{api_prefix}/entities/properties",
-            json=sample_property_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
         data = response.json()
-        assert data["id"].startswith("P")
+        assert data["data"]["entity_id"].startswith("P")
 
 
 @pytest.mark.e2e
@@ -36,20 +35,26 @@ async def test_get_property_aliases(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Create property
-        create_data = {
-            "type": "property",
-            "datatype": "wikibase-item",
-            "labels": {"en": {"language": "en", "value": "Test Property"}},
-            "aliases": {"en": [{"language": "en", "value": "Alias 1"}]},
-        }
         response = await client.post(
             f"{api_prefix}/entities/properties",
-            json=create_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        property_id = response.json()["id"]
+        property_id = response.json()["data"]["entity_id"]
+
+        response = await client.put(
+            f"{api_prefix}/entities/{property_id}/labels/en",
+            json={"language": "en", "value": "Test Property"},
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+        assert response.status_code == 200
+
+        response = await client.put(
+            f"{api_prefix}/entities/{property_id}/aliases/en",
+            json=["Alias 1"],
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+        assert response.status_code == 200
 
         # Get aliases
         response = await client.get(f"{api_prefix}/entities/{property_id}/aliases/en")
@@ -68,19 +73,19 @@ async def test_update_property_aliases(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Create property
-        create_data = {
-            "type": "property",
-            "datatype": "wikibase-item",
-            "labels": {"en": {"language": "en", "value": "Test Property"}},
-        }
         response = await client.post(
             f"{api_prefix}/entities/properties",
-            json=create_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        property_id = response.json()["id"]
+        property_id = response.json()["data"]["entity_id"]
+
+        response = await client.put(
+            f"{api_prefix}/entities/{property_id}/labels/en",
+            json={"language": "en", "value": "Test Property"},
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+        assert response.status_code == 200
 
         # Update aliases
         response = await client.put(
@@ -106,20 +111,26 @@ async def test_get_property_description(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Create property
-        create_data = {
-            "type": "property",
-            "datatype": "wikibase-item",
-            "labels": {"en": {"language": "en", "value": "Test Property"}},
-            "descriptions": {"en": {"language": "en", "value": "Test Description"}},
-        }
         response = await client.post(
             f"{api_prefix}/entities/properties",
-            json=create_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        property_id = response.json()["id"]
+        property_id = response.json()["data"]["entity_id"]
+
+        response = await client.put(
+            f"{api_prefix}/entities/{property_id}/labels/en",
+            json={"language": "en", "value": "Test Property"},
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+        assert response.status_code == 200
+
+        response = await client.put(
+            f"{api_prefix}/entities/{property_id}/descriptions/en",
+            json={"language": "en", "value": "Test Description"},
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+        assert response.status_code == 200
 
         # Get description
         response = await client.get(
@@ -140,19 +151,19 @@ async def test_get_property_label(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Create property
-        create_data = {
-            "type": "property",
-            "datatype": "wikibase-item",
-            "labels": {"en": {"language": "en", "value": "Test Label"}},
-        }
         response = await client.post(
             f"{api_prefix}/entities/properties",
-            json=create_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        property_id = response.json()["id"]
+        property_id = response.json()["data"]["entity_id"]
+
+        response = await client.put(
+            f"{api_prefix}/entities/{property_id}/labels/en",
+            json={"language": "en", "value": "Test Label"},
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+        assert response.status_code == 200
 
         # Get label
         response = await client.get(f"{api_prefix}/entities/{property_id}/labels/en")
@@ -171,18 +182,12 @@ async def test_property_labels_full_workflow(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_data = {
-            "type": "property",
-            "datatype": "wikibase-item",
-            "labels": {"en": {"language": "en", "value": "Initial Label"}},
-        }
         response = await client.post(
             f"{api_prefix}/entities/properties",
-            json=create_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        property_id = response.json()["id"]
+        property_id = response.json()["data"]["entity_id"]
 
         response = await client.put(
             f"{api_prefix}/entities/{property_id}/labels/en",
@@ -222,18 +227,12 @@ async def test_property_descriptions_full_workflow(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_data = {
-            "type": "property",
-            "datatype": "wikibase-item",
-            "descriptions": {"en": {"language": "en", "value": "Initial Description"}},
-        }
         response = await client.post(
             f"{api_prefix}/entities/properties",
-            json=create_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        property_id = response.json()["id"]
+        property_id = response.json()["data"]["entity_id"]
 
         response = await client.put(
             f"{api_prefix}/entities/{property_id}/descriptions/en",
@@ -271,18 +270,19 @@ async def test_property_aliases_full_workflow(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        create_data = {
-            "type": "property",
-            "datatype": "wikibase-item",
-            "labels": {"en": {"language": "en", "value": "Test Property"}},
-        }
         response = await client.post(
             f"{api_prefix}/entities/properties",
-            json=create_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        property_id = response.json()["id"]
+        property_id = response.json()["data"]["entity_id"]
+
+        response = await client.put(
+            f"{api_prefix}/entities/{property_id}/labels/en",
+            json={"language": "en", "value": "Test Property"},
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+        assert response.status_code == 200
 
         response = await client.put(
             f"{api_prefix}/entities/{property_id}/aliases/en",

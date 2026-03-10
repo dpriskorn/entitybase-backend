@@ -953,6 +953,15 @@ Model for Wikibase predicate URIs for a property.
 
 ## models/data/rest_api/v1/entitybase/response/result.py
 
+### EntityIdResult
+
+Model for entity creation result with ID and revision.
+
+**Fields**:
+
+- `entity_id` (str): The new entity ID (e.g., 'Q123')
+- `revision_id` (int): The revision ID of the created entity
+
 ### RevisionIdResult
 
 Model for operations that return a revision ID.
@@ -970,6 +979,70 @@ Result of revision processing.
 - `success` (bool): Whether the revision processing was successful
 - `revision_id` (int): The ID of the created or updated revision
 - `error` (str): Error message if the operation failed
+
+## models/data/rest_api/v1/entitybase/response/settings.py
+
+### SettingsResponse
+
+Response model for settings endpoint (excludes sensitive values).
+
+**Fields**:
+
+- `s3_endpoint` (str): No description
+- `s3_references_bucket` (str): No description
+- `s3_qualifiers_bucket` (str): No description
+- `s3_sitelinks_bucket` (str): No description
+- `s3_snaks_bucket` (str): No description
+- `s3_statements_bucket` (str): No description
+- `s3_terms_bucket` (str): No description
+- `s3_revisions_bucket` (str): No description
+- `s3_snak_version` (str): No description
+- `s3_sitelink_version` (str): No description
+- `s3_qualifier_version` (str): No description
+- `s3_reference_version` (str): No description
+- `s3_statement_version` (str): No description
+- `s3_schema_revision_version` (str): No description
+- `vitess_host` (str): No description
+- `vitess_port` (int): No description
+- `vitess_database` (str): No description
+- `vitess_pool_size` (int): No description
+- `vitess_max_overflow` (int): No description
+- `vitess_pool_timeout` (int): No description
+- `wikibase_repository_name` (str): No description
+- `property_registry_path` (str): No description
+- `log_level` (str): No description
+- `streaming_enabled` (bool): No description
+- `kafka_bootstrap_servers` (str): No description
+- `kafka_entitychange_json_topic` (str): No description
+- `kafka_entity_diff_topic` (str): No description
+- `streaming_entity_change_version` (str): No description
+- `streaming_endorsechange_version` (str): No description
+- `streaming_newthank_version` (str): No description
+- `streaming_entity_diff_version` (str): No description
+- `entity_version` (str): No description
+- `dangling_property_id` (str): No description
+- `api_prefix` (str): No description
+- `user_agent` (str): No description
+- `api_description` (str): No description
+- `backlink_stats_enabled` (bool): No description
+- `backlink_stats_schedule` (str): No description
+- `backlink_stats_top_limit` (int): No description
+- `user_stats_enabled` (bool): No description
+- `user_stats_schedule` (str): No description
+- `general_stats_enabled` (bool): No description
+- `general_stats_schedule` (str): No description
+- `json_dump_enabled` (bool): No description
+- `json_dump_schedule` (str): No description
+- `s3_dump_bucket` (str): No description
+- `json_dump_batch_size` (int): No description
+- `json_dump_parallel_workers` (int): No description
+- `json_dump_generate_checksums` (bool): No description
+- `ttl_dump_enabled` (bool): No description
+- `ttl_dump_schedule` (str): No description
+- `ttl_dump_batch_size` (int): No description
+- `ttl_dump_parallel_workers` (int): No description
+- `ttl_dump_compression` (bool): No description
+- `ttl_dump_generate_checksums` (bool): No description
 
 ## models/data/rest_api/v1/entitybase/response/statement.py
 

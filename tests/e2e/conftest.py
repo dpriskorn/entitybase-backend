@@ -10,7 +10,29 @@ import requests
 
 sys.path.insert(0, "src")
 
+os.environ["STREAMING_ENABLED"] = "false"
+os.environ.pop("KAFKA_BOOTSTRAP_SERVERS", None)
+
 logger = logging.getLogger(__name__)
+
+
+def get_entity_id_from_response(response: Any) -> str:
+    """Extract entity_id from create item response with debug logging."""
+    if response.status_code != 200:
+        logger.error(
+            f"Failed to create entity: {response.status_code} - {response.text}"
+        )
+        raise AssertionError(
+            f"Expected 200, got {response.status_code}: {response.text}"
+        )
+    json_data = response.json()
+    if "data" not in json_data:
+        logger.error(f"Response missing 'data' field: {json_data}")
+        raise AssertionError(f"Response missing 'data' field: {json_data}")
+    if "entity_id" not in json_data["data"]:
+        logger.error(f"Response data missing 'entity_id': {json_data['data']}")
+        raise AssertionError(f"Response data missing 'entity_id': {json_data['data']}")
+    return json_data["data"]["entity_id"]
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -60,9 +82,9 @@ def db_conn():
         conn.close()
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(scope="class")
 def db_cleanup(db_conn):
-    """Clean up database tables after each E2E test."""
+    """Clean up database tables after each test class (faster than per-test)."""
     yield
     tables = [
         "entity_id_mapping",
@@ -84,16 +106,11 @@ def db_cleanup(db_conn):
         "general_daily_stats",
     ]
     with db_conn.cursor() as cursor:
-        cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
         for table in tables:
             try:
-                cursor.execute(f"TRUNCATE TABLE {table}")
-            except pymysql.err.ProgrammingError as e:
-                if "doesn't exist" in str(e):
-                    continue
-                else:
-                    raise
-        cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
+                cursor.execute(f"DELETE FROM {table}")
+            except pymysql.err.ProgrammingError:
+                continue
     db_conn.commit()
 
 

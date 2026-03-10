@@ -3,6 +3,7 @@
 import logging
 from datetime import datetime, timezone
 
+from models.config.settings import settings
 from models.data.infrastructure.stream.actions import EndorseAction
 from models.data.rest_api.v1.entitybase.request import UserActivityType
 from models.infrastructure.stream.event import EndorseChangeEvent
@@ -156,14 +157,14 @@ class EndorsementHandler(Handler):
         self, statement_hash: int, user_id: int, action: EndorseAction
     ) -> None:
         """Publish endorsement change event."""
-        if self.state.vitess_client.stream_producer:
+        if settings.streaming_enabled and self.state.vitess_client.stream_producer:
             event = EndorseChangeEvent(
                 hash=str(statement_hash),
                 user=str(user_id),
                 act=action,
                 ts=datetime.now(timezone.utc),
             )
-            self.state.vitess_client.stream_producer.publish_change(event)
+            self.state.vitess_client.stream_producer.publish(event)
 
     def get_statement_endorsements(
         self,

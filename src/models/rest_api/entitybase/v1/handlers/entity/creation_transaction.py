@@ -157,7 +157,7 @@ class CreationTransaction(EntityTransaction):
             state=EntityState(),
         )
 
-    def publish_event(
+    async def publish_event(
         self,
         event_context: EventPublishContext,
         edit_context: EditContext,
@@ -181,7 +181,10 @@ class CreationTransaction(EntityTransaction):
                 user=str(edit_context.user_id),
                 summary=edit_context.edit_summary,
             )
-            self.state.entity_change_stream_producer.publish_change(event)
+            if self.state.settings.streaming_enabled:
+                await self.state.entity_change_stream_producer.publish(event)
+            else:
+                logger.debug("Streaming disabled, skipping event publish")
         # Events are fire-and-forget, no rollback needed
 
     def commit(self) -> None:

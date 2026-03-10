@@ -8,6 +8,7 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 "$SCRIPT_DIR/check-docker-services.sh" --clean-connections
 
 source "$PROJECT_ROOT/test.env"
+source "$PROJECT_ROOT/e2e.env"
 
 echo "Running E2E tests (ASGITransport - no API server required)"
 # sdt out / logs

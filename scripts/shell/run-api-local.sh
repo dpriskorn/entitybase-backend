@@ -42,10 +42,10 @@ export STREAMING_NEWTHANK_VERSION="1.0.0"
 export STREAMING_ENTITY_CHANGE_VERSION="1.0.0"
 export STREAMING_ENTITY_DIFF_VERSION="2.0.0"
 
-export STREAMING_ENABLED="false"
+export STREAMING_ENABLED="true"
 export KAFKA_BOOTSTRAP_SERVERS="localhost:9092"
-export KAFKA_ENTITY_CHANGE_TOPIC="wikibase.entity_change"
-export KAFKA_ENTITY_DIFF_TOPIC="wikibase.entity_diff"
+export KAFKA_ENTITY_CHANGE_TOPIC="entitybase.entity_change"
+export KAFKA_ENTITY_DIFF_TOPIC="entitybase.entity_diff"
 
 export LOG_LEVEL="DEBUG"
 export ENVIRONMENT="prod"

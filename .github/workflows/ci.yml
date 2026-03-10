@@ -19,14 +19,35 @@ jobs:
           cache: 'poetry'
       - run: pip install --upgrade pip wheel
       - run: poetry install --with=dev
-      - run: poetry run ruff check src/ tests/
-      - run: poetry run mypy src/
-      - run: poetry run radon cc -a -s src/
+      - name: Run custom linters
+        run: |
+          poetry run python scripts/linters/check_async_calls.py src/
+          poetry run python scripts/linters/check_int_fields.py src/
+          poetry run python scripts/linters/value_error_linter.py
+          bash scripts/shell/run-assert-linter.sh
+          bash scripts/shell/run-response-model-lint.sh
+          bash scripts/shell/run-logger-lint.sh
+          bash scripts/shell/run-long-files-lint.sh
+          bash scripts/shell/run-dict-lint.sh
+          bash scripts/shell/run-pydantic-field-lint.sh
+          bash scripts/shell/run-any-lint.sh
+          bash scripts/shell/run-tuple-lint.sh
+          bash scripts/shell/run-key-length-lint.sh
+          bash scripts/shell/run-init-lint.sh
+          bash scripts/shell/run-backslash-lint.sh
+          bash scripts/shell/run-json-lint.sh
+          bash scripts/shell/run-status-code-lint.sh
+      - name: Run external linters
+        run: |
+          poetry run ruff check src/
+          poetry run radon cc src/ -n 11 -x 20 -e ".venv"
+          poetry run mypy src/
+          # poetry run vulture src/
 
   test:
-    needs: lint
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    needs: lint
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -41,16 +62,16 @@ jobs:
       - run: pip install --upgrade pip wheel
       - run: poetry install --with=dev
       - name: Run unit tests (01 - config, data, services, validation, json_parser)
-        run: poetry run pytest tests/unit -k "config or data or services or validation or json_parser" -v --tb=short
+        run: poetry run pytest tests/unit -k "config or data or services or validation or json_parser" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
         timeout-minutes: 10
       - name: Run unit tests (02 - internal_representation, workers)
-        run: poetry run pytest tests/unit -k "internal_representation or workers" -v --tb=short
+        run: poetry run pytest tests/unit -k "internal_representation or workers" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
         timeout-minutes: 10
       - name: Run unit tests (03 - infrastructure, rdf_builder)
-        run: poetry run pytest tests/unit -k "infrastructure or rdf_builder" -v --tb=short
+        run: poetry run pytest tests/unit -k "infrastructure or rdf_builder" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
         timeout-minutes: 10
       - name: Run unit tests (04 - rest_api)
-        run: poetry run pytest tests/unit -k "rest_api" -v --tb=short
+        run: poetry run pytest tests/unit -k "rest_api" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
         timeout-minutes: 10
 
       # === SETUP DOCKER ===
@@ -114,8 +135,17 @@ jobs:
           S3_SECRET_KEY: fakesecret
           S3_BUCKET: testbucket
           REST_API_URL: http://localhost:8000
-        run: poetry run pytest tests/e2e -k "entity_crud or entity_lifecycle or entitybase_properties or entity_properties_e2e or entity_revisions_e2e or entity_sitelinks_e2e" -v --tb=short
+          STREAMING_ENABLED: "false"
+        run: poetry run pytest tests/e2e -k "entity_crud or entity_lifecycle or entitybase_properties or entity_properties_e2e or entity_revisions_e2e or entity_sitelinks_e2e" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
         timeout-minutes: 15
+
+      - name: Upload e2e coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          flags: e2e-basics
+          name: e2e-basics
 
       - name: Run e2e tests (02 - terms)
         env:
@@ -129,7 +159,8 @@ jobs:
           S3_SECRET_KEY: fakesecret
           S3_BUCKET: testbucket
           REST_API_URL: http://localhost:8000
-        run: poetry run pytest tests/e2e -k "item_terms_e2e or property_terms_e2e or lexemes_e2e or lexeme_forms_e2e or lexeme_senses_e2e or redirects_e2e" -v --tb=short
+          STREAMING_ENABLED: "false"
+        run: poetry run pytest tests/e2e -k "item_terms_e2e or property_terms_e2e or lexemes_e2e or lexeme_forms_e2e or lexeme_senses_e2e or redirects_e2e" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
         timeout-minutes: 15
 
       - name: Run e2e tests (03 - user features)
@@ -144,7 +175,8 @@ jobs:
           S3_SECRET_KEY: fakesecret
           S3_BUCKET: testbucket
           REST_API_URL: http://localhost:8000
-        run: poetry run pytest tests/e2e -k "watchlist_e2e or thanks_e2e or endorsements or user_management_e2e or user_workflow or stats_e2e" -v --tb=short
+          STREAMING_ENABLED: "false"
+        run: poetry run pytest tests/e2e -k "watchlist_e2e or thanks_e2e or endorsements or user_management_e2e or user_workflow or stats_e2e" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
         timeout-minutes: 15
 
       - name: Run e2e tests (04 - advanced)
@@ -159,7 +191,8 @@ jobs:
           S3_SECRET_KEY: fakesecret
           S3_BUCKET: testbucket
           REST_API_URL: http://localhost:8000
-        run: poetry run pytest tests/e2e -k "hash_resolution_e2e or entity_statements_e2e or batch_operations_e2e or hash_operations_e2e or health_import_e2e or json_dump_worker_e2e or revision_with_content_hash" -v --tb=short
+          STREAMING_ENABLED: "false"
+        run: poetry run pytest tests/e2e -k "hash_resolution_e2e or entity_statements_e2e or batch_operations_e2e or hash_operations_e2e or health_import_e2e or json_dump_worker_e2e or revision_with_content_hash" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
         timeout-minutes: 15
 
       # === CONTRACT TESTS ===
@@ -175,7 +208,7 @@ jobs:
           S3_SECRET_KEY: fakesecret
           S3_BUCKET: testbucket
           REST_API_URL: http://localhost:8000
-        run: poetry run pytest tests/contract/ -v -m contract --tb=short
+        run: poetry run pytest tests/contract/ -v -m contract --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append --junitxml=junit.xml -o junit_family=legacy
         timeout-minutes: 10
 
       # === INTEGRATION TESTS ===
@@ -191,8 +224,16 @@ jobs:
           S3_SECRET_KEY: fakesecret
           S3_BUCKET: testbucket
           REST_API_URL: http://localhost:8000
-        run: poetry run pytest tests/integration -k "test_app or test_id_resolver or test_connection_pool" -v --tb=short
+        run: poetry run pytest tests/integration -k "test_app or test_id_resolver or test_connection_pool" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
         timeout-minutes: 10
+
+      - name: Upload integration coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          flags: integration
+          name: integration-tests
 
       - name: Run integration tests (02 - mid 50)
         env:
@@ -206,7 +247,7 @@ jobs:
           S3_SECRET_KEY: fakesecret
           S3_BUCKET: testbucket
           REST_API_URL: http://localhost:8000
-        run: poetry run pytest tests/integration -k "test_watchlist or test_entity_deletion or test_item_terms" -v --tb=short
+        run: poetry run pytest tests/integration -k "test_watchlist or test_entity_deletion or test_item_terms" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
         timeout-minutes: 10
 
       - name: Run integration tests (03 - late 50a)
@@ -221,7 +262,7 @@ jobs:
           S3_SECRET_KEY: fakesecret
           S3_BUCKET: testbucket
           REST_API_URL: http://localhost:8000
-        run: poetry run pytest tests/integration -k "test_json_import or test_lexeme or test_entity_base or test_json_parser or test_rest_api" -v --tb=short
+        run: poetry run pytest tests/integration -k "test_json_import or test_lexeme or test_entity_base or test_json_parser or test_rest_api" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
         timeout-minutes: 10
 
       - name: Run integration tests (04 - late 50b)
@@ -236,8 +277,16 @@ jobs:
           S3_SECRET_KEY: fakesecret
           S3_BUCKET: testbucket
           REST_API_URL: http://localhost:8000
-        run: poetry run pytest tests/integration -k "test_cas_update or test_create_revision or test_create_with_cas or test_entity_history or test_entity_retrieval or test_get_content_hash or test_get_head_revision or test_hard_delete or test_insert_revision or test_read_revision or test_soft_delete" -v --tb=short
+        run: poetry run pytest tests/integration -k "test_cas_update or test_create_revision or test_create_with_cas or test_entity_history or test_entity_retrieval or test_get_content_hash or test_get_head_revision or test_hard_delete or test_insert_revision or test_read_revision or test_soft_delete" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
         timeout-minutes: 10
+
+      - name: Upload total coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          flags: total
+          name: total-coverage
 
       - name: Upload test reports
         if: always()
@@ -255,6 +304,7 @@ jobs:
         run: |
           docker compose -f docker-compose.ci.yml logs --tail=100 mysql
           docker compose -f docker-compose.ci.yml logs --tail=100 api
+          docker compose -f docker-compose.ci.yml logs --tail=100 idworker
       - name: Down containers
         if: always()
         run: docker compose -f docker-compose.ci.yml down -v

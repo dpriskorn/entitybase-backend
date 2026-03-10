@@ -22,14 +22,10 @@ async def test_lock_response_schema(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            json={
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test Entity"}},
-            },
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_resp.status_code == 200
-        entity_id = create_resp.json()["id"]
+        entity_id = create_resp.json()["data"]["entity_id"]
 
         lock_resp = await client.post(
             f"{api_prefix}/entities/{entity_id}/lock",
@@ -56,14 +52,10 @@ async def test_unlock_response_schema(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            json={
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test Entity"}},
-            },
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_resp.status_code == 200
-        entity_id = create_resp.json()["id"]
+        entity_id = create_resp.json()["data"]["entity_id"]
 
         await client.post(
             f"{api_prefix}/entities/{entity_id}/lock",
@@ -95,14 +87,10 @@ async def test_archive_response_schema(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            json={
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test Entity"}},
-            },
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_resp.status_code == 200
-        entity_id = create_resp.json()["id"]
+        entity_id = create_resp.json()["data"]["entity_id"]
 
         archive_resp = await client.post(
             f"{api_prefix}/entities/{entity_id}/archive",
@@ -129,14 +117,10 @@ async def test_unarchive_response_schema(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            json={
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test Entity"}},
-            },
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_resp.status_code == 200
-        entity_id = create_resp.json()["id"]
+        entity_id = create_resp.json()["data"]["entity_id"]
 
         await client.post(
             f"{api_prefix}/entities/{entity_id}/archive",
@@ -168,14 +152,10 @@ async def test_semi_protect_response_schema(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            json={
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test Entity"}},
-            },
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_resp.status_code == 200
-        entity_id = create_resp.json()["id"]
+        entity_id = create_resp.json()["data"]["entity_id"]
 
         protect_resp = await client.post(
             f"{api_prefix}/entities/{entity_id}/semi-protect",
@@ -202,14 +182,10 @@ async def test_mass_edit_protect_response_schema(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            json={
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test Entity"}},
-            },
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_resp.status_code == 200
-        entity_id = create_resp.json()["id"]
+        entity_id = create_resp.json()["data"]["entity_id"]
 
         protect_resp = await client.post(
             f"{api_prefix}/entities/{entity_id}/mass-edit-protect",
@@ -239,14 +215,10 @@ async def test_status_idempotent_flag(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            json={
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test Entity Idempotent"}},
-            },
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_resp.status_code == 200
-        entity_id = create_resp.json()["id"]
+        entity_id = create_resp.json()["data"]["entity_id"]
 
         first_lock_resp = await client.post(
             f"{api_prefix}/entities/{entity_id}/lock",

@@ -35,10 +35,18 @@ make test-unit
 curl http://localhost:8000/health
 
 # Create your first item
-curl -X POST http://localhost:8000/v1/entitybase/entities/items \
+curl -X GET http://localhost:8000/v1/entitybase/entities/items \
+  -H "X-User-ID: 1" \
+  -H "X-Edit-Summary: Creating my first item"
+
+# Response: {"success":true,"data":{"entity_id":"Q1","revision_id":1}}
+
+# Add a label
+curl -X PUT http://localhost:8000/v1/entitybase/entities/Q1/labels/en \
   -H "Content-Type: application/json" \
   -H "X-User-ID: 1" \
-  -d '{"labels": {"en": {"value": "Hello World", "language": "en"}}}'
+  -H "X-Edit-Summary: Adding label" \
+  -d '{"language": "en", "value": "Hello World"}'
 ```
 
 ## Next Steps

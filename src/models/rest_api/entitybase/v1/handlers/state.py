@@ -2,7 +2,7 @@
 
 import logging
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -21,6 +21,9 @@ from models.rest_api.entitybase.v1.services.enumeration_service import (
 )
 from models.validation.json_schema_validator import JsonSchemaValidator
 
+if TYPE_CHECKING:
+    from models.rest_api.entitybase.v1.services.redirects import RedirectService
+
 logger = logging.getLogger(__name__)
 
 
@@ -35,6 +38,12 @@ class StateHandler(BaseModel):
         default=None, exclude=True
     )
     cached_property_registry: PropertyRegistry | None = Field(
+        default=None, exclude=True
+    )
+    cached_entity_change_stream_producer: StreamProducerClient | None = Field(
+        default=None, exclude=True
+    )
+    cached_entitydiff_stream_producer: StreamProducerClient | None = Field(
         default=None, exclude=True
     )
 
@@ -126,32 +135,50 @@ class StateHandler(BaseModel):
 
     @property
     def entity_change_stream_producer(self) -> StreamProducerClient | None:
-        """Get a fully ready client"""
+        """Get or create a cached Kafka producer for entity changes."""
         if (
             self.settings.streaming_enabled
             and self.settings.kafka_bootstrap_servers
             and self.settings.kafka_entitychange_json_topic
         ):
-            return StreamProducerClient(config=self.entity_change_stream_config)
+            if self.cached_entity_change_stream_producer is None:
+                logger.debug(
+                    "=== entity_change_stream_producer property: Creating new StreamProducerClient ==="
+                )
+                self.cached_entity_change_stream_producer = StreamProducerClient(
+                    config=self.entity_change_stream_config
+                )
+                logger.info(
+                    f"Created entity change stream producer for topic {self.settings.kafka_entitychange_json_topic}"
+                )
+            return self.cached_entity_change_stream_producer
         else:
-            message = "No kafka broker and rdf topic provided"
+            message = "Streaming disabled or Kafka config missing"
             logger.info(message)
-            # raise_validation_error(message="No kafka broker and topic provided")
             return None
 
     @property
     def entitydiff_stream_producer(self) -> StreamProducerClient | None:
-        """Get a fully ready client"""
+        """Get or create a cached Kafka producer for entity diffs."""
         if (
             self.settings.streaming_enabled
             and self.settings.kafka_bootstrap_servers
             and self.settings.kafka_entity_diff_topic
         ):
-            return StreamProducerClient(config=self.entity_diff_stream_config)
+            if self.cached_entitydiff_stream_producer is None:
+                logger.debug(
+                    "=== entitydiff_stream_producer property: Creating new StreamProducerClient ==="
+                )
+                self.cached_entitydiff_stream_producer = StreamProducerClient(
+                    config=self.entity_diff_stream_config
+                )
+                logger.info(
+                    f"Created entity diff stream producer for topic {self.settings.kafka_entity_diff_topic}"
+                )
+            return self.cached_entitydiff_stream_producer
         else:
-            message = "No kafka broker and rdf topic provided"
+            message = "Streaming disabled or Kafka config missing"
             logger.info(message)
-            # raise_validation_error()
             return None
 
     @property
@@ -185,8 +212,20 @@ class StateHandler(BaseModel):
             self.cached_s3_client = None
             logger.info("S3Client disconnected")
 
+    async def async_shutdown(self) -> None:
+        """Async shutdown for Kafka producers."""
+        if self.cached_entity_change_stream_producer is not None:
+            await self.cached_entity_change_stream_producer.stop()
+            self.cached_entity_change_stream_producer = None
+            logger.info("Entity change stream producer stopped")
+
+        if self.cached_entitydiff_stream_producer is not None:
+            await self.cached_entitydiff_stream_producer.stop()
+            self.cached_entitydiff_stream_producer = None
+            logger.info("Entity diff stream producer stopped")
+
     @property
-    def redirect_service(self) -> Any:
+    def redirect_service(self) -> "RedirectService":
         from models.rest_api.entitybase.v1.services.redirects import RedirectService
 
         return RedirectService(state=self)

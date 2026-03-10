@@ -1,9 +1,6 @@
 FROM python:3.13-slim
 
-ARG REQUIREMENTS_HASH=initial
-RUN echo "Building with requirements hash: $REQUIREMENTS_HASH"
-
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -17,6 +14,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY ./src/ ./
 COPY ./scripts/ ./scripts/
 
-EXPOSE 8000
+EXPOSE 8080
 
-CMD ["uvicorn", "models.rest_api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "models.rest_api.main:app", "--host", "0.0.0.0", "--port", "8080"]

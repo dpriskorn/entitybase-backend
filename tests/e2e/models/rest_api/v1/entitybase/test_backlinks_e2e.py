@@ -32,11 +32,10 @@ async def test_entity_backlinks_full_lifecycle(
 
         response = await client.post(
             f"{api_prefix}/entities/items",
-            json=sample_item_data,
             headers=headers,
         )
         assert response.status_code == 200
-        target_entity_id = response.json()["id"]
+        target_entity_id = response.json()["data"]["entity_id"]
 
         referencing_data = {
             "type": "item",
@@ -59,11 +58,10 @@ async def test_entity_backlinks_full_lifecycle(
 
         response = await client.post(
             f"{api_prefix}/entities/items",
-            json=referencing_data,
             headers=headers,
         )
         assert response.status_code == 200
-        referencing_entity_id = response.json()["id"]
+        referencing_entity_id = response.json()["data"]["entity_id"]
 
         response = await client.get(
             f"{api_prefix}/entities/{target_entity_id}/backlinks"
@@ -124,11 +122,10 @@ async def test_backlinks_empty_for_new_entity(api_prefix: str) -> None:
 
         response = await client.post(
             f"{api_prefix}/entities/items",
-            json=entity_data,
             headers=headers,
         )
         assert response.status_code == 200
-        entity_id = response.json()["id"]
+        entity_id = response.json()["data"]["entity_id"]
 
         response = await client.get(f"{api_prefix}/entities/{entity_id}/backlinks")
         assert response.status_code == 200

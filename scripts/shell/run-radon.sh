@@ -1,6 +1,5 @@
 #!/bin/bash
 cd "$(dirname "$0")/../.."
-source .venv/bin/activate
 
 COMPLEXITY_THRESHOLD=20
 

@@ -158,6 +158,7 @@ class TestCreationTransaction:
         """Test event publishing."""
         mock_state = MagicMock()
         mock_producer = MagicMock()
+        mock_producer.publish = AsyncMock()
         mock_state.entity_change_stream_producer = mock_producer
 
         entity_id = "Q42"
@@ -173,9 +174,9 @@ class TestCreationTransaction:
 
         transaction = CreationTransaction(state=mock_state, entity_id=entity_id)
 
-        transaction.publish_event(event_context, edit_context)
+        await transaction.publish_event(event_context, edit_context)
 
-        mock_producer.publish_change.assert_called_once()
+        mock_producer.publish.assert_called_once()
 
     def test_commit(self) -> None:
         """Test transaction commit."""

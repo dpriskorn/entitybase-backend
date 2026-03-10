@@ -2,10 +2,8 @@
 cd "$(dirname "$0")/../.."
 set -Eeuo pipefail
 
-source .venv/bin/activate
-
 echo "Checking for Optional fields with = None instead of Field()..."
 
-python scripts/linters/check_optional_fields.py src/
+poetry run python scripts/linters/check_optional_fields.py src/
 
 echo "Pydantic field linting passed!"

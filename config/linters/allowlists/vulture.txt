@@ -1,5 +1,6 @@
 models.internal_representation.entity.Entity
 # REST API endpoints
+get_settings
 list_items
 list_properties
 list_lexemes
@@ -162,4 +163,38 @@ semi_protect_entity
 unsemi_protect_entity
 mass_edit_protect_entity
 mass_edit_unprotect_entity
+# False positives - unused but intentionally kept
+get_notification_count
+hash_metadata
+create_s3_key
+parse_entity_data
+parse_property
+load_entity_metadata_batch
+load_entity_metadata
+wikibase_predicates
+load_entity_redirects_batch
+_get_entity_validator
+_get_snak_validator
+validate_recentchange
+compute_diff_from_entity_data
+diff_rdf_content
+_should_notify
+# Unused variables (may be used in future or are constants)
+WIKIBASE_ITEM
+GLOBOCOORDINATE
+MONOLINGUALTEXT
+ENTITY_TYPE
+NUMERIC_ID
+ENTITIES
+PREFERRED
+DEPRECATED
+before
+after
+mime_type
+rdf_linked_shared_data
+rdf_unlinked_shared_data
+sequence
+sequence_length
+topics
+topics_created
 

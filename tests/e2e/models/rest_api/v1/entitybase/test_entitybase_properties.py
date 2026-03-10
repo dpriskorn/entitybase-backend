@@ -22,14 +22,13 @@ async def test_get_entity_property_hashes(
         # Create entity with statements
         response = await client.post(
             f"{api_prefix}/entities/items",
-            json=sample_item_with_statements,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        entity_id = response.json()["id"]
+        entity_id = response.json()["data"]["entity_id"]
 
         # Get property hashes for P31
-        response = await client.get(f"{api_prefix}/entity/{entity_id}/properties/P31")
+        response = await client.get(f"{api_prefix}/entities/{entity_id}/properties/P31")
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, dict)
@@ -50,15 +49,14 @@ async def test_get_entity_property_hashes_multiple_properties(
         # Create entity with statements
         response = await client.post(
             f"{api_prefix}/entities/items",
-            json=sample_item_with_statements,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        entity_id = response.json()["id"]
+        entity_id = response.json()["data"]["entity_id"]
 
         # Get property hashes for multiple properties
         response = await client.get(
-            f"{api_prefix}/entity/{entity_id}/properties/P31,P279"
+            f"{api_prefix}/entities/{entity_id}/properties/P31,P279"
         )
         assert response.status_code == 200
         data = response.json()
@@ -74,7 +72,7 @@ async def test_get_entity_property_hashes_nonexistent_entity(api_prefix: str) ->
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get(f"{api_prefix}/entity/Q99999999/properties/P31")
+        response = await client.get(f"{api_prefix}/entities/Q99999999/properties/P31")
         assert response.status_code == 404
 
 
@@ -88,20 +86,15 @@ async def test_get_entity_property_hashes_empty_entity(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create entity without statements
-        entity_data = {
-            "type": "item",
-            "labels": {"en": {"language": "en", "value": "Test Item"}},
-        }
         response = await client.post(
             f"{api_prefix}/entities/items",
-            json=entity_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        entity_id = response.json()["id"]
+        entity_id = response.json()["data"]["entity_id"]
 
         # Get property hashes
-        response = await client.get(f"{api_prefix}/entity/{entity_id}/properties/P31")
+        response = await client.get(f"{api_prefix}/entities/{entity_id}/properties/P31")
         assert response.status_code == 200
         data = response.json()
         # Empty entity should return empty or minimal result

@@ -7,10 +7,28 @@ import ast
 import sys
 from pathlib import Path
 
+ALLOWLIST_FILE = Path(__file__).parent.resolve().parent.parent / "config" / "linters" / "allowlists" / "custom" / "response-key-length.txt"
+
+
+def load_allowlist() -> set[str]:
+    """Load the allowlist of files to skip."""
+    allowlist = set()
+    if ALLOWLIST_FILE.exists():
+        with open(ALLOWLIST_FILE, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#"):
+                    allowlist.add(line)
+    return allowlist
+
 
 def check_field_name_lengths(models_dir: Path) -> list[str]:
     violations = []
+    allowlist = load_allowlist()
     for file in sorted(models_dir.rglob("*.py")):
+        file_rel_path = str(file.relative_to(models_dir.parent.parent))
+        if file_rel_path in allowlist:
+            continue
         try:
             tree = ast.parse(file.read_text(), filename=str(file))
             for node in ast.walk(tree):

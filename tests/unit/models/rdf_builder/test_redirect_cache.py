@@ -183,9 +183,7 @@ class TestRedirectCache:
                 "format": "json",
             },
             timeout=60,
-            headers={
-                "User-Agent": "WikibaseBackend/1.0 (research@wikibase-backend.org)"
-            },
+            headers={"User-Agent": "Entitybase/1.0 User:So9q"},
         )
 
     def test_fetch_entity_redirects_batch_empty_list(self) -> None:
@@ -256,10 +254,7 @@ class TestRedirectCache:
         # Verify the API call
         call_args = mock_get.call_args
         assert call_args[1]["timeout"] == 60
-        assert (
-            call_args[1]["headers"]["User-Agent"]
-            == "WikibaseBackend/1.0 (research@wikibase-backend.org)"
-        )
+        assert call_args[1]["headers"]["User-Agent"] == "Entitybase/1.0 User:So9q"
         assert call_args[1]["params"]["titles"] == "Q1|Q2|Q3"
         assert call_args[1]["params"]["rdlimit"] == "max"
 

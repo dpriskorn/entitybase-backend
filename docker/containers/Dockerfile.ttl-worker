@@ -8,13 +8,13 @@ RUN echo "Building with requirements hash: $REQUIREMENTS_HASH"
 WORKDIR /app
 
 # Copy requirements first for better caching
-COPY requirements*.txt ./
+COPY requirements-ttl-worker.txt ./
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements-ttl-worker.txt
 
 COPY pyproject.toml /app/pyproject.toml
 
@@ -23,15 +23,9 @@ COPY src/ ./
 
 # Set environment variables
 ENV PYTHONPATH=/app
-ENV WORKER_ID=id-worker
-ENV VITESS_HOST=vitess
-ENV VITESS_PORT=15309
-ENV VITESS_DATABASE=page
-ENV VITESS_USER=root
-ENV VITESS_PASSWORD=
 
 # Expose health check port
-EXPOSE 8001
+# TTL dump worker uses 8003
 
 # Run the worker
-CMD ["python", "-m", "models.workers.id_generation.id_generation_worker"]
+CMD ["python", "-m", "models.workers.ttl_dumps.ttl_dump_worker"]
