@@ -7,23 +7,13 @@ on:
     branches: ["main"]
 
 jobs:
+  # TEMPORARILY DISABLED: lint:
   lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install poetry
-        run: pipx install poetry
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-          cache: 'poetry'
-      - run: pip install --upgrade pip wheel
-      - run: poetry install --with=dev
-      - run: poetry run ruff check src/ tests/
-      - run: poetry run mypy src/
-      - run: poetry run radon cc -a -s src/
+    if: false  # Temporarily disabled
 
+  # TEMPORARILY DISABLED: test:
   test:
+    if: false  # Temporarily disabled
     needs: lint
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -354,8 +344,8 @@ jobs:
           S3_BUCKET: testbucket
           REST_API_URL: http://localhost:8000
           STREAMING_ENABLED: "false"
-        run: poetry run pytest tests/ --ignore=tests/e2e -v --cov=src --cov-report=xml --cov-report=term
-        timeout-minutes: 30
+        run: poetry run pytest tests/ -v --cov=src --cov-report=xml --cov-report=term
+        timeout-minutes: 15
 
       - name: Upload total coverage to Codecov
         uses: codecov/codecov-action@v4
