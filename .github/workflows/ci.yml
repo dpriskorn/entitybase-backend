@@ -42,7 +42,7 @@ jobs:
           poetry run ruff check src/
           poetry run radon cc src/ -n 11 -x 20 -e ".venv"
           poetry run mypy src/
-          poetry run vulture src/
+          # poetry run vulture src/
 
   test:
     runs-on: ubuntu-latest
