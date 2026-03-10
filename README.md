@@ -27,6 +27,51 @@ Everything else in the system derives from this rule.
 
 The Entitybase Backend implements a microservices architecture designed for billion-scale Wikibase operations:
 
+```mermaid
+flowchart TB
+    subgraph Services
+        API[API Service<br/>REST API<br/>CRUD Ops<br/>Validation]
+        ID[ID Generator<br/>Range-based<br/>ID allocation<br/>Atomic ops]
+        Dump[Dump Worker<br/>JSONL Dump<br/>Generation<br/>Shard export]
+        Dev[Dev Worker<br/>Bucket setup<br/>Health checks<br/>Environment]
+    end
+
+    subgraph Storage["Storage Stack"]
+        S3[("S3<br/>Immutable<br/>Snapshots")]
+        Vitess[(Vitess<br/>Indexing)]
+        Kafka[("Event<br/>Streaming")]
+    end
+
+    subgraph Buckets["S3 Buckets"]
+        B1[terms]
+        B2[statements]
+        B3[references]
+        B4[qualifiers]
+        B5[revisions]
+        B6[sitelinks]
+        B7[snaks]
+        B8[wikibase-dumps]
+    end
+
+    API --> ID
+    API --> Dump
+    API --> Dev
+    API --> S3
+    API --> Vitess
+    API --> Kafka
+    
+    ID --> Vitess
+    Dump --> S3
+    Dev --> S3
+    
+    S3 --> B1
+    S3 --> B2
+    S3 --> B3
+    S3 --> B4
+    S3 --> B5
+    S3 --> B6
+    S3 --> B7
+    S3 --> B8
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   API Service   │    │   ID Generator  │    │   Dump Worker   │    │   Dev Worker    │
