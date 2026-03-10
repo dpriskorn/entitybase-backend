@@ -20,6 +20,8 @@ logger = logging.getLogger(__name__)
 class Settings(BaseModel):
     """Application settings with environment variable support."""
 
+    model_config = {"extra": "ignore"}
+
     # s3
     s3_endpoint: str = "http://minio:9000"
     s3_access_key: str = "fakekey"
@@ -60,7 +62,7 @@ class Settings(BaseModel):
     log_level: str = "INFO"
 
     # streaming
-    streaming_enabled: bool = False
+    _streaming_enabled: bool = False
     kafka_bootstrap_servers: str = ""
     kafka_entitychange_json_topic: str = ""
     kafka_entity_diff_topic: str = ""
@@ -195,18 +197,10 @@ class Settings(BaseModel):
             "STREAMING_ENTITY_DIFF_VERSION", self.streaming_entity_diff_version
         )
 
-        self.streaming_enabled = (
-            os.getenv("STREAMING_ENABLED", "false").lower() == "true"
-        )
-        self.kafka_bootstrap_servers = os.getenv(
-            "KAFKA_BOOTSTRAP_SERVERS", self.kafka_bootstrap_servers
-        )
-        self.kafka_entitychange_json_topic = os.getenv(
-            "KAFKA_ENTITY_CHANGE_TOPIC", self.kafka_entitychange_json_topic
-        )
-        self.kafka_entity_diff_topic = os.getenv(
-            "KAFKA_ENTITY_DIFF_TOPIC", self.kafka_entity_diff_topic
-        )
+    @property
+    def streaming_enabled(self) -> bool:
+        """Check if streaming is enabled via environment variable."""
+        return os.getenv("STREAMING_ENABLED", "false").lower() == "true"
 
     def _load_other_config(self) -> None:
         """Load other configuration from environment variables."""
