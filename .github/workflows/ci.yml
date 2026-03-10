@@ -7,9 +7,7 @@ on:
     branches: ["main"]
 
 jobs:
-  # TEMPORARILY DISABLED: lint:
   lint:
-    if: false  # Temporarily disabled
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,9 +23,7 @@ jobs:
       - run: poetry run mypy src/
       - run: poetry run radon cc -a -s src/
 
-  # TEMPORARILY DISABLED: test:
   test:
-    if: false  # Temporarily disabled while fixing coverage
     needs: lint
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -345,8 +341,20 @@ jobs:
             sleep 2
           done
 
-      - name: Run unit tests with total coverage
-        run: poetry run pytest tests/unit -v --cov=src --cov-report=xml --cov-report=term
+      - name: Run all tests with total coverage
+        env:
+          VITESS_HOST: localhost
+          VITESS_PORT: 3306
+          VITESS_DATABASE: entitybase
+          VITESS_USER: root
+          VITESS_PASSWORD: ""
+          S3_ENDPOINT: http://localhost:9000
+          S3_ACCESS_KEY: fakekey
+          S3_SECRET_KEY: fakesecret
+          S3_BUCKET: testbucket
+          REST_API_URL: http://localhost:8000
+          STREAMING_ENABLED: "false"
+        run: poetry run pytest tests/ --ignore=tests/e2e -v --cov=src --cov-report=xml --cov-report=term
         timeout-minutes: 30
 
       - name: Upload total coverage to Codecov
