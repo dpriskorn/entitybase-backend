@@ -282,7 +282,7 @@ class DeleteService(Service):
             head_revision_id: The previous head revision ID
             edit_context: Context containing user_id and edit_summary
         """
-        if self.state.entity_change_stream_producer:
+        if settings.streaming_enabled and self.state.entity_change_stream_producer:
             try:
                 await self.state.entity_change_stream_producer.publish(
                     EntityChangeEvent(

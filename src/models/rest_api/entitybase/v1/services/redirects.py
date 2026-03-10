@@ -4,6 +4,7 @@ import logging
 from datetime import timezone, datetime
 from typing import TYPE_CHECKING
 
+from models.config.settings import settings
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.infrastructure.s3.entity_state import EntityState
 from models.data.infrastructure.s3.enums import EditData, EntityType, EditType
@@ -205,7 +206,8 @@ class RedirectService(Service):
                 user=str(edit_headers.x_user_id),
                 summary=edit_headers.x_edit_summary,
             )
-            await self.state.entity_change_stream_producer.publish(event)
+            if settings.streaming_enabled:
+                await self.state.entity_change_stream_producer.publish(event)
 
         return EntityRedirectResponse(
             redirect_from_id=request.redirect_from_id,

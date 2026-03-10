@@ -339,6 +339,9 @@ class EntityHandler(Handler):
     @staticmethod
     async def _publish_events_new(ctx: RevisionContext, result: RevisionResult) -> None:
         """Publish revision events."""
+        if not settings.streaming_enabled:
+            logger.debug("Streaming disabled, skipping event publish")
+            return
         if ctx.stream_producer and result.revision_id:
             try:
                 change_type = edit_type_to_change_type(

@@ -1,5 +1,5 @@
 # Entitybase Backend
-![coverage](https://img.shields.io/badge/coverage-82.1%25-yellow)
+[![codecov](https://codecov.io/gh/dpriskorn/entitybase-backend/branch/main/graph/badge.svg)](https://codecov.io/gh/dpriskorn/entitybase-backend)
 
 A clean-room, billion-scale Wikibase JSON and RDF schema compatible backend architecture 
 based on immutable S3 snapshots and Vitess indexing.
