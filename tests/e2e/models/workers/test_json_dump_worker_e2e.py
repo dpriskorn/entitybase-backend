@@ -155,7 +155,7 @@ async def test_concurrent_dumps(api_prefix: str) -> None:
         headers = {"X-Edit-Summary": "E2E concurrent dump test", "X-User-ID": "0"}
 
         for i in range(1, 4):
-            response = await client.get(
+            response = await client.post(
                 f"{api_prefix}/entities/items",
                 headers=headers,
             )
