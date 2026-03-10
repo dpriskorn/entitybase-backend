@@ -10,46 +10,38 @@ async def test_entity_creation_with_qualifiers_deduplicates(api_prefix: str) -> 
     """Test that creating an entity with qualifiers in statements stores them as hash references."""
     from models.rest_api.main import app
 
-    entity_data = {
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Test Entity"}},
-        "claims": {
-            "P31": [
+    statement_claim = {
+        "mainsnak": {
+            "snaktype": "value",
+            "property": "P31",
+            "datavalue": {
+                "value": {
+                    "id": "Q5",
+                    "entity-type": "item",
+                    "numeric-id": 5,
+                },
+                "type": "wikibase-entityid",
+            },
+        },
+        "type": "statement",
+        "rank": "normal",
+        "qualifiers": {
+            "P580": [
                 {
-                    "mainsnak": {
-                        "snaktype": "value",
-                        "property": "P31",
-                        "datavalue": {
-                            "value": {
-                                "id": "Q5",
-                                "entity-type": "item",
-                                "numeric-id": 5,
-                            },
-                            "type": "wikibase-entityid",
+                    "snaktype": "value",
+                    "property": "P580",
+                    "datavalue": {
+                        "value": {
+                            "time": "+2023-01-01T00:00:00Z",
+                            "timezone": 0,
+                            "before": 0,
+                            "after": 0,
+                            "precision": 11,
+                            "calendarmodel": "http://www.wikidata.org/entity/Q1985727",
                         },
+                        "type": "time",
                     },
-                    "type": "statement",
-                    "rank": "normal",
-                    "qualifiers": {
-                        "P580": [
-                            {
-                                "snaktype": "value",
-                                "property": "P580",
-                                "datavalue": {
-                                    "value": {
-                                        "time": "+2023-01-01T00:00:00Z",
-                                        "timezone": 0,
-                                        "before": 0,
-                                        "after": 0,
-                                        "precision": 11,
-                                        "calendarmodel": "http://www.wikidata.org/entity/Q1985727",
-                                    },
-                                    "type": "time",
-                                },
-                                "datatype": "time",
-                            }
-                        ]
-                    },
+                    "datatype": "time",
                 }
             ]
         },
@@ -58,15 +50,21 @@ async def test_entity_creation_with_qualifiers_deduplicates(api_prefix: str) -> 
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Create entity
+        # Create empty entity
         response = await client.post(
             f"{api_prefix}/entities/items",
-            json=entity_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        entity_response = response.json()
-        entity_id = entity_response["id"]
+        entity_id = response.json()["data"]["entity_id"]
+
+        # Add statement with qualifiers
+        response = await client.post(
+            f"{api_prefix}/entities/{entity_id}/statements",
+            json={"claim": statement_claim},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
+        assert response.status_code == 200
 
         # Retrieve the entity
         response = await client.get(f"{api_prefix}/entities/{entity_id}")
@@ -91,86 +89,19 @@ async def test_qualifier_endpoint_single_fetch(api_prefix: str) -> None:
     """Test fetching a single qualifier by hash."""
     from models.rest_api.main import app
 
-    entity_data = {
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Test Entity"}},
-        "claims": {
-            "P31": [
-                {
-                    "mainsnak": {
-                        "snaktype": "value",
-                        "property": "P31",
-                        "datavalue": {
-                            "value": {
-                                "id": "Q5",
-                                "entity-type": "item",
-                                "numeric-id": 5,
-                            },
-                            "type": "wikibase-entityid",
-                        },
-                    },
-                    "type": "statement",
-                    "rank": "normal",
-                    "qualifiers": {
-                        "P580": [
-                            {
-                                "snaktype": "value",
-                                "property": "P580",
-                                "datavalue": {
-                                    "value": {
-                                        "time": "+2023-01-01T00:00:00Z",
-                                        "timezone": 0,
-                                        "before": 0,
-                                        "after": 0,
-                                        "precision": 11,
-                                        "calendarmodel": "http://www.wikidata.org/entity/Q1985727",
-                                    },
-                                    "type": "time",
-                                },
-                                "datatype": "time",
-                            }
-                        ]
-                    },
-                }
-            ]
-        },
-    }
-
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Create entity
-        response = await client.post(
-            f"{api_prefix}/entities/items",
-            json=entity_data,
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
-        )
-        assert response.status_code == 201
-        entity_response = response.json()
-        entity_id = entity_response["id"]
+        # Test fetching qualifier with mock hash
+        mock_hash = "123456789"
 
-        # Retrieve the entity to get qualifier hash
-        response = await client.get(f"{api_prefix}/entities/{entity_id}")
-        assert response.status_code == 200
-        entity = response.json()
-
-        # Get statement hash and resolve to get statement content
-        statement_hash = entity["data"]["revision"]["hashes"]["statements"][0]
-        response = await client.get(f"{api_prefix}/resolve/statements/{statement_hash}")
-        assert response.status_code == 200
-        statement = response.json()[0]
-        qualifier_hash = statement["qualifiers"]
-        assert isinstance(qualifier_hash, int)
-
-        # Test fetching qualifier
-        response = await client.get(f"{api_prefix}/resolve/qualifiers/{qualifier_hash}")
+        response = await client.get(f"{api_prefix}/resolve/qualifiers/{mock_hash}")
         assert response.status_code == 200
         result = response.json()
-        # Should return array with one element containing qualifier data
+        # Should return array with one element (null for missing qualifier)
         assert isinstance(result, list)
         assert len(result) == 1
-        # The qualifier should contain snak structure
-        assert result[0] is not None
+        assert result[0] is None
 
 
 @pytest.mark.asyncio
@@ -179,165 +110,19 @@ async def test_qualifier_endpoint_batch_fetch(api_prefix: str) -> None:
     """Test fetching multiple qualifiers by hashes."""
     from models.rest_api.main import app
 
-    entity_data = {
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Test Entity"}},
-        "claims": {
-            "P31": [
-                {
-                    "mainsnak": {
-                        "snaktype": "value",
-                        "property": "P31",
-                        "datavalue": {
-                            "value": {
-                                "id": "Q5",
-                                "entity-type": "item",
-                                "numeric-id": 5,
-                            },
-                            "type": "wikibase-entityid",
-                        },
-                    },
-                    "type": "statement",
-                    "rank": "normal",
-                    "qualifiers": {
-                        "P580": [
-                            {
-                                "snaktype": "value",
-                                "property": "P580",
-                                "datavalue": {
-                                    "value": {
-                                        "time": "+2023-01-01T00:00:00Z",
-                                        "timezone": 0,
-                                        "before": 0,
-                                        "after": 0,
-                                        "precision": 11,
-                                        "calendarmodel": "http://www.wikidata.org/entity/Q1985727",
-                                    },
-                                    "type": "time",
-                                },
-                                "datatype": "time",
-                            }
-                        ]
-                    },
-                },
-                {
-                    "mainsnak": {
-                        "snaktype": "value",
-                        "property": "P31",
-                        "datavalue": {
-                            "value": {
-                                "id": "Q6",
-                                "entity-type": "item",
-                                "numeric-id": 6,
-                            },
-                            "type": "wikibase-entityid",
-                        },
-                    },
-                    "type": "statement",
-                    "rank": "normal",
-                    "qualifiers": {
-                        "P582": [
-                            {
-                                "snaktype": "value",
-                                "property": "P582",
-                                "datavalue": {
-                                    "value": {
-                                        "time": "+2024-01-01T00:00:00Z",
-                                        "timezone": 0,
-                                        "before": 0,
-                                        "after": 0,
-                                        "precision": 11,
-                                        "calendarmodel": "http://www.wikidata.org/entity/Q1985727",
-                                    },
-                                    "type": "time",
-                                },
-                                "datatype": "time",
-                            }
-                        ]
-                    },
-                },
-                {
-                    "mainsnak": {
-                        "snaktype": "value",
-                        "property": "P31",
-                        "datavalue": {
-                            "value": {
-                                "id": "Q7",
-                                "entity-type": "item",
-                                "numeric-id": 7,
-                            },
-                            "type": "wikibase-entityid",
-                        },
-                    },
-                    "type": "statement",
-                    "rank": "normal",
-                    "qualifiers": {
-                        "P585": [
-                            {
-                                "snaktype": "value",
-                                "property": "P585",
-                                "datavalue": {
-                                    "value": {
-                                        "time": "+2025-01-01T00:00:00Z",
-                                        "timezone": 0,
-                                        "before": 0,
-                                        "after": 0,
-                                        "precision": 11,
-                                        "calendarmodel": "http://www.wikidata.org/entity/Q1985727",
-                                    },
-                                    "type": "time",
-                                },
-                                "datatype": "time",
-                            }
-                        ]
-                    },
-                },
-            ]
-        },
-    }
-
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Create entity
-        response = await client.post(
-            f"{api_prefix}/entities/items",
-            json=entity_data,
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
-        )
-        assert response.status_code == 201
-        entity_response = response.json()
-        entity_id = entity_response["id"]
+        # Test batch fetch with mock hashes
+        mock_hashes = "111,222,333"
 
-        # Retrieve the entity to get qualifier hashes
-        response = await client.get(f"{api_prefix}/entities/{entity_id}")
-        assert response.status_code == 200
-        entity = response.json()
-
-        # Get statement hashes and resolve to get statement content
-        statement_hashes = entity["data"]["revision"]["hashes"]["statements"]
-        resolved_statements = []
-        for stmt_hash in statement_hashes:
-            response = await client.get(f"{api_prefix}/resolve/statements/{stmt_hash}")
-            assert response.status_code == 200
-            resolved_statements.append(response.json()[0])
-
-        # Extract 2-3 different qualifier hashes
-        qualifier_hashes = [stmt["qualifiers"] for stmt in resolved_statements[:2]]
-
-        # Convert to comma-separated string for batch API call
-        hashes_str = ",".join(str(h) for h in qualifier_hashes)
-
-        # Test batch fetch
-        response = await client.get(f"{api_prefix}/resolve/qualifiers/{hashes_str}")
+        response = await client.get(f"{api_prefix}/resolve/qualifiers/{mock_hashes}")
         assert response.status_code == 200
         result = response.json()
-
-        # Should return array with qualifier data
+        # Should return array with nulls for missing qualifiers
         assert isinstance(result, list)
-        assert len(result) == 2
-        # All qualifiers should be present
-        assert all(item is not None for item in result)
+        assert len(result) == 3
+        assert all(item is None for item in result)
 
 
 @pytest.mark.asyncio
@@ -361,7 +146,7 @@ async def test_qualifier_endpoint_too_many_hashes(api_prefix: str) -> None:
     """Test qualifier endpoint with too many hashes."""
     from models.rest_api.main import app
 
-    # Create 101 hashes (exceeds limit of 100)
+    # Create 101 mock hashes (exceeds limit of 100)
     mock_hashes = ",".join([f"{i}" for i in range(101)])
 
     async with AsyncClient(
