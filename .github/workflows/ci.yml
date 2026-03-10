@@ -19,12 +19,35 @@ jobs:
           cache: 'poetry'
       - run: pip install --upgrade pip wheel
       - run: poetry install --with=dev
-      - name: Run linters
-        run: poetry run make lint
+      - name: Run custom linters
+        run: |
+          poetry run python scripts/linters/check_async_calls.py src/
+          poetry run python scripts/linters/check_int_fields.py src/
+          poetry run python scripts/linters/value_error_linter.py
+          poetry run python scripts/shell/run-assert-linter.sh
+          poetry run python scripts/shell/run-response-model-lint.sh
+          poetry run python scripts/shell/run-logger-lint.sh
+          poetry run python scripts/shell/run-long-files-lint.sh
+          poetry run python scripts/shell/run-dict-lint.sh
+          poetry run python scripts/shell/run-pydantic-field-lint.sh
+          poetry run python scripts/shell/run-any-lint.sh
+          poetry run python scripts/shell/run-tuple-lint.sh
+          poetry run python scripts/shell/run-key-length-lint.sh
+          poetry run python scripts/shell/run-init-lint.sh
+          poetry run python scripts/shell/run-backslash-lint.sh
+          poetry run python scripts/shell/run-json-lint.sh
+          poetry run python scripts/shell/run-status-code-lint.sh
+      - name: Run external linters
+        run: |
+          poetry run ruff check src/
+          poetry run radon cc src/ --minB=11 --maxB=20 -e ".venv"
+          poetry run mypy src/
+          poetry run vulture src/
 
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    needs: lint
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
