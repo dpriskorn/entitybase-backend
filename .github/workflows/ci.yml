@@ -269,7 +269,6 @@ jobs:
         run: docker compose -f docker-compose.ci.yml down -v
 
   total-coverage:
-    needs: lint
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
