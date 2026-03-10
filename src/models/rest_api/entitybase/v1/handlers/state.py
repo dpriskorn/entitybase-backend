@@ -2,7 +2,7 @@
 
 import logging
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -20,6 +20,9 @@ from models.rest_api.entitybase.v1.services.enumeration_service import (
     EnumerationService,
 )
 from models.validation.json_schema_validator import JsonSchemaValidator
+
+if TYPE_CHECKING:
+    from models.rest_api.entitybase.v1.services.redirects import RedirectService
 
 logger = logging.getLogger(__name__)
 
@@ -222,7 +225,7 @@ class StateHandler(BaseModel):
             logger.info("Entity diff stream producer stopped")
 
     @property
-    def redirect_service(self) -> Any:
+    def redirect_service(self) -> "RedirectService":
         from models.rest_api.entitybase.v1.services.redirects import RedirectService
 
         return RedirectService(state=self)
