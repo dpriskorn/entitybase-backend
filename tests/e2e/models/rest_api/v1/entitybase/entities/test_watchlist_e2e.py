@@ -24,7 +24,7 @@ async def test_add_watch(api_prefix: str) -> None:
         await client.post(f"{api_prefix}/users", json=user_data)
 
         # Create entity
-        response = await client.get(
+        response = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
@@ -54,7 +54,7 @@ async def test_get_watchlist(api_prefix: str) -> None:
         await client.post(f"{api_prefix}/users", json=user_data)
 
         # Create entity
-        response = await client.get(
+        response = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
@@ -88,7 +88,7 @@ async def test_remove_watch_by_id(api_prefix: str) -> None:
         await client.post(f"{api_prefix}/users", json=user_data)
 
         # Create entity
-        response = await client.get(
+        response = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
@@ -144,7 +144,7 @@ async def test_remove_watch_by_entity(api_prefix: str) -> None:
         await client.post(f"{api_prefix}/users", json=user_data)
 
         # Create entity
-        response = await client.get(
+        response = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )

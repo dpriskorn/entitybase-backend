@@ -22,14 +22,14 @@ async def test_add_statement(
         headers = {"X-Edit-Summary": "E2E test", "X-User-ID": "0"}
 
         # Create property first
-        property_response = await client.get(
+        property_response = await client.post(
             f"{api_prefix}/entities/properties",
             headers=headers,
         )
         assert property_response.status_code == 200
         property_id = property_response.json()["data"]["entity_id"]
 
-        response = await client.get(
+        response = await client.post(
             f"{api_prefix}/entities/items",
             headers=headers,
         )
@@ -77,7 +77,7 @@ async def test_remove_statement(api_prefix: str, sample_item_with_statements) ->
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create entity with statements
-        response = await client.get(
+        response = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
@@ -126,7 +126,7 @@ async def test_replace_statement(api_prefix: str, sample_item_with_statements) -
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create entity with statements
-        response = await client.get(
+        response = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )

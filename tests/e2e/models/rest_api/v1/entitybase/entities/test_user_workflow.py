@@ -31,7 +31,7 @@ async def test_user_workflow(api_prefix: str) -> None:
             user_id = unique_user_id
 
             # Create entity to watch
-            response = await client.get(
+            response = await client.post(
                 f"{api_prefix}/entities/items",
                 headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
             )

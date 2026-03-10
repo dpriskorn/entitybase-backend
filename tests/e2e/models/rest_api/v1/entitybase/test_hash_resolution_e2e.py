@@ -198,7 +198,7 @@ async def test_get_batch_statements(api_prefix: str) -> None:
                 }
             ],
         }
-        response = await client.get(
+        response = await client.post(
             f"{api_prefix}/entities/items",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
