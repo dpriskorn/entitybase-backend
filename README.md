@@ -73,30 +73,6 @@ flowchart TB
     S3 --> B7
     S3 --> B8
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   API Service   │    │   ID Generator  │    │   Dump Worker   │    │   Dev Worker    │
-│                 │    │   (Worker)      │    │   (Worker)      │    │   (Development) │
-│ • REST API      │    │ • Range-based   │    │ • JSONL Dump    │    │ • Bucket setup  │
-│ • CRUD Ops      │    │   ID allocation │    │   Generation    │    │ • Health checks │
-│ • Validation    │    │ • Atomic ops    │    │ • Shard export  │    │ • Environment   │
-└─────────────────┘    └─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │                       │
-         └───────────────────────┼───────────────────────┼───────────────────────┘
-                                 │                       │
-                     ┌─────────────────────┐    ┌─────────────────────┐
-                     │                     │    │                     │
-                     │   Storage Stack     │    │   S3 Buckets        │
-                     │                     │    │                     │
-                     │ • S3 (immutable     │    │ • terms (metadata)  │
-                     │   snapshots)        │    │ • statements (dedup)│
-                     │ • Vitess (indexing) │    │ • references        │
-                     │ • Event streaming   │    │ • qualifiers        │
-                     │                     │    │ • revisions (data)  │
-                     │                     │    │ • sitelinks         │
-                     │                     │    │ • snaks             │
-                     │                     │    │ • wikibase-dumps    │
-                     └─────────────────────┘    └─────────────────────┘
-```
 
 ### Service Components
 
