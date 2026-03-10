@@ -81,17 +81,14 @@ async def test_create_item_already_exists() -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
+        # Create first entity
         response = await client.post(
             "/v1/entitybase/entities/items",
-            json={
-                "id": "Q99998",
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test Entity"}},
-            },
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
         assert response.status_code == 200
 
+        # Try to create another entity - should get 409 (conflict)
         response = await client.post(
             "/v1/entitybase/entities/items",
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
