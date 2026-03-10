@@ -140,8 +140,9 @@ jobs:
         timeout-minutes: 15
 
       - name: Upload e2e coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
           flags: e2e-basics
           name: e2e-basics
@@ -227,8 +228,9 @@ jobs:
         timeout-minutes: 10
 
       - name: Upload integration coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
           flags: integration
           name: integration-tests
@@ -279,8 +281,9 @@ jobs:
         timeout-minutes: 10
 
       - name: Upload total coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
           flags: total
           name: total-coverage
