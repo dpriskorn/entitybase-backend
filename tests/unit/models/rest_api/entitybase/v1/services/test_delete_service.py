@@ -1,6 +1,6 @@
 """Unit tests for DeleteService."""
 
-from unittest.mock import MagicMock, AsyncMock, patch
+from unittest.mock import MagicMock, AsyncMock, patch, PropertyMock
 
 import pytest
 
@@ -179,8 +179,13 @@ class TestDeleteService:
 
     # publish_delete_event
     @pytest.mark.asyncio
-    async def test_publish_delete_event_success(self) -> None:
+    @patch(
+        "models.rest_api.entitybase.v1.services.delete_service.settings",
+        new_callable=PropertyMock,
+    )
+    async def test_publish_delete_event_success(self, mock_settings) -> None:
         """Test publishing delete event successfully."""
+        mock_settings.return_value = True
         mock_state = MagicMock()
         mock_producer = MagicMock()
         mock_producer.publish = AsyncMock()
@@ -205,11 +210,16 @@ class TestDeleteService:
         assert True  # No exception raised
 
     @pytest.mark.asyncio
-    async def test_publish_delete_event_publish_failure(self) -> None:
+    @patch(
+        "models.rest_api.entitybase.v1.services.delete_service.settings",
+        new_callable=PropertyMock,
+    )
+    async def test_publish_delete_event_publish_failure(self, mock_settings) -> None:
         """Test publishing delete event handles publish failure."""
+        mock_settings.return_value = True
         mock_state = MagicMock()
         mock_producer = MagicMock()
-        mock_producer.publish_change = AsyncMock(side_effect=Exception("Kafka error"))
+        mock_producer.publish = AsyncMock(side_effect=Exception("Kafka error"))
         mock_state.entity_change_stream_producer = mock_producer
 
         service = DeleteService(state=mock_state)
