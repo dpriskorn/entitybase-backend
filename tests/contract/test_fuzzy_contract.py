@@ -349,7 +349,9 @@ async def test_nonexistent_sitelink_returns_404(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get(f"{api_prefix}/entities/Q1/sitelinks/nonexistentwiki")
+        response = await client.get(
+            f"{api_prefix}/entities/Q1/sitelinks/nonexistentwiki"
+        )
         assert response.status_code == 404
 
 

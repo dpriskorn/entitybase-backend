@@ -95,10 +95,18 @@ class TestEditHeaders:
         """Test that model_dump returns correct values."""
         edit_headers = EditHeaders(x_user_id=123, x_edit_summary="test")
         dumped = edit_headers.model_dump()
-        assert dumped == {"x_user_id": 123, "x_edit_summary": "test", "x_base_revision_id": 0}
+        assert dumped == {
+            "x_user_id": 123,
+            "x_edit_summary": "test",
+            "x_base_revision_id": 0,
+        }
 
     def test_model_dump_by_alias(self):
         """Test that model_dump with by_alias returns HTTP header names."""
         edit_headers = EditHeaders(x_user_id=123, x_edit_summary="test")
         dumped = edit_headers.model_dump(by_alias=True)
-        assert dumped == {"X-User-ID": 123, "X-Edit-Summary": "test", "X-Base-Revision-ID": 0}
+        assert dumped == {
+            "X-User-ID": 123,
+            "X-Edit-Summary": "test",
+            "X-Base-Revision-ID": 0,
+        }

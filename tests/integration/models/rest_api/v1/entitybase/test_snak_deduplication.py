@@ -119,7 +119,9 @@ async def test_snak_endpoint_single_fetch(api_prefix: str) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-@pytest.mark.skip(reason="API does not support entity creation with initial statements yet")
+@pytest.mark.skip(
+    reason="API does not support entity creation with initial statements yet"
+)
 async def test_snak_endpoint_batch_fetch(api_prefix: str) -> None:
     """Test fetching multiple snaks by hashes."""
     from models.rest_api.main import app
@@ -142,7 +144,9 @@ async def test_snak_endpoint_batch_fetch(api_prefix: str) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-@pytest.mark.skip(reason="API does not support entity creation with initial statements yet")
+@pytest.mark.skip(
+    reason="API does not support entity creation with initial statements yet"
+)
 async def test_snak_endpoint_invalid_hash(api_prefix: str) -> None:
     """Test snak endpoint with invalid hash format."""
     from models.rest_api.main import app

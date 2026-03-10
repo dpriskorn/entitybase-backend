@@ -87,4 +87,4 @@ async def test_revision_not_found(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.get(f"{api_prefix}/entities/Q1/revisions/999999")
-        assert response.status_code in [404, 400]
+        assert response.status_code == 404

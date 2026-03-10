@@ -45,7 +45,9 @@ class StreamProducerClient(Client):
     async def publish(self, event: Any) -> None:
         """Publish an event to Kafka."""
         if not self.producer:
-            logger.info(f"Producer not started, starting now for topic {self.config.topic}")
+            logger.info(
+                f"Producer not started, starting now for topic {self.config.topic}"
+            )
             await self.start()
 
         try:
@@ -66,6 +68,11 @@ class StreamProducerClient(Client):
                 key=str(key).encode("utf-8"),
                 value=event,
             )
-            logger.info(f"Successfully sent event to Kafka: topic={self.config.topic}, key={key}")
+            logger.info(
+                f"Successfully sent event to Kafka: topic={self.config.topic}, key={key}"
+            )
         except Exception as e:
-            logger.error(f"Failed to publish event to Kafka: {type(e).__name__}: {e}", exc_info=True)
+            logger.error(
+                f"Failed to publish event to Kafka: {type(e).__name__}: {e}",
+                exc_info=True,
+            )

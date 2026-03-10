@@ -370,7 +370,7 @@ class EntityHandler(Handler):
                 logger.error(
                     f"Failed to publish event for {ctx.entity_id} revision "
                     f"{result.revision_id}: {type(e).__name__}: {e}",
-                    exc_info=True
+                    exc_info=True,
                 )
         elif not ctx.stream_producer:
             logger.warning(
