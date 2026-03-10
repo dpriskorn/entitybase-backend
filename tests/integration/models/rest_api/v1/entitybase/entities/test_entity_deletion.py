@@ -80,11 +80,6 @@ async def test_hard_delete_prevents_undelete(api_prefix: str) -> None:
 
         response = await client.post(
             f"{api_prefix}/entities/items",
-            json={
-                "id": entity_id,
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Undeleted"}},
-            },
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
         assert response.status_code == 409
