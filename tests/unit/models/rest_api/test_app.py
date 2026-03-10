@@ -2,7 +2,7 @@
 
 import pytest
 import logging
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, PropertyMock, patch
 
 
 class TestFastAPIApp:
@@ -45,7 +45,10 @@ class TestFastAPIApp:
         mocker.patch(
             "models.rest_api.main.StateHandler", return_value=mock_state_handler
         )
-        mocker.patch("models.rest_api.main.settings.streaming_enabled", new=False)
+        mocker.patch(
+            "models.rest_api.main.settings",
+            new_callable=PropertyMock,
+        ).return_value.streaming_enabled = False
 
         async with lifespan(app_mock) as _:
             assert hasattr(app_mock.state, "state_handler")
@@ -66,7 +69,10 @@ class TestFastAPIApp:
         mocker.patch(
             "models.rest_api.main.StateHandler", return_value=mock_state_handler
         )
-        mocker.patch("models.rest_api.main.settings.streaming_enabled", new=False)
+        mocker.patch(
+            "models.rest_api.main.settings",
+            new_callable=PropertyMock,
+        ).return_value.streaming_enabled = False
 
         with caplog.at_level(logging.DEBUG):
             async with lifespan(app_mock) as _:
