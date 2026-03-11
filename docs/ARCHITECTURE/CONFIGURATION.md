@@ -231,7 +231,7 @@ All settings can be overridden using environment variables with the same name.
 - **Default**: `Path('properties')`
 - **Description**: No description available
 
-### `streaming_enabled`
+### `_streaming_enabled`
 
 - **Type**: `bool`
 - **Default**: `False`
