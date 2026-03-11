@@ -23,13 +23,13 @@ class TestSnakHandler:
         from unittest.mock import MagicMock as MockSnak
 
         mock_snak_data = S3SnakData(
-            schema="1.0.0",
+            schema_version="1.0.0",
             snak={
                 "snaktype": "value",
-                "property": {"id": "P31"},
+                "property": "P31",
                 "datavalue": {"type": "string", "value": "test"},
             },
-            hash=12345,
+            content_hash=12345,
             created_at="2024-01-01T00:00:00Z",
         )
 
@@ -119,11 +119,12 @@ class TestSnakHandler:
         expected_json = snak_request.model_dump_json()
         expected_hash = MetadataExtractor.hash_string(expected_json)
 
-        self.handler.store_snak(snak_request)
+        result = self.handler.store_snak(snak_request)
 
-        self.handler.state.s3_client.store_snak.assert_called_once_with(
-            expected_hash, pytest.approx(any)
-        )
+        assert result == expected_hash
+        call_args = self.handler.state.s3_client.store_snak.call_args
+        assert call_args[0][0] == expected_hash
+        assert call_args[0][1].content_hash == expected_hash
 
     def test_store_snak_json_serialization(self):
         """Test that store_snak correctly serializes snak to JSON."""
