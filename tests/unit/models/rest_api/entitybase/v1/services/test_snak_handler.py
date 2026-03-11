@@ -24,7 +24,11 @@ class TestSnakHandler:
 
         mock_snak_data = S3SnakData(
             schema="1.0.0",
-            snak={"snaktype": "value", "property": {"id": "P31"}, "datavalue": {"type": "string", "value": "test"}},
+            snak={
+                "snaktype": "value",
+                "property": {"id": "P31"},
+                "datavalue": {"type": "string", "value": "test"},
+            },
             hash=12345,
             created_at="2024-01-01T00:00:00Z",
         )
@@ -33,6 +37,7 @@ class TestSnakHandler:
 
         result = self.handler.get_snak(12345)
 
+        assert result is not None
         self.handler.state.s3_client.load_snak.assert_called_once_with(12345)
 
     def test_get_snak_not_found(self):
@@ -72,3 +77,66 @@ class TestSnakHandler:
         """Test that handler has get_snak method."""
         assert hasattr(self.handler, "get_snak")
         assert callable(self.handler.get_snak)
+
+    def test_store_snak_success(self):
+        """Test successful snak storage."""
+        from models.data.rest_api.v1.entitybase.request import SnakRequest
+
+        snak_request = SnakRequest(
+            property="P31",
+            datavalue={"type": "string", "value": "test"},
+        )
+
+        result = self.handler.store_snak(snak_request)
+
+        assert isinstance(result, int)
+        self.handler.state.s3_client.store_snak.assert_called_once()
+
+    def test_store_snak_s3_error(self):
+        """Test snak storage when S3 client raises error."""
+        from models.data.rest_api.v1.entitybase.request import SnakRequest
+
+        self.handler.state.s3_client.store_snak.side_effect = Exception("S3 error")
+
+        snak_request = SnakRequest(
+            property="P31",
+            datavalue={"type": "string", "value": "test"},
+        )
+
+        with pytest.raises(Exception):
+            self.handler.store_snak(snak_request)
+
+    def test_store_snak_calls_s3_with_correct_hash(self):
+        """Test that store_snak calls S3 client with correct content hash."""
+        from models.data.rest_api.v1.entitybase.request import SnakRequest
+        from models.internal_representation.metadata_extractor import MetadataExtractor
+
+        snak_request = SnakRequest(
+            property="P569",
+            datavalue={"type": "time", "value": {"time": "+2024-01-01T00:00:00Z"}},
+        )
+
+        expected_json = snak_request.model_dump_json()
+        expected_hash = MetadataExtractor.hash_string(expected_json)
+
+        self.handler.store_snak(snak_request)
+
+        self.handler.state.s3_client.store_snak.assert_called_once_with(
+            expected_hash, pytest.approx(any)
+        )
+
+    def test_store_snak_json_serialization(self):
+        """Test that store_snak correctly serializes snak to JSON."""
+        from models.data.rest_api.v1.entitybase.request import SnakRequest
+        from models.internal_representation.metadata_extractor import MetadataExtractor
+
+        snak_request = SnakRequest(
+            property="P31",
+            datavalue={"type": "string", "value": "test"},
+        )
+
+        result = self.handler.store_snak(snak_request)
+
+        call_args = self.handler.state.s3_client.store_snak.call_args
+        stored_snak_data = call_args[0][1]
+        assert stored_snak_data.snak == snak_request.model_dump()
