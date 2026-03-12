@@ -46,6 +46,9 @@ class StateHandler(BaseModel):
     cached_entitydiff_stream_producer: StreamProducerClient | None = Field(
         default=None, exclude=True
     )
+    cached_user_change_stream_producer: StreamProducerClient | None = Field(
+        default=None, exclude=True
+    )
 
     def start(self) -> None:
         logger.info("=== StateHandler.start() START ===")
@@ -94,6 +97,10 @@ class StateHandler(BaseModel):
     @property
     def entity_change_stream_config(self) -> StreamConfig:
         return self.settings.get_entity_change_stream_config
+
+    @property
+    def user_change_stream_config(self) -> StreamConfig:
+        return self.settings.get_user_change_stream_config
 
     @property
     def s3_config(self) -> S3Config:
@@ -182,6 +189,30 @@ class StateHandler(BaseModel):
             return None
 
     @property
+    def user_change_stream_producer(self) -> StreamProducerClient | None:
+        """Get or create a cached Kafka producer for user changes."""
+        if (
+            self.settings.streaming_enabled
+            and self.settings.kafka_bootstrap_servers
+            and self.settings.kafka_userchange_json_topic
+        ):
+            if self.cached_user_change_stream_producer is None:
+                logger.debug(
+                    "=== user_change_stream_producer property: Creating new StreamProducerClient ==="
+                )
+                self.cached_user_change_stream_producer = StreamProducerClient(
+                    config=self.user_change_stream_config
+                )
+                logger.info(
+                    f"Created user change stream producer for topic {self.settings.kafka_userchange_json_topic}"
+                )
+            return self.cached_user_change_stream_producer
+        else:
+            message = "Streaming disabled or Kafka config missing"
+            logger.info(message)
+            return None
+
+    @property
     def property_registry(self) -> PropertyRegistry | None:
         if self.cached_property_registry is None:
             if self.property_registry_path is not None:
@@ -223,6 +254,11 @@ class StateHandler(BaseModel):
             await self.cached_entitydiff_stream_producer.stop()
             self.cached_entitydiff_stream_producer = None
             logger.info("Entity diff stream producer stopped")
+
+        if self.cached_user_change_stream_producer is not None:
+            await self.cached_user_change_stream_producer.stop()
+            self.cached_user_change_stream_producer = None
+            logger.info("User change stream producer stopped")
 
     @property
     def redirect_service(self) -> "RedirectService":

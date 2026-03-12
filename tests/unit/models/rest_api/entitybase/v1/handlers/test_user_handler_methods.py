@@ -13,6 +13,7 @@ class TestUserHandlerMethods:
         """Create a mock state object."""
         state = MagicMock()
         state.vitess_client = MagicMock()
+        state.user_change_stream_producer = None
         return state
 
     @pytest.fixture
@@ -23,7 +24,8 @@ class TestUserHandlerMethods:
         handler = UserHandler(state=mock_state)
         return handler
 
-    def test_toggle_watchlist_enable(self, handler, mock_state):
+    @pytest.mark.asyncio
+    async def test_toggle_watchlist_enable(self, handler, mock_state):
         """Test toggle_watchlist enables watchlist."""
         from models.data.rest_api.v1.entitybase.request import WatchlistToggleRequest
 
@@ -32,12 +34,13 @@ class TestUserHandlerMethods:
             True
         )
 
-        result = handler.toggle_watchlist(12345, mock_request)
+        result = await handler.toggle_watchlist(12345, mock_request)
 
         assert result is not None
         assert result.enabled is True
 
-    def test_toggle_watchlist_disable(self, handler, mock_state):
+    @pytest.mark.asyncio
+    async def test_toggle_watchlist_disable(self, handler, mock_state):
         """Test toggle_watchlist disables watchlist."""
         from models.data.rest_api.v1.entitybase.request import WatchlistToggleRequest
 
@@ -46,7 +49,7 @@ class TestUserHandlerMethods:
             True
         )
 
-        result = handler.toggle_watchlist(12345, mock_request)
+        result = await handler.toggle_watchlist(12345, mock_request)
 
         assert result is not None
         assert result.enabled is False

@@ -66,10 +66,12 @@ class Settings(BaseModel):
     kafka_bootstrap_servers: str = ""
     kafka_entitychange_json_topic: str = ""
     kafka_entity_diff_topic: str = ""
+    kafka_userchange_json_topic: str = ""
     streaming_entity_change_version: str = "1.0.0"
     streaming_endorsechange_version: str = "1.0.0"
     streaming_newthank_version: str = "1.0.0"
     streaming_entity_diff_version: str = "2.0.0"
+    streaming_user_change_version: str = "1.0.0"
 
     # entity version
     entity_version: str = ENTITYBASE_VERSION
@@ -195,6 +197,9 @@ class Settings(BaseModel):
         )
         self.streaming_entity_diff_version = os.getenv(
             "STREAMING_ENTITY_DIFF_VERSION", self.streaming_entity_diff_version
+        )
+        self.streaming_user_change_version = os.getenv(
+            "STREAMING_USER_CHANGE_VERSION", self.streaming_user_change_version
         )
 
     @property
@@ -354,6 +359,18 @@ class Settings(BaseModel):
             if isinstance(self.kafka_bootstrap_servers, list)
             else [self.kafka_bootstrap_servers],
             topic=self.kafka_entity_diff_topic,
+        )
+
+    @property
+    def get_user_change_stream_config(self) -> "StreamConfig":
+        """Convert settings to Streaming configuration object."""
+        from models.data.config.stream import StreamConfig
+
+        return StreamConfig(
+            bootstrap_servers=self.kafka_bootstrap_servers
+            if isinstance(self.kafka_bootstrap_servers, list)
+            else [self.kafka_bootstrap_servers],
+            topic=self.kafka_userchange_json_topic,
         )
 
 

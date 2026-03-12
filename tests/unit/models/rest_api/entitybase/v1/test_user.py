@@ -23,13 +23,20 @@ class TestUserHandler:
         return client
 
     @pytest.fixture
-    def handler(self, mock_vitess_client: MagicMock) -> UserHandler:
+    def mock_state(self, mock_vitess_client: MagicMock) -> MagicMock:
         """Create handler instance"""
         state = MagicMock()
         state.vitess_client = mock_vitess_client
-        return UserHandler(state=state)
+        state.user_change_stream_producer = None
+        return state
 
-    def test_create_user_new(
+    @pytest.fixture
+    def handler(self, mock_state: MagicMock) -> UserHandler:
+        """Create handler instance"""
+        return UserHandler(state=mock_state)
+
+    @pytest.mark.asyncio
+    async def test_create_user_new(
         self, handler: UserHandler, mock_vitess_client: MagicMock
     ) -> None:
         """Test creating a new user"""
@@ -37,7 +44,7 @@ class TestUserHandler:
 
         mock_vitess_client.user_repository.user_exists.return_value = False
 
-        result = handler.create_user(request)
+        result = await handler.create_user(request)
 
         assert isinstance(result, UserCreateResponse)
         assert result.user_id == 12345
@@ -45,7 +52,8 @@ class TestUserHandler:
         mock_vitess_client.user_repository.user_exists.assert_called_once_with(12345)
         mock_vitess_client.user_repository.create_user.assert_called_once_with(12345)
 
-    def test_create_user_existing(
+    @pytest.mark.asyncio
+    async def test_create_user_existing(
         self, handler: UserHandler, mock_vitess_client: MagicMock
     ) -> None:
         """Test creating a user that already exists"""
@@ -53,7 +61,7 @@ class TestUserHandler:
 
         mock_vitess_client.user_repository.user_exists.return_value = True
 
-        result = handler.create_user(request)
+        result = await handler.create_user(request)
 
         assert isinstance(result, UserCreateResponse)
         assert result.user_id == 12345
@@ -79,7 +87,8 @@ class TestUserHandler:
         assert result == mock_user
         mock_vitess_client.user_repository.get_user.assert_called_once_with(12345)
 
-    def test_toggle_watchlist_success(
+    @pytest.mark.asyncio
+    async def test_toggle_watchlist_success(
         self, handler: UserHandler, mock_vitess_client: MagicMock
     ) -> None:
         """Test successful watchlist toggle"""
@@ -93,7 +102,7 @@ class TestUserHandler:
             success=True
         )
 
-        result = handler.toggle_watchlist(12345, request)
+        result = await handler.toggle_watchlist(12345, request)
 
         assert isinstance(result, WatchlistToggleResponse)
         assert result.user_id == 12345
