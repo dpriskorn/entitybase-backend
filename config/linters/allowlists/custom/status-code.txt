@@ -7,4 +7,3 @@ tests/contract/test_watchlist_contract.py:56
 tests/contract/test_watchlist_contract.py:72
 tests/contract/test_sitelinks_contract.py:122
 tests/contract/test_revisions_contract.py:100
-tests/integration/models/rest_api/v1/entitybase/test_thanks.py:45
