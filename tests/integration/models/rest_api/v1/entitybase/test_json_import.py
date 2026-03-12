@@ -196,24 +196,24 @@ async def test_entity_import_with_references_wikidata_format() -> None:
                         "property": "P31",
                         "hash": "abc123def456",
                         "datavalue": {
-                            "value": {"entity-type": "item", "numeric-id": 42, "id": "Q42"},
-                            "type": "wikibase-entityid"
+                            "value": {
+                                "entity-type": "item",
+                                "numeric-id": 42,
+                                "id": "Q42",
+                            },
+                            "type": "wikibase-entityid",
                         },
-                        "datatype": "wikibase-item"
+                        "datatype": "wikibase-item",
                     },
                     "type": "statement",
                     "id": "Q999998$123",
                     "rank": "normal",
                     "references": [
-                        {
-                            "hash": "ref_hash_abc123",
-                            "snaks": {},
-                            "snaks-order": []
-                        }
-                    ]
+                        {"hash": "ref_hash_abc123", "snaks": {}, "snaks-order": []}
+                    ],
                 }
             ]
-        }
+        },
     }
 
     async with AsyncClient(

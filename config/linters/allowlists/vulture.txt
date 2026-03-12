@@ -222,4 +222,5 @@ get_entity_update_handler
 get_statement_handler
 get_backlink_handler
 get_state_from_request
+get_deduplication_stats
 

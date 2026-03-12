@@ -61,19 +61,31 @@ class DeduplicationStatsByType(BaseModel):
     """Deduplication stats for a single data type."""
 
     unique_hashes: int = Field(description="Number of unique hashes stored")
-    total_ref_count: int = Field(description="Total reference count (what would be stored without deduplication)")
-    deduplication_factor: float = Field(description="Deduplication factor as a percentage (0-100)")
+    total_ref_count: int = Field(
+        description="Total reference count (what would be stored without deduplication)"
+    )
+    deduplication_factor: float = Field(
+        description="Deduplication factor as a percentage (0-100)"
+    )
     space_saved: int = Field(description="Number of duplicates eliminated")
 
 
 class DeduplicationStatsResponse(BaseModel):
     """API response for deduplication statistics."""
 
-    statements: DeduplicationStatsByType = Field(description="Statement deduplication stats")
-    qualifiers: DeduplicationStatsByType = Field(description="Qualifier deduplication stats")
-    references: DeduplicationStatsByType = Field(description="Reference deduplication stats")
+    statements: DeduplicationStatsByType = Field(
+        description="Statement deduplication stats"
+    )
+    qualifiers: DeduplicationStatsByType = Field(
+        description="Qualifier deduplication stats"
+    )
+    references: DeduplicationStatsByType = Field(
+        description="Reference deduplication stats"
+    )
     snaks: DeduplicationStatsByType = Field(description="Snak deduplication stats")
-    sitelinks: DeduplicationStatsByType = Field(description="Sitelink deduplication stats")
+    sitelinks: DeduplicationStatsByType = Field(
+        description="Sitelink deduplication stats"
+    )
     terms: DeduplicationStatsByType = Field(description="Term deduplication stats")
 
 

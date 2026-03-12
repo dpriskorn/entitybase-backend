@@ -151,6 +151,7 @@ class TestUserRepositoryBasic:
     def test_get_user_invalid_data(self):
         """Test get user with invalid data raises validation error."""
         from fastapi import HTTPException
+
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
         mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
