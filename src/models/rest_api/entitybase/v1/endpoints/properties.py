@@ -20,14 +20,8 @@ router = APIRouter()
 async def create_property(
     req: Request,
     headers: EditHeadersType,
-    request: EntityCreateRequest | None = None,
 ) -> OperationResult[EntityIdResult]:
     """Create a new empty property entity."""
-    if request is not None:
-        raise_validation_error(
-            "Request body not supported for property creation. Use empty POST request.",
-            status_code=422,
-        )
     logger.info("🔍 ENDPOINT: Received POST request to create property")
 
     try:
