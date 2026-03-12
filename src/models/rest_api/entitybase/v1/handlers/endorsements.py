@@ -40,7 +40,9 @@ class EndorsementHandler(Handler):
         created_endorsement = self._get_and_validate_endorsement(
             statement_hash, user_id, must_be_active=True
         )
-        await self._publish_endorsement_event(statement_hash, user_id, EndorseAction.ENDORSE)
+        await self._publish_endorsement_event(
+            statement_hash, user_id, EndorseAction.ENDORSE
+        )
 
         # Log activity
         activity_result = self.state.vitess_client.user_repository.log_user_activity(
@@ -78,7 +80,9 @@ class EndorsementHandler(Handler):
         withdrawn_endorsement = self._get_and_validate_endorsement(
             statement_hash, user_id, must_be_active=False
         )
-        await self._publish_endorsement_event(statement_hash, user_id, EndorseAction.WITHDRAW)
+        await self._publish_endorsement_event(
+            statement_hash, user_id, EndorseAction.WITHDRAW
+        )
 
         # Log activity
         activity_result = self.state.vitess_client.user_repository.log_user_activity(

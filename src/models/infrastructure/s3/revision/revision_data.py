@@ -19,6 +19,8 @@ class RevisionData(BaseModel):
     sitelinks, and statements. Used for persistent storage and retrieval.
     """
 
+    model_config = {"by_alias": True}
+
     revision_id: int
     entity_type: EntityType
     edit: EditData

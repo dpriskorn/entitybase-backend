@@ -8,7 +8,10 @@ from unittest.mock import patch, AsyncMock, MagicMock
 class TestWorkerEntryPoints:
     """Unit tests for worker entry point modules."""
 
-    @patch("models.workers.incremental_rdf.incremental_rdf_worker.main", new_callable=AsyncMock)
+    @patch(
+        "models.workers.incremental_rdf.incremental_rdf_worker.main",
+        new_callable=AsyncMock,
+    )
     def test_incremental_rdf_main_entry_point(self, mock_main):
         """Test incremental_rdf worker entry point runs main."""
         # Directly test that the module can be imported and asyncio.run works

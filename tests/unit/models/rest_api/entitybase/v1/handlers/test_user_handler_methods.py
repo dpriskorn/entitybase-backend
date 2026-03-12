@@ -28,7 +28,9 @@ class TestUserHandlerMethods:
         from models.data.rest_api.v1.entitybase.request import WatchlistToggleRequest
 
         mock_request = WatchlistToggleRequest(enabled=True)
-        mock_state.vitess_client.user_repository.set_watchlist_enabled.return_value = True
+        mock_state.vitess_client.user_repository.set_watchlist_enabled.return_value = (
+            True
+        )
 
         result = handler.toggle_watchlist(12345, mock_request)
 
@@ -40,7 +42,9 @@ class TestUserHandlerMethods:
         from models.data.rest_api.v1.entitybase.request import WatchlistToggleRequest
 
         mock_request = WatchlistToggleRequest(enabled=False)
-        mock_state.vitess_client.user_repository.set_watchlist_enabled.return_value = True
+        mock_state.vitess_client.user_repository.set_watchlist_enabled.return_value = (
+            True
+        )
 
         result = handler.toggle_watchlist(12345, mock_request)
 

@@ -28,7 +28,10 @@ async def test_send_thanks(api_prefix: str) -> None:
         # Create entity first
         entity_response = await client.post(
             f"{api_prefix}/entities/items",
-            json={"type": "item", "labels": {"en": {"language": "en", "value": "Test"}}},
+            json={
+                "type": "item",
+                "labels": {"en": {"language": "en", "value": "Test"}},
+            },
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert entity_response.status_code == 200
@@ -61,7 +64,9 @@ async def test_get_thanks_received(api_prefix: str) -> None:
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
 
-        response = await client.get(f"{api_prefix}/users/12345/thanks/received?limit=50&hours=24")
+        response = await client.get(
+            f"{api_prefix}/users/12345/thanks/received?limit=50&hours=24"
+        )
         assert response.status_code == 200
         data = response.json()
         assert "user_id" in data
@@ -84,7 +89,9 @@ async def test_get_thanks_sent(api_prefix: str) -> None:
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
 
-        response = await client.get(f"{api_prefix}/users/12345/thanks/sent?limit=50&hours=24")
+        response = await client.get(
+            f"{api_prefix}/users/12345/thanks/sent?limit=50&hours=24"
+        )
         assert response.status_code == 200
         data = response.json()
         assert "user_id" in data

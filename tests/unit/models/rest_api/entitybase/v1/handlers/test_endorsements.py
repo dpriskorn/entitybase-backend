@@ -119,7 +119,9 @@ class TestEndorsementHandler:
         mock_producer = AsyncMock()
         mock_state.endorsement_stream_producer = mock_producer
 
-        with patch("models.rest_api.entitybase.v1.handlers.endorsements.settings") as mock_settings:
+        with patch(
+            "models.rest_api.entitybase.v1.handlers.endorsements.settings"
+        ) as mock_settings:
             mock_settings.streaming_enabled = True
             handler = EndorsementHandler(state=mock_state)
             await handler._publish_endorsement_event(12345, 1, EndorseAction.ENDORSE)
@@ -135,7 +137,9 @@ class TestEndorsementHandler:
 
         mock_state.endorsement_stream_producer = None
 
-        with patch("models.rest_api.entitybase.v1.handlers.endorsements.settings") as mock_settings:
+        with patch(
+            "models.rest_api.entitybase.v1.handlers.endorsements.settings"
+        ) as mock_settings:
             mock_settings.streaming_enabled = True
             handler = EndorsementHandler(state=mock_state)
             await handler._publish_endorsement_event(12345, 1, EndorseAction.ENDORSE)
@@ -150,7 +154,9 @@ class TestEndorsementHandler:
         mock_producer.publish.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_publish_endorsement_event_without_producer(self, mock_handler, mock_state):
+    async def test_publish_endorsement_event_without_producer(
+        self, mock_handler, mock_state
+    ):
         """Test _publish_endorsement_event when no producer exists."""
         from models.rest_api.entitybase.v1.handlers.endorsements import (
             EndorsementHandler,

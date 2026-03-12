@@ -114,13 +114,17 @@ class TestRangeStatus:
 
 class TestRangeStatuses:
     def test_basic(self):
-        rs = RangeStatuses(ranges={"item": RangeStatus(
-            current_start=1000,
-            current_end=2000,
-            next_id=1500,
-            ids_used=500,
-            utilization=50.0,
-        )})
+        rs = RangeStatuses(
+            ranges={
+                "item": RangeStatus(
+                    current_start=1000,
+                    current_end=2000,
+                    next_id=1500,
+                    ids_used=500,
+                    utilization=50.0,
+                )
+            }
+        )
         assert "item" in rs.ranges
 
 

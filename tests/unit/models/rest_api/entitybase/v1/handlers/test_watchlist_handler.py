@@ -14,9 +14,11 @@ class TestWatchlistHandler:
         """Set up test fixtures."""
         self.state = MagicMock()
         self.state.vitess_client.user_repository.user_exists.return_value = True
-        self.state.vitess_client.user_repository.is_watchlist_enabled.return_value = True
-        self.state.vitess_client.watchlist_repository.add_watch.return_value = MagicMock(
-            success=True
+        self.state.vitess_client.user_repository.is_watchlist_enabled.return_value = (
+            True
+        )
+        self.state.vitess_client.watchlist_repository.add_watch.return_value = (
+            MagicMock(success=True)
         )
         self.state.vitess_client.watchlist_repository.remove_watch.return_value = (
             MagicMock(success=True)

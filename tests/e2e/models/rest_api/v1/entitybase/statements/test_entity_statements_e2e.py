@@ -127,9 +127,11 @@ async def test_remove_statement(
         assert len(statements) > 0, "Expected at least one statement to exist"
         statement_hash = statements[0]
 
-        # Remove statement
-        response = await client.delete(
+        # Remove statement - send empty body as required by endpoint
+        response = await client.request(
+            "DELETE",
             f"{api_prefix}/entities/{entity_id}/statements/{statement_hash}",
+            content=b"{}",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
@@ -205,16 +207,18 @@ async def test_replace_statement(
         assert len(statements) > 0, "Expected at least one statement to exist"
         original_hash = statements[0]
 
-        # Replace statement
+        # Replace statement - wrap in "claim" field as required by endpoint
         new_claim_data = {
-            "id": "TESTCLAIM456",
-            "mainsnak": {
-                "snaktype": "value",
-                "property": property_id,
-                "datavalue": {"value": {"id": "Q5"}, "type": "wikibase-item"},
-            },
-            "type": "statement",
-            "rank": "preferred",
+            "claim": {
+                "id": "TESTCLAIM456",
+                "mainsnak": {
+                    "snaktype": "value",
+                    "property": property_id,
+                    "datavalue": {"value": {"id": "Q5"}, "type": "wikibase-item"},
+                },
+                "type": "statement",
+                "rank": "preferred",
+            }
         }
         response = await client.patch(
             f"{api_prefix}/entities/{entity_id}/statements/{original_hash}",

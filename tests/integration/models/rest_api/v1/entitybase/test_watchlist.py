@@ -337,9 +337,7 @@ async def test_get_watchlist_user_disabled(
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_add_watch_disabled_user(
-    api_prefix: str, initialized_app: None
-) -> None:
+async def test_add_watch_disabled_user(api_prefix: str, initialized_app: None) -> None:
     """Test adding watch for user with disabled watchlist returns 400."""
     from models.rest_api.main import app
 

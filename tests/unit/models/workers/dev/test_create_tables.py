@@ -62,7 +62,10 @@ class TestTableSetupResult:
 
     def test_table_setup_result_creation(self):
         """Test TableSetupResult creation."""
-        from models.workers.dev.create_tables import TableSetupResult, TableHealthCheckResult
+        from models.workers.dev.create_tables import (
+            TableSetupResult,
+            TableHealthCheckResult,
+        )
 
         health_check: TableHealthCheckResult = {
             "overall_status": "healthy",

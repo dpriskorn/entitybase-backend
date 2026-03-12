@@ -384,7 +384,9 @@ async def test_batch_statements_too_many_entities(api_prefix: str) -> None:
     ) as client:
         # Create a string with 21 entity IDs (exceeds limit of 20)
         entity_ids = ",".join([f"Q{i}" for i in range(1, 22)])
-        response = await client.get(f"{api_prefix}/statements/batch?entity_ids={entity_ids}")
+        response = await client.get(
+            f"{api_prefix}/statements/batch?entity_ids={entity_ids}"
+        )
         assert response.status_code == 400
         # Error response might have "detail" or "message"
         response_json = response.json()

@@ -421,9 +421,11 @@ async def add_entity_statement(
 async def remove_entity_statement(
     entity_id: str,
     statement_hash: str,
-    request: RemoveStatementRequest,
     req: Request,
     headers: EditHeadersType,
+    request: RemoveStatementRequest = Body(
+        default_factory=lambda: RemoveStatementRequest()
+    ),
 ) -> OperationResult[RevisionIdResult]:
     """Remove a statement by hash from an entity."""
     state = req.app.state.state_handler

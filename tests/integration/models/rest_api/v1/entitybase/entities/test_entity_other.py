@@ -133,7 +133,9 @@ async def test_export_entity_to_turtle(api_prefix: str) -> None:
     entity_data = {
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Turtle Export Test"}},
-        "descriptions": {"en": {"language": "en", "value": "A test entity for turtle export"}},
+        "descriptions": {
+            "en": {"language": "en", "value": "A test entity for turtle export"}
+        },
         "aliases": {"en": [{"language": "en", "value": "Test Entity"}]},
         "claims": {
             "P31": [
