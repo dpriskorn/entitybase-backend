@@ -80,7 +80,7 @@ class Settings(BaseModel):
     dangling_property_id: str = "P6104"
 
     # API configuration
-    api_prefix: str = "/v1/entitybase"
+    api_prefix: str = "/v1"
 
     # other
     user_agent: str = f"Entitybase/{ENTITYBASE_VERSION} User:So9q"

@@ -281,7 +281,7 @@ async def test_api_endpoint() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.post(
-            "/v1/entitybase/endpoint",
+            "/v1/endpoint",
             json={"data": "value"},
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -291,12 +291,12 @@ async def test_api_endpoint() -> None:
 **Key Points:**
 - Always use `@pytest.mark.asyncio` decorator
 - Import `app` inline within test function: `from models.rest_api.main import app`
-- Use `/v1/entitybase/` prefix for all API endpoints
+- Use `/v1/` prefix for all API endpoints
 - Use `await` with all HTTP methods
 - No external server required (faster test execution)
 
 **URL Prefix Rules:**
-- ✅ Correct: `/v1/entitybase/users/12345/watchlist`
+- ✅ Correct: `/v1/users/12345/watchlist`
 - ❌ Incorrect: `/entitybase/v1/users/12345/watchlist`
 - Health check uses: `/health` (no prefix)
 

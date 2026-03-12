@@ -168,7 +168,7 @@ All settings can be overridden using environment variables with the same name.
 ### `api_prefix`
 
 - **Type**: `str`
-- **Default**: `'/v1/entitybase'`
+- **Default**: `'/v1'`
 - **Description**: API configuration
 
 ### `api_description`

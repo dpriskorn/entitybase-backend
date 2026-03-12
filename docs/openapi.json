@@ -71,14 +71,14 @@
         }
       }
     },
-    "/v1/entitybase/users": {
+    "/v1/users": {
       "post": {
         "tags": [
           "users"
         ],
         "summary": "Create User",
         "description": "Create a new user.",
-        "operationId": "create_user_v1_entitybase_users_post",
+        "operationId": "create_user_v1_users_post",
         "requestBody": {
           "content": {
             "application/json": {
@@ -113,14 +113,14 @@
         }
       }
     },
-    "/v1/entitybase/users/stat": {
+    "/v1/users/stat": {
       "get": {
         "tags": [
           "users"
         ],
         "summary": "Get User Stats",
         "description": "Get user statistics.",
-        "operationId": "get_user_stats_v1_entitybase_users_stat_get",
+        "operationId": "get_user_stats_v1_users_stat_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -135,14 +135,14 @@
         }
       }
     },
-    "/v1/entitybase/users/{user_id}": {
+    "/v1/users/{user_id}": {
       "get": {
         "tags": [
           "users"
         ],
         "summary": "Get User",
         "description": "Get user information by MediaWiki user ID.",
-        "operationId": "get_user_v1_entitybase_users__user_id__get",
+        "operationId": "get_user_v1_users__user_id__get",
         "parameters": [
           {
             "name": "user_id",
@@ -183,7 +183,7 @@
         ],
         "summary": "Delete User",
         "description": "Delete a user by ID.",
-        "operationId": "delete_user_v1_entitybase_users__user_id__delete",
+        "operationId": "delete_user_v1_users__user_id__delete",
         "parameters": [
           {
             "name": "user_id",
@@ -217,14 +217,14 @@
         }
       }
     },
-    "/v1/entitybase/users/{user_id}/watchlist/toggle": {
+    "/v1/users/{user_id}/watchlist/toggle": {
       "put": {
         "tags": [
           "users"
         ],
         "summary": "Toggle Watchlist",
         "description": "Enable or disable watchlist for user.",
-        "operationId": "toggle_watchlist_v1_entitybase_users__user_id__watchlist_toggle_put",
+        "operationId": "toggle_watchlist_v1_users__user_id__watchlist_toggle_put",
         "parameters": [
           {
             "name": "user_id",
@@ -270,14 +270,14 @@
         }
       }
     },
-    "/v1/entitybase/users/{user_id}/activity": {
+    "/v1/users/{user_id}/activity": {
       "get": {
         "tags": [
           "users"
         ],
         "summary": "Get User Activity",
         "description": "Get user's activity with filtering.",
-        "operationId": "get_user_activity_v1_entitybase_users__user_id__activity_get",
+        "operationId": "get_user_activity_v1_users__user_id__activity_get",
         "parameters": [
           {
             "name": "user_id",
@@ -362,14 +362,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/{entity_id}/revisions/{revision_id}/thank": {
+    "/v1/entities/{entity_id}/revisions/{revision_id}/thank": {
       "post": {
         "tags": [
           "interactions"
         ],
         "summary": "Send Thank Endpoint",
         "description": "Send a thank for a specific revision.",
-        "operationId": "send_thank_endpoint_v1_entitybase_entities__entity_id__revisions__revision_id__thank_post",
+        "operationId": "send_thank_endpoint_v1_entities__entity_id__revisions__revision_id__thank_post",
         "parameters": [
           {
             "name": "entity_id",
@@ -423,14 +423,14 @@
         }
       }
     },
-    "/v1/entitybase/users/{user_id}/thanks/received": {
+    "/v1/users/{user_id}/thanks/received": {
       "get": {
         "tags": [
           "interactions"
         ],
         "summary": "Get Thanks Received Endpoint",
         "description": "Get thanks received by user.",
-        "operationId": "get_thanks_received_endpoint_v1_entitybase_users__user_id__thanks_received_get",
+        "operationId": "get_thanks_received_endpoint_v1_users__user_id__thanks_received_get",
         "parameters": [
           {
             "name": "user_id",
@@ -507,14 +507,14 @@
         }
       }
     },
-    "/v1/entitybase/users/{user_id}/thanks/sent": {
+    "/v1/users/{user_id}/thanks/sent": {
       "get": {
         "tags": [
           "interactions"
         ],
         "summary": "Get Thanks Sent Endpoint",
         "description": "Get thanks sent by user.",
-        "operationId": "get_thanks_sent_endpoint_v1_entitybase_users__user_id__thanks_sent_get",
+        "operationId": "get_thanks_sent_endpoint_v1_users__user_id__thanks_sent_get",
         "parameters": [
           {
             "name": "user_id",
@@ -591,14 +591,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/{entity_id}/revisions/{revision_id}/thanks": {
+    "/v1/entities/{entity_id}/revisions/{revision_id}/thanks": {
       "get": {
         "tags": [
           "interactions"
         ],
         "summary": "Get Revision Thanks Endpoint",
         "description": "Get all thanks for a specific revision.",
-        "operationId": "get_revision_thanks_endpoint_v1_entitybase_entities__entity_id__revisions__revision_id__thanks_get",
+        "operationId": "get_revision_thanks_endpoint_v1_entities__entity_id__revisions__revision_id__thanks_get",
         "parameters": [
           {
             "name": "entity_id",
@@ -643,14 +643,14 @@
         }
       }
     },
-    "/v1/entitybase/statements/{statement_hash}/endorse": {
+    "/v1/statements/{statement_hash}/endorse": {
       "post": {
         "tags": [
           "interactions"
         ],
         "summary": "Endorse Statement Endpoint",
         "description": "Endorse a statement to signal trust.",
-        "operationId": "endorse_statement_endpoint_v1_entitybase_statements__statement_hash__endorse_post",
+        "operationId": "endorse_statement_endpoint_v1_statements__statement_hash__endorse_post",
         "parameters": [
           {
             "name": "statement_hash",
@@ -700,7 +700,7 @@
         ],
         "summary": "Withdraw Endorsement Endpoint",
         "description": "Withdraw endorsement from a statement.",
-        "operationId": "withdraw_endorsement_endpoint_v1_entitybase_statements__statement_hash__endorse_delete",
+        "operationId": "withdraw_endorsement_endpoint_v1_statements__statement_hash__endorse_delete",
         "parameters": [
           {
             "name": "statement_hash",
@@ -745,14 +745,14 @@
         }
       }
     },
-    "/v1/entitybase/statements/{statement_hash}/endorsements": {
+    "/v1/statements/{statement_hash}/endorsements": {
       "get": {
         "tags": [
           "interactions"
         ],
         "summary": "Get Statement Endorsements Endpoint",
         "description": "Get endorsements for a statement.",
-        "operationId": "get_statement_endorsements_endpoint_v1_entitybase_statements__statement_hash__endorsements_get",
+        "operationId": "get_statement_endorsements_endpoint_v1_statements__statement_hash__endorsements_get",
         "parameters": [
           {
             "name": "statement_hash",
@@ -827,14 +827,14 @@
         }
       }
     },
-    "/v1/entitybase/users/{user_id}/endorsements": {
+    "/v1/users/{user_id}/endorsements": {
       "get": {
         "tags": [
           "interactions"
         ],
         "summary": "Get User Endorsements Endpoint",
         "description": "Get endorsements given by a user.",
-        "operationId": "get_user_endorsements_endpoint_v1_entitybase_users__user_id__endorsements_get",
+        "operationId": "get_user_endorsements_endpoint_v1_users__user_id__endorsements_get",
         "parameters": [
           {
             "name": "user_id",
@@ -909,14 +909,14 @@
         }
       }
     },
-    "/v1/entitybase/users/{user_id}/endorsements/stats": {
+    "/v1/users/{user_id}/endorsements/stats": {
       "get": {
         "tags": [
           "interactions"
         ],
         "summary": "Get User Endorsement Stats Endpoint",
         "description": "Get endorsement statistics for a user.",
-        "operationId": "get_user_endorsement_stats_endpoint_v1_entitybase_users__user_id__endorsements_stats_get",
+        "operationId": "get_user_endorsement_stats_endpoint_v1_users__user_id__endorsements_stats_get",
         "parameters": [
           {
             "name": "user_id",
@@ -952,14 +952,14 @@
         }
       }
     },
-    "/v1/entitybase/statements/{statement_hash}/endorsements/stats": {
+    "/v1/statements/{statement_hash}/endorsements/stats": {
       "get": {
         "tags": [
           "interactions"
         ],
         "summary": "Get Statement Endorsement Stats",
         "description": "Get endorsement statistics for a statement.",
-        "operationId": "get_statement_endorsement_stats_v1_entitybase_statements__statement_hash__endorsements_stats_get",
+        "operationId": "get_statement_endorsement_stats_v1_statements__statement_hash__endorsements_stats_get",
         "parameters": [
           {
             "name": "statement_hash",
@@ -995,14 +995,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/{entity_id}/revert": {
+    "/v1/entities/{entity_id}/revert": {
       "post": {
         "tags": [
           "entities"
         ],
         "summary": "Revert Entity",
         "description": "Revert entity to a previous revision.",
-        "operationId": "revert_entity_v1_entitybase_entities__entity_id__revert_post",
+        "operationId": "revert_entity_v1_entities__entity_id__revert_post",
         "parameters": [
           {
             "name": "entity_id",
@@ -1086,14 +1086,14 @@
         }
       }
     },
-    "/v1/entitybase/resolve/qualifiers/{hashes}": {
+    "/v1/resolve/qualifiers/{hashes}": {
       "get": {
         "tags": [
           "resolve"
         ],
         "summary": "Get Qualifiers",
         "description": "Fetch qualifiers by hash(es).\n\nSupports single hash (e.g., /resolve/qualifiers/123) or comma-separated batch\n(e.g., /resolve/qualifiers/123,456,789).\n\nReturns array of qualifier dicts in request order; null for missing hashes.\nMax 100 hashes per request.",
-        "operationId": "get_qualifiers_v1_entitybase_resolve_qualifiers__hashes__get",
+        "operationId": "get_qualifiers_v1_resolve_qualifiers__hashes__get",
         "parameters": [
           {
             "name": "hashes",
@@ -1122,7 +1122,7 @@
                       }
                     ]
                   },
-                  "title": "Response Get Qualifiers V1 Entitybase Resolve Qualifiers  Hashes  Get"
+                  "title": "Response Get Qualifiers V1 Resolve Qualifiers  Hashes  Get"
                 }
               }
             }
@@ -1140,14 +1140,14 @@
         }
       }
     },
-    "/v1/entitybase/resolve/references/{hashes}": {
+    "/v1/resolve/references/{hashes}": {
       "get": {
         "tags": [
           "resolve"
         ],
         "summary": "Get References",
         "description": "Fetch references by hash(es).\n\nSupports single hash (e.g., /resolve/references/123) or comma-separated batch\n(e.g., /resolve/references/123,456,789).\n\nReturns array of reference dicts in request order; null for missing hashes.\nMax 100 hashes per request.",
-        "operationId": "get_references_v1_entitybase_resolve_references__hashes__get",
+        "operationId": "get_references_v1_resolve_references__hashes__get",
         "parameters": [
           {
             "name": "hashes",
@@ -1176,7 +1176,7 @@
                       }
                     ]
                   },
-                  "title": "Response Get References V1 Entitybase Resolve References  Hashes  Get"
+                  "title": "Response Get References V1 Resolve References  Hashes  Get"
                 }
               }
             }
@@ -1194,14 +1194,14 @@
         }
       }
     },
-    "/v1/entitybase/resolve/snaks/{hashes}": {
+    "/v1/resolve/snaks/{hashes}": {
       "get": {
         "tags": [
           "resolve"
         ],
         "summary": "Get Snaks",
         "description": "Fetch snaks by hash(es).\n\nSupports single hash (e.g., /resolve/snaks/123) or comma-separated batch\n(e.g., /resolve/snaks/123,456,789).\n\nReturns array of snak dicts in request order; null for missing hashes.\nMax 100 hashes per request.",
-        "operationId": "get_snaks_v1_entitybase_resolve_snaks__hashes__get",
+        "operationId": "get_snaks_v1_resolve_snaks__hashes__get",
         "parameters": [
           {
             "name": "hashes",
@@ -1230,7 +1230,7 @@
                       }
                     ]
                   },
-                  "title": "Response Get Snaks V1 Entitybase Resolve Snaks  Hashes  Get"
+                  "title": "Response Get Snaks V1 Resolve Snaks  Hashes  Get"
                 }
               }
             }
@@ -1248,14 +1248,14 @@
         }
       }
     },
-    "/v1/entitybase/resolve/statements/{hashes}": {
+    "/v1/resolve/statements/{hashes}": {
       "get": {
         "tags": [
           "resolve"
         ],
         "summary": "Get Statements",
         "description": "Fetch statements by hash(es).\n\nSupports single hash (e.g., /resolve/statements/123) or comma-separated batch\n(e.g., /resolve/statements/123,456,789).\n\nReturns array of statement dicts in request order; null for missing hashes.\nMax 100 hashes per request.",
-        "operationId": "get_statements_v1_entitybase_resolve_statements__hashes__get",
+        "operationId": "get_statements_v1_resolve_statements__hashes__get",
         "parameters": [
           {
             "name": "hashes",
@@ -1284,7 +1284,7 @@
                       }
                     ]
                   },
-                  "title": "Response Get Statements V1 Entitybase Resolve Statements  Hashes  Get"
+                  "title": "Response Get Statements V1 Resolve Statements  Hashes  Get"
                 }
               }
             }
@@ -1302,14 +1302,14 @@
         }
       }
     },
-    "/v1/entitybase/resolve/glosses/{hashes}": {
+    "/v1/resolve/glosses/{hashes}": {
       "get": {
         "tags": [
           "resolve"
         ],
         "summary": "Get Glosses",
         "description": "Fetch sense glosses by hash(es).\n\nSupports single hash (e.g., /resolve/glosses/123) or comma-separated batch\n(e.g., /resolve/glosses/123,456,789).\n\nReturns array of gloss strings in request order; null for missing hashes.\nMax 100 hashes per request.",
-        "operationId": "get_glosses_v1_entitybase_resolve_glosses__hashes__get",
+        "operationId": "get_glosses_v1_resolve_glosses__hashes__get",
         "parameters": [
           {
             "name": "hashes",
@@ -1338,7 +1338,7 @@
                       }
                     ]
                   },
-                  "title": "Response Get Glosses V1 Entitybase Resolve Glosses  Hashes  Get"
+                  "title": "Response Get Glosses V1 Resolve Glosses  Hashes  Get"
                 }
               }
             }
@@ -1356,14 +1356,14 @@
         }
       }
     },
-    "/v1/entitybase/resolve/representations/{hashes}": {
+    "/v1/resolve/representations/{hashes}": {
       "get": {
         "tags": [
           "resolve"
         ],
         "summary": "Get Representations",
         "description": "Fetch form representations by hash(es).\n\nSupports single hash (e.g., /resolve/representations/123) or comma-separated batch\n(e.g., /resolve/representations/123,456,789).\n\nReturns array of representation strings in request order; null for missing hashes.\nMax 100 hashes per request.",
-        "operationId": "get_representations_v1_entitybase_resolve_representations__hashes__get",
+        "operationId": "get_representations_v1_resolve_representations__hashes__get",
         "parameters": [
           {
             "name": "hashes",
@@ -1392,7 +1392,7 @@
                       }
                     ]
                   },
-                  "title": "Response Get Representations V1 Entitybase Resolve Representations  Hashes  Get"
+                  "title": "Response Get Representations V1 Resolve Representations  Hashes  Get"
                 }
               }
             }
@@ -1410,14 +1410,14 @@
         }
       }
     },
-    "/v1/entitybase/resolve/labels/{hashes}": {
+    "/v1/resolve/labels/{hashes}": {
       "get": {
         "tags": [
           "resolve"
         ],
         "summary": "Get Batch Labels",
         "description": "Get batch labels by hashes.\n\nSupports single hash (e.g., /resolve/labels/123) or comma-separated batch\n(e.g., /resolve/labels/123,456,789).\n\nReturns dict mapping hash strings to label text. Max 20 hashes per request.",
-        "operationId": "get_batch_labels_v1_entitybase_resolve_labels__hashes__get",
+        "operationId": "get_batch_labels_v1_resolve_labels__hashes__get",
         "parameters": [
           {
             "name": "hashes",
@@ -1453,14 +1453,14 @@
         }
       }
     },
-    "/v1/entitybase/resolve/descriptions/{hashes}": {
+    "/v1/resolve/descriptions/{hashes}": {
       "get": {
         "tags": [
           "resolve"
         ],
         "summary": "Get Batch Descriptions",
         "description": "Get batch descriptions by hashes.\n\nSupports single hash (e.g., /resolve/descriptions/123) or comma-separated batch\n(e.g., /resolve/descriptions/123,456,789).\n\nReturns dict mapping hash strings to description text. Max 20 hashes per request.",
-        "operationId": "get_batch_descriptions_v1_entitybase_resolve_descriptions__hashes__get",
+        "operationId": "get_batch_descriptions_v1_resolve_descriptions__hashes__get",
         "parameters": [
           {
             "name": "hashes",
@@ -1496,14 +1496,14 @@
         }
       }
     },
-    "/v1/entitybase/resolve/aliases/{hashes}": {
+    "/v1/resolve/aliases/{hashes}": {
       "get": {
         "tags": [
           "resolve"
         ],
         "summary": "Get Batch Aliases",
         "description": "Get batch aliases by hashes.\n\nSupports single hash (e.g., /resolve/aliases/123) or comma-separated batch\n(e.g., /resolve/aliases/123,456,789).\n\nReturns dict mapping hash strings to alias text lists. Max 20 hashes per request.",
-        "operationId": "get_batch_aliases_v1_entitybase_resolve_aliases__hashes__get",
+        "operationId": "get_batch_aliases_v1_resolve_aliases__hashes__get",
         "parameters": [
           {
             "name": "hashes",
@@ -1539,14 +1539,14 @@
         }
       }
     },
-    "/v1/entitybase/resolve/sitelinks/{hashes}": {
+    "/v1/resolve/sitelinks/{hashes}": {
       "get": {
         "tags": [
           "resolve"
         ],
         "summary": "Get Batch Sitelinks",
         "description": "Get batch sitelink titles by hashes.\n\nSupports single hash (e.g., /resolve/sitelinks/123) or comma-separated batch\n(e.g., /resolve/sitelinks/123,456,789).\n\nReturns dict mapping hash strings to sitelink titles. Max 20 hashes per request.",
-        "operationId": "get_batch_sitelinks_v1_entitybase_resolve_sitelinks__hashes__get",
+        "operationId": "get_batch_sitelinks_v1_resolve_sitelinks__hashes__get",
         "parameters": [
           {
             "name": "hashes",
@@ -1582,14 +1582,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/items": {
+    "/v1/entities/items": {
       "post": {
         "tags": [
           "items"
         ],
         "summary": "Create Item",
         "description": "Create a new empty item entity.",
-        "operationId": "create_item_v1_entitybase_entities_items_post",
+        "operationId": "create_item_v1_entities_items_post",
         "parameters": [
           {
             "name": "X-User-ID",
@@ -1659,7 +1659,7 @@
         ],
         "summary": "List Items",
         "description": "List all items (Q-prefixed entities).",
-        "operationId": "list_items_v1_entitybase_entities_items_get",
+        "operationId": "list_items_v1_entities_items_get",
         "parameters": [
           {
             "name": "limit",
@@ -1699,7 +1699,7 @@
                   "items": {
                     "type": "string"
                   },
-                  "title": "Response List Items V1 Entitybase Entities Items Get"
+                  "title": "Response List Items V1 Entities Items Get"
                 }
               }
             }
@@ -1717,14 +1717,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/lexemes": {
+    "/v1/entities/lexemes": {
       "post": {
         "tags": [
           "lexemes"
         ],
         "summary": "Create Lexeme",
         "description": "Create a new lexeme entity.",
-        "operationId": "create_lexeme_v1_entitybase_entities_lexemes_post",
+        "operationId": "create_lexeme_v1_entities_lexemes_post",
         "parameters": [
           {
             "name": "X-User-ID",
@@ -1804,7 +1804,7 @@
         ],
         "summary": "List Lexemes",
         "description": "List all lexemes (L-prefixed entities).",
-        "operationId": "list_lexemes_v1_entitybase_entities_lexemes_get",
+        "operationId": "list_lexemes_v1_entities_lexemes_get",
         "parameters": [
           {
             "name": "limit",
@@ -1844,7 +1844,7 @@
                   "items": {
                     "type": "string"
                   },
-                  "title": "Response List Lexemes V1 Entitybase Entities Lexemes Get"
+                  "title": "Response List Lexemes V1 Entities Lexemes Get"
                 }
               }
             }
@@ -1862,14 +1862,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/lexemes/{lexeme_id}/language": {
+    "/v1/entities/lexemes/{lexeme_id}/language": {
       "get": {
         "tags": [
           "lexemes"
         ],
         "summary": "Get Lexeme Language",
         "description": "Get the language of a lexeme.",
-        "operationId": "get_lexeme_language_v1_entitybase_entities_lexemes__lexeme_id__language_get",
+        "operationId": "get_lexeme_language_v1_entities_lexemes__lexeme_id__language_get",
         "parameters": [
           {
             "name": "lexeme_id",
@@ -1910,7 +1910,7 @@
         ],
         "summary": "Update Lexeme Language",
         "description": "Update the language of a lexeme.",
-        "operationId": "update_lexeme_language_v1_entitybase_entities_lexemes__lexeme_id__language_put",
+        "operationId": "update_lexeme_language_v1_entities_lexemes__lexeme_id__language_put",
         "parameters": [
           {
             "name": "lexeme_id",
@@ -1994,14 +1994,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/lexemes/{lexeme_id}/lexicalcategory": {
+    "/v1/entities/lexemes/{lexeme_id}/lexicalcategory": {
       "get": {
         "tags": [
           "lexemes"
         ],
         "summary": "Get Lexeme Lexicalcategory",
         "description": "Get the lexical category of a lexeme.",
-        "operationId": "get_lexeme_lexicalcategory_v1_entitybase_entities_lexemes__lexeme_id__lexicalcategory_get",
+        "operationId": "get_lexeme_lexicalcategory_v1_entities_lexemes__lexeme_id__lexicalcategory_get",
         "parameters": [
           {
             "name": "lexeme_id",
@@ -2042,7 +2042,7 @@
         ],
         "summary": "Update Lexeme Lexicalcategory",
         "description": "Update the lexical category of a lexeme.",
-        "operationId": "update_lexeme_lexicalcategory_v1_entitybase_entities_lexemes__lexeme_id__lexicalcategory_put",
+        "operationId": "update_lexeme_lexicalcategory_v1_entities_lexemes__lexeme_id__lexicalcategory_put",
         "parameters": [
           {
             "name": "lexeme_id",
@@ -2126,14 +2126,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/lexemes/{lexeme_id}/lemmas": {
+    "/v1/entities/lexemes/{lexeme_id}/lemmas": {
       "get": {
         "tags": [
           "lexemes"
         ],
         "summary": "Get Lexeme Lemmas",
         "description": "Get all lemmas for a lexeme.",
-        "operationId": "get_lexeme_lemmas_v1_entitybase_entities_lexemes__lexeme_id__lemmas_get",
+        "operationId": "get_lexeme_lemmas_v1_entities_lexemes__lexeme_id__lemmas_get",
         "parameters": [
           {
             "name": "lexeme_id",
@@ -2169,14 +2169,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/lexemes/{lexeme_id}/lemmas/{langcode}": {
+    "/v1/entities/lexemes/{lexeme_id}/lemmas/{langcode}": {
       "get": {
         "tags": [
           "lexemes"
         ],
         "summary": "Get Lexeme Lemma",
         "description": "Get lemma for a lexeme in specific language.",
-        "operationId": "get_lexeme_lemma_v1_entitybase_entities_lexemes__lexeme_id__lemmas__langcode__get",
+        "operationId": "get_lexeme_lemma_v1_entities_lexemes__lexeme_id__lemmas__langcode__get",
         "parameters": [
           {
             "name": "lexeme_id",
@@ -2226,7 +2226,7 @@
         ],
         "summary": "Add Lexeme Lemma",
         "description": "Add a new lemma for language.",
-        "operationId": "add_lexeme_lemma_v1_entitybase_entities_lexemes__lexeme_id__lemmas__langcode__post",
+        "operationId": "add_lexeme_lemma_v1_entities_lexemes__lexeme_id__lemmas__langcode__post",
         "parameters": [
           {
             "name": "lexeme_id",
@@ -2324,7 +2324,7 @@
         ],
         "summary": "Update Lexeme Lemma",
         "description": "Update lemma for language.",
-        "operationId": "update_lexeme_lemma_v1_entitybase_entities_lexemes__lexeme_id__lemmas__langcode__put",
+        "operationId": "update_lexeme_lemma_v1_entities_lexemes__lexeme_id__lemmas__langcode__put",
         "parameters": [
           {
             "name": "lexeme_id",
@@ -2422,7 +2422,7 @@
         ],
         "summary": "Delete Lexeme Lemma",
         "description": "Delete lemma for language.",
-        "operationId": "delete_lexeme_lemma_v1_entitybase_entities_lexemes__lexeme_id__lemmas__langcode__delete",
+        "operationId": "delete_lexeme_lemma_v1_entities_lexemes__lexeme_id__lemmas__langcode__delete",
         "parameters": [
           {
             "name": "lexeme_id",
@@ -2505,14 +2505,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/lexemes/{lexeme_id}/forms": {
+    "/v1/entities/lexemes/{lexeme_id}/forms": {
       "get": {
         "tags": [
           "lexemes"
         ],
         "summary": "Get Lexeme Forms",
         "description": "List all forms for a lexeme, sorted by numeric suffix.",
-        "operationId": "get_lexeme_forms_v1_entitybase_entities_lexemes__lexeme_id__forms_get",
+        "operationId": "get_lexeme_forms_v1_entities_lexemes__lexeme_id__forms_get",
         "parameters": [
           {
             "name": "lexeme_id",
@@ -2553,7 +2553,7 @@
         ],
         "summary": "Create Lexeme Form",
         "description": "Create a new form for a lexeme.",
-        "operationId": "create_lexeme_form_v1_entitybase_entities_lexemes__lexeme_id__forms_post",
+        "operationId": "create_lexeme_form_v1_entities_lexemes__lexeme_id__forms_post",
         "parameters": [
           {
             "name": "lexeme_id",
@@ -2637,14 +2637,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/lexemes/forms/{form_id}": {
+    "/v1/entities/lexemes/forms/{form_id}": {
       "get": {
         "tags": [
           "lexemes"
         ],
         "summary": "Get Form By Id",
         "description": "Get single form by ID (accepts L42-F1 or F1 format).",
-        "operationId": "get_form_by_id_v1_entitybase_entities_lexemes_forms__form_id__get",
+        "operationId": "get_form_by_id_v1_entities_lexemes_forms__form_id__get",
         "parameters": [
           {
             "name": "form_id",
@@ -2685,7 +2685,7 @@
         ],
         "summary": "Delete Form",
         "description": "Delete a form by ID.",
-        "operationId": "delete_form_v1_entitybase_entities_lexemes_forms__form_id__delete",
+        "operationId": "delete_form_v1_entities_lexemes_forms__form_id__delete",
         "parameters": [
           {
             "name": "form_id",
@@ -2759,14 +2759,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/lexemes/forms/{form_id}/representation": {
+    "/v1/entities/lexemes/forms/{form_id}/representation": {
       "get": {
         "tags": [
           "lexemes"
         ],
         "summary": "Get Form Representations",
         "description": "Get all representations for a form.",
-        "operationId": "get_form_representations_v1_entitybase_entities_lexemes_forms__form_id__representation_get",
+        "operationId": "get_form_representations_v1_entities_lexemes_forms__form_id__representation_get",
         "parameters": [
           {
             "name": "form_id",
@@ -2802,14 +2802,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/lexemes/forms/{form_id}/representation/{langcode}": {
+    "/v1/entities/lexemes/forms/{form_id}/representation/{langcode}": {
       "get": {
         "tags": [
           "lexemes"
         ],
         "summary": "Get Form Representation",
         "description": "Get representation for a form in specific language.",
-        "operationId": "get_form_representation_v1_entitybase_entities_lexemes_forms__form_id__representation__langcode__get",
+        "operationId": "get_form_representation_v1_entities_lexemes_forms__form_id__representation__langcode__get",
         "parameters": [
           {
             "name": "form_id",
@@ -2859,7 +2859,7 @@
         ],
         "summary": "Add Form Representation",
         "description": "Add a new form representation for language.",
-        "operationId": "add_form_representation_v1_entitybase_entities_lexemes_forms__form_id__representation__langcode__post",
+        "operationId": "add_form_representation_v1_entities_lexemes_forms__form_id__representation__langcode__post",
         "parameters": [
           {
             "name": "form_id",
@@ -2957,7 +2957,7 @@
         ],
         "summary": "Update Form Representation",
         "description": "Update form representation for language.",
-        "operationId": "update_form_representation_v1_entitybase_entities_lexemes_forms__form_id__representation__langcode__put",
+        "operationId": "update_form_representation_v1_entities_lexemes_forms__form_id__representation__langcode__put",
         "parameters": [
           {
             "name": "form_id",
@@ -3055,7 +3055,7 @@
         ],
         "summary": "Delete Form Representation",
         "description": "Delete form representation for language.",
-        "operationId": "delete_form_representation_v1_entitybase_entities_lexemes_forms__form_id__representation__langcode__delete",
+        "operationId": "delete_form_representation_v1_entities_lexemes_forms__form_id__representation__langcode__delete",
         "parameters": [
           {
             "name": "form_id",
@@ -3138,14 +3138,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/lexemes/forms/{form_id}/statements": {
+    "/v1/entities/lexemes/forms/{form_id}/statements": {
       "post": {
         "tags": [
           "lexemes"
         ],
         "summary": "Add Form Statement",
         "description": "Add a statement to a form.",
-        "operationId": "add_form_statement_v1_entitybase_entities_lexemes_forms__form_id__statements_post",
+        "operationId": "add_form_statement_v1_entities_lexemes_forms__form_id__statements_post",
         "parameters": [
           {
             "name": "form_id",
@@ -3229,14 +3229,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/lexemes/{lexeme_id}/senses": {
+    "/v1/entities/lexemes/{lexeme_id}/senses": {
       "get": {
         "tags": [
           "lexemes"
         ],
         "summary": "Get Lexeme Senses",
         "description": "List all senses for a lexeme, sorted by numeric suffix.",
-        "operationId": "get_lexeme_senses_v1_entitybase_entities_lexemes__lexeme_id__senses_get",
+        "operationId": "get_lexeme_senses_v1_entities_lexemes__lexeme_id__senses_get",
         "parameters": [
           {
             "name": "lexeme_id",
@@ -3277,7 +3277,7 @@
         ],
         "summary": "Create Lexeme Sense",
         "description": "Create a new sense for a lexeme.",
-        "operationId": "create_lexeme_sense_v1_entitybase_entities_lexemes__lexeme_id__senses_post",
+        "operationId": "create_lexeme_sense_v1_entities_lexemes__lexeme_id__senses_post",
         "parameters": [
           {
             "name": "lexeme_id",
@@ -3361,14 +3361,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/lexemes/senses/{sense_id}": {
+    "/v1/entities/lexemes/senses/{sense_id}": {
       "get": {
         "tags": [
           "lexemes"
         ],
         "summary": "Get Sense By Id",
         "description": "Get single sense by ID (accepts L42-S1 or S1 format).",
-        "operationId": "get_sense_by_id_v1_entitybase_entities_lexemes_senses__sense_id__get",
+        "operationId": "get_sense_by_id_v1_entities_lexemes_senses__sense_id__get",
         "parameters": [
           {
             "name": "sense_id",
@@ -3409,7 +3409,7 @@
         ],
         "summary": "Delete Sense",
         "description": "Delete a sense by ID.",
-        "operationId": "delete_sense_v1_entitybase_entities_lexemes_senses__sense_id__delete",
+        "operationId": "delete_sense_v1_entities_lexemes_senses__sense_id__delete",
         "parameters": [
           {
             "name": "sense_id",
@@ -3483,14 +3483,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/lexemes/senses/{sense_id}/glosses": {
+    "/v1/entities/lexemes/senses/{sense_id}/glosses": {
       "get": {
         "tags": [
           "lexemes"
         ],
         "summary": "Get Sense Glosses",
         "description": "Get all glosses for a sense.",
-        "operationId": "get_sense_glosses_v1_entitybase_entities_lexemes_senses__sense_id__glosses_get",
+        "operationId": "get_sense_glosses_v1_entities_lexemes_senses__sense_id__glosses_get",
         "parameters": [
           {
             "name": "sense_id",
@@ -3526,14 +3526,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/lexemes/senses/{sense_id}/glosses/{langcode}": {
+    "/v1/entities/lexemes/senses/{sense_id}/glosses/{langcode}": {
       "get": {
         "tags": [
           "lexemes"
         ],
         "summary": "Get Sense Gloss By Language",
         "description": "Get gloss for a sense in specific language.",
-        "operationId": "get_sense_gloss_by_language_v1_entitybase_entities_lexemes_senses__sense_id__glosses__langcode__get",
+        "operationId": "get_sense_gloss_by_language_v1_entities_lexemes_senses__sense_id__glosses__langcode__get",
         "parameters": [
           {
             "name": "sense_id",
@@ -3583,7 +3583,7 @@
         ],
         "summary": "Add Sense Gloss",
         "description": "Add a new sense gloss for a language.",
-        "operationId": "add_sense_gloss_v1_entitybase_entities_lexemes_senses__sense_id__glosses__langcode__post",
+        "operationId": "add_sense_gloss_v1_entities_lexemes_senses__sense_id__glosses__langcode__post",
         "parameters": [
           {
             "name": "sense_id",
@@ -3681,7 +3681,7 @@
         ],
         "summary": "Update Sense Gloss",
         "description": "Update sense gloss for language.",
-        "operationId": "update_sense_gloss_v1_entitybase_entities_lexemes_senses__sense_id__glosses__langcode__put",
+        "operationId": "update_sense_gloss_v1_entities_lexemes_senses__sense_id__glosses__langcode__put",
         "parameters": [
           {
             "name": "sense_id",
@@ -3779,7 +3779,7 @@
         ],
         "summary": "Delete Sense Gloss",
         "description": "Delete sense gloss for language.",
-        "operationId": "delete_sense_gloss_v1_entitybase_entities_lexemes_senses__sense_id__glosses__langcode__delete",
+        "operationId": "delete_sense_gloss_v1_entities_lexemes_senses__sense_id__glosses__langcode__delete",
         "parameters": [
           {
             "name": "sense_id",
@@ -3862,14 +3862,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/lexemes/senses/{sense_id}/statements": {
+    "/v1/entities/lexemes/senses/{sense_id}/statements": {
       "post": {
         "tags": [
           "lexemes"
         ],
         "summary": "Add Sense Statement",
         "description": "Add a statement to a sense.",
-        "operationId": "add_sense_statement_v1_entitybase_entities_lexemes_senses__sense_id__statements_post",
+        "operationId": "add_sense_statement_v1_entities_lexemes_senses__sense_id__statements_post",
         "parameters": [
           {
             "name": "sense_id",
@@ -3953,14 +3953,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/properties": {
+    "/v1/entities/properties": {
       "post": {
         "tags": [
           "properties"
         ],
         "summary": "Create Property",
         "description": "Create a new empty property entity.",
-        "operationId": "create_property_v1_entitybase_entities_properties_post",
+        "operationId": "create_property_v1_entities_properties_post",
         "parameters": [
           {
             "name": "X-User-ID",
@@ -4030,7 +4030,7 @@
         ],
         "summary": "List Properties",
         "description": "List all properties (P-prefixed entities).",
-        "operationId": "list_properties_v1_entitybase_entities_properties_get",
+        "operationId": "list_properties_v1_entities_properties_get",
         "parameters": [
           {
             "name": "limit",
@@ -4070,7 +4070,7 @@
                   "items": {
                     "type": "string"
                   },
-                  "title": "Response List Properties V1 Entitybase Entities Properties Get"
+                  "title": "Response List Properties V1 Entities Properties Get"
                 }
               }
             }
@@ -4088,14 +4088,14 @@
         }
       }
     },
-    "/v1/entitybase/entities": {
+    "/v1/entities": {
       "get": {
         "tags": [
           "list"
         ],
         "summary": "List Entities",
         "description": "List entities based on type, status, edit_type, limit, and offset.",
-        "operationId": "list_entities_v1_entitybase_entities_get",
+        "operationId": "list_entities_v1_entities_get",
         "parameters": [
           {
             "name": "entity_type",
@@ -4175,14 +4175,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/{entity_id}.json": {
+    "/v1/entities/{entity_id}.json": {
       "get": {
         "tags": [
           "entities"
         ],
         "summary": "Get Entity Data Json",
         "description": "Get entity data in JSON format.",
-        "operationId": "get_entity_data_json_v1_entitybase_entities__entity_id__json_get",
+        "operationId": "get_entity_data_json_v1_entities__entity_id__json_get",
         "parameters": [
           {
             "name": "entity_id",
@@ -4218,14 +4218,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/{entity_id}.ttl": {
+    "/v1/entities/{entity_id}.ttl": {
       "get": {
         "tags": [
           "entities"
         ],
         "summary": "Get Entity Data Turtle",
         "description": "Get entity data in Turtle format.",
-        "operationId": "get_entity_data_turtle_v1_entitybase_entities__entity_id__ttl_get",
+        "operationId": "get_entity_data_turtle_v1_entities__entity_id__ttl_get",
         "parameters": [
           {
             "name": "entity_id",
@@ -4259,14 +4259,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/{entity_id}": {
+    "/v1/entities/{entity_id}": {
       "get": {
         "tags": [
           "entities"
         ],
         "summary": "Get Entity",
         "description": "Retrieve a single entity by its ID.",
-        "operationId": "get_entity_v1_entitybase_entities__entity_id__get",
+        "operationId": "get_entity_v1_entities__entity_id__get",
         "parameters": [
           {
             "name": "entity_id",
@@ -4307,7 +4307,7 @@
         ],
         "summary": "Delete Entity",
         "description": "Delete an entity.",
-        "operationId": "delete_entity_v1_entitybase_entities__entity_id__delete",
+        "operationId": "delete_entity_v1_entities__entity_id__delete",
         "parameters": [
           {
             "name": "entity_id",
@@ -4390,14 +4390,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/{entity_id}/revisions": {
+    "/v1/entities/{entity_id}/revisions": {
       "get": {
         "tags": [
           "entities"
         ],
         "summary": "Get Entity History",
         "description": "Get the revision history for an entity.",
-        "operationId": "get_entity_history_v1_entitybase_entities__entity_id__revisions_get",
+        "operationId": "get_entity_history_v1_entities__entity_id__revisions_get",
         "parameters": [
           {
             "name": "entity_id",
@@ -4446,7 +4446,7 @@
                   "items": {
                     "$ref": "#/components/schemas/EntityHistoryEntry"
                   },
-                  "title": "Response Get Entity History V1 Entitybase Entities  Entity Id  Revisions Get"
+                  "title": "Response Get Entity History V1 Entities  Entity Id  Revisions Get"
                 }
               }
             }
@@ -4464,14 +4464,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/{entity_id}/revision/{revision_id}": {
+    "/v1/entities/{entity_id}/revision/{revision_id}": {
       "get": {
         "tags": [
           "entities"
         ],
         "summary": "Get Entity Revision",
         "description": "Get a specific revision of an entity.",
-        "operationId": "get_entity_revision_v1_entitybase_entities__entity_id__revision__revision_id__get",
+        "operationId": "get_entity_revision_v1_entities__entity_id__revision__revision_id__get",
         "parameters": [
           {
             "name": "entity_id",
@@ -4516,14 +4516,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/{entity_id}/revision/{revision_id}/ttl": {
+    "/v1/entities/{entity_id}/revision/{revision_id}/ttl": {
       "get": {
         "tags": [
           "entities"
         ],
         "summary": "Get Entity Ttl Revision",
         "description": "Get Turtle (TTL) representation of a specific entity revision.",
-        "operationId": "get_entity_ttl_revision_v1_entitybase_entities__entity_id__revision__revision_id__ttl_get",
+        "operationId": "get_entity_ttl_revision_v1_entities__entity_id__revision__revision_id__ttl_get",
         "parameters": [
           {
             "name": "entity_id",
@@ -4581,14 +4581,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/{entity_id}/revision/{revision_id}/json": {
+    "/v1/entities/{entity_id}/revision/{revision_id}/json": {
       "get": {
         "tags": [
           "entities"
         ],
         "summary": "Get Entity Json Revision",
         "description": "Get JSON representation of a specific entity revision.",
-        "operationId": "get_entity_json_revision_v1_entitybase_entities__entity_id__revision__revision_id__json_get",
+        "operationId": "get_entity_json_revision_v1_entities__entity_id__revision__revision_id__json_get",
         "parameters": [
           {
             "name": "entity_id",
@@ -4633,14 +4633,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/{entity_id}/lock": {
+    "/v1/entities/{entity_id}/lock": {
       "post": {
         "tags": [
           "entities"
         ],
         "summary": "Lock Entity",
         "description": "Lock an entity from edits.",
-        "operationId": "lock_entity_v1_entitybase_entities__entity_id__lock_post",
+        "operationId": "lock_entity_v1_entities__entity_id__lock_post",
         "parameters": [
           {
             "name": "entity_id",
@@ -4728,7 +4728,7 @@
         ],
         "summary": "Unlock Entity",
         "description": "Remove lock from an entity.",
-        "operationId": "unlock_entity_v1_entitybase_entities__entity_id__lock_delete",
+        "operationId": "unlock_entity_v1_entities__entity_id__lock_delete",
         "parameters": [
           {
             "name": "entity_id",
@@ -4811,14 +4811,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/{entity_id}/archive": {
+    "/v1/entities/{entity_id}/archive": {
       "post": {
         "tags": [
           "entities"
         ],
         "summary": "Archive Entity",
         "description": "Archive an entity.",
-        "operationId": "archive_entity_v1_entitybase_entities__entity_id__archive_post",
+        "operationId": "archive_entity_v1_entities__entity_id__archive_post",
         "parameters": [
           {
             "name": "entity_id",
@@ -4906,7 +4906,7 @@
         ],
         "summary": "Unarchive Entity",
         "description": "Unarchive an entity.",
-        "operationId": "unarchive_entity_v1_entitybase_entities__entity_id__archive_delete",
+        "operationId": "unarchive_entity_v1_entities__entity_id__archive_delete",
         "parameters": [
           {
             "name": "entity_id",
@@ -4989,14 +4989,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/{entity_id}/semi-protect": {
+    "/v1/entities/{entity_id}/semi-protect": {
       "post": {
         "tags": [
           "entities"
         ],
         "summary": "Semi Protect Entity",
         "description": "Semi-protect an entity.",
-        "operationId": "semi_protect_entity_v1_entitybase_entities__entity_id__semi_protect_post",
+        "operationId": "semi_protect_entity_v1_entities__entity_id__semi_protect_post",
         "parameters": [
           {
             "name": "entity_id",
@@ -5046,7 +5046,7 @@
         ],
         "summary": "Unsemi Protect Entity",
         "description": "Remove semi-protection from an entity.",
-        "operationId": "unsemi_protect_entity_v1_entitybase_entities__entity_id__semi_protect_delete",
+        "operationId": "unsemi_protect_entity_v1_entities__entity_id__semi_protect_delete",
         "parameters": [
           {
             "name": "entity_id",
@@ -5091,14 +5091,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/{entity_id}/mass-edit-protect": {
+    "/v1/entities/{entity_id}/mass-edit-protect": {
       "post": {
         "tags": [
           "entities"
         ],
         "summary": "Mass Edit Protect Entity",
         "description": "Add mass edit protection to an entity.",
-        "operationId": "mass_edit_protect_entity_v1_entitybase_entities__entity_id__mass_edit_protect_post",
+        "operationId": "mass_edit_protect_entity_v1_entities__entity_id__mass_edit_protect_post",
         "parameters": [
           {
             "name": "entity_id",
@@ -5148,7 +5148,7 @@
         ],
         "summary": "Mass Edit Unprotect Entity",
         "description": "Remove mass edit protection from an entity.",
-        "operationId": "mass_edit_unprotect_entity_v1_entitybase_entities__entity_id__mass_edit_protect_delete",
+        "operationId": "mass_edit_unprotect_entity_v1_entities__entity_id__mass_edit_protect_delete",
         "parameters": [
           {
             "name": "entity_id",
@@ -5193,14 +5193,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/{entity_id}/properties": {
+    "/v1/entities/{entity_id}/properties": {
       "get": {
         "tags": [
           "entities"
         ],
         "summary": "Get Entity Properties",
         "description": "Get list of unique property IDs for an entity's head revision.\n\nReturns sorted list of properties used in entity statements.",
-        "operationId": "get_entity_properties_v1_entitybase_entities__entity_id__properties_get",
+        "operationId": "get_entity_properties_v1_entities__entity_id__properties_get",
         "parameters": [
           {
             "name": "entity_id",
@@ -5236,14 +5236,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/{entity_id}/property_counts": {
+    "/v1/entities/{entity_id}/property_counts": {
       "get": {
         "tags": [
           "entities"
         ],
         "summary": "Get Entity Property Counts",
         "description": "Get statement counts per property for an entity's head revision.\n\nReturns dict mapping property ID -> count of statements.",
-        "operationId": "get_entity_property_counts_v1_entitybase_entities__entity_id__property_counts_get",
+        "operationId": "get_entity_property_counts_v1_entities__entity_id__property_counts_get",
         "parameters": [
           {
             "name": "entity_id",
@@ -5279,14 +5279,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/{entity_id}/properties/{property_list}": {
+    "/v1/entities/{entity_id}/properties/{property_list}": {
       "get": {
         "tags": [
           "entities"
         ],
         "summary": "Get Entity Property Hashes",
         "description": "Get entity property hashes for specified properties.",
-        "operationId": "get_entity_property_hashes_v1_entitybase_entities__entity_id__properties__property_list__get",
+        "operationId": "get_entity_property_hashes_v1_entities__entity_id__properties__property_list__get",
         "parameters": [
           {
             "name": "entity_id",
@@ -5331,14 +5331,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/{entity_id}/properties/{property_id}": {
+    "/v1/entities/{entity_id}/properties/{property_id}": {
       "post": {
         "tags": [
           "entities"
         ],
         "summary": "Add Entity Property",
         "description": "Add claims for a single property to an entity.",
-        "operationId": "add_entity_property_v1_entitybase_entities__entity_id__properties__property_id__post",
+        "operationId": "add_entity_property_v1_entities__entity_id__properties__property_id__post",
         "parameters": [
           {
             "name": "entity_id",
@@ -5431,14 +5431,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/{entity_id}/statements": {
+    "/v1/entities/{entity_id}/statements": {
       "post": {
         "tags": [
           "entities"
         ],
         "summary": "Add Entity Statement",
         "description": "Add a single statement to an entity.",
-        "operationId": "add_entity_statement_v1_entitybase_entities__entity_id__statements_post",
+        "operationId": "add_entity_statement_v1_entities__entity_id__statements_post",
         "parameters": [
           {
             "name": "entity_id",
@@ -5522,14 +5522,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/{entity_id}/statements/{statement_hash}": {
+    "/v1/entities/{entity_id}/statements/{statement_hash}": {
       "delete": {
         "tags": [
           "entities"
         ],
         "summary": "Remove Entity Statement",
         "description": "Remove a statement by hash from an entity.",
-        "operationId": "remove_entity_statement_v1_entitybase_entities__entity_id__statements__statement_hash__delete",
+        "operationId": "remove_entity_statement_v1_entities__entity_id__statements__statement_hash__delete",
         "parameters": [
           {
             "name": "entity_id",
@@ -5626,7 +5626,7 @@
         ],
         "summary": "Patch Entity Statement",
         "description": "Replace a statement by hash with new claim data.",
-        "operationId": "patch_entity_statement_v1_entitybase_entities__entity_id__statements__statement_hash__patch",
+        "operationId": "patch_entity_statement_v1_entities__entity_id__statements__statement_hash__patch",
         "parameters": [
           {
             "name": "entity_id",
@@ -5719,14 +5719,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/{entity_id}/sitelinks": {
+    "/v1/entities/{entity_id}/sitelinks": {
       "get": {
         "tags": [
           "entities"
         ],
         "summary": "Get All Sitelinks",
         "description": "Get all sitelinks for an entity.",
-        "operationId": "get_all_sitelinks_v1_entitybase_entities__entity_id__sitelinks_get",
+        "operationId": "get_all_sitelinks_v1_entities__entity_id__sitelinks_get",
         "parameters": [
           {
             "name": "entity_id",
@@ -5762,14 +5762,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/{entity_id}/sitelinks/{site}": {
+    "/v1/entities/{entity_id}/sitelinks/{site}": {
       "get": {
         "tags": [
           "entities"
         ],
         "summary": "Get Entity Sitelink",
         "description": "Get a single sitelink for an entity.",
-        "operationId": "get_entity_sitelink_v1_entitybase_entities__entity_id__sitelinks__site__get",
+        "operationId": "get_entity_sitelink_v1_entities__entity_id__sitelinks__site__get",
         "parameters": [
           {
             "name": "entity_id",
@@ -5819,7 +5819,7 @@
         ],
         "summary": "Post Entity Sitelink",
         "description": "Add a new sitelink for an entity.",
-        "operationId": "post_entity_sitelink_v1_entitybase_entities__entity_id__sitelinks__site__post",
+        "operationId": "post_entity_sitelink_v1_entities__entity_id__sitelinks__site__post",
         "parameters": [
           {
             "name": "entity_id",
@@ -5917,7 +5917,7 @@
         ],
         "summary": "Put Entity Sitelink",
         "description": "Update an existing sitelink for an entity.",
-        "operationId": "put_entity_sitelink_v1_entitybase_entities__entity_id__sitelinks__site__put",
+        "operationId": "put_entity_sitelink_v1_entities__entity_id__sitelinks__site__put",
         "parameters": [
           {
             "name": "entity_id",
@@ -6015,7 +6015,7 @@
         ],
         "summary": "Delete Entity Sitelink",
         "description": "Delete a sitelink from an entity.",
-        "operationId": "delete_entity_sitelink_v1_entitybase_entities__entity_id__sitelinks__site__delete",
+        "operationId": "delete_entity_sitelink_v1_entities__entity_id__sitelinks__site__delete",
         "parameters": [
           {
             "name": "entity_id",
@@ -6098,14 +6098,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/{entity_id}/backlinks": {
+    "/v1/entities/{entity_id}/backlinks": {
       "get": {
         "tags": [
           "entities"
         ],
         "summary": "Get Entity Backlinks",
         "description": "Get backlinks for an entity.",
-        "operationId": "get_entity_backlinks_v1_entitybase_entities__entity_id__backlinks_get",
+        "operationId": "get_entity_backlinks_v1_entities__entity_id__backlinks_get",
         "parameters": [
           {
             "name": "entity_id",
@@ -6164,14 +6164,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/{entity_id}/labels/{language_code}": {
+    "/v1/entities/{entity_id}/labels/{language_code}": {
       "get": {
         "tags": [
           "entities"
         ],
         "summary": "Get Entity Label",
         "description": "Get entity label text for language.",
-        "operationId": "get_entity_label_v1_entitybase_entities__entity_id__labels__language_code__get",
+        "operationId": "get_entity_label_v1_entities__entity_id__labels__language_code__get",
         "parameters": [
           {
             "name": "entity_id",
@@ -6221,7 +6221,7 @@
         ],
         "summary": "Update Entity Label",
         "description": "Update entity label for language.",
-        "operationId": "update_entity_label_v1_entitybase_entities__entity_id__labels__language_code__put",
+        "operationId": "update_entity_label_v1_entities__entity_id__labels__language_code__put",
         "parameters": [
           {
             "name": "entity_id",
@@ -6319,7 +6319,7 @@
         ],
         "summary": "Delete Entity Label",
         "description": "Delete entity label for language.",
-        "operationId": "delete_entity_label_v1_entitybase_entities__entity_id__labels__language_code__delete",
+        "operationId": "delete_entity_label_v1_entities__entity_id__labels__language_code__delete",
         "parameters": [
           {
             "name": "entity_id",
@@ -6407,7 +6407,7 @@
         ],
         "summary": "Add Entity Label",
         "description": "Add a new label to entity for language (alias for PUT).",
-        "operationId": "add_entity_label_v1_entitybase_entities__entity_id__labels__language_code__post",
+        "operationId": "add_entity_label_v1_entities__entity_id__labels__language_code__post",
         "parameters": [
           {
             "name": "entity_id",
@@ -6500,14 +6500,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/{entity_id}/descriptions/{language_code}": {
+    "/v1/entities/{entity_id}/descriptions/{language_code}": {
       "get": {
         "tags": [
           "entities"
         ],
         "summary": "Get Entity Description",
         "description": "Get entity description text for language.",
-        "operationId": "get_entity_description_v1_entitybase_entities__entity_id__descriptions__language_code__get",
+        "operationId": "get_entity_description_v1_entities__entity_id__descriptions__language_code__get",
         "parameters": [
           {
             "name": "entity_id",
@@ -6557,7 +6557,7 @@
         ],
         "summary": "Update Entity Description",
         "description": "Update entity description for language.",
-        "operationId": "update_entity_description_v1_entitybase_entities__entity_id__descriptions__language_code__put",
+        "operationId": "update_entity_description_v1_entities__entity_id__descriptions__language_code__put",
         "parameters": [
           {
             "name": "entity_id",
@@ -6655,7 +6655,7 @@
         ],
         "summary": "Delete Entity Description",
         "description": "Delete entity description for language.",
-        "operationId": "delete_entity_description_v1_entitybase_entities__entity_id__descriptions__language_code__delete",
+        "operationId": "delete_entity_description_v1_entities__entity_id__descriptions__language_code__delete",
         "parameters": [
           {
             "name": "entity_id",
@@ -6743,7 +6743,7 @@
         ],
         "summary": "Add Entity Description",
         "description": "Add a new description to entity for language (alias for PUT).",
-        "operationId": "add_entity_description_v1_entitybase_entities__entity_id__descriptions__language_code__post",
+        "operationId": "add_entity_description_v1_entities__entity_id__descriptions__language_code__post",
         "parameters": [
           {
             "name": "entity_id",
@@ -6836,14 +6836,14 @@
         }
       }
     },
-    "/v1/entitybase/entities/{entity_id}/aliases/{language_code}": {
+    "/v1/entities/{entity_id}/aliases/{language_code}": {
       "get": {
         "tags": [
           "entities"
         ],
         "summary": "Get Entity Aliases",
         "description": "Get entity alias texts for language.",
-        "operationId": "get_entity_aliases_v1_entitybase_entities__entity_id__aliases__language_code__get",
+        "operationId": "get_entity_aliases_v1_entities__entity_id__aliases__language_code__get",
         "parameters": [
           {
             "name": "entity_id",
@@ -6893,7 +6893,7 @@
         ],
         "summary": "Update Entity Aliases",
         "description": "Update entity aliases for language.",
-        "operationId": "update_entity_aliases_v1_entitybase_entities__entity_id__aliases__language_code__put",
+        "operationId": "update_entity_aliases_v1_entities__entity_id__aliases__language_code__put",
         "parameters": [
           {
             "name": "entity_id",
@@ -6995,7 +6995,7 @@
         ],
         "summary": "Add Entity Alias",
         "description": "Add a single alias to entity for language.",
-        "operationId": "add_entity_alias_v1_entitybase_entities__entity_id__aliases__language_code__post",
+        "operationId": "add_entity_alias_v1_entities__entity_id__aliases__language_code__post",
         "parameters": [
           {
             "name": "entity_id",
@@ -7093,7 +7093,7 @@
         ],
         "summary": "Delete Entity Aliases",
         "description": "Delete all aliases for entity language.",
-        "operationId": "delete_entity_aliases_v1_entitybase_entities__entity_id__aliases__language_code__delete",
+        "operationId": "delete_entity_aliases_v1_entities__entity_id__aliases__language_code__delete",
         "parameters": [
           {
             "name": "entity_id",
@@ -7176,14 +7176,14 @@
         }
       }
     },
-    "/v1/entitybase/statements/most_used": {
+    "/v1/statements/most_used": {
       "get": {
         "tags": [
           "statements"
         ],
         "summary": "Get Most Used Statements",
         "description": "Get most used statements based on reference count.",
-        "operationId": "get_most_used_statements_v1_entitybase_statements_most_used_get",
+        "operationId": "get_most_used_statements_v1_statements_most_used_get",
         "parameters": [
           {
             "name": "limit",
@@ -7237,7 +7237,7 @@
         }
       }
     },
-    "/v1/entitybase/statements/batch": {
+    "/v1/statements/batch": {
       "get": {
         "tags": [
           "statements",
@@ -7245,7 +7245,7 @@
         ],
         "summary": "Get Batch Statements",
         "description": "Get statement hashes for multiple entities.\n\nQuery params:\n- entity_ids: Comma-separated entity IDs (e.g., Q1,Q2,Q3). Max 20.\n- property_ids: Optional comma-separated property IDs to filter (e.g., P31,P279).\n\nReturns dict mapping entity_id \u2192 property_id \u2192 list of statement hashes.\nEntities not found return empty dict for that entity_id.\n\nExample: GET /statements/batch?entity_ids=Q1,Q2&property_ids=P31\nReturns: {\"Q1\": {\"P31\": [123, 456]}, \"Q2\": {\"P31\": [789]}}",
-        "operationId": "get_batch_statements_v1_entitybase_statements_batch_get",
+        "operationId": "get_batch_statements_v1_statements_batch_get",
         "parameters": [
           {
             "name": "entity_ids",
@@ -7291,14 +7291,14 @@
         }
       }
     },
-    "/v1/entitybase/statements/{content_hash}": {
+    "/v1/statements/{content_hash}": {
       "get": {
         "tags": [
           "statements"
         ],
         "summary": "Get Statement",
         "description": "Retrieve a single statement by its content hash.",
-        "operationId": "get_statement_v1_entitybase_statements__content_hash__get",
+        "operationId": "get_statement_v1_statements__content_hash__get",
         "parameters": [
           {
             "name": "content_hash",
@@ -7334,14 +7334,14 @@
         }
       }
     },
-    "/v1/entitybase/statements/cleanup-orphaned": {
+    "/v1/statements/cleanup-orphaned": {
       "post": {
         "tags": [
           "statements"
         ],
         "summary": "Cleanup Orphaned Statements",
         "description": "Clean up orphaned statements that are no longer referenced.",
-        "operationId": "cleanup_orphaned_statements_v1_entitybase_statements_cleanup_orphaned_post",
+        "operationId": "cleanup_orphaned_statements_v1_statements_cleanup_orphaned_post",
         "requestBody": {
           "content": {
             "application/json": {
@@ -7376,14 +7376,14 @@
         }
       }
     },
-    "/v1/entitybase/redirects": {
+    "/v1/redirects": {
       "post": {
         "tags": [
           "redirects"
         ],
         "summary": "Create Entity Redirect",
         "description": "Create a redirect for an entity.",
-        "operationId": "create_entity_redirect_v1_entitybase_redirects_post",
+        "operationId": "create_entity_redirect_v1_redirects_post",
         "parameters": [
           {
             "name": "X-User-ID",
@@ -7458,13 +7458,13 @@
         }
       }
     },
-    "/v1/entitybase/entities/{entity_id}/revert-redirect": {
+    "/v1/entities/{entity_id}/revert-redirect": {
       "post": {
         "tags": [
           "redirects"
         ],
         "summary": "Revert Entity Redirect",
-        "operationId": "revert_entity_redirect_v1_entitybase_entities__entity_id__revert_redirect_post",
+        "operationId": "revert_entity_redirect_v1_entities__entity_id__revert_redirect_post",
         "parameters": [
           {
             "name": "entity_id",
@@ -7548,7 +7548,7 @@
         }
       }
     },
-    "/v1/entitybase/users/{user_id}/watchlist": {
+    "/v1/users/{user_id}/watchlist": {
       "post": {
         "tags": [
           "watchlist",
@@ -7556,7 +7556,7 @@
         ],
         "summary": "Add Watch",
         "description": "Add a watchlist entry for user.",
-        "operationId": "add_watch_v1_entitybase_users__user_id__watchlist_post",
+        "operationId": "add_watch_v1_users__user_id__watchlist_post",
         "parameters": [
           {
             "name": "user_id",
@@ -7608,7 +7608,7 @@
         ],
         "summary": "Get Watches",
         "description": "Get user's watchlist.",
-        "operationId": "get_watches_v1_entitybase_users__user_id__watchlist_get",
+        "operationId": "get_watches_v1_users__user_id__watchlist_get",
         "parameters": [
           {
             "name": "user_id",
@@ -7644,7 +7644,7 @@
         }
       }
     },
-    "/v1/entitybase/users/{user_id}/watchlist/remove": {
+    "/v1/users/{user_id}/watchlist/remove": {
       "post": {
         "tags": [
           "watchlist",
@@ -7652,7 +7652,7 @@
         ],
         "summary": "Remove Watch",
         "description": "Remove a watchlist entry for user.",
-        "operationId": "remove_watch_v1_entitybase_users__user_id__watchlist_remove_post",
+        "operationId": "remove_watch_v1_users__user_id__watchlist_remove_post",
         "parameters": [
           {
             "name": "user_id",
@@ -7698,7 +7698,7 @@
         }
       }
     },
-    "/v1/entitybase/users/{user_id}/watchlist/{watch_id}": {
+    "/v1/users/{user_id}/watchlist/{watch_id}": {
       "delete": {
         "tags": [
           "watchlist",
@@ -7706,7 +7706,7 @@
         ],
         "summary": "Remove Watch By Id",
         "description": "Remove a watchlist entry by ID.",
-        "operationId": "remove_watch_by_id_v1_entitybase_users__user_id__watchlist__watch_id__delete",
+        "operationId": "remove_watch_by_id_v1_users__user_id__watchlist__watch_id__delete",
         "parameters": [
           {
             "name": "user_id",
@@ -7751,7 +7751,7 @@
         }
       }
     },
-    "/v1/entitybase/users/{user_id}/watchlist/notifications": {
+    "/v1/users/{user_id}/watchlist/notifications": {
       "get": {
         "tags": [
           "watchlist",
@@ -7759,7 +7759,7 @@
         ],
         "summary": "Get Notifications",
         "description": "Get user's recent watchlist notifications.",
-        "operationId": "get_notifications_v1_entitybase_users__user_id__watchlist_notifications_get",
+        "operationId": "get_notifications_v1_users__user_id__watchlist_notifications_get",
         "parameters": [
           {
             "name": "user_id",
@@ -7836,7 +7836,7 @@
         }
       }
     },
-    "/v1/entitybase/users/{user_id}/watchlist/notifications/{notification_id}/check": {
+    "/v1/users/{user_id}/watchlist/notifications/{notification_id}/check": {
       "put": {
         "tags": [
           "watchlist",
@@ -7844,7 +7844,7 @@
         ],
         "summary": "Mark Checked",
         "description": "Mark a notification as checked.",
-        "operationId": "mark_checked_v1_entitybase_users__user_id__watchlist_notifications__notification_id__check_put",
+        "operationId": "mark_checked_v1_users__user_id__watchlist_notifications__notification_id__check_put",
         "parameters": [
           {
             "name": "user_id",
@@ -7889,7 +7889,7 @@
         }
       }
     },
-    "/v1/entitybase/users/{user_id}/watchlist/stats": {
+    "/v1/users/{user_id}/watchlist/stats": {
       "get": {
         "tags": [
           "watchlist",
@@ -7897,7 +7897,7 @@
         ],
         "summary": "Get Watch Counts",
         "description": "Get user's watchlist statistics.",
-        "operationId": "get_watch_counts_v1_entitybase_users__user_id__watchlist_stats_get",
+        "operationId": "get_watch_counts_v1_users__user_id__watchlist_stats_get",
         "parameters": [
           {
             "name": "user_id",
@@ -7933,7 +7933,7 @@
         }
       }
     },
-    "/v1/entitybase/stats": {
+    "/v1/stats": {
       "get": {
         "tags": [
           "statistics",
@@ -7941,7 +7941,7 @@
         ],
         "summary": "Get General Stats",
         "description": "Get general wiki statistics.",
-        "operationId": "get_general_stats_v1_entitybase_stats_get",
+        "operationId": "get_general_stats_v1_stats_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -7956,14 +7956,37 @@
         }
       }
     },
-    "/v1/entitybase/entity/{entity_id}/properties/{property_list}": {
+    "/v1/stats/deduplication": {
+      "get": {
+        "tags": [
+          "statistics",
+          "statistics"
+        ],
+        "summary": "Get Deduplication Stats",
+        "description": "Get deduplication statistics for all data types.",
+        "operationId": "get_deduplication_stats_v1_stats_deduplication_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeduplicationDatabaseStatsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/entity/{entity_id}/properties/{property_list}": {
       "get": {
         "tags": [
           "properties"
         ],
         "summary": "Get Entity Property Hashes",
         "description": "Get statement hashes for specified properties in an entity.",
-        "operationId": "get_entity_property_hashes_v1_entitybase_entity__entity_id__properties__property_list__get",
+        "operationId": "get_entity_property_hashes_v1_entity__entity_id__properties__property_list__get",
         "parameters": [
           {
             "name": "entity_id",
@@ -8008,7 +8031,7 @@
         }
       }
     },
-    "/v1/entitybase/import": {
+    "/v1/import": {
       "post": {
         "tags": [
           "import",
@@ -8016,7 +8039,7 @@
         ],
         "summary": "Import a single entity (item, property, or lexeme)",
         "description": "Import a single entity of any type.\n\nThis unified endpoint accepts items, properties, and lexemes.\nThe entity type is determined by the 'type' field in the request.\n\nSupported entity types:\n- item: Q-prefixed entities (e.g., Q42)\n- property: P-prefixed entities (e.g., P31)\n- lexeme: L-prefixed entities (e.g., L123)\n\nParameters:\n- id: Entity ID (required for import, auto-assignment not supported)\n- type: Entity type (item, property, lexeme)\n- labels: Language-specific labels\n- descriptions: Language-specific descriptions\n- claims: Statements/claims\n- sitelinks: Site links (items only)\n- forms: Forms (lexemes only)\n- senses: Senses (lexemes only)\n- lemmas: Lemmas (lexemes only)\n- aliases: Aliases\n\nReturns:\n- EntityResponse with created entity data\n\nErrors:\n- 409: Entity already exists\n- 400: Validation error",
-        "operationId": "import_entity_v1_entitybase_import_post",
+        "operationId": "import_entity_v1_import_post",
         "requestBody": {
           "content": {
             "application/json": {
@@ -8051,7 +8074,7 @@
         }
       }
     },
-    "/v1/entitybase/debug/entity/{entity_id}": {
+    "/v1/debug/entity/{entity_id}": {
       "get": {
         "tags": [
           "debug",
@@ -8059,7 +8082,7 @@
         ],
         "summary": "Debug Entity",
         "description": "Debug endpoint to check entity in database.\n\nThis endpoint queries the entity_id_mapping table directly to verify\nif an entity exists and what its internal_id is.",
-        "operationId": "debug_entity_v1_entitybase_debug_entity__entity_id__get",
+        "operationId": "debug_entity_v1_debug_entity__entity_id__get",
         "parameters": [
           {
             "name": "entity_id",
@@ -8079,7 +8102,7 @@
                 "schema": {
                   "type": "object",
                   "additionalProperties": true,
-                  "title": "Response Debug Entity V1 Entitybase Debug Entity  Entity Id  Get"
+                  "title": "Response Debug Entity V1 Debug Entity  Entity Id  Get"
                 }
               }
             }
@@ -8097,7 +8120,7 @@
         }
       }
     },
-    "/v1/entitybase/debug/entity_head/{entity_id}": {
+    "/v1/debug/entity_head/{entity_id}": {
       "get": {
         "tags": [
           "debug",
@@ -8105,7 +8128,7 @@
         ],
         "summary": "Debug Entity Head",
         "description": "Debug endpoint to check entity_head table.",
-        "operationId": "debug_entity_head_v1_entitybase_debug_entity_head__entity_id__get",
+        "operationId": "debug_entity_head_v1_debug_entity_head__entity_id__get",
         "parameters": [
           {
             "name": "entity_id",
@@ -8125,7 +8148,7 @@
                 "schema": {
                   "type": "object",
                   "additionalProperties": true,
-                  "title": "Response Debug Entity Head V1 Entitybase Debug Entity Head  Entity Id  Get"
+                  "title": "Response Debug Entity Head V1 Debug Entity Head  Entity Id  Get"
                 }
               }
             }
@@ -8442,7 +8465,80 @@
         "required": [
           "cleaned_count"
         ],
-        "title": "CleanupOrphanedResponse"
+        "title": "CleanupOrphanedResponse",
+        "description": "Response model for cleanup orphaned statements."
+      },
+      "DeduplicationDatabaseStatsResponse": {
+        "properties": {
+          "statements": {
+            "$ref": "#/components/schemas/DeduplicationStatsByType",
+            "description": "Statement deduplication stats"
+          },
+          "qualifiers": {
+            "$ref": "#/components/schemas/DeduplicationStatsByType",
+            "description": "Qualifier deduplication stats"
+          },
+          "references": {
+            "$ref": "#/components/schemas/DeduplicationStatsByType",
+            "description": "Reference deduplication stats"
+          },
+          "snaks": {
+            "$ref": "#/components/schemas/DeduplicationStatsByType",
+            "description": "Snak deduplication stats"
+          },
+          "sitelinks": {
+            "$ref": "#/components/schemas/DeduplicationStatsByType",
+            "description": "Sitelink deduplication stats"
+          },
+          "terms": {
+            "$ref": "#/components/schemas/DeduplicationStatsByType",
+            "description": "Term deduplication stats"
+          }
+        },
+        "type": "object",
+        "required": [
+          "statements",
+          "qualifiers",
+          "references",
+          "snaks",
+          "sitelinks",
+          "terms"
+        ],
+        "title": "DeduplicationDatabaseStatsResponse",
+        "description": "API response for database deduplication statistics."
+      },
+      "DeduplicationStatsByType": {
+        "properties": {
+          "unique_hashes": {
+            "type": "integer",
+            "title": "Unique Hashes",
+            "description": "Number of unique hashes stored"
+          },
+          "total_ref_count": {
+            "type": "integer",
+            "title": "Total Ref Count",
+            "description": "Total reference count (what would be stored without deduplication)"
+          },
+          "deduplication_factor": {
+            "type": "number",
+            "title": "Deduplication Factor",
+            "description": "Deduplication factor as a percentage (0-100)"
+          },
+          "space_saved": {
+            "type": "integer",
+            "title": "Space Saved",
+            "description": "Number of duplicates eliminated"
+          }
+        },
+        "type": "object",
+        "required": [
+          "unique_hashes",
+          "total_ref_count",
+          "deduplication_factor",
+          "space_saved"
+        ],
+        "title": "DeduplicationStatsByType",
+        "description": "Deduplication stats for a single data type."
       },
       "DeleteResponse": {
         "properties": {
