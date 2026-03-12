@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict, Field
 
-from models.data.rest_api.v1.entitybase.response.misc import TopEntityByBacklinks
+from models.data.rest_api.v1.entitybase.response.entity_data import TopEntityByBacklinks
 
 
 class BacklinkStatisticsData(BaseModel):

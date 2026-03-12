@@ -43,43 +43,57 @@ from .events import RDFChangeEvent
 from .health import HealthCheckResponse, HealthResponse, WorkerHealthCheckResponse
 from .id_response import IdResponse
 from .listings import EntityListing
-from .misc import (
+from .cleanup import CleanupOrphanedResponse
+from .entity_data import (
+    EntitiesResponse,
+    EntityJsonResponse,
+    PropertiesResponse,
+    TopEntityByBacklinks,
+    TurtleResponse,
+)
+from .metadata import (
+    MetadataContent,
+    MetadataData,
+    RevisionMetadataResponse,
+)
+from .qualifiers import (
+    QualifierResponse,
+    ReconstructedSnakValue,
+    SnakResponse,
+)
+from .references import ReferenceResponse
+from .sitelinks import (
+    AllSitelinksResponse,
+    BatchSitelinksResponse,
+    SitelinksResponse,
+)
+from .stats import (
+    DeduplicationDatabaseStatsResponse,
+    DeduplicationStatsByType,
+    GeneralStatsData,
+    GeneralStatsResponse,
+    RangeStatus,
+    RangeStatuses,
+    WatchCounts,
+)
+from .terms import (
     AliasesResponse,
     BatchAliasesResponse,
     BatchDescriptionsResponse,
     BatchLabelsResponse,
-    BatchSitelinksResponse,
-    CleanupOrphanedResponse,
-    DeleteResponse,
     DescriptionResponse,
     DescriptionsResponse,
-    EntitiesResponse,
-    EntityJsonResponse,
-    GeneralStatsResponse,
     LabelResponse,
     LabelsResponse,
-    MetadataContent,
-    MetadataData,
-    PropertiesResponse,
-    RangeStatus,
-    RangeStatuses,
-    RevisionMetadataResponse,
-    SitelinksResponse,
     TermHashResponse,
     TermHashesResponse,
     TermsByType,
     TermsPerLanguage,
     TermsResponse,
-    TopEntityByBacklinks,
-    TurtleResponse,
-    WatchCounts,
 )
-from .misc2 import (
-    GeneralStatsData,
-    QualifierResponse,
-    ReconstructedSnakValue,
-    ReferenceResponse,
-    SnakResponse,
+from .utilities import (
+    DeleteResponse,
+    VersionResponse,
 )
 from .rdf import (
     DeduplicationStatsResponse,
