@@ -1,4 +1,4 @@
-.PHONY: lint test test-fast coverage help ruff mypy radon vulture stop api api-no-cache api-vps vps-reset docs docs-generate docs-build docs-serve check release ci
+.PHONY: lint test test-fast coverage help ruff mypy radon vulture stop api api-no-cache api-vps vps-reset docs docs-generate docs-build docs-serve check release push-release ci
 
 help:
 	@echo "Available targets:"
@@ -9,7 +9,8 @@ help:
 	@echo "  make vps-reset     - Stop all containers, remove volumes, and restart API (for daily cleanup)"
 	@echo "  make ci            - Run CI simulation locally (mimics GitHub CI workflow)"
 	@echo "  make stop          - Stop docker and remove everything"
-	@echo "  make release       - Create release: update version, commit, and tag (e.g., v2026.2.28)"
+	@echo "  make release       - Create tag locally (e.g., v2026.2.28)"
+	@echo "  make push-release - Create tag and push to trigger GitHub release workflow"
 	@echo "  make lint         - Run all linters"
 	@echo "  make ruff         - Run ruff linter"
 	@echo "  make mypy         - Run mypy type checker"
@@ -66,6 +67,9 @@ stop:
 
 release:
 	./scripts/shell/run-release.sh
+
+push-release:
+	make release && git push origin $$(cat .release_version | cut -d= -f2) && rm -f .release_version
 
 lint:
 	./scripts/shell/run-linters.sh

@@ -12,6 +12,7 @@ from models.data.rest_api.v1.entitybase.response import (
     TermHashResponse,
     DeleteResponse,
 )
+from models.data.infrastructure.s3.enums import MetadataType
 from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
@@ -45,7 +46,9 @@ async def get_entity_description(
         )
 
     hash_value = int(descriptions_hashes[language_code])
-    description_text = state.s3_client.load_metadata("descriptions", hash_value)
+    description_text = state.s3_client.load_metadata(
+        MetadataType.DESCRIPTIONS, hash_value
+    )
     if description_text is None:
         raise HTTPException(
             status_code=404, detail=f"Description not found for hash {hash_value}"

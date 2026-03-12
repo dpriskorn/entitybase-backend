@@ -231,7 +231,7 @@ All settings can be overridden using environment variables with the same name.
 - **Default**: `Path('properties')`
 - **Description**: No description available
 
-### `streaming_enabled`
+### `_streaming_enabled`
 
 - **Type**: `bool`
 - **Default**: `False`
@@ -250,6 +250,12 @@ All settings can be overridden using environment variables with the same name.
 - **Description**: No description available
 
 ### `kafka_entity_diff_topic`
+
+- **Type**: `str`
+- **Default**: `''`
+- **Description**: No description available
+
+### `kafka_userchange_json_topic`
 
 - **Type**: `str`
 - **Default**: `''`
@@ -277,6 +283,12 @@ All settings can be overridden using environment variables with the same name.
 
 - **Type**: `str`
 - **Default**: `'2.0.0'`
+- **Description**: No description available
+
+### `streaming_user_change_version`
+
+- **Type**: `str`
+- **Default**: `'1.0.0'`
 - **Description**: No description available
 
 ### `entity_version`

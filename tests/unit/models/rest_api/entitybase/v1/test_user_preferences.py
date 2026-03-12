@@ -29,11 +29,17 @@ class TestUserPreferencesHandler:
         return client
 
     @pytest.fixture
-    def handler(self, mock_vitess_client: MagicMock) -> UserPreferencesHandler:
+    def mock_state(self, mock_vitess_client: MagicMock) -> MagicMock:
         """Create handler instance"""
         state = MagicMock()
         state.vitess_client = mock_vitess_client
-        return UserPreferencesHandler(state=state)
+        state.user_change_stream_producer = None
+        return state
+
+    @pytest.fixture
+    def handler(self, mock_state: MagicMock) -> UserPreferencesHandler:
+        """Create handler instance"""
+        return UserPreferencesHandler(state=mock_state)
 
     def test_get_preferences_success(
         self, handler: UserPreferencesHandler, mock_vitess_client: MagicMock
@@ -77,14 +83,15 @@ class TestUserPreferencesHandler:
         assert result.notification_limit == 50  # default
         assert result.retention_hours == 24  # default
 
-    def test_update_preferences_success(
+    @pytest.mark.asyncio
+    async def test_update_preferences_success(
         self, handler: UserPreferencesHandler, mock_vitess_client: MagicMock
     ) -> None:
         """Test updating preferences successfully"""
         request = UserPreferencesRequest(notification_limit=200, retention_hours=168)
         mock_vitess_client.user_repository.user_exists.return_value = True
 
-        result = handler.update_preferences(12345, request)
+        result = await handler.update_preferences(12345, request)
 
         assert isinstance(result, UserPreferencesResponse)
         assert result.user_id == 12345

@@ -4,6 +4,7 @@ import pytest
 from datetime import datetime, timezone
 
 from models.workers.incremental_rdf.rdf_change_builder import (
+    EventConfig,
     RDFChangeEvent,
     RDFChangeEventBuilder,
     RDFDataField,
@@ -85,7 +86,7 @@ class TestRDFChangeEventBuilder:
 
     def test_build_diff_event(self):
         """Test building a diff event."""
-        config = RDFChangeEventBuilder.EventConfig(
+        config = EventConfig(
             entity_id="Q42",
             rev_id=123,
             operation="diff",
@@ -105,7 +106,7 @@ class TestRDFChangeEventBuilder:
 
     def test_build_import_event(self):
         """Test building an import event."""
-        config = RDFChangeEventBuilder.EventConfig(
+        config = EventConfig(
             entity_id="Q42",
             rev_id=123,
             operation="import",
@@ -121,7 +122,7 @@ class TestRDFChangeEventBuilder:
 
     def test_build_delete_event(self):
         """Test building a delete event."""
-        config = RDFChangeEventBuilder.EventConfig(
+        config = EventConfig(
             entity_id="Q42",
             rev_id=123,
             operation="delete",
@@ -137,7 +138,7 @@ class TestRDFChangeEventBuilder:
 
     def test_build_with_custom_domain(self):
         """Test building an event with custom domain."""
-        config = RDFChangeEventBuilder.EventConfig(
+        config = EventConfig(
             entity_id="Q42",
             rev_id=123,
             operation="diff",
@@ -152,7 +153,7 @@ class TestRDFChangeEventBuilder:
 
     def test_build_with_request_id(self):
         """Test building an event with custom request ID."""
-        config = RDFChangeEventBuilder.EventConfig(
+        config = EventConfig(
             entity_id="Q42",
             rev_id=123,
             operation="diff",

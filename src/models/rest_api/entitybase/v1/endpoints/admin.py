@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 from models.rest_api.entitybase.v1.handlers.admin import AdminHandler
 from models.data.rest_api.v1.entitybase.response import EntityListResponse
-from models.rest_api.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error, validate_state_clients
 
 logger = logging.getLogger(__name__)
 
@@ -65,8 +65,8 @@ def list_entities(  # type: ignore[no-any-return]
         f"limit: {query.limit}, offset: {query.offset}"
     )
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
+
     handler = AdminHandler(state=state)
     result = handler.list_entities(
         entity_type=query.entity_type,
@@ -91,8 +91,8 @@ def list_items(  # type: ignore[no-any-return]
     """List all items (Q-prefixed entities)."""
     logger.debug(f"Listing items - limit: {limit}, offset: {offset}")
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
+
     handler = AdminHandler(state=state)
     return handler.list_entities_by_type(entity_type="item", limit=limit, offset=offset)
 
@@ -108,8 +108,8 @@ def list_properties(  # type: ignore[no-any-return]
     """List all properties (P-prefixed entities)."""
     logger.debug(f"Listing properties - limit: {limit}, offset: {offset}")
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
+
     handler = AdminHandler(state=state)
     return handler.list_entities_by_type(
         entity_type="property", limit=limit, offset=offset
@@ -127,8 +127,8 @@ def list_lexemes(  # type: ignore[no-any-return]
     """List all lexemes (L-prefixed entities)."""
     logger.debug(f"Listing lexemes - limit: {limit}, offset: {offset}")
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
+
     handler = AdminHandler(state=state)
     return handler.list_entities_by_type(
         entity_type="lexeme", limit=limit, offset=offset

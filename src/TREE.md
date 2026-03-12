@@ -25,7 +25,8 @@ src/
     │   │   └── storage
     │   ├── stream
     │   └── vitess
-    │       └── repositories
+    │       ├── repositories
+    │       └── storage
     ├── internal_representation
     │   └── values
     ├── json_parser
@@ -63,5 +64,5 @@ src/
         ├── user_stats
         └── watchlist_consumer
 
-62 directories
+63 directories
 ```

@@ -17,3 +17,8 @@ class ChangeType(str, Enum):
     SOFT_DELETE = "soft_delete"
     HARD_DELETE = "hard_delete"
     REVERT = "revert"
+    USER_CREATION = "user_creation"
+    USER_DELETION = "user_deletion"
+    WATCHLIST_ENABLED = "watchlist_enabled"
+    WATCHLIST_DISABLED = "watchlist_disabled"
+    PREFERENCES_UPDATED = "preferences_updated"

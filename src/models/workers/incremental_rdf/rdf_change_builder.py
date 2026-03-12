@@ -1,7 +1,6 @@
 """RDF Change Event builder for incremental RDF diff output."""
 
 import uuid
-from dataclasses import dataclass
 from typing import Optional
 
 from pydantic import BaseModel, Field
@@ -87,24 +86,26 @@ class RDFChangeEvent(BaseModel):
     )
 
 
+class EventConfig(BaseModel):
+    """Configuration for building an RDF change event."""
+
+    model_config = {"extra": "forbid"}
+
+    entity_id: str
+    rev_id: int
+    operation: str
+    rdf_added_data: str
+    rdf_deleted_data: str
+    timestamp: str
+    domain: str = "wikibase.org"
+    request_id: Optional[str] = None
+
+
 class RDFChangeEventBuilder:
     """Builder for RDF change events following entity_diff/2.0.0 schema."""
 
-    @dataclass
-    class EventConfig:
-        """Configuration for building an RDF change event."""
-
-        entity_id: str
-        rev_id: int
-        operation: str
-        rdf_added_data: str
-        rdf_deleted_data: str
-        timestamp: str
-        domain: str = "wikibase.org"
-        request_id: Optional[str] = None
-
     @staticmethod
-    def build(config: "RDFChangeEventBuilder.EventConfig") -> RDFChangeEvent:
+    def build(config: "EventConfig") -> RDFChangeEvent:
         """Build an RDF change event.
 
         Args:

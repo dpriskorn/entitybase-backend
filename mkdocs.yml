@@ -55,6 +55,9 @@ nav:
               - Redirect: DIAGRAMS/WRITE-PATHS/REDIRECT-WRITE-PROCESS.md
               - Statement Processing: DIAGRAMS/WRITE-PATHS/STATEMENT-PROCESSING-PATHS.md
               - Lexeme Update: DIAGRAMS/WRITE-PATHS/LEXEME-UPDATE-PROCESS.md
+  - 📚 API Reference:
+      - API Reference: docs/API.md
+      - OpenAPI Spec: docs/openapi.json
   - ✨ Features:
       - features/ENDPOINTS.md
       - features/IMMUTABLE-REVISIONS.md

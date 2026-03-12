@@ -15,7 +15,7 @@ from models.data.rest_api.v1.entitybase.response import (
 from models.data.rest_api.v1.entitybase.response import UserStatsResponse
 from models.data.rest_api.v1.entitybase.response import UserResponse
 from models.data.rest_api.v1.entitybase.response import UserActivityResponse
-from models.rest_api.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error, validate_state_clients
 from pydantic import BaseModel
 
 
@@ -49,14 +49,14 @@ def get_user_activity_query(
 
 
 @users_router.post("/users", response_model=UserCreateResponse)
-def create_user(request: UserCreateRequest, req: Request) -> UserCreateResponse:
+async def create_user(request: UserCreateRequest, req: Request) -> UserCreateResponse:
     """Create a new user."""
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
+
     handler = UserHandler(state=state)
     try:
-        result = handler.create_user(request)
+        result = await handler.create_user(request)
         if not isinstance(result, UserCreateResponse):
             raise_validation_error("Invalid response type", status_code=500)
         return result
@@ -80,6 +80,7 @@ def get_user_stats(req: Request) -> UserStatsResponse:
 def get_user(user_id: int, req: Request) -> UserResponse:
     """Get user information by MediaWiki user ID."""
     state = req.app.state.state_handler
+    validate_state_clients(state)
     handler = UserHandler(state=state)
     try:
         result = handler.get_user(user_id)
@@ -90,17 +91,30 @@ def get_user(user_id: int, req: Request) -> UserResponse:
         raise HTTPException(status_code=400, detail=str(e))
 
 
+@users_router.delete("/users/{user_id}")
+async def delete_user(user_id: int, req: Request) -> None:
+    """Delete a user by ID."""
+    state = req.app.state.state_handler
+    validate_state_clients(state)
+    handler = UserHandler(state=state)
+    try:
+        await handler.delete_user(user_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
 @users_router.put(
     "/users/{user_id}/watchlist/toggle", response_model=WatchlistToggleResponse
 )
-def toggle_watchlist(
+async def toggle_watchlist(
     user_id: int, request: WatchlistToggleRequest, req: Request
 ) -> WatchlistToggleResponse:
     """Enable or disable watchlist for user."""
     state = req.app.state.state_handler
+    validate_state_clients(state)
     handler = UserHandler(state=state)
     try:
-        result = handler.toggle_watchlist(user_id, request)
+        result = await handler.toggle_watchlist(user_id, request)
         if not isinstance(result, WatchlistToggleResponse):
             raise_validation_error("Invalid response type", status_code=500)
         return result

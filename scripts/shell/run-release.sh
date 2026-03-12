@@ -11,12 +11,7 @@ if git tag | grep -q "^${VERSION}$"; then
     exit 1
 fi
 
-sed -i "s/^version = \".*\"/version = \"$VERSION\"/" pyproject.toml
-
-git add pyproject.toml
-git commit -m "Release $VERSION"
-
 git tag -a "$VERSION" -m "Release $VERSION"
 
-echo "Done! Created release $VERSION"
-echo "Run 'git push' to push the commit and tags to remote"
+echo "Done! Created tag $VERSION"
+echo "VERSION=$VERSION" > .release_version

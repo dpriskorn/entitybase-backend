@@ -122,3 +122,72 @@ async def test_create_lexeme_without_lemmas_fails(api_prefix: str) -> None:
         assert response.status_code == 400
         assert "at least one lemma" in str(response.json()["message"]).lower()
         logger.info("✓ Create lexeme without lemmas correctly fails")
+
+
+@pytest.mark.asyncio
+@pytest.mark.integration
+async def test_export_entity_to_turtle(api_prefix: str) -> None:
+    """Test exporting entity to Turtle format."""
+    from models.rest_api.main import app
+
+    entity_data = {
+        "type": "item",
+        "labels": {"en": {"language": "en", "value": "Turtle Export Test"}},
+        "descriptions": {
+            "en": {"language": "en", "value": "A test entity for turtle export"}
+        },
+        "aliases": {"en": [{"language": "en", "value": "Test Entity"}]},
+        "claims": {
+            "P31": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P31",
+                        "datatype": "wikibase-item",
+                        "datavalue": {
+                            "value": {"entity-type": "item", "id": "Q5"},
+                            "type": "wikibase-entityid",
+                        },
+                    },
+                    "type": "statement",
+                    "rank": "normal",
+                    "qualifiers": {},
+                    "references": [],
+                }
+            ]
+        },
+    }
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        # Create entity first
+        create_response = await client.post(
+            f"{api_prefix}/entities/items",
+            json=entity_data,
+            headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
+        )
+        assert create_response.status_code == 200
+        entity_id = create_response.json()["data"]["entity_id"]
+
+        # Export to turtle
+        response = await client.get(f"{api_prefix}/entities/{entity_id}.ttl")
+        assert response.status_code == 200
+        assert response.headers["content-type"] == "text/turtle; charset=utf-8"
+        turtle_content = response.text
+        assert len(turtle_content) > 0
+        # Turtle format should contain prefixes
+        assert "@prefix" in turtle_content or "http://" in turtle_content
+
+
+@pytest.mark.asyncio
+@pytest.mark.integration
+async def test_export_nonexistent_entity_returns_404(api_prefix: str) -> None:
+    """Test exporting nonexistent entity returns 404."""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        response = await client.get(f"{api_prefix}/entities/Q99999.ttl")
+        assert response.status_code == 404

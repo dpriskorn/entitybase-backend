@@ -9,6 +9,21 @@ from models.data.infrastructure.stream.actions import EndorseAction
 from models.data.infrastructure.stream.change_type import ChangeType
 
 
+class UserChangeEvent(BaseModel):
+    """User change event for publishing."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    user_id: str = Field(alias="user", description="ID of the user")
+    change_type: "ChangeType" = Field(alias="type", description="Type of change")
+    timestamp: datetime = Field(alias="ts", description="Timestamp of the change")
+
+    @field_serializer("timestamp")
+    def serialize_timestamp(self, value: datetime) -> str:
+        """Serialize datetime to ISO format with Z suffix."""
+        return value.isoformat() + "Z"
+
+
 class EndorseChangeEvent(BaseModel):
     """Endorsement change event for publishing."""
 

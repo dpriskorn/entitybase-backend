@@ -3,9 +3,10 @@
 import logging
 import time
 import traceback
-from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, cast
+
+from pydantic import BaseModel
 
 from models.data.common import OperationResult
 from models.config.settings import settings
@@ -31,9 +32,10 @@ from models.validation.json_schema_validator import JsonSchemaValidator
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class StatementProcessingContext:
+class StatementProcessingContext(BaseModel):
     """Context for processing a single statement."""
+
+    model_config = {"extra": "forbid"}
 
     statement_hash: int
     statement_data: dict[str, Any]

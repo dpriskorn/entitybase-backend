@@ -47,12 +47,13 @@ class StatusOperation(str, Enum):
     MASS_EDIT_UNPROTECT = "mass_edit_unprotect"
 
 
-from dataclasses import dataclass
+from pydantic import BaseModel
 
 
-@dataclass
-class RevisionParams:
+class RevisionParams(BaseModel):
     """Parameters for building a revision."""
+
+    model_config = {"extra": "forbid"}
 
     entity_id: str
     current_revision: S3RevisionData

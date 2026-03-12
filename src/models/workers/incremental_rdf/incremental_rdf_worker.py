@@ -17,7 +17,10 @@ from models.infrastructure.vitess.client import VitessClient
 from models.internal_representation.entity_data import EntityData
 from models.rdf_builder.incremental_updater import IncrementalRDFUpdater
 from models.workers.worker import Worker
-from models.workers.incremental_rdf.rdf_change_builder import RDFChangeEventBuilder
+from models.workers.incremental_rdf.rdf_change_builder import (
+    EventConfig,
+    RDFChangeEventBuilder,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -251,7 +254,7 @@ class IncrementalRDFWorker(Worker):
         self, entity_id: str, rev_id: int, operation: str, rdf_added: str
     ) -> None:
         """Publish RDF change event to Kafka."""
-        event_config = RDFChangeEventBuilder.EventConfig(
+        event_config = EventConfig(
             entity_id=entity_id,
             rev_id=rev_id,
             operation=operation,
@@ -302,7 +305,7 @@ class IncrementalRDFWorker(Worker):
 
     async def _handle_entity_deletion(self, entity_id: str, revision_id: int) -> None:
         """Handle entity deletion by publishing a delete event."""
-        event_config = RDFChangeEventBuilder.EventConfig(
+        event_config = EventConfig(
             entity_id=entity_id,
             rev_id=revision_id,
             operation="delete",

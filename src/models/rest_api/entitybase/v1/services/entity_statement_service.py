@@ -221,7 +221,16 @@ class EntityStatementService(Service):
 
             if not isinstance(s3_revision_data, S3RevisionData):
                 raise_validation_error("Invalid revision data type", status_code=500)
-            return RevisionData.model_validate(s3_revision_data.revision)  # type: ignore[no-any-return]
+            revision_dict = s3_revision_data.revision
+            if "edit" in revision_dict:
+                edit_dict = revision_dict["edit"]
+                if "edit_type" in edit_dict:
+                    edit_dict["type"] = edit_dict.pop("edit_type")
+                if "edit_summary" in edit_dict:
+                    edit_dict["summary"] = edit_dict.pop("edit_summary")
+                if "is_mass_edit" in edit_dict:
+                    edit_dict["mass"] = edit_dict.pop("is_mass_edit")
+            return RevisionData.model_validate(revision_dict)  # type: ignore[no-any-return]
         except S3NotFoundError:
             raise_validation_error(
                 f"Revision not found: {entity_id} revision {revision_id}",
@@ -292,7 +301,8 @@ class EntityStatementService(Service):
         new_revision_id = revision_data.revision_id + 1
         logger.debug(f"New revision ID: {new_revision_id}")
         revision_data.revision_id = new_revision_id
-        revision_data.edit.summary = edit_headers.x_edit_summary
+        revision_data.edit.edit_type = EditType.MANUAL_UPDATE
+        revision_data.edit.edit_summary = edit_headers.x_edit_summary
         revision_data.edit.at = datetime.now(timezone.utc).isoformat()
         revision_data.edit.user_id = edit_headers.x_user_id
         try:
@@ -313,8 +323,22 @@ class EntityStatementService(Service):
             )
             logger.debug("Storing revision to S3")
             self.state.s3_client.store_revision(content_hash, s3_revision_data)
-            logger.debug("Updating head revision in Vitess")
-            self.state.vitess_client.update_head_revision(entity_id, new_revision_id)
+            logger.debug("Creating revision in Vitess")
+            revision_created = self.state.vitess_client.create_revision(
+                entity_id=entity_id,
+                entity_data=revision_data,
+                revision_id=new_revision_id,
+                content_hash=content_hash,
+                expected_revision_id=head_revision_id,
+            )
+            if not revision_created:
+                current_head = self.state.vitess_client.get_head(entity_id)
+                raise_validation_error(
+                    f"Conflict: entity was modified by another edit. "
+                    f"Expected base revision {head_revision_id}, but current revision is {current_head}. "
+                    f"Please retry with the latest revision ID.",
+                    status_code=409,
+                )
         except Exception as e:
             logger.error(f"Failed to store updated revision: {e}")
             raise_validation_error(

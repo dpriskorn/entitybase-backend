@@ -107,7 +107,9 @@ class HashService(Service):
                     value = desc_data["value"]
                     hash_value = MetadataExtractor.hash_string(value)
                     hashes[lang] = hash_value
-                    self.state.s3_client.store_term_metadata(value, hash_value)
+                    self.state.s3_client.store_term_metadata(
+                        value, hash_value, "descriptions"
+                    )
                     terms_repo.insert_term(hash_value, value, "description")
         return DescriptionsHashes(root=hashes)
 
@@ -126,7 +128,9 @@ class HashService(Service):
                         value = alias_data["value"]
                         hash_value = MetadataExtractor.hash_string(value)
                         lang_hashes.append(hash_value)
-                        self.state.s3_client.store_term_metadata(value, hash_value)
+                        self.state.s3_client.store_term_metadata(
+                            value, hash_value, "aliases"
+                        )
                         terms_repo.insert_term(hash_value, value, "alias")
                 hashes[lang] = lang_hashes
         return AliasesHashes(root=hashes)

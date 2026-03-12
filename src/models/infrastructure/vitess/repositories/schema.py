@@ -77,6 +77,55 @@ class SchemaRepository(Repository):
             """
             )
 
+            # New tables to replace S3 buckets for small objects
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS statements (
+                    content_hash BIGINT UNSIGNED PRIMARY KEY,
+                    data JSON NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    ref_count INT DEFAULT 1,
+                    INDEX idx_ref_count (ref_count DESC)
+                )
+            """
+            )
+
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS qualifiers (
+                    content_hash BIGINT UNSIGNED PRIMARY KEY,
+                    data JSON NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    ref_count INT DEFAULT 1,
+                    INDEX idx_ref_count (ref_count DESC)
+                )
+            """
+            )
+
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS refs (
+                    content_hash BIGINT UNSIGNED PRIMARY KEY,
+                    data JSON NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    ref_count INT DEFAULT 1,
+                    INDEX idx_ref_count (ref_count DESC)
+                )
+            """
+            )
+
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS snaks (
+                    content_hash BIGINT UNSIGNED PRIMARY KEY,
+                    data JSON NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    ref_count INT DEFAULT 1,
+                    INDEX idx_ref_count (ref_count DESC)
+                )
+            """
+            )
+
             cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS entity_backlinks (
@@ -141,10 +190,23 @@ class SchemaRepository(Repository):
                 CREATE TABLE IF NOT EXISTS metadata_content (
                     content_hash BIGINT UNSIGNED NOT NULL,
                     content_type ENUM('labels', 'descriptions', 'aliases') NOT NULL,
+                    data TEXT NOT NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     ref_count INT DEFAULT 1,
                     PRIMARY KEY (content_hash, content_type),
                     INDEX idx_type_hash (content_type, content_hash),
+                    INDEX idx_ref_count (ref_count DESC)
+                )
+            """
+            )
+
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS sitelinks (
+                    content_hash BIGINT UNSIGNED PRIMARY KEY,
+                    title TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    ref_count INT DEFAULT 1,
                     INDEX idx_ref_count (ref_count DESC)
                 )
             """

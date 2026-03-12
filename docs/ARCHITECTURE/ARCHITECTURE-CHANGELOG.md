@@ -2,6 +2,127 @@
 
 This file tracks architectural changes, feature additions, and modifications to entitybase-backend.
 
+## [2026-03-12] S3 to Vitess Migration for Metadata and Small Objects
+
+### Summary
+
+Migrated metadata (labels, descriptions, aliases, sitelinks) and small objects (statements, qualifiers, references, snaks) storage from S3 to Vitess. This improves performance and reduces S3 API costs at scale while maintaining the hybrid architecture where entity revisions remain stored in S3 for immutable snapshots.
+
+### Motivation
+
+- **Cost Reduction**: Reduce S3 API costs (GET/PUT requests) for high-frequency metadata access
+- **Performance**: Vitess provides lower latency for small objects and metadata lookups
+- **Scalability**: Better handling of the target scale (1B entities, 1T statements)
+- **Data Locality**: Keep related data (terms, statements) together in Vitess
+
+### Architecture Changes
+
+#### Before (S3-based):
+```
+Entity Revision → S3 (full entity snapshot)
+    ↓
+Terms → S3 buckets (labels, descriptions, aliases)
+Statements → S3 buckets (statement objects)
+Qualifiers → S3 buckets
+References → S3 buckets
+Snaks → S3 buckets
+```
+
+#### After (Hybrid S3 + Vitess):
+```
+Entity Revision → S3 (full entity snapshot) [unchanged]
+    ↓
+Terms → Vitess (metadata_content table)
+Statements → Vitess (statement_content table)
+Qualifiers → Vitess (qualifier_content table)
+References → Vitess (reference_content table)
+Snaks → Vitess (snak_content table)
+Sitelinks → Vitess (sitelinks via SitelinkVitessStorage)
+```
+
+### Changes
+
+#### New Database Tables (Vitess):
+
+1. **`metadata_content`** - Stores labels, descriptions, aliases
+   - Columns: `content_hash`, `content_type`, `data`, `ref_count`, `created_at`
+   - Deduplication via `content_hash` + `content_type`
+   - Reference counting for cleanup
+
+2. **`statement_content`** - Stores deduplicated statements
+   - Columns: `content_hash`, `data` (JSON), `ref_count`, `created_at`
+
+3. **`qualifier_content`** - Stores deduplicated qualifiers
+   - Columns: `content_hash`, `data` (JSON), `ref_count`, `created_at`
+
+4. **`reference_content`** - Stores deduplicated references
+   - Columns: `content_hash`, `data` (JSON), `ref_count`, `created_at`
+
+5. **`snak_content`** - Stores deduplicated snaks
+   - Columns: `content_hash`, `data` (JSON), `ref_count`, `created_at`
+
+#### New Storage Classes:
+
+**`src/models/infrastructure/vitess/storage/metadata_storage.py`:**
+- `MetadataVitessStorage` - Handles labels, descriptions, aliases storage
+- `SitelinkVitessStorage` - Handles sitelink storage
+
+**`src/models/infrastructure/vitess/storage/statement_storage.py`:**
+- `StatementVitessStorage` - Handles statement storage with deduplication
+
+**`src/models/infrastructure/vitess/storage/qualifier_storage.py`:**
+- `QualifierVitessStorage` - Handles qualifier storage with deduplication
+
+**`src/models/infrastructure/vitess/storage/reference_storage.py`:**
+- `ReferenceVitessStorage` - Handles reference storage with deduplication
+
+**`src/models/infrastructure/vitess/storage/snak_storage.py`:**
+- `SnakVitessStorage` - Handles snak storage with deduplication
+
+#### Modified Files:
+
+1. **`src/models/infrastructure/s3/client.py`**
+   - Added Vitess storage component initialization (`vitess_metadata`, `vitess_statements`, etc.)
+   - Updated `store_term_metadata()` to accept content type parameter
+   - Added new methods: `store_sitelink_metadata()`, `load_sitelink_metadata()`
+   - Added `load_reference()`, `load_references_batch()`, etc.
+
+2. **`src/models/rest_api/entitybase/v1/services/hash_service.py`**
+   - Updated `hash_descriptions()` to store with correct content type
+   - Updated `hash_aliases()` to store with correct content type
+
+3. **`src/models/rest_api/entitybase/v1/endpoints/entities.py`**
+   - Fixed `get_entity_sitelink()` to use Vitess storage instead of S3 MetadataStorage
+
+4. **`src/models/rest_api/entitybase/v1/endpoints/entities_labels.py`**
+   - Fixed `get_entity_label()` to use `MetadataType.LABELS` enum
+
+5. **`src/models/rest_api/entitybase/v1/endpoints/entities_descriptions.py`**
+   - Fixed `get_entity_description()` to use `MetadataType.DESCRIPTIONS` enum
+
+6. **`src/models/rest_api/entitybase/v1/endpoints/entities_aliases.py`**
+   - Fixed `get_entity_aliases()` to use `MetadataType.ALIASES` enum
+
+### Behavior Changes
+
+- **Labels/Descriptions/Aliases**: Now stored in Vitess `metadata_content` table instead of S3 terms bucket
+- **Sitelinks**: Now stored in Vitess via `SitelinkVitessStorage` instead of S3 sitelinks bucket
+- **Statements/Qualifiers/References/Snaks**: Now stored in Vitess tables with JSON columns instead of S3 objects
+- **Entity Revisions**: Continue to use S3 for immutable full-entity snapshots (unchanged)
+
+### Benefits
+
+- **Lower Latency**: Vitess queries typically <10ms vs S3 GET ~50-200ms
+- **Reduced Costs**: Eliminate S3 API costs for metadata and small objects
+- **Better Deduplication**: SQL-based reference counting for automatic cleanup
+- **Consistency**: All metadata in Vitess ensures ACID compliance for term updates
+
+### E2E Test Updates
+
+- Fixed sitelink tests failing due to using wrong storage backend
+- Fixed label/description/alias tests due to incorrect metadata type handling
+- All S3-related e2e test file references updated to reflect new architecture
+
 ## [2026-03-04] Kafka Event Producer Caching Fix
 
 ### Summary

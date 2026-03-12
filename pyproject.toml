@@ -93,6 +93,7 @@ dev = [
 
 [tool.pytest.ini_options]
 addopts = "--tb=short"
+testpaths = ["tests"]
 log_cli = true
 log_cli_level = "DEBUG"
 log_cli_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

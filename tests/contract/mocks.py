@@ -304,8 +304,10 @@ class MockS3Client:
     def delete_statement(self, hash_val: int) -> None:
         pass
 
-    def store_term_metadata(self, value: Any, hash_value: int) -> None:
-        self._term_metadata[hash_value] = (value, "term")
+    def store_term_metadata(
+        self, term: str, content_hash: int, content_type: str = "labels"
+    ) -> None:
+        self._term_metadata[content_hash] = (term, content_type)
 
     def store_sitelink_metadata(self, title: str, hash_value: int) -> None:
         self._term_metadata[hash_value] = (title, "sitelink")

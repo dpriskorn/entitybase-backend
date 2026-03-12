@@ -18,6 +18,18 @@ from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.request import UserActivityType
 from models.data.infrastructure.s3.enums import EntityType, MetadataType
 from models.infrastructure.vitess.repositories.terms import TermsRepository
+
+
+class TermTransactionContext(BaseModel):
+    """Context for term transaction operations."""
+
+    entity_id: str
+    entity_type: EntityType
+    updated_hashes: dict[str, Any]
+    existing_revision: dict[str, Any]
+    edit_headers: EditHeaders
+
+
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.utils import infer_entity_type_from_id, raise_validation_error
 
@@ -78,8 +90,7 @@ class EntityUpdateTermsMixin(BaseModel):
         validator: Any | None = None,
     ) -> EntityResponse:
         """Delete a label for a language (idempotent)."""
-        from .update_transaction import UpdateTransaction
-
+        logger.debug(f"Deleting label for {entity_id} in {language_code}")
         entity_type = infer_entity_type_from_id(entity_id)
         if not entity_type:
             raise_validation_error("Invalid entity ID format", status_code=400)
@@ -105,59 +116,16 @@ class EntityUpdateTermsMixin(BaseModel):
         updated_hashes = dict(existing_hashes)
         updated_hashes["labels"] = updated_labels_hashes
 
-        tx = UpdateTransaction(state=self.state)
-        tx.entity_id = entity_id
-        try:
-            head_revision_id = tx.state.vitess_client.get_head(entity_id)
-
-            response = await tx.create_revision_with_hashes(
+        return await self._execute_term_delete_transaction(
+            TermTransactionContext(
                 entity_id=entity_id,
                 entity_type=entity_type,
-                edit_headers=edit_headers,
-                existing_hashes=updated_hashes,
+                updated_hashes=updated_hashes,
                 existing_revision=current_entity.entity_data.revision,
-            )
-
-            self._decrement_term_ref_count(int(removed_hash))
-
-            edit_context = EditContext(
-                user_id=edit_headers.x_user_id,
-                edit_summary=edit_headers.x_edit_summary,
-            )
-            event_context = EventPublishContext(
-                entity_id=entity_id,
-                revision_id=response.revision_id,
-                change_type=ChangeType.EDIT,
-                from_revision_id=head_revision_id,
-                changed_at=None,
-            )
-            await tx.publish_event(event_context, edit_context)
-
-            if edit_headers.x_user_id:
-                activity_result = await (
-                    self.state.vitess_client.user_repository.log_user_activity(
-                        user_id=edit_headers.x_user_id,
-                        activity_type=UserActivityType.ENTITY_EDIT,
-                        entity_id=entity_id,
-                        revision_id=response.revision_id,
-                    )
-                )
-                if not activity_result.success:
-                    logger.warning(
-                        f"Failed to log user activity: {activity_result.error}"
-                    )
-
-            tx.commit()
-            return response
-        except HTTPException:
-            tx.rollback()
-            raise
-        except Exception as e:
-            logger.error(f"Delete label failed for {entity_id}: {e}", exc_info=True)
-            tx.rollback()
-            raise_validation_error(
-                f"Delete label failed: {type(e).__name__}: {str(e)}", status_code=500
-            )
+                edit_headers=edit_headers,
+            ),
+            [int(removed_hash)],
+        )
 
     def _decrement_term_ref_count(self, hash_value: int) -> None:
         """Decrement ref_count for a term hash and clean up if orphaned."""
@@ -175,6 +143,151 @@ class EntityUpdateTermsMixin(BaseModel):
             self.state.s3_client.delete_metadata(MetadataType.DESCRIPTIONS, hash_value)
             self.state.s3_client.delete_metadata(MetadataType.ALIASES, hash_value)
             logger.info(f"Cleaned up orphaned term hash {hash_value}")
+
+    async def _execute_term_delete_transaction(
+        self,
+        context: TermTransactionContext,
+        removed_hashes: list[int] | None = None,
+    ) -> EntityResponse:
+        """Execute common transaction pattern for term deletion operations.
+
+        This helper encapsulates the repeated pattern of:
+        1. Creating UpdateTransaction
+        2. Getting head revision ID
+        3. Creating revision with hashes
+        4. Decrementing ref counts for removed hashes
+        5. Publishing event
+        6. Logging user activity
+        7. Committing
+        """
+        from .update_transaction import UpdateTransaction
+
+        tx = UpdateTransaction(state=self.state)
+        tx.entity_id = context.entity_id
+        try:
+            head_revision_id = tx.state.vitess_client.get_head(context.entity_id)
+
+            response = await tx.create_revision_with_hashes(
+                entity_id=context.entity_id,
+                entity_type=context.entity_type,
+                edit_headers=context.edit_headers,
+                existing_hashes=context.updated_hashes,
+                existing_revision=context.existing_revision,
+            )
+
+            if removed_hashes:
+                for hash_value in removed_hashes:
+                    self._decrement_term_ref_count(hash_value)
+
+            edit_context = EditContext(
+                user_id=context.edit_headers.x_user_id,
+                edit_summary=context.edit_headers.x_edit_summary,
+            )
+            event_context = EventPublishContext(
+                entity_id=context.entity_id,
+                revision_id=response.revision_id,
+                change_type=ChangeType.EDIT,
+                from_revision_id=head_revision_id,
+                changed_at=None,
+            )
+            await tx.publish_event(event_context, edit_context)
+
+            if context.edit_headers.x_user_id:
+                activity_result = await (
+                    self.state.vitess_client.user_repository.log_user_activity(
+                        user_id=context.edit_headers.x_user_id,
+                        activity_type=UserActivityType.ENTITY_EDIT,
+                        entity_id=context.entity_id,
+                        revision_id=response.revision_id,
+                    )
+                )
+                if not activity_result.success:
+                    logger.warning(
+                        f"Failed to log user activity: {activity_result.error}"
+                    )
+
+            tx.commit()
+            return response
+        except HTTPException:
+            tx.rollback()
+            raise
+        except Exception as e:
+            logger.error(
+                f"Term delete transaction failed for {context.entity_id}: {e}",
+                exc_info=True,
+            )
+            tx.rollback()
+            raise_validation_error(
+                f"Term delete transaction failed: {type(e).__name__}: {str(e)}",
+                status_code=500,
+            )
+
+    async def _execute_term_add_transaction(
+        self,
+        context: TermTransactionContext,
+    ) -> EntityResponse:
+        """Execute common transaction pattern for term add operations.
+
+        This helper is similar to _execute_term_delete_transaction but without
+        ref count decrementing.
+        """
+        from .update_transaction import UpdateTransaction
+
+        tx = UpdateTransaction(state=self.state)
+        tx.entity_id = context.entity_id
+        try:
+            head_revision_id = tx.state.vitess_client.get_head(context.entity_id)
+
+            response = await tx.create_revision_with_hashes(
+                entity_id=context.entity_id,
+                entity_type=context.entity_type,
+                edit_headers=context.edit_headers,
+                existing_hashes=context.updated_hashes,
+                existing_revision=context.existing_revision,
+            )
+
+            edit_context = EditContext(
+                user_id=context.edit_headers.x_user_id,
+                edit_summary=context.edit_headers.x_edit_summary,
+            )
+            event_context = EventPublishContext(
+                entity_id=context.entity_id,
+                revision_id=response.revision_id,
+                change_type=ChangeType.EDIT,
+                from_revision_id=head_revision_id,
+                changed_at=None,
+            )
+            await tx.publish_event(event_context, edit_context)
+
+            if context.edit_headers.x_user_id:
+                activity_result = await (
+                    self.state.vitess_client.user_repository.log_user_activity(
+                        user_id=context.edit_headers.x_user_id,
+                        activity_type=UserActivityType.ENTITY_EDIT,
+                        entity_id=context.entity_id,
+                        revision_id=response.revision_id,
+                    )
+                )
+                if not activity_result.success:
+                    logger.warning(
+                        f"Failed to log user activity: {activity_result.error}"
+                    )
+
+            tx.commit()
+            return response
+        except HTTPException:
+            tx.rollback()
+            raise
+        except Exception as e:
+            logger.error(
+                f"Term add transaction failed for {context.entity_id}: {e}",
+                exc_info=True,
+            )
+            tx.rollback()
+            raise_validation_error(
+                f"Term add transaction failed: {type(e).__name__}: {str(e)}",
+                status_code=500,
+            )
 
     async def update_description(
         self,
@@ -223,8 +336,7 @@ class EntityUpdateTermsMixin(BaseModel):
         validator: Any | None = None,
     ) -> EntityResponse:
         """Delete a description for a language (idempotent)."""
-        from .update_transaction import UpdateTransaction
-
+        logger.debug(f"Deleting description for {entity_id} in {language_code}")
         entity_type = infer_entity_type_from_id(entity_id)
         if not entity_type:
             raise_validation_error("Invalid entity ID format", status_code=400)
@@ -250,62 +362,16 @@ class EntityUpdateTermsMixin(BaseModel):
         updated_hashes = dict(existing_hashes)
         updated_hashes["descriptions"] = updated_descriptions_hashes
 
-        tx = UpdateTransaction(state=self.state)
-        tx.entity_id = entity_id
-        try:
-            head_revision_id = tx.state.vitess_client.get_head(entity_id)
-
-            response = await tx.create_revision_with_hashes(
+        return await self._execute_term_delete_transaction(
+            TermTransactionContext(
                 entity_id=entity_id,
                 entity_type=entity_type,
-                edit_headers=edit_headers,
-                existing_hashes=updated_hashes,
+                updated_hashes=updated_hashes,
                 existing_revision=current_entity.entity_data.revision,
-            )
-
-            self._decrement_term_ref_count(int(removed_hash))
-
-            edit_context = EditContext(
-                user_id=edit_headers.x_user_id,
-                edit_summary=edit_headers.x_edit_summary,
-            )
-            event_context = EventPublishContext(
-                entity_id=entity_id,
-                revision_id=response.revision_id,
-                change_type=ChangeType.EDIT,
-                from_revision_id=head_revision_id,
-                changed_at=None,
-            )
-            await tx.publish_event(event_context, edit_context)
-
-            if edit_headers.x_user_id:
-                activity_result = await (
-                    self.state.vitess_client.user_repository.log_user_activity(
-                        user_id=edit_headers.x_user_id,
-                        activity_type=UserActivityType.ENTITY_EDIT,
-                        entity_id=entity_id,
-                        revision_id=response.revision_id,
-                    )
-                )
-                if not activity_result.success:
-                    logger.warning(
-                        f"Failed to log user activity: {activity_result.error}"
-                    )
-
-            tx.commit()
-            return response
-        except HTTPException:
-            tx.rollback()
-            raise
-        except Exception as e:
-            logger.error(
-                f"Delete description failed for {entity_id}: {e}", exc_info=True
-            )
-            tx.rollback()
-            raise_validation_error(
-                f"Delete description failed: {type(e).__name__}: {str(e)}",
-                status_code=500,
-            )
+                edit_headers=edit_headers,
+            ),
+            [int(removed_hash)],
+        )
 
     async def update_aliases(
         self,
@@ -370,7 +436,6 @@ class EntityUpdateTermsMixin(BaseModel):
         """
         from models.internal_representation.metadata_extractor import MetadataExtractor
         from models.infrastructure.vitess.repositories.terms import TermsRepository
-        from .update_transaction import UpdateTransaction
 
         logger.debug(
             f"Adding alias '{alias}' for entity {entity_id}, language {language_code}"
@@ -395,12 +460,15 @@ class EntityUpdateTermsMixin(BaseModel):
 
         new_alias_hash = MetadataExtractor.hash_string(alias)
         if new_alias_hash in existing_alias_hashes:
+            logger.warning(
+                f"Alias '{alias}' already exists for entity {entity_id}, language {language_code}"
+            )
             raise_validation_error(
                 f"Alias '{alias}' already exists for language {language_code}",
                 status_code=409,
             )
 
-        self.state.s3_client.store_term_metadata(alias, new_alias_hash)
+        self.state.s3_client.store_term_metadata(alias, new_alias_hash, "aliases")
         if self.state.vitess_config:
             terms_repo = TermsRepository(vitess_client=self.state.vitess_client)
             terms_repo.insert_term(new_alias_hash, alias, "alias")
@@ -412,57 +480,15 @@ class EntityUpdateTermsMixin(BaseModel):
         updated_hashes = dict(existing_hashes)
         updated_hashes["aliases"] = updated_aliases_hashes
 
-        tx = UpdateTransaction(state=self.state)
-        tx.entity_id = entity_id
-        try:
-            head_revision_id = tx.state.vitess_client.get_head(entity_id)
-
-            response = await tx.create_revision_with_hashes(
+        return await self._execute_term_add_transaction(
+            TermTransactionContext(
                 entity_id=entity_id,
                 entity_type=entity_type,
-                edit_headers=edit_headers,
-                existing_hashes=updated_hashes,
+                updated_hashes=updated_hashes,
                 existing_revision=current_entity.entity_data.revision,
-            )
-
-            edit_context = EditContext(
-                user_id=edit_headers.x_user_id,
-                edit_summary=edit_headers.x_edit_summary,
-            )
-            event_context = EventPublishContext(
-                entity_id=entity_id,
-                revision_id=response.revision_id,
-                change_type=ChangeType.EDIT,
-                from_revision_id=head_revision_id,
-                changed_at=None,
-            )
-            await tx.publish_event(event_context, edit_context)
-
-            if edit_headers.x_user_id:
-                activity_result = await (
-                    self.state.vitess_client.user_repository.log_user_activity(
-                        user_id=edit_headers.x_user_id,
-                        activity_type=UserActivityType.ENTITY_EDIT,
-                        entity_id=entity_id,
-                        revision_id=response.revision_id,
-                    )
-                )
-                if not activity_result.success:
-                    logger.warning(
-                        f"Failed to log user activity: {activity_result.error}"
-                    )
-
-            tx.commit()
-            return response
-        except HTTPException:
-            tx.rollback()
-            raise
-        except Exception as e:
-            logger.error(f"Add alias failed for {entity_id}: {e}", exc_info=True)
-            tx.rollback()
-            raise_validation_error(
-                f"Add alias failed: {type(e).__name__}: {str(e)}", status_code=500
-            )
+                edit_headers=edit_headers,
+            ),
+        )
 
     async def delete_aliases(
         self,
@@ -472,8 +498,7 @@ class EntityUpdateTermsMixin(BaseModel):
         validator: Any | None = None,
     ) -> EntityResponse:
         """Delete all aliases for a language (idempotent)."""
-        from .update_transaction import UpdateTransaction
-
+        logger.debug(f"Deleting all aliases for {entity_id} in {language_code}")
         entity_type = infer_entity_type_from_id(entity_id)
         if not entity_type:
             raise_validation_error("Invalid entity ID format", status_code=400)
@@ -499,57 +524,13 @@ class EntityUpdateTermsMixin(BaseModel):
         updated_hashes = dict(existing_hashes)
         updated_hashes["aliases"] = updated_aliases_hashes
 
-        tx = UpdateTransaction(state=self.state)
-        tx.entity_id = entity_id
-        try:
-            head_revision_id = tx.state.vitess_client.get_head(entity_id)
-
-            response = await tx.create_revision_with_hashes(
+        return await self._execute_term_delete_transaction(
+            TermTransactionContext(
                 entity_id=entity_id,
                 entity_type=entity_type,
-                edit_headers=edit_headers,
-                existing_hashes=updated_hashes,
+                updated_hashes=updated_hashes,
                 existing_revision=current_entity.entity_data.revision,
-            )
-
-            for hash_value in removed_hashes:
-                self._decrement_term_ref_count(int(hash_value))
-
-            edit_context = EditContext(
-                user_id=edit_headers.x_user_id,
-                edit_summary=edit_headers.x_edit_summary,
-            )
-            event_context = EventPublishContext(
-                entity_id=entity_id,
-                revision_id=response.revision_id,
-                change_type=ChangeType.EDIT,
-                from_revision_id=head_revision_id,
-                changed_at=None,
-            )
-            await tx.publish_event(event_context, edit_context)
-
-            if edit_headers.x_user_id:
-                activity_result = await (
-                    self.state.vitess_client.user_repository.log_user_activity(
-                        user_id=edit_headers.x_user_id,
-                        activity_type=UserActivityType.ENTITY_EDIT,
-                        entity_id=entity_id,
-                        revision_id=response.revision_id,
-                    )
-                )
-                if not activity_result.success:
-                    logger.warning(
-                        f"Failed to log user activity: {activity_result.error}"
-                    )
-
-            tx.commit()
-            return response
-        except HTTPException:
-            tx.rollback()
-            raise
-        except Exception as e:
-            logger.error(f"Delete aliases failed for {entity_id}: {e}", exc_info=True)
-            tx.rollback()
-            raise_validation_error(
-                f"Delete aliases failed: {type(e).__name__}: {str(e)}", status_code=500
-            )
+                edit_headers=edit_headers,
+            ),
+            [int(h) for h in removed_hashes],
+        )

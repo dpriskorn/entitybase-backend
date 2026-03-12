@@ -12,7 +12,7 @@ from models.data.rest_api.v1.entitybase.response import (
 )
 from models.data.rest_api.v1.entitybase.response import EntityRevertResponse
 from models.rest_api.entitybase.v1.handlers.entity.redirect import RedirectHandler
-from models.rest_api.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error, validate_state_clients
 
 redirects_router = APIRouter()
 
@@ -25,8 +25,8 @@ async def create_entity_redirect(
 ) -> EntityRedirectResponse:
     """Create a redirect for an entity."""
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
+
     handler = RedirectHandler(state=state)
     result = await handler.create_entity_redirect(request, edit_headers=headers)
     if not isinstance(result, EntityRedirectResponse):
@@ -44,8 +44,8 @@ async def revert_entity_redirect(  # type: ignore[no-any-return]
     headers: EditHeadersType,
 ) -> EntityRevertResponse:
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
+
     handler = RedirectHandler(state=state)
     result = await handler.revert_entity_redirect(
         entity_id, request, edit_headers=headers

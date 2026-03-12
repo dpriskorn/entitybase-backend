@@ -1,6 +1,6 @@
 # REST API Endpoints
 
-This API has 124 endpoints implemented, covering entity management (items, properties, lexemes), lexeme components (forms, senses, lemmas, glosses), entity terms (labels, descriptions, aliases), statements and claims, sitelinks, revision history, user management, and batch resolution endpoints.
+This API has 125 endpoints implemented, covering entity management (items, properties, lexemes), lexeme components (forms, senses, lemmas, glosses), entity terms (labels, descriptions, aliases), statements and claims, sitelinks, revision history, user management, and batch resolution endpoints.
 
 | Implemented | Method | Full Path | Description |
 |-------------|--------|-----------|-------------|
@@ -114,6 +114,7 @@ This API has 124 endpoints implemented, covering entity management (items, prope
 | ✅ | POST | `/users` | Create a new user. |
 | ✅ | GET | `/users/stat` | Get user statistics. |
 | ✅ | GET | `/users/{user_id}` | Get user information by MediaWiki user ID. |
+| ✅ | DELETE | `/users/{user_id}` | Delete a user by ID. |
 | ✅ | GET | `/users/{user_id}/activity` | Get user's activity with filtering. |
 | ✅ | GET | `/users/{user_id}/endorsements` | Get endorsements given by a user. |
 | ✅ | GET | `/users/{user_id}/endorsements/stats` | Get endorsement statistics for a user. |

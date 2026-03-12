@@ -1,0 +1,13 @@
+[run]
+omit =
+    src/models/data/rest_api/v1/entitybase/request
+    src/models/data/rest_api/v1/entitybase/response
+    */__init__.py
+    src/models/workers/base_stats_worker.py
+    src/models/rest_api/entitybase/v1/service.py
+    src/models/rest_api/entitybase/v1/handlers/entity/entity_transaction.py
+    src/models/infrastructure/client.py
+    src/models/infrastructure/connection.py
+    src/models/workers/worker.py
+    src/models/rest_api/entitybase/v1/handler.py
+    src/models/infrastructure/s3/base_storage.py

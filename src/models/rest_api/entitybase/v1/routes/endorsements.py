@@ -11,7 +11,7 @@ from models.data.rest_api.v1.entitybase.response import (
     EndorsementStatsResponse,
     SingleEndorsementStatsResponse,
 )
-from models.rest_api.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error, validate_state_clients
 
 
 endorsements_router = APIRouter(tags=["interactions"])
@@ -21,15 +21,15 @@ endorsements_router = APIRouter(tags=["interactions"])
     "/statements/{statement_hash}/endorse",
     response_model=EndorsementResponse,
 )
-def endorse_statement_endpoint(
+async def endorse_statement_endpoint(
     req: Request, statement_hash: int, user_id: int = Header(..., alias="X-User-ID")
 ) -> EndorsementResponse:
     """Endorse a statement to signal trust."""
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
+
     handler = EndorsementHandler(state=state)
-    result = handler.endorse_statement(statement_hash, user_id)
+    result = await handler.endorse_statement(statement_hash, user_id)
     if not isinstance(result, EndorsementResponse):
         raise_validation_error("Invalid response type", status_code=500)
     return result
@@ -39,15 +39,15 @@ def endorse_statement_endpoint(
     "/statements/{statement_hash}/endorse",
     response_model=EndorsementResponse,
 )
-def withdraw_endorsement_endpoint(
+async def withdraw_endorsement_endpoint(
     req: Request, statement_hash: int, user_id: int = Header(..., alias="X-User-ID")
 ) -> EndorsementResponse:
     """Withdraw endorsement from a statement."""
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
+
     handler = EndorsementHandler(state=state)
-    result = handler.withdraw_endorsement(statement_hash, user_id)
+    result = await handler.withdraw_endorsement(statement_hash, user_id)
     if not isinstance(result, EndorsementResponse):
         raise_validation_error("Invalid response type", status_code=500)
     return result
@@ -68,8 +68,8 @@ def get_statement_endorsements_endpoint(
 ) -> EndorsementListResponse:
     """Get endorsements for a statement."""
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
+
     handler = EndorsementHandler(state=state)
     request = EndorsementListRequest(
         limit=limit, offset=offset, include_removed=include_removed
@@ -95,8 +95,8 @@ def get_user_endorsements_endpoint(
 ) -> EndorsementListResponse:
     """Get endorsements given by a user."""
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
+
     handler = EndorsementHandler(state=state)
     request = EndorsementListRequest(
         limit=limit, offset=offset, include_removed=include_removed
@@ -116,8 +116,8 @@ def get_user_endorsement_stats_endpoint(
 ) -> EndorsementStatsResponse:
     """Get endorsement statistics for a user."""
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
+
     handler = EndorsementHandler(state=state)
     result = handler.get_user_endorsement_stats(user_id)
     if not isinstance(result, EndorsementStatsResponse):
@@ -135,8 +135,7 @@ def get_statement_endorsement_stats(
 ) -> SingleEndorsementStatsResponse:
     """Get endorsement statistics for a statement."""
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
 
     handler = EndorsementHandler(state=state)
     result = handler.get_batch_statement_endorsement_stats([statement_hash])

@@ -47,6 +47,7 @@ from models.internal_representation.json_fields import JsonField
 **Rules:**
 - No `__future__` imports
 - No passing raw dicts or tuples between methods - use Pydantic BaseModels
+- **Never use `dataclasses`** - use Pydantic `BaseModel` instead
 
 ### Naming Conventions
 
@@ -402,6 +403,26 @@ tests/
 
 ### Development Environment
 
+#### Virtual Environment (REQUIRED)
+**You MUST use a virtual environment for all Python development.** Never install packages globally or use system Python.
+
+```bash
+# Create virtual environment (if not exists)
+python3.13 -m venv .venv
+
+# Activate virtual environment (REQUIRED before any Python work)
+source .venv/bin/activate
+
+# Verify activation - should show (.venv) prefix
+which python  # Must point to .venv/bin/python
+```
+
+**CRITICAL RULES:**
+- Always activate the venv before running Python commands
+- Never use `sudo pip install` or install to system Python
+- If you see "permission denied" errors, you're not using the venv
+- Run `which python` to verify you're using the venv
+
 #### Docker Development
 ```bash
 # Build and run development environment
@@ -413,9 +434,6 @@ tests/
 
 #### Local Development
 ```bash
-# Activate virtual environment
-source .venv/bin/activate
-
 # Install dependencies
 poetry install --with dev
 

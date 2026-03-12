@@ -49,6 +49,30 @@ class UserRepository(Repository):
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
+    def delete_user(self, user_id: int) -> OperationResult:
+        """Delete a user by ID (hard delete).
+
+        Permanently removes a user from the users table.
+
+        Args:
+            user_id: The unique ID of the user to delete. Must be positive.
+
+        Returns:
+            OperationResult: Indicates success or failure. On success, success=True.
+                On failure (e.g., database error), success=False with an error message.
+        """
+        if user_id <= 0:
+            return OperationResult(success=False, error="Invalid user ID")
+
+        try:
+            with self.vitess_client.cursor as cursor:
+                cursor.execute("DELETE FROM users WHERE user_id = %s", (user_id,))
+                if cursor.rowcount == 0:
+                    return OperationResult(success=False, error="User not found")
+                return OperationResult(success=True)
+        except Exception as e:
+            return OperationResult(success=False, error=str(e))
+
     def user_exists(self, user_id: int) -> bool:
         """Check if a user exists in the database.
 

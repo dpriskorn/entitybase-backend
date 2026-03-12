@@ -6,7 +6,6 @@ from models.internal_representation.values.time_value import TimeValue
 from models.rdf_builder.value_node import generate_value_node_uri, serialize_value
 
 
-@pytest.mark.skip
 def test_serialize_time_value() -> None:
     """Test serialization of time values"""
     value = TimeValue(
