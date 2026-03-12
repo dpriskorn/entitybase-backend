@@ -45,8 +45,11 @@ def serialize_value(value: Any) -> str:
         kind = value.kind
 
         if kind == "time":
+            time_value = value.value
+            if time_value.startswith("+"):
+                time_value = time_value[1:]
             parts = [
-                f"t:{value.value}",
+                f"t:{time_value}",
                 str(value.precision),
                 str(value.timezone),
                 value.calendarmodel,
