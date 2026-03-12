@@ -197,4 +197,21 @@ sequence
 sequence_length
 topics
 topics_created
+# Vitess storage - unused methods kept for future use
+_delete
+_get_ref_count
+delete_qualifier
+delete_reference
+delete_snak
+load_statements_batch
+# S3 storage classes - kept for backward compatibility
+QualifierStorage
+ReferenceStorage
+SnakStorage
+StatementStorage
+# Pydantic record models - kept for documentation/future use
+QualifierRecord
+ReferenceRecord
+SnakRecord
+StatementRecord
 

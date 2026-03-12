@@ -89,3 +89,7 @@ src/models/infrastructure/vitess/repositories/revision.py:229
 
 # backlink.py - Serializes top entities dict for database storage
 src/models/infrastructure/vitess/repositories/backlink.py:116
+
+# vitess storage - Serializes dict data to database JSON column
+src/models/infrastructure/vitess/storage/base.py:39
+src/models/infrastructure/vitess/storage/base.py:122

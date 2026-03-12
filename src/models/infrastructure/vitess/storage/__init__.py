@@ -8,3 +8,7 @@ from models.infrastructure.vitess.storage.snak_storage import SnakVitessStorage
 from models.infrastructure.vitess.storage.statement_storage import (
     StatementVitessStorage,
 )
+from models.infrastructure.vitess.storage.metadata_storage import (
+    MetadataVitessStorage,
+    SitelinkVitessStorage,
+)

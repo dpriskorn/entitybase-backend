@@ -62,9 +62,7 @@ class BaseVitessStorage(Repository):
             logger.error(f"[VITESS_LOAD] Failed to load {self.table_name}: {e}")
             return None
 
-    def _load_batch(
-        self, content_hashes: list[int]
-    ) -> list[dict[str, Any] | None]:
+    def _load_batch(self, content_hashes: list[int]) -> list[dict[str, Any] | None]:
         """Load multiple records by content hashes."""
         if not content_hashes:
             return []
@@ -120,6 +118,7 @@ class BaseVitessStorage(Repository):
             return OperationResult(success=False, error="Invalid content hash")
 
         import json
+
         empty_data = json.dumps({})
 
         try:

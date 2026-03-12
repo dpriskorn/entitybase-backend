@@ -2,6 +2,8 @@
 # Format: file_path:line_number
 # These functions are allowed to return dict types
 
+src/models/infrastructure/vitess/storage/base.py:46
+src/models/infrastructure/vitess/storage/base.py:65
 src/models/rest_api/entitybase/v1/endpoints/debug.py:14
 src/models/rest_api/entitybase/v1/endpoints/debug.py:43
 src/models/rest_api/main.py:209

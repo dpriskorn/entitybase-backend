@@ -50,9 +50,7 @@ class SnakVitessStorage(BaseVitessStorage):
             created_at=data.get("created_at", ""),
         )
 
-    def load_snaks_batch(
-        self, content_hashes: list[int]
-    ) -> list[S3SnakData | None]:
+    def load_snaks_batch(self, content_hashes: list[int]) -> list[S3SnakData | None]:
         """Load multiple snaks by content hashes."""
         logger.debug(f"[SNAK_VITESS_LOAD_BATCH] count={len(content_hashes)}")
         data_list = self._load_batch(content_hashes)

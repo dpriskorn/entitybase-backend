@@ -142,3 +142,10 @@ _calculate_seconds_until_next_run
 _generate_checksum
 list_entities_by_type
 _validate_user
+# Vitess storage duplicate methods (intentional - same interface as S3 storage)
+exists
+load_statement
+store_statement
+load_metadata
+store_metadata
+store_sitelink

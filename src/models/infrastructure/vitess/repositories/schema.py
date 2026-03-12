@@ -190,10 +190,23 @@ class SchemaRepository(Repository):
                 CREATE TABLE IF NOT EXISTS metadata_content (
                     content_hash BIGINT UNSIGNED NOT NULL,
                     content_type ENUM('labels', 'descriptions', 'aliases') NOT NULL,
+                    data TEXT NOT NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     ref_count INT DEFAULT 1,
                     PRIMARY KEY (content_hash, content_type),
                     INDEX idx_type_hash (content_type, content_hash),
+                    INDEX idx_ref_count (ref_count DESC)
+                )
+            """
+            )
+
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS sitelinks (
+                    content_hash BIGINT UNSIGNED PRIMARY KEY,
+                    title TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    ref_count INT DEFAULT 1,
                     INDEX idx_ref_count (ref_count DESC)
                 )
             """
