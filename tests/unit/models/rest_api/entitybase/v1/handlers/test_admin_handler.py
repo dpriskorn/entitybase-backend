@@ -25,9 +25,9 @@ class TestAdminHandlerMethods:
 
     def test_list_entities(self, handler, mock_state):
         """Test list_entities returns result."""
-        mock_state.vitess_client.entity_repository.list_entities.return_value = []
+        mock_state.vitess_client.entity_repository.list_entities_filtered.return_value = []
 
-        result = handler.list_entities(limit=10, offset=0)
+        result = handler.list_entities(entity_type="item", limit=10, offset=0)
         assert result is not None
 
     def test_list_entities_by_type(self, handler, mock_state):
