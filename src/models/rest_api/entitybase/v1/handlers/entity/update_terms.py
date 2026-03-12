@@ -87,6 +87,7 @@ class EntityUpdateTermsMixin(BaseModel):
         validator: Any | None = None,
     ) -> EntityResponse:
         """Delete a label for a language (idempotent)."""
+        logger.debug(f"Deleting label for {entity_id} in {language_code}")
         entity_type = infer_entity_type_from_id(entity_id)
         if not entity_type:
             raise_validation_error("Invalid entity ID format", status_code=400)
@@ -326,6 +327,7 @@ class EntityUpdateTermsMixin(BaseModel):
         validator: Any | None = None,
     ) -> EntityResponse:
         """Delete a description for a language (idempotent)."""
+        logger.debug(f"Deleting description for {entity_id} in {language_code}")
         entity_type = infer_entity_type_from_id(entity_id)
         if not entity_type:
             raise_validation_error("Invalid entity ID format", status_code=400)
@@ -449,6 +451,7 @@ class EntityUpdateTermsMixin(BaseModel):
 
         new_alias_hash = MetadataExtractor.hash_string(alias)
         if new_alias_hash in existing_alias_hashes:
+            logger.warning(f"Alias '{alias}' already exists for entity {entity_id}, language {language_code}")
             raise_validation_error(
                 f"Alias '{alias}' already exists for language {language_code}",
                 status_code=409,
@@ -484,6 +487,7 @@ class EntityUpdateTermsMixin(BaseModel):
         validator: Any | None = None,
     ) -> EntityResponse:
         """Delete all aliases for a language (idempotent)."""
+        logger.debug(f"Deleting all aliases for {entity_id} in {language_code}")
         entity_type = infer_entity_type_from_id(entity_id)
         if not entity_type:
             raise_validation_error("Invalid entity ID format", status_code=400)
