@@ -137,7 +137,6 @@ def get_statement_endorsement_stats(
     state = req.app.state.state_handler
     validate_state_clients(state)
 
-
     handler = EndorsementHandler(state=state)
     result = handler.get_batch_statement_endorsement_stats([statement_hash])
     if not isinstance(result, BatchEndorsementStatsResponse):

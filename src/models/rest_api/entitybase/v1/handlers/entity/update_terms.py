@@ -22,11 +22,14 @@ from models.infrastructure.vitess.repositories.terms import TermsRepository
 
 class TermTransactionContext(BaseModel):
     """Context for term transaction operations."""
+
     entity_id: str
     entity_type: EntityType
     updated_hashes: dict[str, Any]
     existing_revision: dict[str, Any]
     edit_headers: EditHeaders
+
+
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.utils import infer_entity_type_from_id, raise_validation_error
 
@@ -209,7 +212,10 @@ class EntityUpdateTermsMixin(BaseModel):
             tx.rollback()
             raise
         except Exception as e:
-            logger.error(f"Term delete transaction failed for {context.entity_id}: {e}", exc_info=True)
+            logger.error(
+                f"Term delete transaction failed for {context.entity_id}: {e}",
+                exc_info=True,
+            )
             tx.rollback()
             raise_validation_error(
                 f"Term delete transaction failed: {type(e).__name__}: {str(e)}",
@@ -273,7 +279,10 @@ class EntityUpdateTermsMixin(BaseModel):
             tx.rollback()
             raise
         except Exception as e:
-            logger.error(f"Term add transaction failed for {context.entity_id}: {e}", exc_info=True)
+            logger.error(
+                f"Term add transaction failed for {context.entity_id}: {e}",
+                exc_info=True,
+            )
             tx.rollback()
             raise_validation_error(
                 f"Term add transaction failed: {type(e).__name__}: {str(e)}",
@@ -451,7 +460,9 @@ class EntityUpdateTermsMixin(BaseModel):
 
         new_alias_hash = MetadataExtractor.hash_string(alias)
         if new_alias_hash in existing_alias_hashes:
-            logger.warning(f"Alias '{alias}' already exists for entity {entity_id}, language {language_code}")
+            logger.warning(
+                f"Alias '{alias}' already exists for entity {entity_id}, language {language_code}"
+            )
             raise_validation_error(
                 f"Alias '{alias}' already exists for language {language_code}",
                 status_code=409,

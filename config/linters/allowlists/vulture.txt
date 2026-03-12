@@ -214,4 +214,12 @@ QualifierRecord
 ReferenceRecord
 SnakRecord
 StatementRecord
+# REST API endpoint helper functions (used via string references in router)
+get_entity_read_handler
+get_entity_delete_handler
+get_entity_status_handler
+get_entity_update_handler
+get_statement_handler
+get_backlink_handler
+get_state_from_request
 
