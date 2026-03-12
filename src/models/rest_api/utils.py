@@ -2,7 +2,7 @@
 
 import logging
 import re
-from typing import NoReturn
+from typing import Any, NoReturn
 
 from models.data.infrastructure.s3.enums import EntityType
 
@@ -59,3 +59,9 @@ def validate_qid(value: str, field_name: str) -> None:
             f"{field_name} must be a valid QID format (Q followed by digits), got: {value}",
             status_code=400,
         )
+
+
+def validate_state_clients(state: Any) -> None:
+    """Validate that state has required clients (vitess_client and s3_client)."""
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
+        raise_validation_error("Invalid clients type", status_code=500)

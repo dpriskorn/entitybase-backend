@@ -53,7 +53,15 @@ from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
 from models.rest_api.entitybase.v1.services.entity_statement_service import (
     EntityStatementService,
 )
-from models.rest_api.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error, validate_state_clients
+from models.rest_api.entitybase.v1.endpoints.base import (
+    get_entity_read_handler,
+    get_entity_delete_handler,
+    get_entity_status_handler,
+    get_entity_update_handler,
+    get_statement_handler,
+    get_backlink_handler,
+)
 from models.infrastructure.s3.exceptions import S3NotFoundError
 
 logger = logging.getLogger(__name__)
@@ -193,8 +201,7 @@ async def delete_entity(  # type: ignore[no-any-return]
 ) -> EntityDeleteResponse:
     """Delete an entity."""
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
     handler = EntityDeleteHandler(state=state)
     result = await handler.delete_entity(entity_id, request, edit_headers=headers)
     if not isinstance(result, EntityDeleteResponse):
@@ -211,8 +218,7 @@ async def lock_entity(
 ) -> EntityStatusResponse:
     """Lock an entity from edits."""
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
     handler = EntityStatusHandler(state=state)
     return handler.lock(entity_id, request, edit_headers=headers)
 
@@ -226,8 +232,7 @@ async def unlock_entity(
 ) -> EntityStatusResponse:
     """Remove lock from an entity."""
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
     handler = EntityStatusHandler(state=state)
     return handler.unlock(entity_id, request, edit_headers=headers)
 
@@ -241,8 +246,7 @@ async def archive_entity(
 ) -> EntityStatusResponse:
     """Archive an entity."""
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
     handler = EntityStatusHandler(state=state)
     return handler.archive(entity_id, request, edit_headers=headers)
 
@@ -256,8 +260,7 @@ async def unarchive_entity(
 ) -> EntityStatusResponse:
     """Unarchive an entity."""
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
     handler = EntityStatusHandler(state=state)
     return handler.unarchive(entity_id, request, edit_headers=headers)
 
@@ -270,8 +273,7 @@ async def semi_protect_entity(
 ) -> EntityStatusResponse:
     """Semi-protect an entity."""
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
     handler = EntityStatusHandler(state=state)
     return handler.semi_protect(entity_id, request)
 
@@ -286,8 +288,7 @@ async def unsemi_protect_entity(
 ) -> EntityStatusResponse:
     """Remove semi-protection from an entity."""
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
     handler = EntityStatusHandler(state=state)
     return handler.unsemi_protect(entity_id, request)
 
@@ -302,8 +303,7 @@ async def mass_edit_protect_entity(
 ) -> EntityStatusResponse:
     """Add mass edit protection to an entity."""
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
     handler = EntityStatusHandler(state=state)
     return handler.mass_edit_protect(entity_id, request)
 
@@ -318,8 +318,7 @@ async def mass_edit_unprotect_entity(
 ) -> EntityStatusResponse:
     """Remove mass edit protection from an entity."""
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
     handler = EntityStatusHandler(state=state)
     return handler.mass_edit_unprotect(entity_id, request)
 
@@ -331,8 +330,7 @@ async def get_entity_properties(entity_id: str, req: Request) -> PropertyListRes
     Returns sorted list of properties used in entity statements.
     """
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
     handler = StatementHandler(state=state)
     return handler.get_entity_properties(entity_id)
 
@@ -348,8 +346,7 @@ async def get_entity_property_counts(
     Returns dict mapping property ID -> count of statements.
     """
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
     handler = StatementHandler(state=state)
     return handler.get_entity_property_counts(entity_id)
 
@@ -363,8 +360,7 @@ async def get_entity_property_hashes(
 ) -> PropertyHashesResponse:
     """Get entity property hashes for specified properties."""
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
     handler = StatementHandler(state=state)
     return handler.get_entity_property_hashes(entity_id, property_list)
 
@@ -382,8 +378,7 @@ async def add_entity_property(
 ) -> OperationResult[RevisionIdResult]:
     """Add claims for a single property to an entity."""
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
     handler = EntityStatementService(state=state)
     result = await handler.add_property(
         entity_id, property_id, request, edit_headers=headers
@@ -405,8 +400,7 @@ async def add_entity_statement(
 ) -> OperationResult[RevisionIdResult]:
     """Add a single statement to an entity."""
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
     handler = EntityStatementService(state=state)
     result = await handler.add_statement(entity_id, request, edit_headers=headers)
     if not isinstance(result, OperationResult):
@@ -429,8 +423,7 @@ async def remove_entity_statement(
 ) -> OperationResult[RevisionIdResult]:
     """Remove a statement by hash from an entity."""
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
     handler = EntityStatementService(state=state)
     result = await handler.remove_statement(
         entity_id,
@@ -455,8 +448,7 @@ async def patch_entity_statement(
 ) -> OperationResult[RevisionIdResult]:
     """Replace a statement by hash with new claim data."""
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
     handler = EntityStatementService(state=state)
     result = await handler.patch_statement(
         entity_id,
@@ -474,9 +466,7 @@ async def get_all_sitelinks(entity_id: str, req: Request) -> AllSitelinksRespons
     """Get all sitelinks for an entity."""
     logger.debug(f"Getting all sitelinks for entity {entity_id}")
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        logger.error("Invalid state type")
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
 
     logger.debug(f"Getting entity {entity_id}")
     handler = EntityReadHandler(state=state)
@@ -501,9 +491,7 @@ async def get_entity_sitelink(entity_id: str, site: str, req: Request) -> Siteli
     """Get a single sitelink for an entity."""
     logger.debug(f"Getting sitelink for entity {entity_id}, site {site}")
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        logger.error("Invalid state type")
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
     logger.debug(f"Getting entity {entity_id}")
     handler = EntityReadHandler(state=state)
     entity_response = handler.get_entity(entity_id)
@@ -560,8 +548,7 @@ async def post_entity_sitelink(
         f"Starting post_entity_sitelink for entity_id: {entity_id}, site: {site}"
     )
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
 
     handler = EntityReadHandler(state=state)
     current_entity = handler.get_entity(entity_id)
@@ -606,8 +593,7 @@ async def put_entity_sitelink(
         f"Starting put_entity_sitelink for entity_id: {entity_id}, site: {site}"
     )
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
 
     update_handler = EntityUpdateHandler(state=state)
     ctx = SitelinkUpdateContext(
@@ -642,8 +628,7 @@ async def delete_entity_sitelink(
         f"Starting delete_entity_sitelink for entity_id: {entity_id}, site: {site}"
     )
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
 
     update_handler = EntityUpdateHandler(state=state)
     result = await update_handler.delete_sitelink(

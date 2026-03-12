@@ -8,7 +8,7 @@ from models.data.rest_api.v1.entitybase.response import (
     ThankResponse,
     ThanksListResponse,
 )
-from models.rest_api.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error, validate_state_clients
 
 
 thanks_router = APIRouter(tags=["interactions"])
@@ -26,8 +26,8 @@ def send_thank_endpoint(
 ) -> ThankResponse:
     """Send a thank for a specific revision."""
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
+
     handler = ThanksHandler(state=state)
     result = handler.send_thank(entity_id, revision_id, user_id)
     if not isinstance(result, ThankResponse):
@@ -49,8 +49,8 @@ def get_thanks_received_endpoint(
 ) -> ThanksListResponse:
     """Get thanks received by user."""
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
+
     handler = ThanksHandler(state=state)
     request = ThanksListRequest(limit=limit, offset=offset, hours=hours)
     result = handler.get_thanks_received(user_id, request)
@@ -71,8 +71,8 @@ def get_thanks_sent_endpoint(
 ) -> ThanksListResponse:
     """Get thanks sent by user."""
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
+
     handler = ThanksHandler(state=state)
     request = ThanksListRequest(limit=limit, offset=offset, hours=hours)
     result = handler.get_thanks_sent(user_id, request)
@@ -90,8 +90,8 @@ def get_revision_thanks_endpoint(
 ) -> ThanksListResponse:
     """Get all thanks for a specific revision."""
     state = req.app.state.state_handler
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
-        raise_validation_error("Invalid clients type", status_code=500)
+    validate_state_clients(state)
+
     handler = ThanksHandler(state=state)
     result = handler.get_revision_thanks(entity_id, revision_id)
     if not isinstance(result, ThanksListResponse):
