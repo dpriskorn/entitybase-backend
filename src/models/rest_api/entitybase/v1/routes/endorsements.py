@@ -21,7 +21,7 @@ endorsements_router = APIRouter(tags=["interactions"])
     "/statements/{statement_hash}/endorse",
     response_model=EndorsementResponse,
 )
-def endorse_statement_endpoint(
+async def endorse_statement_endpoint(
     req: Request, statement_hash: int, user_id: int = Header(..., alias="X-User-ID")
 ) -> EndorsementResponse:
     """Endorse a statement to signal trust."""
@@ -29,7 +29,7 @@ def endorse_statement_endpoint(
     if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EndorsementHandler(state=state)
-    result = handler.endorse_statement(statement_hash, user_id)
+    result = await handler.endorse_statement(statement_hash, user_id)
     if not isinstance(result, EndorsementResponse):
         raise_validation_error("Invalid response type", status_code=500)
     return result
@@ -39,7 +39,7 @@ def endorse_statement_endpoint(
     "/statements/{statement_hash}/endorse",
     response_model=EndorsementResponse,
 )
-def withdraw_endorsement_endpoint(
+async def withdraw_endorsement_endpoint(
     req: Request, statement_hash: int, user_id: int = Header(..., alias="X-User-ID")
 ) -> EndorsementResponse:
     """Withdraw endorsement from a statement."""
@@ -47,7 +47,7 @@ def withdraw_endorsement_endpoint(
     if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EndorsementHandler(state=state)
-    result = handler.withdraw_endorsement(statement_hash, user_id)
+    result = await handler.withdraw_endorsement(statement_hash, user_id)
     if not isinstance(result, EndorsementResponse):
         raise_validation_error("Invalid response type", status_code=500)
     return result
