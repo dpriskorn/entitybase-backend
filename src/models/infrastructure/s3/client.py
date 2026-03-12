@@ -196,11 +196,13 @@ class MyS3Client(Client):
         if not result.success:
             raise_validation_error("Storage service unavailable", status_code=503)
 
-    def store_term_metadata(self, term: str, content_hash: int) -> None:
+    def store_term_metadata(
+        self, term: str, content_hash: int, content_type: str = "labels"
+    ) -> None:
         """Store term metadata in Vitess."""
         if not hasattr(self, "vitess_metadata") or not self.vitess_metadata:
             raise_validation_error("Vitess storage not configured", status_code=503)
-        result = self.vitess_metadata.store_metadata(content_hash, "labels", term)
+        result = self.vitess_metadata.store_metadata(content_hash, content_type, term)
         if not result.success:
             raise_validation_error("Storage service unavailable", status_code=503)
 

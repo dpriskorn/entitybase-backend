@@ -13,6 +13,7 @@ from models.data.rest_api.v1.entitybase.response import (
     DeleteResponse,
     AliasesResponse,
 )
+from models.data.infrastructure.s3.enums import MetadataType
 from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
@@ -44,7 +45,9 @@ async def get_entity_aliases(
 
     alias_texts = []
     for hash_value in aliases_hashes[language_code]:
-        alias_data = state.s3_client.load_metadata("labels", int(hash_value))
+        alias_data = state.s3_client.load_metadata(
+            MetadataType.ALIASES, int(hash_value)
+        )
         if alias_data and alias_data.data:
             alias_texts.append(str(alias_data.data))
     return AliasesResponse(aliases=alias_texts)

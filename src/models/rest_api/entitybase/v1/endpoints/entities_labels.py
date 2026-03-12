@@ -13,6 +13,7 @@ from models.data.rest_api.v1.entitybase.response import (
     TermHashResponse,
     DeleteResponse,
 )
+from models.data.infrastructure.s3.enums import MetadataType
 from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
@@ -43,7 +44,7 @@ async def get_entity_label(
         )
 
     hash_value = int(labels_hashes[language_code])
-    label_text = state.s3_client.load_metadata("labels", hash_value)
+    label_text = state.s3_client.load_metadata(MetadataType.LABELS, hash_value)
     if label_text is None:
         raise HTTPException(
             status_code=404, detail=f"Label not found for hash {hash_value}"

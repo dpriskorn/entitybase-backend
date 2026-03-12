@@ -509,25 +509,8 @@ async def get_entity_sitelink(entity_id: str, site: str, req: Request) -> Siteli
     badges = sitelink_hash_data.get("badges", [])
     logger.debug(f"Sitelink hash data: title_hash={title_hash}, badges={badges}")
 
-    from models.infrastructure.s3.storage.metadata_storage import MetadataStorage
-    from models.data.infrastructure.s3.enums import MetadataType
-
-    metadata_storage = MetadataStorage(
-        connection_manager=state.s3_client.connection_manager, bucket=""
-    )
-    load_response = metadata_storage.load_metadata(MetadataType.SITELINKS, title_hash)
-
-    if load_response is None or not hasattr(load_response, "data"):
-        raise_validation_error(
-            f"Sitelink title not found for site {site}", status_code=404
-        )
-
-    if isinstance(load_response.data, str):
-        title = load_response.data
-    else:
-        raise_validation_error(
-            f"Sitelink title is not a string for site {site}", status_code=500
-        )
+    # Load from Vitess (not S3-based MetadataStorage)
+    title = state.s3_client.load_sitelink_metadata(title_hash)
 
     return SitelinkData(title=title, badges=badges)
 
