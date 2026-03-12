@@ -462,3 +462,77 @@ async def test_watchlist_stats(api_prefix: str, initialized_app: None) -> None:
         data = response.json()
         assert "entity_count" in data
         assert "property_count" in data
+
+
+@pytest.mark.asyncio
+@pytest.mark.integration
+async def test_get_user_stats(api_prefix: str, initialized_app: None) -> None:
+    """Test getting user statistics."""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        response = await client.get(f"{api_prefix}/users/stat")
+        assert response.status_code == 200
+        data = response.json()
+        assert "total" in data
+        assert "active" in data
+
+
+@pytest.mark.asyncio
+@pytest.mark.integration
+async def test_get_user_activity(api_prefix: str, initialized_app: None) -> None:
+    """Test getting user activity."""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        # Create user first
+        await client.post(
+            f"{api_prefix}/users",
+            json={"user_id": 12345},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
+
+        response = await client.get(
+            f"{api_prefix}/users/12345/activity?hours=24&limit=50"
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert "user_id" in data
+        assert "activities" in data
+
+
+@pytest.mark.asyncio
+@pytest.mark.integration
+async def test_toggle_watchlist(api_prefix: str, initialized_app: None) -> None:
+    """Test toggling watchlist for user."""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        # Create user first
+        await client.post(
+            f"{api_prefix}/users",
+            json={"user_id": 12345},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
+
+        # Disable watchlist
+        response = await client.put(
+            f"{api_prefix}/users/12345/watchlist/toggle",
+            json={"enabled": False},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
+        assert response.status_code == 200
+
+        # Enable watchlist
+        response = await client.put(
+            f"{api_prefix}/users/12345/watchlist/toggle",
+            json={"enabled": True},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
+        assert response.status_code == 200

@@ -1,7 +1,7 @@
 """Unit tests for endorsement handler."""
 
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, AsyncMock, patch
 from datetime import datetime, timezone
 from fastapi import HTTPException
 
@@ -26,6 +26,7 @@ class TestEndorsementHandler:
     def mock_state(self):
         """Create a mock state object."""
         state = MagicMock()
+        state.endorsement_stream_producer = None
         return state
 
     @pytest.fixture
@@ -108,31 +109,33 @@ class TestEndorsementHandler:
 
         assert exc_info.value.status_code == 400
 
-    def test_publish_endorsement_event_with_producer(self, mock_handler, mock_state):
+    @pytest.mark.asyncio
+    async def test_publish_endorsement_event_with_producer(self, mock_handler, mock_state):
         """Test _publish_endorsement_event when producer exists."""
         from models.rest_api.entitybase.v1.handlers.endorsements import (
             EndorsementHandler,
         )
 
-        mock_producer = MagicMock()
-        mock_state.vitess_client.stream_producer = mock_producer
+        mock_producer = AsyncMock()
+        mock_state.endorsement_stream_producer = mock_producer
 
-        EndorsementHandler._publish_endorsement_event(
+        await EndorsementHandler._publish_endorsement_event(
             mock_handler, 12345, 1, EndorseAction.ENDORSE
         )
 
         mock_producer.publish.assert_called_once()
 
-    def test_publish_endorsement_event_without_producer(self, mock_handler, mock_state):
+    @pytest.mark.asyncio
+    async def test_publish_endorsement_event_without_producer(self, mock_handler, mock_state):
         """Test _publish_endorsement_event when no producer exists."""
         from models.rest_api.entitybase.v1.handlers.endorsements import (
             EndorsementHandler,
         )
 
-        mock_state.vitess_client.stream_producer = None
+        mock_state.endorsement_stream_producer = None
 
         # Should not raise an exception, just do nothing
-        EndorsementHandler._publish_endorsement_event(
+        await EndorsementHandler._publish_endorsement_event(
             mock_handler, 12345, 1, EndorseAction.ENDORSE
         )
 
