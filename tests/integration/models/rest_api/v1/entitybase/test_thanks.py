@@ -41,8 +41,8 @@ async def test_send_thanks(api_prefix: str) -> None:
         response = await client.get(
             f"{api_prefix}/entities/{entity_id}/revisions/{revision_id}/thanks",
         )
-        # Should work (returns 200 or 404 if revision not found)
-        assert response.status_code in [200, 404]
+        # Revision does not exist yet
+        assert response.status_code == 404
 
 
 @pytest.mark.asyncio
