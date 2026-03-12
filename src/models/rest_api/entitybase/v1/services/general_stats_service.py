@@ -41,8 +41,8 @@ class GeneralStatsService(Service):
             total_properties=total_properties,
             total_sitelinks=total_sitelinks,
             total_terms=total_terms,
-            terms_per_language=TermsPerLanguage(terms=terms_per_language),
-            terms_by_type=TermsByType(counts=terms_by_type),
+            terms_per_language=terms_per_language,
+            terms_by_type=terms_by_type,
         )
 
     def get_total_statements(self) -> int:
