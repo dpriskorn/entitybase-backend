@@ -4232,20 +4232,24 @@ name = "wikibaseintegrator"
 version = "0.12.15"
 description = "Python package for reading from and writing to a Wikibase instance"
 optional = false
-python-versions = "<4.0,>=3.9"
+python-versions = "^3.9"
 groups = ["main"]
-files = [
-    {file = "wikibaseintegrator-0.12.15-py3-none-any.whl", hash = "sha256:a7dee5d67120ba745751d313bac3940b257ac681973fc494799d525b21428f01"},
-    {file = "wikibaseintegrator-0.12.15.tar.gz", hash = "sha256:9f5bbee8feebfa9ff18856944d29c7d9d40c1226ab79c4d5e12b714bb79721e2"},
-]
+files = []
+develop = false
 
 [package.dependencies]
-backoff = ">=2.2.1,<3.0.0"
-mwoauth = ">=0.4.0,<0.5.0"
-oauthlib = ">=3.2.2,<4.0.0"
-requests = ">=2.32.3,<3.0.0"
-requests-oauthlib = ">=2.0.0,<3.0.0"
-ujson = ">=5.10.0,<6.0.0"
+backoff = "^2.2.1"
+mwoauth = "^0.4.0"
+oauthlib = "^3.2.2"
+requests = "^2.32.3"
+requests-oauthlib = "^2.0.0"
+ujson = "^5.10.0"
+
+[package.source]
+type = "git"
+url = "https://github.com/dpriskorn/WikibaseIntegrator.git"
+reference = "fix-hash"
+resolved_reference = "3a3d0ce3977f78ca5f186d10f191d939dd0bc8e1"
 
 [[package]]
 name = "xmltodict"
@@ -4296,4 +4300,4 @@ pyyaml = ">=6.0.2"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13,<4.0"
-content-hash = "270bdc185c51763c75a589d08d8a5a07745d5682e9cd255ea0d8846587cf004f"
+content-hash = "ea5bfc5f0b7aa81d065553c0f3a95260ff60f11fd9b6766e52423caf9142bec5"
