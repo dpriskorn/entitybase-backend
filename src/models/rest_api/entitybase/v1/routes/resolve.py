@@ -6,6 +6,7 @@ from typing import Any, List, Optional, cast
 from fastapi import APIRouter, HTTPException
 from starlette.requests import Request
 
+from models.data.infrastructure.s3.enums import MetadataType
 from models.data.infrastructure.s3.qualifier_data import S3QualifierData
 from models.data.rest_api.v1.entitybase.response import (
     BatchAliasesResponse,
@@ -339,7 +340,7 @@ async def get_batch_labels(hashes: str, req: Request) -> BatchLabelsResponse:
     for h in hash_list:
         try:
             hash_value = int(h.strip())
-            label = state.s3_client.load_metadata("labels", hash_value)
+            label = state.s3_client.load_metadata(MetadataType.LABELS, hash_value)
             if label:
                 result[h] = label.data
         except (ValueError, S3NotFoundError):
@@ -366,7 +367,7 @@ async def get_batch_descriptions(
     for h in hash_list:
         try:
             hash_value = int(h.strip())
-            desc = state.s3_client.load_metadata("descriptions", hash_value)
+            desc = state.s3_client.load_metadata(MetadataType.DESCRIPTIONS, hash_value)
             if desc:
                 result[h] = desc.data
         except (ValueError, S3NotFoundError):
@@ -391,7 +392,7 @@ async def get_batch_aliases(hashes: str, req: Request) -> BatchAliasesResponse:
     for h in hash_list:
         try:
             hash_value = int(h.strip())
-            aliases = state.s3_client.load_metadata("aliases", hash_value)
+            aliases = state.s3_client.load_metadata(MetadataType.ALIASES, hash_value)
             if aliases:
                 result[h] = aliases.data
         except (ValueError, S3NotFoundError):
@@ -419,6 +420,6 @@ async def get_batch_sitelinks(hashes: str, req: Request) -> BatchSitelinksRespon
             title = state.s3_client.load_sitelink_metadata(hash_value)
             if title:
                 result[h] = title
-        except (ValueError, S3NotFoundError):
+        except (ValueError, S3NotFoundError, HTTPException):
             pass
     return BatchSitelinksResponse(sitelinks=result)
