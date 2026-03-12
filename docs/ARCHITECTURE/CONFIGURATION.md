@@ -255,6 +255,12 @@ All settings can be overridden using environment variables with the same name.
 - **Default**: `''`
 - **Description**: No description available
 
+### `kafka_userchange_json_topic`
+
+- **Type**: `str`
+- **Default**: `''`
+- **Description**: No description available
+
 ### `streaming_entity_change_version`
 
 - **Type**: `str`
@@ -277,6 +283,12 @@ All settings can be overridden using environment variables with the same name.
 
 - **Type**: `str`
 - **Default**: `'2.0.0'`
+- **Description**: No description available
+
+### `streaming_user_change_version`
+
+- **Type**: `str`
+- **Default**: `'1.0.0'`
 - **Description**: No description available
 
 ### `entity_version`

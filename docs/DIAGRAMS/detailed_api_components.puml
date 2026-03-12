@@ -28,6 +28,7 @@ package "API Handlers" as APIHandlers #LightBlue {
     "Redirect" as RedirectHandler
     "State" as StateHandler
     "Statement" as StatementHandler
+    "TermTransactionContext" as TermTransactionContext
     "Thanks" as ThanksHandler
     "UpdateTransaction" as UpdateTransaction
     "UserActivity" as UserActivityHandler
