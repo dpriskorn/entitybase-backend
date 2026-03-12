@@ -69,20 +69,52 @@ async def test_add_statement(
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-async def test_remove_statement(api_prefix: str, sample_item_with_statements) -> None:
+async def test_remove_statement(
+    api_prefix: str, sample_item_data, sample_property_data
+) -> None:
     from models.rest_api.main import app
 
     """E2E test: Remove a statement by hash from an entity."""
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Create entity with statements
+        headers = {"X-Edit-Summary": "E2E test", "X-User-ID": "0"}
+
+        # Create property first
+        property_response = await client.post(
+            f"{api_prefix}/entities/properties",
+            headers=headers,
+        )
+        assert property_response.status_code == 200
+        property_id = property_response.json()["data"]["entity_id"]
+
+        # Create entity
         response = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+            headers=headers,
         )
         assert response.status_code == 200
         entity_id = response.json()["data"]["entity_id"]
+
+        # Add statement to entity
+        statement_data = {
+            "claim": {
+                "id": "TESTCLAIM123",
+                "mainsnak": {
+                    "snaktype": "value",
+                    "property": property_id,
+                    "datavalue": {"value": {"id": "Q5"}, "type": "wikibase-item"},
+                },
+                "type": "statement",
+                "rank": "normal",
+            }
+        }
+        response = await client.post(
+            f"{api_prefix}/entities/{entity_id}/statements",
+            json=statement_data,
+            headers=headers,
+        )
+        assert response.status_code == 200
 
         # Get statement hash
         response = await client.get(f"{api_prefix}/entities/{entity_id}")
@@ -92,10 +124,7 @@ async def test_remove_statement(api_prefix: str, sample_item_with_statements) ->
         statements = revision.get(
             "statements", revision.get("hashes", {}).get("statements", [])
         )
-        if not statements:
-            pytest.skip(
-                "No statements found - entity creation may not support inline statements"
-            )
+        assert len(statements) > 0, "Expected at least one statement to exist"
         statement_hash = statements[0]
 
         # Remove statement
@@ -118,20 +147,52 @@ async def test_remove_statement(api_prefix: str, sample_item_with_statements) ->
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-async def test_replace_statement(api_prefix: str, sample_item_with_statements) -> None:
+async def test_replace_statement(
+    api_prefix: str, sample_item_data, sample_property_data
+) -> None:
     from models.rest_api.main import app
 
     """E2E test: Replace a statement by hash with new claim data."""
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Create entity with statements
+        headers = {"X-Edit-Summary": "E2E test", "X-User-ID": "0"}
+
+        # Create property first
+        property_response = await client.post(
+            f"{api_prefix}/entities/properties",
+            headers=headers,
+        )
+        assert property_response.status_code == 200
+        property_id = property_response.json()["data"]["entity_id"]
+
+        # Create entity
         response = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+            headers=headers,
         )
         assert response.status_code == 200
         entity_id = response.json()["data"]["entity_id"]
+
+        # Add statement to entity
+        statement_data = {
+            "claim": {
+                "id": "TESTCLAIM123",
+                "mainsnak": {
+                    "snaktype": "value",
+                    "property": property_id,
+                    "datavalue": {"value": {"id": "Q5"}, "type": "wikibase-item"},
+                },
+                "type": "statement",
+                "rank": "normal",
+            }
+        }
+        response = await client.post(
+            f"{api_prefix}/entities/{entity_id}/statements",
+            json=statement_data,
+            headers=headers,
+        )
+        assert response.status_code == 200
 
         # Get statement hash
         response = await client.get(f"{api_prefix}/entities/{entity_id}")
@@ -141,10 +202,7 @@ async def test_replace_statement(api_prefix: str, sample_item_with_statements) -
         statements = revision.get(
             "statements", revision.get("hashes", {}).get("statements", [])
         )
-        if not statements:
-            pytest.skip(
-                "No statements found - entity creation may not support inline statements"
-            )
+        assert len(statements) > 0, "Expected at least one statement to exist"
         original_hash = statements[0]
 
         # Replace statement
@@ -152,7 +210,7 @@ async def test_replace_statement(api_prefix: str, sample_item_with_statements) -
             "id": "TESTCLAIM456",
             "mainsnak": {
                 "snaktype": "value",
-                "property": "P31",
+                "property": property_id,
                 "datavalue": {"value": {"id": "Q5"}, "type": "wikibase-item"},
             },
             "type": "statement",
