@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 class EndorsementHandler(Handler):
     """Handler for endorsement operations."""
 
-    def endorse_statement(
+    async def endorse_statement(
         self, statement_hash: int, user_id: int
     ) -> EndorsementResponse:
         """Create an endorsement for a statement."""
@@ -40,7 +40,7 @@ class EndorsementHandler(Handler):
         created_endorsement = self._get_and_validate_endorsement(
             statement_hash, user_id, must_be_active=True
         )
-        self._publish_endorsement_event(statement_hash, user_id, EndorseAction.ENDORSE)
+        await self._publish_endorsement_event(statement_hash, user_id, EndorseAction.ENDORSE)
 
         # Log activity
         activity_result = self.state.vitess_client.user_repository.log_user_activity(
@@ -60,7 +60,7 @@ class EndorsementHandler(Handler):
             removed_at="",
         )
 
-    def withdraw_endorsement(
+    async def withdraw_endorsement(
         self, statement_hash: int, user_id: int
     ) -> EndorsementResponse:
         """Withdraw an endorsement for a statement."""
@@ -78,7 +78,7 @@ class EndorsementHandler(Handler):
         withdrawn_endorsement = self._get_and_validate_endorsement(
             statement_hash, user_id, must_be_active=False
         )
-        self._publish_endorsement_event(statement_hash, user_id, EndorseAction.WITHDRAW)
+        await self._publish_endorsement_event(statement_hash, user_id, EndorseAction.WITHDRAW)
 
         # Log activity
         activity_result = self.state.vitess_client.user_repository.log_user_activity(
@@ -153,18 +153,18 @@ class EndorsementHandler(Handler):
             raise_validation_error("Failed to retrieve endorsement", status_code=500)
         return endorsement
 
-    def _publish_endorsement_event(
+    async def _publish_endorsement_event(
         self, statement_hash: int, user_id: int, action: EndorseAction
     ) -> None:
         """Publish endorsement change event."""
-        if settings.streaming_enabled and self.state.vitess_client.stream_producer:
+        if settings.streaming_enabled and self.state.endorsement_stream_producer:
             event = EndorseChangeEvent(
                 hash=str(statement_hash),
                 user=str(user_id),
                 act=action,
                 ts=datetime.now(timezone.utc),
             )
-            self.state.vitess_client.stream_producer.publish(event)
+            await self.state.endorsement_stream_producer.publish(event)
 
     def get_statement_endorsements(
         self,
