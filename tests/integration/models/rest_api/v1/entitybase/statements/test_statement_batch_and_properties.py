@@ -303,3 +303,145 @@ async def test_most_used_statements(api_prefix: str) -> None:
         # Each statement should be an integer hash
         for stmt_hash in statements:
             assert isinstance(stmt_hash, int)
+
+
+@pytest.mark.asyncio
+@pytest.mark.integration
+async def test_batch_statements_with_property_filter(api_prefix: str) -> None:
+    """Test batch statements with property filter"""
+    from models.rest_api.main import app
+
+    entity_data = {
+        "type": "item",
+        "labels": {"en": {"language": "en", "value": "Batch Filter Test"}},
+        "claims": {
+            "P31": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P31",
+                        "datatype": "wikibase-item",
+                        "datavalue": {
+                            "value": {"entity-type": "item", "id": "Q5"},
+                            "type": "wikibase-entityid",
+                        },
+                    },
+                    "type": "statement",
+                    "rank": "normal",
+                    "qualifiers": {},
+                    "references": [],
+                }
+            ],
+            "P279": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P279",
+                        "datatype": "wikibase-item",
+                        "datavalue": {
+                            "value": {"entity-type": "item", "id": "Q515"},
+                            "type": "wikibase-entityid",
+                        },
+                    },
+                    "type": "statement",
+                    "rank": "normal",
+                    "qualifiers": {},
+                    "references": [],
+                }
+            ],
+        },
+    }
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        create_response = await client.post(
+            f"{api_prefix}/entities/items",
+            json=entity_data,
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
+        assert create_response.status_code == 200
+        entity_id = create_response.json()["data"]["entity_id"]
+
+        # Get batch with property filter - only P31
+        response = await client.get(
+            f"{api_prefix}/statements/batch?entity_ids={entity_id}&property_ids=P31"
+        )
+        # Should return 200 with statements structure
+        assert response.status_code == 200
+        result = response.json()
+        assert "statements" in result
+
+
+@pytest.mark.asyncio
+@pytest.mark.integration
+async def test_batch_statements_too_many_entities(api_prefix: str) -> None:
+    """Test batch statements with too many entity IDs returns 400"""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        # Create a string with 21 entity IDs (exceeds limit of 20)
+        entity_ids = ",".join([f"Q{i}" for i in range(1, 22)])
+        response = await client.get(f"{api_prefix}/statements/batch?entity_ids={entity_ids}")
+        assert response.status_code == 400
+        # Error response might have "detail" or "message"
+        response_json = response.json()
+        assert "detail" in response_json or "message" in response_json
+
+
+@pytest.mark.asyncio
+@pytest.mark.integration
+async def test_batch_statements_nonexistent_entity(api_prefix: str) -> None:
+    """Test batch statements with nonexistent entity returns empty dict"""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        # Request nonexistent entity - should return empty dict for that entity
+        response = await client.get(f"{api_prefix}/statements/batch?entity_ids=Q99999")
+        assert response.status_code == 200
+        result = response.json()
+        assert "statements" in result
+        assert "Q99999" in result["statements"]
+        assert result["statements"]["Q99999"] == {}
+
+
+@pytest.mark.asyncio
+@pytest.mark.integration
+async def test_cleanup_orphaned_statements(api_prefix: str) -> None:
+    """Test cleanup orphaned statements endpoint"""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        cleanup_request = {"older_than_days": 30, "limit": 100}
+        response = await client.post(
+            f"{api_prefix}/statements/cleanup-orphaned",
+            json=cleanup_request,
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert "cleaned_count" in data
+        assert "failed_count" in data
+        assert "errors" in data
+
+
+@pytest.mark.asyncio
+@pytest.mark.integration
+async def test_most_used_statements_with_params(api_prefix: str) -> None:
+    """Test most_used_statements with custom limit and min_ref_count"""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        response = await client.get(
+            f"{api_prefix}/statements/most_used?limit=10&min_ref_count=2"
+        )
+        assert response.status_code == 200
+        result = response.json()
+        assert "statements" in result
