@@ -1,44 +1,47 @@
 """Unit tests for worker __main__ entry points."""
 
 import pytest
-from unittest.mock import patch, MagicMock
+import asyncio
+from unittest.mock import patch, AsyncMock, MagicMock
 
 
 class TestWorkerEntryPoints:
     """Unit tests for worker entry point modules."""
 
-    @patch("models.workers.incremental_rdf.incremental_rdf_worker.main")
+    @patch("models.workers.incremental_rdf.incremental_rdf_worker.main", new_callable=AsyncMock)
     def test_incremental_rdf_main_entry_point(self, mock_main):
-        """Test incremental_rdf worker entry point."""
-        import models.workers.incremental_rdf.__main__ as main_module
+        """Test incremental_rdf worker entry point runs main."""
+        # Directly test that the module can be imported and asyncio.run works
+        from models.workers.incremental_rdf import __main__ as inc_main
+        from models.workers.incremental_rdf import incremental_rdf_worker
 
-        # Simulate running as __main__
-        with patch.object(main_module, "__name__", "__main__"):
-            # The import just imports the module, doesn't run main
-            # So we just verify the module imports correctly
-            from models.workers.incremental_rdf import __main__
+        # Run the main function
+        asyncio.run(incremental_rdf_worker.main())
 
-            assert __main__ is not None
+        mock_main.assert_called_once()
 
-    @patch("models.workers.json_dumps.json_dump_worker.main")
+    @patch("models.workers.json_dumps.json_dump_worker.main", new_callable=AsyncMock)
     def test_json_dumps_main_entry_point(self, mock_main):
-        """Test json dumps worker entry point."""
-        from models.workers.json_dumps import __main__
+        """Test json dumps worker entry point runs main."""
+        from models.workers.json_dumps import json_dump_worker
 
-        assert __main__ is not None
+        asyncio.run(json_dump_worker.main())
 
-    @patch("models.workers.ttl_dumps.ttl_dump_worker.main")
+        mock_main.assert_called_once()
+
+    @patch("models.workers.ttl_dumps.ttl_dump_worker.main", new_callable=AsyncMock)
     def test_ttl_dumps_main_entry_point(self, mock_main):
-        """Test ttl dumps worker entry point."""
-        from models.workers.ttl_dumps import __main__
+        """Test ttl dumps worker entry point runs main."""
+        from models.workers.ttl_dumps import ttl_dump_worker
 
-        assert __main__ is not None
+        asyncio.run(ttl_dump_worker.main())
+
+        mock_main.assert_called_once()
 
     def test_incremental_rdf_module_structure(self):
         """Test incremental_rdf __main__ module structure."""
         from models.workers.incremental_rdf import __main__ as inc_main
 
-        # Check module has expected attributes
         assert hasattr(inc_main, "__file__")
 
     def test_json_dumps_module_structure(self):

@@ -1,7 +1,6 @@
 """Unit tests for CreateRevisionRequest model."""
 
 import pytest
-from unittest.mock import MagicMock
 
 from models.data.infrastructure.s3.enums import EntityType
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
@@ -16,16 +15,16 @@ class TestCreateRevisionRequest:
 
     def test_basic_instantiation(self):
         """Test basic instantiation with required fields."""
-        mock_request_data = MagicMock(spec=PreparedRequestData)
-        mock_hash_result = MagicMock(spec=StatementHashResult)
+        request_data = PreparedRequestData(id="Q1")
+        hash_result = StatementHashResult(statements=[12345])
 
         request = CreateRevisionRequest(
             entity_id="Q1",
             new_revision_id=1,
             head_revision_id=0,
-            request_data=mock_request_data,
+            request_data=request_data,
             entity_type=EntityType.ITEM,
-            hash_result=mock_hash_result,
+            hash_result=hash_result,
             edit_type="manual-create",
         )
 
@@ -37,16 +36,16 @@ class TestCreateRevisionRequest:
 
     def test_default_values(self):
         """Test default values are applied correctly."""
-        mock_request_data = MagicMock(spec=PreparedRequestData)
-        mock_hash_result = MagicMock(spec=StatementHashResult)
+        request_data = PreparedRequestData(id="Q1")
+        hash_result = StatementHashResult(statements=[12345])
 
         request = CreateRevisionRequest(
             entity_id="Q1",
             new_revision_id=1,
             head_revision_id=0,
-            request_data=mock_request_data,
+            request_data=request_data,
             entity_type=EntityType.ITEM,
-            hash_result=mock_hash_result,
+            hash_result=hash_result,
             edit_type="manual-create",
         )
 
@@ -62,16 +61,16 @@ class TestCreateRevisionRequest:
 
     def test_all_optional_flags_true(self):
         """Test all optional boolean flags can be set to True."""
-        mock_request_data = MagicMock(spec=PreparedRequestData)
-        mock_hash_result = MagicMock(spec=StatementHashResult)
+        request_data = PreparedRequestData(id="Q1")
+        hash_result = StatementHashResult(statements=[12345])
 
         request = CreateRevisionRequest(
             entity_id="Q1",
             new_revision_id=2,
             head_revision_id=1,
-            request_data=mock_request_data,
+            request_data=request_data,
             entity_type=EntityType.PROPERTY,
-            hash_result=mock_hash_result,
+            hash_result=hash_result,
             edit_type="mass-edit",
             is_mass_edit=True,
             edit_summary="Bulk update",
@@ -96,33 +95,33 @@ class TestCreateRevisionRequest:
 
     def test_different_entity_types(self):
         """Test CreateRevisionRequest works with different entity types."""
-        mock_request_data = MagicMock(spec=PreparedRequestData)
-        mock_hash_result = MagicMock(spec=StatementHashResult)
+        request_data = PreparedRequestData(id="Q1")
+        hash_result = StatementHashResult(statements=[12345])
 
         for entity_type in [EntityType.ITEM, EntityType.PROPERTY, EntityType.LEXEME]:
             request = CreateRevisionRequest(
                 entity_id="Q1",
                 new_revision_id=1,
                 head_revision_id=0,
-                request_data=mock_request_data,
+                request_data=request_data,
                 entity_type=entity_type,
-                hash_result=mock_hash_result,
+                hash_result=hash_result,
                 edit_type="manual-create",
             )
             assert request.entity_type == entity_type
 
     def test_model_dump(self):
         """Test model_dump() includes all fields."""
-        mock_request_data = MagicMock(spec=PreparedRequestData)
-        mock_hash_result = MagicMock(spec=StatementHashResult)
+        request_data = PreparedRequestData(id="Q1")
+        hash_result = StatementHashResult(statements=[12345])
 
         request = CreateRevisionRequest(
             entity_id="Q1",
             new_revision_id=1,
             head_revision_id=0,
-            request_data=mock_request_data,
+            request_data=request_data,
             entity_type=EntityType.ITEM,
-            hash_result=mock_hash_result,
+            hash_result=hash_result,
             edit_type="manual-create",
             edit_summary="Test edit",
             user_id=123,
@@ -140,16 +139,16 @@ class TestCreateRevisionRequest:
 
     def test_model_dump_json(self):
         """Test model_dump_json() works correctly."""
-        mock_request_data = MagicMock(spec=PreparedRequestData)
-        mock_hash_result = MagicMock(spec=StatementHashResult)
+        request_data = PreparedRequestData(id="Q1")
+        hash_result = StatementHashResult(statements=[12345])
 
         request = CreateRevisionRequest(
             entity_id="Q1",
             new_revision_id=1,
             head_revision_id=0,
-            request_data=mock_request_data,
+            request_data=request_data,
             entity_type=EntityType.ITEM,
-            hash_result=mock_hash_result,
+            hash_result=hash_result,
             edit_type="manual-create",
         )
 
