@@ -171,3 +171,59 @@ class TestJsonImportIntegration:
             assert not parsed_successfully
         else:
             assert parsed_successfully
+
+
+@pytest.mark.asyncio
+@pytest.mark.integration
+async def test_entity_import_with_references_wikidata_format() -> None:
+    """Test importing entity with claims containing references in Wikidata format.
+
+    This verifies the fix for KeyError: 'hash' when WBI parses references
+    that include the 'hash' field (Wikidata API format).
+    """
+    from httpx import ASGITransport, AsyncClient
+    from models.rest_api.main import app
+
+    entity_data = {
+        "type": "item",
+        "id": "Q999998",
+        "labels": {"en": {"language": "en", "value": "Test Item"}},
+        "claims": {
+            "P31": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P31",
+                        "hash": "abc123def456",
+                        "datavalue": {
+                            "value": {"entity-type": "item", "numeric-id": 42, "id": "Q42"},
+                            "type": "wikibase-entityid"
+                        },
+                        "datatype": "wikibase-item"
+                    },
+                    "type": "statement",
+                    "id": "Q999998$123",
+                    "rank": "normal",
+                    "references": [
+                        {
+                            "hash": "ref_hash_abc123",
+                            "snaks": {},
+                            "snaks-order": []
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        response = await client.post(
+            "/v1/entitybase/import",
+            json=entity_data,
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
+        assert response.status_code == 200
+        result = response.json()
+        assert result["id"] == "Q999998"
