@@ -32,6 +32,16 @@ from models.infrastructure.s3.storage.revision_storage import RevisionStorage
 from models.infrastructure.s3.storage.snak_storage import SnakStorage
 from models.infrastructure.s3.storage.statement_storage import StatementStorage
 from models.infrastructure.vitess.repositories.revision import RevisionRepository
+from models.infrastructure.vitess.storage.qualifier_storage import (
+    QualifierVitessStorage,
+)
+from models.infrastructure.vitess.storage.reference_storage import (
+    ReferenceVitessStorage,
+)
+from models.infrastructure.vitess.storage.snak_storage import SnakVitessStorage
+from models.infrastructure.vitess.storage.statement_storage import (
+    StatementVitessStorage,
+)
 from models.data.rest_api.v1.entitybase.response import StatementResponse
 from models.rest_api.utils import raise_validation_error
 
@@ -42,6 +52,10 @@ class MyS3Client(Client):
     """Client for S3 storage operations."""
 
     vitess_client: Optional[Any] = Field(default=None, exclude=True)
+    vitess_statements: Any = Field(default=None, exclude=True)
+    vitess_qualifiers: Any = Field(default=None, exclude=True)
+    vitess_references: Any = Field(default=None, exclude=True)
+    vitess_snaks: Any = Field(default=None, exclude=True)
     connection_manager: Optional[S3ConnectionManager] = Field(
         default=None, exclude=True
     )  # type: ignore[override]
@@ -62,13 +76,26 @@ class MyS3Client(Client):
         self.connection_manager.connect()
         # self._ensure_bucket_exists()
 
-        # Initialize storage components
+        # Initialize S3 storage components
         self.revisions = RevisionStorage(connection_manager=self.connection_manager)
         self.statements = StatementStorage(connection_manager=self.connection_manager)
         self.metadata = MetadataStorage(connection_manager=self.connection_manager)
         self.references = ReferenceStorage(connection_manager=self.connection_manager)
         self.qualifiers = QualifierStorage(connection_manager=self.connection_manager)
         self.snaks = SnakStorage(connection_manager=self.connection_manager)
+
+        # Initialize Vitess storage components (primary for small objects)
+        if self.vitess_client is not None:
+            self.vitess_statements = StatementVitessStorage(
+                vitess_client=self.vitess_client
+            )
+            self.vitess_qualifiers = QualifierVitessStorage(
+                vitess_client=self.vitess_client
+            )
+            self.vitess_references = ReferenceVitessStorage(
+                vitess_client=self.vitess_client
+            )
+            self.vitess_snaks = SnakVitessStorage(vitess_client=self.vitess_client)
 
     def write_revision(
         self,
@@ -96,7 +123,8 @@ class MyS3Client(Client):
         """Read S3 object and return parsed JSON."""
         if self.vitess_client is None:
             raise_validation_error("Vitess client not configured", status_code=503)
-        internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
+        vitess_client = cast(Any, self.vitess_client)
+        internal_id = vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             raise_validation_error("Entity not found", status_code=404)
 
@@ -111,10 +139,16 @@ class MyS3Client(Client):
     write_entity_revision = write_revision
 
     def delete_statement(self, content_hash: int) -> None:
-        """Delete statement from S3."""
+        """Delete statement from storage (Vitess primary, S3 fallback)."""
+        # Try Vitess first
+        if hasattr(self, "vitess_statements") and self.vitess_statements:
+            result = self.vitess_statements.delete_statement(content_hash)
+            if result.success:
+                return
+        # Fallback to S3
         result = self.statements.delete_statement(content_hash)
         if not result.success:
-            raise_validation_error("S3 storage service unavailable", status_code=503)
+            raise_validation_error("Storage service unavailable", status_code=503)
 
     def write_statement(
         self,
@@ -122,34 +156,55 @@ class MyS3Client(Client):
         statement_data: dict[str, Any],
         schema_version: str,
     ) -> None:
-        """Write statement snapshot to S3."""
+        """Write statement snapshot (Vitess primary, S3 fallback)."""
         logger.debug(
-            f"[S3_CLIENT_WRITE_STMT] content_hash={content_hash}, "
+            f"[CLIENT_WRITE_STMT] content_hash={content_hash}, "
             f"schema_version={schema_version}, data_keys={list(statement_data.keys())}"
         )
+        # Prepare data in S3Statement format for compatibility
+        stmt_data = {
+            "statement": statement_data.get("statement", statement_data),
+            "schema": schema_version,
+            "hash": content_hash,
+            "created_at": statement_data.get("created_at", ""),
+        }
+        # Try Vitess first
+        if hasattr(self, "vitess_statements") and self.vitess_statements:
+            result = self.vitess_statements.store_statement(content_hash, stmt_data)
+            if result.success:
+                logger.debug(f"[CLIENT_WRITE_STMT] Vitess SUCCESS: hash={content_hash}")
+                return
+        # Fallback to S3
         result = self.statements.store_statement(
             content_hash, statement_data, schema_version
         )
         if result.success:
-            logger.debug(f"[S3_CLIENT_WRITE_STMT] SUCCESS: content_hash={content_hash}")
+            logger.debug(f"[CLIENT_WRITE_STMT] S3 SUCCESS: content_hash={content_hash}")
         else:
             logger.error(
-                f"[S3_CLIENT_WRITE_STMT] FAILED: content_hash={content_hash}, error={result.error}"
+                f"[CLIENT_WRITE_STMT] FAILED: content_hash={content_hash}, error={result.error}"
             )
-            raise_validation_error("S3 storage service unavailable", status_code=503)
+            raise_validation_error("Storage service unavailable", status_code=503)
 
     def read_statement(self, content_hash: int) -> "StatementResponse":
-        """Read statement snapshot from S3."""
-        logger.debug(f"[S3_CLIENT_READ_STMT] content_hash={content_hash}")
+        """Read statement snapshot (Vitess primary, S3 fallback)."""
+        logger.debug(f"[CLIENT_READ_STMT] content_hash={content_hash}")
+        # Try Vitess first
+        if hasattr(self, "vitess_statements") and self.vitess_statements:
+            response = self.vitess_statements.load_statement(content_hash)
+            if response is not None:
+                logger.debug(f"[CLIENT_READ_STMT] Vitess SUCCESS: content_hash={content_hash}")
+                return response
+        # Fallback to S3
         try:
             response = cast(
                 StatementResponse, self.statements.load_statement(content_hash)
             )
-            logger.debug(f"[S3_CLIENT_READ_STMT] SUCCESS: content_hash={content_hash}")
+            logger.debug(f"[CLIENT_READ_STMT] S3 SUCCESS: content_hash={content_hash}")
             return response
         except Exception as e:
             logger.error(
-                f"[S3_CLIENT_READ_STMT] FAILED: content_hash={content_hash}, "
+                f"[CLIENT_READ_STMT] FAILED: content_hash={content_hash}, "
                 f"error={type(e).__name__}: {e}"
             )
             raise
@@ -199,19 +254,38 @@ class MyS3Client(Client):
     def store_reference(
         self, content_hash: int, reference_data: S3ReferenceData
     ) -> None:
-        """Store a reference by its content hash."""
+        """Store a reference by its content hash (Vitess primary, S3 fallback)."""
+        # Try Vitess first
+        if hasattr(self, "vitess_references") and self.vitess_references:
+            result = self.vitess_references.store_reference(content_hash, reference_data)
+            if result.success:
+                return
+        # Fallback to S3
         result = self.references.store_reference(content_hash, reference_data)
         if not result.success:
-            raise_validation_error("S3 storage service unavailable", status_code=503)
+            raise_validation_error("Storage service unavailable", status_code=503)
 
     def load_reference(self, content_hash: int) -> S3ReferenceData:
-        """Load a reference by its content hash."""
+        """Load a reference by its content hash (Vitess primary, S3 fallback)."""
+        # Try Vitess first
+        if hasattr(self, "vitess_references") and self.vitess_references:
+            result = self.vitess_references.load_reference(content_hash)
+            if result is not None:
+                return result
+        # Fallback to S3
         return cast(S3ReferenceData, self.references.load_reference(content_hash))
 
     def load_references_batch(
         self, content_hashes: list[int]
     ) -> list[S3ReferenceData | None]:
-        """Load multiple references by their content hashes."""
+        """Load multiple references by their content hashes (Vitess primary, S3 fallback)."""
+        # Try Vitess first
+        if hasattr(self, "vitess_references") and self.vitess_references:
+            results = self.vitess_references.load_references_batch(content_hashes)
+            # Check if we got any non-None results
+            if any(r is not None for r in results):
+                return cast(list[S3ReferenceData | None], results)
+        # Fallback to S3
         return cast(
             list[S3ReferenceData | None],
             self.references.load_references_batch(content_hashes),
@@ -220,36 +294,72 @@ class MyS3Client(Client):
     def store_qualifier(
         self, content_hash: int, qualifier_data: S3QualifierData
     ) -> None:
-        """Store a qualifier by its content hash."""
+        """Store a qualifier by its content hash (Vitess primary, S3 fallback)."""
+        # Try Vitess first
+        if hasattr(self, "vitess_qualifiers") and self.vitess_qualifiers:
+            result = self.vitess_qualifiers.store_qualifier(content_hash, qualifier_data)
+            if result.success:
+                return
+        # Fallback to S3
         result = self.qualifiers.store_qualifier(content_hash, qualifier_data)
         if not result.success:
-            raise_validation_error("S3 storage service unavailable", status_code=503)
+            raise_validation_error("Storage service unavailable", status_code=503)
 
     def load_qualifier(self, content_hash: int) -> S3QualifierData:
-        """Load a qualifier by its content hash."""
+        """Load a qualifier by its content hash (Vitess primary, S3 fallback)."""
+        # Try Vitess first
+        if hasattr(self, "vitess_qualifiers") and self.vitess_qualifiers:
+            result = self.vitess_qualifiers.load_qualifier(content_hash)
+            if result is not None:
+                return result
+        # Fallback to S3
         return cast(S3QualifierData, self.qualifiers.load_qualifier(content_hash))
 
     def load_qualifiers_batch(
         self, content_hashes: list[int]
     ) -> list[S3QualifierData | None]:
-        """Load multiple qualifiers by their content hashes."""
+        """Load multiple qualifiers by their content hashes (Vitess primary, S3 fallback)."""
+        # Try Vitess first
+        if hasattr(self, "vitess_qualifiers") and self.vitess_qualifiers:
+            results = self.vitess_qualifiers.load_qualifiers_batch(content_hashes)
+            if any(r is not None for r in results):
+                return cast(list[S3QualifierData | None], results)
+        # Fallback to S3
         return cast(
             list[S3QualifierData | None],
             self.qualifiers.load_qualifiers_batch(content_hashes),
         )
 
     def store_snak(self, content_hash: int, snak_data: S3SnakData) -> None:
-        """Store a snak by its content hash."""
+        """Store a snak by its content hash (Vitess primary, S3 fallback)."""
+        # Try Vitess first
+        if hasattr(self, "vitess_snaks") and self.vitess_snaks:
+            result = self.vitess_snaks.store_snak(content_hash, snak_data)
+            if result.success:
+                return
+        # Fallback to S3
         result = self.snaks.store_snak(content_hash, snak_data)
         if not result.success:
-            raise_validation_error("S3 storage service unavailable", status_code=503)
+            raise_validation_error("Storage service unavailable", status_code=503)
 
     def load_snak(self, content_hash: int) -> S3SnakData:
-        """Load a snak by its content hash."""
+        """Load a snak by its content hash (Vitess primary, S3 fallback)."""
+        # Try Vitess first
+        if hasattr(self, "vitess_snaks") and self.vitess_snaks:
+            result = self.vitess_snaks.load_snak(content_hash)
+            if result is not None:
+                return result
+        # Fallback to S3
         return cast(S3SnakData, self.snaks.load_snak(content_hash))
 
     def load_snaks_batch(self, content_hashes: list[int]) -> list[S3SnakData | None]:
-        """Load multiple snaks by their content hashes."""
+        """Load multiple snaks by their content hashes (Vitess primary, S3 fallback)."""
+        # Try Vitess first
+        if hasattr(self, "vitess_snaks") and self.vitess_snaks:
+            results = self.vitess_snaks.load_snaks_batch(content_hashes)
+            if any(r is not None for r in results):
+                return cast(list[S3SnakData | None], results)
+        # Fallback to S3
         return cast(
             list[S3SnakData | None], self.snaks.load_snaks_batch(content_hashes)
         )
