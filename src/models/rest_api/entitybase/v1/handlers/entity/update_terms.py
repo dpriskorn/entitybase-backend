@@ -468,7 +468,7 @@ class EntityUpdateTermsMixin(BaseModel):
                 status_code=409,
             )
 
-        self.state.s3_client.store_term_metadata(alias, new_alias_hash)
+        self.state.s3_client.store_term_metadata(alias, new_alias_hash, "aliases")
         if self.state.vitess_config:
             terms_repo = TermsRepository(vitess_client=self.state.vitess_client)
             terms_repo.insert_term(new_alias_hash, alias, "alias")
