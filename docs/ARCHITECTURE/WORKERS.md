@@ -21,6 +21,14 @@
 
 **Health Checks**: Available via worker health endpoint
 
+## Elasticsearch Indexer Worker
+
+**Class**: ``
+**Location**: `models/workers/elasticsearch_indexer/__main__.py`
+**Purpose**: 
+
+**Health Checks**: Available via worker health endpoint
+
 ## Entity Diff Worker
 
 **Class**: ``

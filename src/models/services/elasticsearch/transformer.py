@@ -6,10 +6,17 @@ Transforms Wikibase entity JSON to Elasticsearch document format.
 import logging
 from typing import Any
 
+from pydantic import BaseModel
+
+from models.data.infrastructure.elasticsearch import (
+    ElasticsearchDocument,
+    FlattenedClaims,
+)
+
 logger = logging.getLogger(__name__)
 
 
-def transform_to_elasticsearch(entity_json: dict[str, Any]) -> dict[str, Any]:
+def transform_to_elasticsearch(entity_json: dict[str, Any]) -> ElasticsearchDocument:
     """Transform Wikibase entity JSON to Elasticsearch document format.
 
     Args:
@@ -48,40 +55,38 @@ def transform_to_elasticsearch(entity_json: dict[str, Any]) -> dict[str, Any]:
 
     if not entities:
         logger.warning("No entities found in input JSON")
-        return {}
+        return ElasticsearchDocument(
+            entity_id="", entity_type="", lastrevid=0, modified=""
+        )
 
     entity_id = list(entities.keys())[0]
     entity_data = entities[entity_id]
 
-    result = {
-        "entity_id": entity_id,
-        "entity_type": entity_data.get("type"),
-        "lastrevid": entity_data.get("lastrevid"),
-        "modified": entity_data.get("modified"),
-    }
+    claims_flat = _flatten_claims(entity_data.get("claims", {}))
 
-    if entity_data.get("type") == "property":
-        result["datatype"] = entity_data.get("datatype")
-
-    result["labels"] = entity_data.get("labels", {})
-    result["descriptions"] = entity_data.get("descriptions", {})
-    result["aliases"] = entity_data.get("aliases", {})
-    result["claims"] = entity_data.get("claims", {})
-
-    result["claims_flat"] = _flatten_claims(entity_data.get("claims", {}))
-
-    if entity_data.get("type") == "lexeme":
-        result["lemmas"] = entity_data.get("lemmas", {})
-        result["forms"] = entity_data.get("forms", [])
-        result["senses"] = entity_data.get("senses", [])
-        result["language"] = entity_data.get("language")
-        result["lexicalCategory"] = entity_data.get("lexicalCategory")
+    doc = ElasticsearchDocument(
+        entity_id=entity_id,
+        entity_type=entity_data.get("type", ""),
+        lastrevid=entity_data.get("lastrevid", 0),
+        modified=entity_data.get("modified", ""),
+        datatype=entity_data.get("datatype"),
+        labels=entity_data.get("labels", {}),
+        descriptions=entity_data.get("descriptions", {}),
+        aliases=entity_data.get("aliases", {}),
+        claims=entity_data.get("claims", {}),
+        claims_flat=FlattenedClaims(data=claims_flat),
+        lemmas=entity_data.get("lemmas"),
+        forms=entity_data.get("forms"),
+        senses=entity_data.get("senses"),
+        language=entity_data.get("language"),
+        lexicalCategory=entity_data.get("lexicalCategory"),
+    )
 
     logger.debug(f"Transformed entity {entity_id} to ES format")
-    return result
+    return doc
 
 
-def _flatten_claims(claims: dict[str, Any]) -> dict[str, list[str]]:
+def _flatten_claims(claims: dict[str, Any]) -> FlattenedClaims:
     """Flatten claims to simple property -> values mapping.
 
     Args:
@@ -94,6 +99,7 @@ def _flatten_claims(claims: dict[str, Any]) -> dict[str, list[str]]:
         Input:  {"P31": [{"mainsnak": {"datavalue": {"value": {"id": "Q5"}}}}]}
         Output: {"P31": ["Q5"]}
     """
+    logger.debug(f"Flattening {len(claims)} claims")
     flat: dict[str, list[str]] = {}
 
     for prop_id, statements in claims.items():
@@ -127,4 +133,4 @@ def _flatten_claims(claims: dict[str, Any]) -> dict[str, list[str]]:
         if values:
             flat[prop_id] = values
 
-    return flat
+    return FlattenedClaims(data=flat)

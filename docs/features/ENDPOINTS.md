@@ -1,12 +1,11 @@
 # REST API Endpoints
 
-This API has 126 endpoints implemented, covering entity management (items, properties, lexemes), lexeme components (forms, senses, lemmas, glosses), entity terms (labels, descriptions, aliases), statements and claims, sitelinks, revision history, user management, and batch resolution endpoints.
+This API has 125 endpoints implemented, covering entity management (items, properties, lexemes), lexeme components (forms, senses, lemmas, glosses), entity terms (labels, descriptions, aliases), statements and claims, sitelinks, revision history, user management, and batch resolution endpoints.
 
 | Implemented | Method | Full Path | Description |
 |-------------|--------|-----------|-------------|
-| ✅ | GET | `/debug/entity/{entity_id}` | Debug endpoint to check entity in database. |
-| ✅ | GET | `/debug/entity_head/{entity_id}` | Debug endpoint to check entity_head table. |
 | ✅ | GET | `/entities` | List entities based on type, status, edit_type, limit, and offset. |
+| ✅ | POST | `/entities/elasticsearch/preview` | Preview how an entity would be transformed for Elasticsearch. |
 | ✅ | GET | `/entities/items` | List all items (Q-prefixed entities). |
 | ✅ | POST | `/entities/items` | Create a new empty item entity. |
 | ✅ | GET | `/entities/lexemes` | List all lexemes (L-prefixed entities). |

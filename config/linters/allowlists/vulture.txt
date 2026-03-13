@@ -223,4 +223,9 @@ get_statement_handler
 get_backlink_handler
 get_state_from_request
 get_deduplication_stats
+# Elasticsearch models - kept for future use
+lastrevid
+lexicalCategory
+get_document
+preview_elasticsearch_document
 

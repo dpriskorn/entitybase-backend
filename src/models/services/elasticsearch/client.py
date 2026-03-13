@@ -1,7 +1,12 @@
 """Elasticsearch client module."""
 
 import logging
-from typing import Any, Optional
+from typing import Any
+
+from models.data.infrastructure.elasticsearch import (
+    ElasticsearchDocument,
+    ElasticsearchDocumentResponse,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -118,24 +123,29 @@ class ElasticsearchClient:
             logger.error(f"Failed to delete document {doc_id}: {e}")
             return False
 
-    def get_document(self, doc_id: str) -> Optional[dict[str, Any]]:
+    def get_document(self, doc_id: str) -> ElasticsearchDocumentResponse:
         """Get a document by ID.
 
         Args:
             doc_id: Document ID
 
         Returns:
-            Document if found, None otherwise
+            ElasticsearchDocumentResponse with the document if found
         """
         if not self.client:
             logger.error("Client not connected")
-            return None
+            return ElasticsearchDocumentResponse(data=None)
 
         try:
             response = self.client.get(index=self.index, id=doc_id)
-            return response.get("_source")
+            source = response.get("_source")
+            if source:
+                return ElasticsearchDocumentResponse(
+                    data=ElasticsearchDocument(**source)
+                )
+            return ElasticsearchDocumentResponse(data=None)
         except Exception:
-            return None
+            return ElasticsearchDocumentResponse(data=None)
 
     def close(self) -> None:
         """Close the client connection."""

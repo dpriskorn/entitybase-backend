@@ -26,7 +26,7 @@ package "Worker Layer" as WorkerLayer #LightYellow {
     "Worker" as Worker
     "EntityDumpRecord" as EntityDumpRecord
     "DumpMetadata" as DumpMetadata
-    ... (35 total components)
+    ... (36 total components)
 }
 
 package "Infrastructure Layer" as InfrastructureLayer #LightGray {

@@ -2,6 +2,32 @@
 
 This file tracks architectural changes, feature additions, and modifications to entitybase-backend.
 
+## [2026-03-13] Elasticsearch Transformer Pydantic Models
+
+### Summary
+
+Added Pydantic models for Elasticsearch document transformation to replace dict-based return types.
+
+### Changes
+
+1. **New data models** (`src/models/data/infrastructure/elasticsearch/`):
+   - `FlattenedClaims` - Model for flattened claims mapping property_id to list of values
+   - `ElasticsearchDocument` - Model for Elasticsearch document from Wikibase entity
+   - `ElasticsearchDocumentResponse` - Response model for document retrieval
+
+2. **Updated transformer** (`src/models/services/elasticsearch/transformer.py`):
+   - `transform_to_elasticsearch()` now returns `ElasticsearchDocument` instead of `dict`
+   - `_flatten_claims()` now returns `FlattenedClaims` instead of `dict`
+
+3. **Updated client** (`src/models/services/elasticsearch/client.py`):
+   - `get_document()` now returns `ElasticsearchDocumentResponse` instead of `Optional[dict]`
+
+### Linter Changes
+
+- Added `_get_kafka_brokers` to radon allowlist
+- Added `get_document`, `preview_elasticsearch_document`, `lastrevid`, `lexicalCategory` to vulture allowlist
+- Added `src/models/services/elasticsearch/client.py:22` to pydantic-init allowlist
+
 ## [2026-03-13] Complete S3 to Vitess Migration for Metadata and Small Objects
 
 ### Summary

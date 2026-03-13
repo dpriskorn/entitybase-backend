@@ -259,6 +259,7 @@ class Settings(BaseModel):
         self.ttl_dump_batch_size = int(
             os.getenv("TTL_DUMP_BATCH_SIZE", str(self.ttl_dump_batch_size))
         )
+        logger.debug("Workers configuration loaded successfully")
         self.ttl_dump_parallel_workers = int(
             os.getenv("TTL_DUMP_PARALLEL_WORKERS", str(self.ttl_dump_parallel_workers))
         )

@@ -6164,6 +6164,51 @@
         }
       }
     },
+    "/v1/entities/elasticsearch/preview": {
+      "post": {
+        "tags": [
+          "entities"
+        ],
+        "summary": "Preview Elasticsearch Document",
+        "description": "Preview how an entity would be transformed for Elasticsearch.\n\nAccepts entity JSON in Wikibase API format and returns the transformed\nElasticsearch document for review before indexing.",
+        "operationId": "preview_elasticsearch_document_v1_entities_elasticsearch_preview_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": true,
+                "type": "object",
+                "title": "Entity Json",
+                "description": "Entity JSON in Wikibase format"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ElasticsearchDocumentResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/entities/{entity_id}/labels/{language_code}": {
       "get": {
         "tags": [
@@ -8074,98 +8119,6 @@
         }
       }
     },
-    "/v1/debug/entity/{entity_id}": {
-      "get": {
-        "tags": [
-          "debug",
-          "debug"
-        ],
-        "summary": "Debug Entity",
-        "description": "Debug endpoint to check entity in database.\n\nThis endpoint queries the entity_id_mapping table directly to verify\nif an entity exists and what its internal_id is.",
-        "operationId": "debug_entity_v1_debug_entity__entity_id__get",
-        "parameters": [
-          {
-            "name": "entity_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Entity Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": true,
-                  "title": "Response Debug Entity V1 Debug Entity  Entity Id  Get"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/debug/entity_head/{entity_id}": {
-      "get": {
-        "tags": [
-          "debug",
-          "debug"
-        ],
-        "summary": "Debug Entity Head",
-        "description": "Debug endpoint to check entity_head table.",
-        "operationId": "debug_entity_head_v1_debug_entity_head__entity_id__get",
-        "parameters": [
-          {
-            "name": "entity_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Entity Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": true,
-                  "title": "Response Debug Entity Head V1 Debug Entity Head  Entity Id  Get"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/openapi.json": {
       "get": {
         "summary": "Get Openapi",
@@ -8601,6 +8554,22 @@
         ],
         "title": "EditType",
         "description": "Enumeration of different types of edits that can be made to entities."
+      },
+      "ElasticsearchDocumentResponse": {
+        "properties": {
+          "document": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Document",
+            "description": "Elasticsearch document"
+          }
+        },
+        "type": "object",
+        "required": [
+          "document"
+        ],
+        "title": "ElasticsearchDocumentResponse",
+        "description": "Response model for Elasticsearch document preview."
       },
       "EndorsementListResponse": {
         "properties": {
@@ -10114,30 +10083,6 @@
             "type": "string",
             "title": "S3 Endpoint"
           },
-          "s3_references_bucket": {
-            "type": "string",
-            "title": "S3 References Bucket"
-          },
-          "s3_qualifiers_bucket": {
-            "type": "string",
-            "title": "S3 Qualifiers Bucket"
-          },
-          "s3_sitelinks_bucket": {
-            "type": "string",
-            "title": "S3 Sitelinks Bucket"
-          },
-          "s3_snaks_bucket": {
-            "type": "string",
-            "title": "S3 Snaks Bucket"
-          },
-          "s3_statements_bucket": {
-            "type": "string",
-            "title": "S3 Statements Bucket"
-          },
-          "s3_terms_bucket": {
-            "type": "string",
-            "title": "S3 Terms Bucket"
-          },
           "s3_revisions_bucket": {
             "type": "string",
             "title": "S3 Revisions Bucket"
@@ -10335,12 +10280,6 @@
         "type": "object",
         "required": [
           "s3_endpoint",
-          "s3_references_bucket",
-          "s3_qualifiers_bucket",
-          "s3_sitelinks_bucket",
-          "s3_snaks_bucket",
-          "s3_statements_bucket",
-          "s3_terms_bucket",
           "s3_revisions_bucket",
           "s3_snak_version",
           "s3_sitelink_version",
