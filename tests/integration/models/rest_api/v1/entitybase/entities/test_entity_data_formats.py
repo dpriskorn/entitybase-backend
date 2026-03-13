@@ -83,9 +83,7 @@ async def test_get_entity_json_revision() -> None:
             headers={"X-Edit-Summary": "add label", "X-User-ID": "0"},
         )
 
-        response = await client.get(
-            f"/v1/entities/{entity_id}/revision/1/json"
-        )
+        response = await client.get(f"/v1/entities/{entity_id}/revision/1/json")
         assert response.status_code == 200
 
         data = response.json()
@@ -109,9 +107,7 @@ async def test_get_entity_revision_not_found() -> None:
         assert create_response.status_code == 200
         entity_id = create_response.json()["data"]["entity_id"]
 
-        response = await client.get(
-            f"/v1/entities/{entity_id}/revision/999/json"
-        )
+        response = await client.get(f"/v1/entities/{entity_id}/revision/999/json")
         assert response.status_code == 404
         logger.info("✓ Non-existent revision returns 404")
 
@@ -132,8 +128,6 @@ async def test_get_entity_json_revision_not_found() -> None:
         assert create_response.status_code == 200
         entity_id = create_response.json()["data"]["entity_id"]
 
-        response = await client.get(
-            f"/v1/entities/{entity_id}/revision/999/ttl"
-        )
+        response = await client.get(f"/v1/entities/{entity_id}/revision/999/ttl")
         assert response.status_code == 404
         logger.info("✓ Non-existent TTL revision returns 404")

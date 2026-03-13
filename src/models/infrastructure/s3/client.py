@@ -25,7 +25,6 @@ from models.data.infrastructure.s3.snak_data import S3SnakData
 from models.infrastructure.client import Client
 from models.infrastructure.s3.connection import S3ConnectionManager
 from models.infrastructure.s3.revision.revision_data import RevisionData
-from models.infrastructure.s3.storage.metadata_storage import MetadataStorage
 from models.infrastructure.s3.storage.revision_storage import RevisionStorage
 from models.infrastructure.vitess.repositories.revision import RevisionRepository
 from models.infrastructure.vitess.storage.qualifier_storage import (
@@ -62,7 +61,6 @@ class MyS3Client(Client):
         default=None, exclude=True
     )  # type: ignore[override]
     revisions: Any = Field(default=None, exclude=True)
-    lexemes: Any = Field(default=None, exclude=True)
 
     def model_post_init(self, context: Any) -> None:
         # noinspection PyTypeChecker
@@ -340,14 +338,14 @@ class MyS3Client(Client):
             raise_validation_error("S3 storage service unavailable", status_code=503)
 
     def store_lemma(self, text: str, content_hash: int) -> None:
-        """Store lemma text in terms bucket."""
-        from models.infrastructure.s3.storage.lexeme_storage import LexemeStorage
-
-        if not hasattr(self, "lexemes") or self.lexemes is None:
-            self.lexemes = LexemeStorage(connection_manager=self.connection_manager)
-        result = self.lexemes.store_lemma(text, content_hash)
+        """Store lemma text in Vitess."""
+        if not hasattr(self, "vitess_metadata") or not self.vitess_metadata:
+            raise_validation_error("Vitess storage not initialized", status_code=503)
+        result = self.vitess_metadata.store_lemma(content_hash, text)
         if not result.success:
-            raise_validation_error("S3 storage service unavailable", status_code=503)
+            raise_validation_error(
+                "Vitess storage service unavailable", status_code=503
+            )
 
     def load_revision(self, content_hash: int) -> S3RevisionData:
         """Load a revision by its content hash."""
@@ -358,50 +356,47 @@ class MyS3Client(Client):
         return cast(S3RevisionData, self.revisions.load_revision(content_hash))
 
     def store_form_representation(self, text: str, content_hash: int) -> None:
-        """Store form representation text in terms bucket."""
-        from models.infrastructure.s3.storage.lexeme_storage import LexemeStorage
-
-        if not hasattr(self, "lexemes") or self.lexemes is None:
-            self.lexemes = LexemeStorage(connection_manager=self.connection_manager)
-        result = self.lexemes.store_form_representation(text, content_hash)
+        """Store form representation text in Vitess."""
+        if not hasattr(self, "vitess_metadata") or not self.vitess_metadata:
+            raise_validation_error("Vitess storage not initialized", status_code=503)
+        result = self.vitess_metadata.store_form_representation(content_hash, text)
         if not result.success:
-            raise_validation_error("S3 storage service unavailable", status_code=503)
+            raise_validation_error(
+                "Vitess storage service unavailable", status_code=503
+            )
 
     def store_sense_gloss(self, text: str, content_hash: int) -> None:
-        """Store sense gloss text in terms bucket."""
-        from models.infrastructure.s3.storage.lexeme_storage import LexemeStorage
-
-        if not hasattr(self, "lexemes") or self.lexemes is None:
-            self.lexemes = LexemeStorage(connection_manager=self.connection_manager)
-        result = self.lexemes.store_sense_gloss(text, content_hash)
+        """Store sense gloss text in Vitess."""
+        if not hasattr(self, "vitess_metadata") or not self.vitess_metadata:
+            raise_validation_error("Vitess storage not initialized", status_code=503)
+        result = self.vitess_metadata.store_sense_gloss(content_hash, text)
         if not result.success:
-            raise_validation_error("S3 storage service unavailable", status_code=503)
+            raise_validation_error(
+                "Vitess storage service unavailable", status_code=503
+            )
 
     def load_form_representations_batch(self, hashes: List[int]) -> List[Optional[str]]:
         """Load form representations by content hashes."""
-        from models.infrastructure.s3.storage.lexeme_storage import LexemeStorage
-
-        if not hasattr(self, "lexemes") or self.lexemes is None:
-            self.lexemes = LexemeStorage(connection_manager=self.connection_manager)
+        if not hasattr(self, "vitess_metadata") or not self.vitess_metadata:
+            raise_validation_error("Vitess storage not initialized", status_code=503)
         return cast(
-            list[str | None], self.lexemes.load_form_representations_batch(hashes)
+            list[str | None],
+            self.vitess_metadata.load_form_representations_batch(hashes),
         )
 
     def load_sense_glosses_batch(self, hashes: List[int]) -> List[Optional[str]]:
         """Load sense glosses by content hashes."""
-        from models.infrastructure.s3.storage.lexeme_storage import LexemeStorage
-
-        if not hasattr(self, "lexemes") or self.lexemes is None:
-            self.lexemes = LexemeStorage(connection_manager=self.connection_manager)
-        return cast(list[str | None], self.lexemes.load_sense_glosses_batch(hashes))
+        if not hasattr(self, "vitess_metadata") or not self.vitess_metadata:
+            raise_validation_error("Vitess storage not initialized", status_code=503)
+        return cast(
+            list[str | None], self.vitess_metadata.load_sense_glosses_batch(hashes)
+        )
 
     def load_lemmas_batch(self, hashes: List[int]) -> List[Optional[str]]:
         """Load lemmas by content hashes."""
-        from models.infrastructure.s3.storage.lexeme_storage import LexemeStorage
-
-        if not hasattr(self, "lexemes") or self.lexemes is None:
-            self.lexemes = LexemeStorage(connection_manager=self.connection_manager)
-        return cast(list[str | None], self.lexemes.load_lemmas_batch(hashes))
+        if not hasattr(self, "vitess_metadata") or not self.vitess_metadata:
+            raise_validation_error("Vitess storage not initialized", status_code=503)
+        return cast(list[str | None], self.vitess_metadata.load_lemmas_batch(hashes))
 
     def disconnect(self) -> None:
         """Disconnect from S3 and release resources."""

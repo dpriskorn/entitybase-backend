@@ -28,12 +28,6 @@ class Settings(BaseModel):
     s3_secret_key: str = "fakesecret"
 
     # buckets
-    s3_references_bucket: str = "references"
-    s3_qualifiers_bucket: str = "qualifiers"
-    s3_sitelinks_bucket: str = "sitelinks"
-    s3_snaks_bucket: str = "snaks"
-    s3_statements_bucket: str = "statements"
-    s3_terms_bucket: str = "terms"
     s3_revisions_bucket: str = "revisions"
 
     # S3 versions
@@ -132,20 +126,6 @@ class Settings(BaseModel):
         self.s3_access_key = os.getenv("S3_ACCESS_KEY", self.s3_access_key)
         self.s3_secret_key = os.getenv("S3_SECRET_KEY", self.s3_secret_key)
 
-        self.s3_references_bucket = os.getenv(
-            "S3_REFERENCES_BUCKET", self.s3_references_bucket
-        )
-        self.s3_qualifiers_bucket = os.getenv(
-            "S3_QUALIFIERS_BUCKET", self.s3_qualifiers_bucket
-        )
-        self.s3_sitelinks_bucket = os.getenv(
-            "S3_SITELINKS_BUCKET", self.s3_sitelinks_bucket
-        )
-        self.s3_snaks_bucket = os.getenv("S3_SNAKS_BUCKET", self.s3_snaks_bucket)
-        self.s3_statements_bucket = os.getenv(
-            "S3_STATEMENTS_BUCKET", self.s3_statements_bucket
-        )
-        self.s3_terms_bucket = os.getenv("S3_TERMS_BUCKET", self.s3_terms_bucket)
         self.s3_revisions_bucket = os.getenv(
             "S3_REVISIONS_BUCKET", self.s3_revisions_bucket
         )

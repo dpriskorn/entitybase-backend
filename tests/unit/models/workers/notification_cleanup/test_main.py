@@ -33,7 +33,9 @@ class TestNotificationCleanupWorker:
         mock_cursor.fetchall.return_value = []
 
         mock_connection = MagicMock()
-        mock_connection.cursor.return_value.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_connection.cursor.return_value.__enter__ = MagicMock(
+            return_value=mock_cursor
+        )
         mock_connection.cursor.return_value.__exit__ = MagicMock(return_value=False)
 
         mock_connection_manager = MagicMock()
@@ -59,7 +61,9 @@ class TestNotificationCleanupWorker:
         mock_cursor.rowcount = 5
 
         mock_connection = MagicMock()
-        mock_connection.cursor.return_value.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_connection.cursor.return_value.__enter__ = MagicMock(
+            return_value=mock_cursor
+        )
         mock_connection.cursor.return_value.__exit__ = MagicMock(return_value=False)
 
         mock_connection_manager = MagicMock()
@@ -79,7 +83,9 @@ class TestNotificationCleanupWorker:
         mock_cursor.rowcount = 10
 
         mock_connection = MagicMock()
-        mock_connection.cursor.return_value.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_connection.cursor.return_value.__enter__ = MagicMock(
+            return_value=mock_cursor
+        )
         mock_connection.cursor.return_value.__exit__ = MagicMock(return_value=False)
 
         mock_connection_manager = MagicMock()
@@ -104,7 +110,9 @@ class TestNotificationCleanupWorker:
         mock_cursor.rowcount = 0
 
         mock_connection = MagicMock()
-        mock_connection.cursor.return_value.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_connection.cursor.return_value.__enter__ = MagicMock(
+            return_value=mock_cursor
+        )
         mock_connection.cursor.return_value.__exit__ = MagicMock(return_value=False)
 
         mock_connection_manager = MagicMock()
@@ -127,7 +135,9 @@ class TestNotificationCleanupWorker:
         mock_cursor.rowcount = 100  # 100 deleted
 
         mock_connection = MagicMock()
-        mock_connection.cursor.return_value.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_connection.cursor.return_value.__enter__ = MagicMock(
+            return_value=mock_cursor
+        )
         mock_connection.cursor.return_value.__exit__ = MagicMock(return_value=False)
 
         mock_connection_manager = MagicMock()
@@ -154,7 +164,9 @@ class TestNotificationCleanupWorker:
         mock_cursor.rowcount = 100
 
         mock_connection = MagicMock()
-        mock_connection.cursor.return_value.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_connection.cursor.return_value.__enter__ = MagicMock(
+            return_value=mock_cursor
+        )
         mock_connection.cursor.return_value.__exit__ = MagicMock(return_value=False)
 
         mock_connection_manager = MagicMock()

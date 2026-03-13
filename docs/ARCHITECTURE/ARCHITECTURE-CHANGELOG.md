@@ -2,6 +2,34 @@
 
 This file tracks architectural changes, feature additions, and modifications to entitybase-backend.
 
+## [2026-03-13] Complete S3 to Vitess Migration for Metadata and Small Objects
+
+### Summary
+
+Completed migration of all remaining S3 buckets to Vitess. Only `s3_revisions_bucket` and `s3_dump_bucket` remain in S3.
+
+### Removed S3 Buckets
+
+- `s3_terms_bucket` - Labels, descriptions, aliases, lemmas, form representations, sense glosses
+- `s3_sitelinks_bucket` - Sitelink titles
+- `s3_statements_bucket` - Statement content
+- `s3_qualifiers_bucket` - Qualifier content
+- `s3_references_bucket` - Reference content
+- `s3_snaks_bucket` - Snak content
+
+### Kept S3 Buckets
+
+- `s3_revisions_bucket` - Entity revision snapshots (immutable)
+- `s3_dump_bucket` - JSON and TTL dumps for export
+
+### Code Changes
+
+1. **MetadataVitessStorage** - Added methods for lemmas, form representations, and sense glosses
+2. **S3Client** - Updated to use `vitess_metadata` instead of `LexemeStorage` for lexeme operations
+3. **Removed storage classes**: `SnakStorage`, `StatementStorage`, `ReferenceStorage`, `QualifierStorage`, `MetadataStorage`, `LexemeStorage`
+4. **Updated settings**: Removed 6 bucket configuration variables
+5. **Updated tests**: Removed unit tests for deleted storage classes
+
 ## [2026-03-12] S3 to Vitess Migration for Metadata and Small Objects
 
 ### Summary

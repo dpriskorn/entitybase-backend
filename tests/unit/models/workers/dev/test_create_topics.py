@@ -176,7 +176,9 @@ class TestCreateTopics:
             mock_admin = MagicMock()
             mock_admin.start = AsyncMock()
             mock_admin.close = AsyncMock()
-            mock_admin.list_topics = AsyncMock(side_effect=Exception("Connection error"))
+            mock_admin.list_topics = AsyncMock(
+                side_effect=Exception("Connection error")
+            )
             mock_admin_class.return_value = mock_admin
 
             topics = CreateTopics()
