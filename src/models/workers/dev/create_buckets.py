@@ -53,6 +53,10 @@ class CreateBuckets(BaseModel):
     @property
     def s3_client(self) -> Any:
         """Get S3 client with shared credentials for all buckets."""
+        logger.info(
+            f"Creating S3 client with endpoint={self.minio_endpoint}, "
+            f"access_key={self.minio_access_key[:4]}..."
+        )
         return _boto3.client(
             "s3",
             endpoint_url=self.minio_endpoint,
@@ -86,7 +90,10 @@ class CreateBuckets(BaseModel):
                         )
                 else:
                     results[bucket] = f"error: {error_code}"
-                    logger.error(f"Error checking bucket {bucket}: {error_code}")
+                    logger.error(
+                        f"Error checking bucket {bucket}: {error_code} - "
+                        f"response: {e.response}"
+                    )
             except Exception as e:
                 results[bucket] = f"unexpected_error: {e}"
                 logger.error(f"Unexpected error with bucket {bucket}: {e}")
