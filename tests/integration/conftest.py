@@ -12,7 +12,8 @@ from botocore.exceptions import ClientError
 sys.path.insert(0, "src")
 
 os.environ["STREAMING_ENABLED"] = "false"
-os.environ.pop("KAFKA_BOOTSTRAP_SERVERS", None)
+if "KAFKA_BOOTSTRAP_SERVERS" not in os.environ:
+    os.environ["KAFKA_BOOTSTRAP_SERVERS"] = "redpanda:9092"
 
 # noinspection PyPep8
 from models.config.settings import settings
