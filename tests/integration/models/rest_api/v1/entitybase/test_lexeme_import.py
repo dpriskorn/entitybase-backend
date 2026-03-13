@@ -56,7 +56,7 @@ async def test_lexeme_import_with_lemmas() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.post(
-            "/v1/entitybase/import",
+            "/v1/import",
             json=lexeme_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -84,7 +84,7 @@ async def test_lexeme_import_without_lemmas_fails() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.post(
-            "/v1/entitybase/import",
+            "/v1/import",
             json=lexeme_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -113,7 +113,7 @@ async def test_lexeme_import_preserves_wikidata_id() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.post(
-            "/v1/entitybase/import",
+            "/v1/import",
             json=lexeme_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -145,14 +145,14 @@ async def test_lexeme_language_get_after_creation() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.post(
-            "/v1/entitybase/import",
+            "/v1/import",
             json=lexeme_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
 
         response = await client.get(
-            f"/v1/entitybase/entities/lexemes/{lexeme_id}/language"
+            f"/v1/entities/lexemes/{lexeme_id}/language"
         )
         assert response.status_code == 200
         result = response.json()
@@ -179,14 +179,14 @@ async def test_lexeme_lexicalcategory_get_after_creation() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.post(
-            "/v1/entitybase/import",
+            "/v1/import",
             json=lexeme_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
 
         response = await client.get(
-            f"/v1/entitybase/entities/lexemes/{lexeme_id}/lexicalcategory"
+            f"/v1/entities/lexemes/{lexeme_id}/lexicalcategory"
         )
         assert response.status_code == 200
         result = response.json()
@@ -213,14 +213,14 @@ async def test_lexeme_language_update_invalid_qid_fails() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.post(
-            "/v1/entitybase/import",
+            "/v1/import",
             json=lexeme_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
 
         response = await client.put(
-            f"/v1/entitybase/entities/lexemes/{lexeme_id}/language",
+            f"/v1/entities/lexemes/{lexeme_id}/language",
             json={"language": "invalid-qid"},
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -249,14 +249,14 @@ async def test_lexeme_lexicalcategory_update_invalid_qid_fails() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.post(
-            "/v1/entitybase/import",
+            "/v1/import",
             json=lexeme_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
 
         response = await client.put(
-            f"/v1/entitybase/entities/lexemes/{lexeme_id}/lexicalcategory",
+            f"/v1/entities/lexemes/{lexeme_id}/lexicalcategory",
             json={"lexical_category": "not-valid"},
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -316,7 +316,7 @@ async def test_lexeme_import_with_claims_and_references() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.post(
-            "/v1/entitybase/import",
+            "/v1/import",
             json=lexeme_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )

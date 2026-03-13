@@ -220,7 +220,7 @@ async def test_entity_import_with_references_wikidata_format() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.post(
-            "/v1/entitybase/import",
+            "/v1/import",
             json=entity_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )

@@ -25,7 +25,7 @@ async def test_add_sense_gloss() -> None:
             ],
         }
         create_response = await client.post(
-            "/v1/entitybase/entities/lexemes",
+            "/v1/entities/lexemes",
             json=lexeme_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -34,7 +34,7 @@ async def test_add_sense_gloss() -> None:
 
         gloss_data = {"language": "de", "value": "Ein Testsinn"}
         response = await client.post(
-            f"/v1/entitybase/entities/lexemes/senses/{lexeme_id}-S1/glosses/de",
+            f"/v1/entities/lexemes/senses/{lexeme_id}-S1/glosses/de",
             json=gloss_data,
             headers={"X-Edit-Summary": "add gloss", "X-User-ID": "0"},
         )
@@ -61,7 +61,7 @@ async def test_add_sense_gloss_already_exists() -> None:
             ],
         }
         create_response = await client.post(
-            "/v1/entitybase/entities/lexemes",
+            "/v1/entities/lexemes",
             json=lexeme_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -70,7 +70,7 @@ async def test_add_sense_gloss_already_exists() -> None:
 
         gloss_data = {"language": "en", "value": "A test sense"}
         response = await client.post(
-            f"/v1/entitybase/entities/lexemes/senses/{lexeme_id}-S1/glosses/en",
+            f"/v1/entities/lexemes/senses/{lexeme_id}-S1/glosses/en",
             json=gloss_data,
             headers={"X-Edit-Summary": "add gloss", "X-User-ID": "0"},
         )
@@ -98,7 +98,7 @@ async def test_update_sense_gloss() -> None:
             ],
         }
         create_response = await client.post(
-            "/v1/entitybase/entities/lexemes",
+            "/v1/entities/lexemes",
             json=lexeme_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -107,7 +107,7 @@ async def test_update_sense_gloss() -> None:
 
         gloss_data = {"language": "en", "value": "Updated sense"}
         response = await client.put(
-            f"/v1/entitybase/entities/lexemes/senses/{lexeme_id}-S1/glosses/en",
+            f"/v1/entities/lexemes/senses/{lexeme_id}-S1/glosses/en",
             json=gloss_data,
             headers={"X-Edit-Summary": "update gloss", "X-User-ID": "0"},
         )
@@ -139,7 +139,7 @@ async def test_delete_sense_gloss() -> None:
             ],
         }
         create_response = await client.post(
-            "/v1/entitybase/entities/lexemes",
+            "/v1/entities/lexemes",
             json=lexeme_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -147,7 +147,7 @@ async def test_delete_sense_gloss() -> None:
         lexeme_id = create_response.json()["id"]
 
         response = await client.delete(
-            f"/v1/entitybase/entities/lexemes/senses/{lexeme_id}-S1/glosses/de",
+            f"/v1/entities/lexemes/senses/{lexeme_id}-S1/glosses/de",
             headers={"X-Edit-Summary": "delete gloss", "X-User-ID": "0"},
         )
         assert response.status_code == 200
@@ -173,7 +173,7 @@ async def test_delete_sense_gloss_last_gloss_fails() -> None:
             ],
         }
         create_response = await client.post(
-            "/v1/entitybase/entities/lexemes",
+            "/v1/entities/lexemes",
             json=lexeme_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -181,7 +181,7 @@ async def test_delete_sense_gloss_last_gloss_fails() -> None:
         lexeme_id = create_response.json()["id"]
 
         response = await client.delete(
-            f"/v1/entitybase/entities/lexemes/senses/{lexeme_id}-S1/glosses/en",
+            f"/v1/entities/lexemes/senses/{lexeme_id}-S1/glosses/en",
             headers={"X-Edit-Summary": "delete gloss", "X-User-ID": "0"},
         )
         assert response.status_code == 400
@@ -213,7 +213,7 @@ async def test_get_sense_glosses() -> None:
             ],
         }
         create_response = await client.post(
-            "/v1/entitybase/entities/lexemes",
+            "/v1/entities/lexemes",
             json=lexeme_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -221,7 +221,7 @@ async def test_get_sense_glosses() -> None:
         lexeme_id = create_response.json()["id"]
 
         response = await client.get(
-            f"/v1/entitybase/entities/lexemes/senses/{lexeme_id}-S1/glosses",
+            f"/v1/entities/lexemes/senses/{lexeme_id}-S1/glosses",
         )
         assert response.status_code == 200
         data = response.json()
@@ -248,7 +248,7 @@ async def test_get_sense_gloss_by_language() -> None:
             ],
         }
         create_response = await client.post(
-            "/v1/entitybase/entities/lexemes",
+            "/v1/entities/lexemes",
             json=lexeme_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -256,7 +256,7 @@ async def test_get_sense_gloss_by_language() -> None:
         lexeme_id = create_response.json()["id"]
 
         response = await client.get(
-            f"/v1/entitybase/entities/lexemes/senses/{lexeme_id}-S1/glosses/en",
+            f"/v1/entities/lexemes/senses/{lexeme_id}-S1/glosses/en",
         )
         assert response.status_code == 200
         data = response.json()
