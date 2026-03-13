@@ -9,12 +9,6 @@ class SettingsResponse(BaseModel):
     model_config = {"extra": "forbid"}
 
     s3_endpoint: str
-    s3_references_bucket: str
-    s3_qualifiers_bucket: str
-    s3_sitelinks_bucket: str
-    s3_snaks_bucket: str
-    s3_statements_bucket: str
-    s3_terms_bucket: str
     s3_revisions_bucket: str
     s3_snak_version: str
     s3_sitelink_version: str

@@ -162,13 +162,7 @@ def create_s3_buckets(s3_config):
     from models.config.settings import settings
 
     required_buckets = [
-        settings.s3_terms_bucket,
-        settings.s3_statements_bucket,
-        settings.s3_references_bucket,
-        settings.s3_qualifiers_bucket,
         settings.s3_revisions_bucket,
-        settings.s3_sitelinks_bucket,
-        settings.s3_snaks_bucket,
     ]
 
     s3 = boto3.client(

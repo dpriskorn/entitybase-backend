@@ -151,9 +151,7 @@ async def test_lexeme_language_get_after_creation() -> None:
         )
         assert response.status_code == 200
 
-        response = await client.get(
-            f"/v1/entities/lexemes/{lexeme_id}/language"
-        )
+        response = await client.get(f"/v1/entities/lexemes/{lexeme_id}/language")
         assert response.status_code == 200
         result = response.json()
         assert result["language"] == "Q1860"
@@ -185,9 +183,7 @@ async def test_lexeme_lexicalcategory_get_after_creation() -> None:
         )
         assert response.status_code == 200
 
-        response = await client.get(
-            f"/v1/entities/lexemes/{lexeme_id}/lexicalcategory"
-        )
+        response = await client.get(f"/v1/entities/lexemes/{lexeme_id}/lexicalcategory")
         assert response.status_code == 200
         result = response.json()
         assert result["lexical_category"] == "Q1084"

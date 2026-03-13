@@ -25,6 +25,7 @@ package "Models" as Models #LightCyan {
     "Description" as DescriptionResponse
     "DescriptionValue" as DescriptionValue
     "Descriptions" as DescriptionsResponse
+    "ElasticsearchDocument" as ElasticsearchDocumentResponse
     "EndorsementList" as EndorsementListResponse
     "Endorsement" as EndorsementResponse
     "EndorsementStats" as EndorsementStatsResponse

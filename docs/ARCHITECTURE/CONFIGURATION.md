@@ -79,47 +79,11 @@ All settings can be overridden using environment variables with the same name.
 - **Default**: `'fakesecret'`
 - **Description**: No description available
 
-### `s3_references_bucket`
-
-- **Type**: `str`
-- **Default**: `'references'`
-- **Description**: buckets
-
-### `s3_qualifiers_bucket`
-
-- **Type**: `str`
-- **Default**: `'qualifiers'`
-- **Description**: No description available
-
-### `s3_sitelinks_bucket`
-
-- **Type**: `str`
-- **Default**: `'sitelinks'`
-- **Description**: No description available
-
-### `s3_snaks_bucket`
-
-- **Type**: `str`
-- **Default**: `'snaks'`
-- **Description**: No description available
-
-### `s3_statements_bucket`
-
-- **Type**: `str`
-- **Default**: `'statements'`
-- **Description**: No description available
-
-### `s3_terms_bucket`
-
-- **Type**: `str`
-- **Default**: `'terms'`
-- **Description**: No description available
-
 ### `s3_revisions_bucket`
 
 - **Type**: `str`
 - **Default**: `'revisions'`
-- **Description**: No description available
+- **Description**: buckets
 
 ### `s3_snak_version`
 
@@ -175,6 +139,18 @@ All settings can be overridden using environment variables with the same name.
 
 - **Type**: `str`
 - **Default**: `''`
+- **Description**: No description available
+
+### `elasticsearch_host`
+
+- **Type**: `str`
+- **Default**: `'localhost'`
+- **Description**: No description available
+
+### `elasticsearch_port`
+
+- **Type**: `int`
+- **Default**: `9200`
 - **Description**: No description available
 
 ## Workers Settings
@@ -385,6 +361,48 @@ All settings can be overridden using environment variables with the same name.
 
 - **Type**: `bool`
 - **Default**: `True`
+- **Description**: No description available
+
+### `elasticsearch_enabled`
+
+- **Type**: `bool`
+- **Default**: `False`
+- **Description**: Elasticsearch worker
+
+### `elasticsearch_index`
+
+- **Type**: `str`
+- **Default**: `'entitybase'`
+- **Description**: No description available
+
+### `elasticsearch_username`
+
+- **Type**: `str`
+- **Default**: `''`
+- **Description**: No description available
+
+### `elasticsearch_password`
+
+- **Type**: `str`
+- **Default**: `''`
+- **Description**: No description available
+
+### `elasticsearch_use_ssl`
+
+- **Type**: `bool`
+- **Default**: `True`
+- **Description**: No description available
+
+### `elasticsearch_verify_certs`
+
+- **Type**: `bool`
+- **Default**: `True`
+- **Description**: No description available
+
+### `elasticsearch_consumer_group`
+
+- **Type**: `str`
+- **Default**: `'entitybase-elasticsearch-indexer'`
 - **Description**: No description available
 
 ## Usage Example

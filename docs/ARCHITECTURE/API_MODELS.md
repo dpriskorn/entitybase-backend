@@ -385,6 +385,14 @@ Individual sitelink entry.
 
 ## models/data/rest_api/v1/entitybase/response/entity_data.py
 
+### ElasticsearchDocumentResponse
+
+Response model for Elasticsearch document preview.
+
+**Fields**:
+
+- `document` (dict[str, Any]): Elasticsearch document
+
 ### EntitiesResponse
 
 Response model for entities search.
@@ -788,12 +796,6 @@ Response model for settings endpoint (excludes sensitive values).
 **Fields**:
 
 - `s3_endpoint` (str): No description
-- `s3_references_bucket` (str): No description
-- `s3_qualifiers_bucket` (str): No description
-- `s3_sitelinks_bucket` (str): No description
-- `s3_snaks_bucket` (str): No description
-- `s3_statements_bucket` (str): No description
-- `s3_terms_bucket` (str): No description
 - `s3_revisions_bucket` (str): No description
 - `s3_snak_version` (str): No description
 - `s3_sitelink_version` (str): No description

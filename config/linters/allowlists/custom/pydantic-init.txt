@@ -1,2 +1,3 @@
 src/models/infrastructure/vitess/connection.py:278
 src/models/infrastructure/vitess/connection.py:283
+src/models/services/elasticsearch/client.py:22

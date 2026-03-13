@@ -34,3 +34,9 @@ class TopEntityByBacklinks(BaseModel):
 
     entity_id: str = Field(..., description="Entity ID")
     backlink_count: int = Field(..., description="Number of backlinks to this entity")
+
+
+class ElasticsearchDocumentResponse(BaseModel):
+    """Response model for Elasticsearch document preview."""
+
+    document: dict[str, Any] = Field(..., description="Elasticsearch document")

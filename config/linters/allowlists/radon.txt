@@ -142,6 +142,7 @@ _calculate_seconds_until_next_run
 _generate_checksum
 list_entities_by_type
 _validate_user
+_get_kafka_brokers
 # Vitess storage duplicate methods (intentional - same interface as S3 storage)
 exists
 load_statement

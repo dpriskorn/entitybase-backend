@@ -2,6 +2,60 @@
 
 This file tracks architectural changes, feature additions, and modifications to entitybase-backend.
 
+## [2026-03-13] Elasticsearch Transformer Pydantic Models
+
+### Summary
+
+Added Pydantic models for Elasticsearch document transformation to replace dict-based return types.
+
+### Changes
+
+1. **New data models** (`src/models/data/infrastructure/elasticsearch/`):
+   - `FlattenedClaims` - Model for flattened claims mapping property_id to list of values
+   - `ElasticsearchDocument` - Model for Elasticsearch document from Wikibase entity
+   - `ElasticsearchDocumentResponse` - Response model for document retrieval
+
+2. **Updated transformer** (`src/models/services/elasticsearch/transformer.py`):
+   - `transform_to_elasticsearch()` now returns `ElasticsearchDocument` instead of `dict`
+   - `_flatten_claims()` now returns `FlattenedClaims` instead of `dict`
+
+3. **Updated client** (`src/models/services/elasticsearch/client.py`):
+   - `get_document()` now returns `ElasticsearchDocumentResponse` instead of `Optional[dict]`
+
+### Linter Changes
+
+- Added `_get_kafka_brokers` to radon allowlist
+- Added `get_document`, `preview_elasticsearch_document`, `lastrevid`, `lexicalCategory` to vulture allowlist
+- Added `src/models/services/elasticsearch/client.py:22` to pydantic-init allowlist
+
+## [2026-03-13] Complete S3 to Vitess Migration for Metadata and Small Objects
+
+### Summary
+
+Completed migration of all remaining S3 buckets to Vitess. Only `s3_revisions_bucket` and `s3_dump_bucket` remain in S3.
+
+### Removed S3 Buckets
+
+- `s3_terms_bucket` - Labels, descriptions, aliases, lemmas, form representations, sense glosses
+- `s3_sitelinks_bucket` - Sitelink titles
+- `s3_statements_bucket` - Statement content
+- `s3_qualifiers_bucket` - Qualifier content
+- `s3_references_bucket` - Reference content
+- `s3_snaks_bucket` - Snak content
+
+### Kept S3 Buckets
+
+- `s3_revisions_bucket` - Entity revision snapshots (immutable)
+- `s3_dump_bucket` - JSON and TTL dumps for export
+
+### Code Changes
+
+1. **MetadataVitessStorage** - Added methods for lemmas, form representations, and sense glosses
+2. **S3Client** - Updated to use `vitess_metadata` instead of `LexemeStorage` for lexeme operations
+3. **Removed storage classes**: `SnakStorage`, `StatementStorage`, `ReferenceStorage`, `QualifierStorage`, `MetadataStorage`, `LexemeStorage`
+4. **Updated settings**: Removed 6 bucket configuration variables
+5. **Updated tests**: Removed unit tests for deleted storage classes
+
 ## [2026-03-12] S3 to Vitess Migration for Metadata and Small Objects
 
 ### Summary

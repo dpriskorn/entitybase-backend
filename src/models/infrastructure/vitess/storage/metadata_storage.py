@@ -10,9 +10,35 @@ logger = logging.getLogger(__name__)
 
 
 class MetadataVitessStorage(Repository):
-    """Storage operations for metadata (labels, descriptions, aliases) using Vitess."""
+    """Storage operations for metadata (labels, descriptions, aliases, lemmas, forms, senses) using Vitess."""
 
     table_name: str = "metadata_content"
+
+    def store_lemma(self, content_hash: int, value: str) -> OperationResult[None]:
+        """Store lemma in Vitess."""
+        return self.store_metadata(content_hash, "lemma", value)
+
+    def store_form_representation(
+        self, content_hash: int, value: str
+    ) -> OperationResult[None]:
+        """Store form representation in Vitess."""
+        return self.store_metadata(content_hash, "form_representation", value)
+
+    def store_sense_gloss(self, content_hash: int, value: str) -> OperationResult[None]:
+        """Store sense gloss in Vitess."""
+        return self.store_metadata(content_hash, "sense_gloss", value)
+
+    def load_lemmas_batch(self, hashes: list[int]) -> list[str | None]:
+        """Load lemmas by content hashes."""
+        return [self.load_metadata(h, "lemma") for h in hashes]
+
+    def load_form_representations_batch(self, hashes: list[int]) -> list[str | None]:
+        """Load form representations by content hashes."""
+        return [self.load_metadata(h, "form_representation") for h in hashes]
+
+    def load_sense_glosses_batch(self, hashes: list[int]) -> list[str | None]:
+        """Load sense glosses by content hashes."""
+        return [self.load_metadata(h, "sense_gloss") for h in hashes]
 
     def store_metadata(
         self,

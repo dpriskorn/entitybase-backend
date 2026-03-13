@@ -6,6 +6,7 @@ src/
     ├── data
     │   ├── config
     │   ├── infrastructure
+    │   │   ├── elasticsearch
     │   │   ├── s3
     │   │   │   └── hashes
     │   │   ├── stream
@@ -49,11 +50,13 @@ src/
     │           ├── services
     │           └── utils
     ├── services
+    │   └── elasticsearch
     ├── utils
     ├── validation
     └── workers
         ├── backlink_statistics
         ├── dev
+        ├── elasticsearch_indexer
         ├── entity_diff
         ├── general_stats
         ├── id_generation
@@ -64,5 +67,5 @@ src/
         ├── user_stats
         └── watchlist_consumer
 
-63 directories
+66 directories
 ```

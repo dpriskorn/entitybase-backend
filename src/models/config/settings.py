@@ -28,12 +28,6 @@ class Settings(BaseModel):
     s3_secret_key: str = "fakesecret"
 
     # buckets
-    s3_references_bucket: str = "references"
-    s3_qualifiers_bucket: str = "qualifiers"
-    s3_sitelinks_bucket: str = "sitelinks"
-    s3_snaks_bucket: str = "snaks"
-    s3_statements_bucket: str = "statements"
-    s3_terms_bucket: str = "terms"
     s3_revisions_bucket: str = "revisions"
 
     # S3 versions
@@ -111,6 +105,17 @@ class Settings(BaseModel):
     ttl_dump_compression: bool = True
     ttl_dump_generate_checksums: bool = True
 
+    # Elasticsearch worker
+    elasticsearch_enabled: bool = False
+    elasticsearch_host: str = "localhost"
+    elasticsearch_port: int = 9200
+    elasticsearch_index: str = "entitybase"
+    elasticsearch_username: str = ""
+    elasticsearch_password: str = ""
+    elasticsearch_use_ssl: bool = True
+    elasticsearch_verify_certs: bool = True
+    elasticsearch_consumer_group: str = "entitybase-elasticsearch-indexer"
+
     def model_post_init(self, context: Any) -> None:
         """Initialize all fields from environment variables.
 
@@ -132,20 +137,6 @@ class Settings(BaseModel):
         self.s3_access_key = os.getenv("S3_ACCESS_KEY", self.s3_access_key)
         self.s3_secret_key = os.getenv("S3_SECRET_KEY", self.s3_secret_key)
 
-        self.s3_references_bucket = os.getenv(
-            "S3_REFERENCES_BUCKET", self.s3_references_bucket
-        )
-        self.s3_qualifiers_bucket = os.getenv(
-            "S3_QUALIFIERS_BUCKET", self.s3_qualifiers_bucket
-        )
-        self.s3_sitelinks_bucket = os.getenv(
-            "S3_SITELINKS_BUCKET", self.s3_sitelinks_bucket
-        )
-        self.s3_snaks_bucket = os.getenv("S3_SNAKS_BUCKET", self.s3_snaks_bucket)
-        self.s3_statements_bucket = os.getenv(
-            "S3_STATEMENTS_BUCKET", self.s3_statements_bucket
-        )
-        self.s3_terms_bucket = os.getenv("S3_TERMS_BUCKET", self.s3_terms_bucket)
         self.s3_revisions_bucket = os.getenv(
             "S3_REVISIONS_BUCKET", self.s3_revisions_bucket
         )
@@ -268,6 +259,7 @@ class Settings(BaseModel):
         self.ttl_dump_batch_size = int(
             os.getenv("TTL_DUMP_BATCH_SIZE", str(self.ttl_dump_batch_size))
         )
+        logger.debug("Workers configuration loaded successfully")
         self.ttl_dump_parallel_workers = int(
             os.getenv("TTL_DUMP_PARALLEL_WORKERS", str(self.ttl_dump_parallel_workers))
         )
@@ -280,6 +272,38 @@ class Settings(BaseModel):
                 "TTL_DUMP_GENERATE_CHECKSUMS", str(self.ttl_dump_generate_checksums)
             ).lower()
             == "true"
+        )
+        self.elasticsearch_enabled = (
+            os.getenv("ELASTICSEARCH_ENABLED", str(self.elasticsearch_enabled)).lower()
+            == "true"
+        )
+        self.elasticsearch_host = os.getenv(
+            "ELASTICSEARCH_HOST", self.elasticsearch_host
+        )
+        self.elasticsearch_port = int(
+            os.getenv("ELASTICSEARCH_PORT", str(self.elasticsearch_port))
+        )
+        self.elasticsearch_index = os.getenv(
+            "ELASTICSEARCH_INDEX", self.elasticsearch_index
+        )
+        self.elasticsearch_username = os.getenv(
+            "ELASTICSEARCH_USERNAME", self.elasticsearch_username
+        )
+        self.elasticsearch_password = os.getenv(
+            "ELASTICSEARCH_PASSWORD", self.elasticsearch_password
+        )
+        self.elasticsearch_use_ssl = (
+            os.getenv("ELASTICSEARCH_USE_SSL", str(self.elasticsearch_use_ssl)).lower()
+            == "true"
+        )
+        self.elasticsearch_verify_certs = (
+            os.getenv(
+                "ELASTICSEARCH_VERIFY_CERTS", str(self.elasticsearch_verify_certs)
+            ).lower()
+            == "true"
+        )
+        self.elasticsearch_consumer_group = os.getenv(
+            "ELASTICSEARCH_CONSUMER_GROUP", self.elasticsearch_consumer_group
         )
         logger.debug(
             f"Workers config loaded: backlink_stats_enabled={self.backlink_stats_enabled}, "

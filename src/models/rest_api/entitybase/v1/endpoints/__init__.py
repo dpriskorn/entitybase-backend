@@ -4,7 +4,6 @@ from fastapi import APIRouter
 
 from . import (
     admin,
-    debug,
     entities,
     entities_aliases,
     entities_descriptions,
@@ -50,4 +49,3 @@ v1_router.include_router(watchlist.watchlist_router, tags=["watchlist"])
 v1_router.include_router(stats.stats_router, tags=["statistics"])
 v1_router.include_router(property_hashes.property_hashes_router, tags=["properties"])
 v1_router.include_router(json_import.import_router, tags=["import"])
-v1_router.include_router(debug.debug_router, tags=["debug"])

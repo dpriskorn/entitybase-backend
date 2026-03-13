@@ -120,3 +120,65 @@ class TestDevWorkerCLI:
         assert (
             "invalid choice" in captured.err or "unrecognized arguments" in captured.err
         )
+
+    @patch("models.workers.dev.__main__.run_topics_setup")
+    @patch("sys.argv", ["devworker", "topics", "setup"])
+    def test_topics_setup_command(self, mock_run_setup) -> None:
+        """Test topics setup command execution."""
+        mock_run_setup.return_value = True
+
+        result = main()
+
+        assert result == 0
+        mock_run_setup.assert_called_once()
+
+    @patch("models.workers.dev.__main__.run_topics_health")
+    @patch("sys.argv", ["devworker", "topics", "health"])
+    def test_topics_health_command(self, mock_run_health) -> None:
+        """Test topics health check command execution."""
+        mock_run_health.return_value = True
+
+        result = main()
+
+        assert result == 0
+        mock_run_health.assert_called_once()
+
+    @patch("models.workers.dev.__main__.run_buckets_setup")
+    @patch("sys.argv", ["devworker", "buckets", "invalid_op"])
+    def test_buckets_invalid_operation(self, mock_run_setup) -> None:
+        """Test error for invalid bucket operation."""
+        with pytest.raises(SystemExit) as exc_info:
+            main()
+
+        assert exc_info.value.code == 2
+        mock_run_setup.assert_not_called()
+
+    @patch("models.workers.dev.__main__.run_tables_setup")
+    @patch("sys.argv", ["devworker", "tables", "invalid_op"])
+    def test_tables_invalid_operation(self, mock_run_setup) -> None:
+        """Test error for invalid table operation."""
+        with pytest.raises(SystemExit) as exc_info:
+            main()
+
+        assert exc_info.value.code == 2
+        mock_run_setup.assert_not_called()
+
+    @patch("models.workers.dev.__main__.run_topics_setup")
+    @patch("sys.argv", ["devworker", "topics", "invalid_op"])
+    def test_topics_invalid_operation(self, mock_run_setup) -> None:
+        """Test error for invalid topic operation."""
+        with pytest.raises(SystemExit) as exc_info:
+            main()
+
+        assert exc_info.value.code == 2
+        mock_run_setup.assert_not_called()
+
+    @patch("models.workers.dev.__main__.run_buckets_setup")
+    @patch("sys.argv", ["devworker", "buckets", "setup"])
+    def test_buckets_setup_exception_handling(self, mock_run_setup) -> None:
+        """Test exception handling in bucket setup."""
+        mock_run_setup.side_effect = Exception("Setup failed")
+
+        result = main()
+
+        assert result == 1

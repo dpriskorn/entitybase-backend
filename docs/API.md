@@ -769,6 +769,26 @@ Create a new sense for a lexeme.
 ---
 
 ## Entities
+### POST /v1/entities/elasticsearch/preview
+**Preview Elasticsearch Document**
+Preview how an entity would be transformed for Elasticsearch.
+
+Accepts entity JSON in Wikibase API format and returns the transformed
+Elasticsearch document for review before indexing.
+| Aspect | Details |
+|--------|---------|
+| Operation ID | `preview_elasticsearch_document_v1_entities_elasticsearch_preview_post` |
+| Method | `POST` |
+| Path | `/v1/entities/elasticsearch/preview` |
+| Request Body | Inline schema |
+| Response | Description |
+|----------|-------------|
+| 200 | Successful Response |
+| 422 | Validation Error |
+
+
+---
+
 ### DELETE /v1/entities/{entity_id}
 **Delete Entity**
 Delete an entity.
@@ -2095,44 +2115,6 @@ List all properties (P-prefixed entities).
 
 ---
 
-## Debug
-### GET /v1/debug/entity/{entity_id}
-**Debug Entity**
-Debug endpoint to check entity in database.
-
-This endpoint queries the entity_id_mapping table directly to verify
-if an entity exists and what its internal_id is.
-| Aspect | Details |
-|--------|---------|
-| Operation ID | `debug_entity_v1_debug_entity__entity_id__get` |
-| Method | `GET` |
-| Path | `/v1/debug/entity/{entity_id}` |
-| Parameters | `entity_id` (path, Required) |
-| Response | Description |
-|----------|-------------|
-| 200 | Successful Response |
-| 422 | Validation Error |
-
-
----
-
-### GET /v1/debug/entity_head/{entity_id}
-**Debug Entity Head**
-Debug endpoint to check entity_head table.
-| Aspect | Details |
-|--------|---------|
-| Operation ID | `debug_entity_head_v1_debug_entity_head__entity_id__get` |
-| Method | `GET` |
-| Path | `/v1/debug/entity_head/{entity_id}` |
-| Parameters | `entity_id` (path, Required) |
-| Response | Description |
-|----------|-------------|
-| 200 | Successful Response |
-| 422 | Validation Error |
-
-
----
-
 ## Health
 ### GET /health
 **Health Check Endpoint**
@@ -2177,6 +2159,177 @@ Get current application settings (excludes sensitive values).
 | Response | Description |
 |----------|-------------|
 | 200 | Successful Response |
+
+
+---
+
+## Interactions
+### POST /v1/entities/{entity_id}/revisions/{revision_id}/thank
+**Send Thank Endpoint**
+Send a thank for a specific revision.
+| Aspect | Details |
+|--------|---------|
+| Operation ID | `send_thank_endpoint_v1_entities__entity_id__revisions__revision_id__thank_post` |
+| Method | `POST` |
+| Path | `/v1/entities/{entity_id}/revisions/{revision_id}/thank` |
+| Parameters | `entity_id` (path, Required) `revision_id` (path, Required) `X-User-ID` (header, Required) |
+| Response | Description |
+|----------|-------------|
+| 200 | Successful Response |
+| 422 | Validation Error |
+
+
+---
+
+### GET /v1/entities/{entity_id}/revisions/{revision_id}/thanks
+**Get Revision Thanks Endpoint**
+Get all thanks for a specific revision.
+| Aspect | Details |
+|--------|---------|
+| Operation ID | `get_revision_thanks_endpoint_v1_entities__entity_id__revisions__revision_id__thanks_get` |
+| Method | `GET` |
+| Path | `/v1/entities/{entity_id}/revisions/{revision_id}/thanks` |
+| Parameters | `entity_id` (path, Required) `revision_id` (path, Required) |
+| Response | Description |
+|----------|-------------|
+| 200 | Successful Response |
+| 422 | Validation Error |
+
+
+---
+
+### DELETE /v1/statements/{statement_hash}/endorse
+**Withdraw Endorsement Endpoint**
+Withdraw endorsement from a statement.
+| Aspect | Details |
+|--------|---------|
+| Operation ID | `withdraw_endorsement_endpoint_v1_statements__statement_hash__endorse_delete` |
+| Method | `DELETE` |
+| Path | `/v1/statements/{statement_hash}/endorse` |
+| Parameters | `statement_hash` (path, Required) `X-User-ID` (header, Required) |
+| Response | Description |
+|----------|-------------|
+| 200 | Successful Response |
+| 422 | Validation Error |
+
+
+---
+
+### POST /v1/statements/{statement_hash}/endorse
+**Endorse Statement Endpoint**
+Endorse a statement to signal trust.
+| Aspect | Details |
+|--------|---------|
+| Operation ID | `endorse_statement_endpoint_v1_statements__statement_hash__endorse_post` |
+| Method | `POST` |
+| Path | `/v1/statements/{statement_hash}/endorse` |
+| Parameters | `statement_hash` (path, Required) `X-User-ID` (header, Required) |
+| Response | Description |
+|----------|-------------|
+| 200 | Successful Response |
+| 422 | Validation Error |
+
+
+---
+
+### GET /v1/statements/{statement_hash}/endorsements
+**Get Statement Endorsements Endpoint**
+Get endorsements for a statement.
+| Aspect | Details |
+|--------|---------|
+| Operation ID | `get_statement_endorsements_endpoint_v1_statements__statement_hash__endorsements_get` |
+| Method | `GET` |
+| Path | `/v1/statements/{statement_hash}/endorsements` |
+| Parameters | `statement_hash` (path, Required) `limit` (query, Optional) `offset` (query, Optional) `include_removed` (query, Optional) |
+| Response | Description |
+|----------|-------------|
+| 200 | Successful Response |
+| 422 | Validation Error |
+
+
+---
+
+### GET /v1/statements/{statement_hash}/endorsements/stats
+**Get Statement Endorsement Stats**
+Get endorsement statistics for a statement.
+| Aspect | Details |
+|--------|---------|
+| Operation ID | `get_statement_endorsement_stats_v1_statements__statement_hash__endorsements_stats_get` |
+| Method | `GET` |
+| Path | `/v1/statements/{statement_hash}/endorsements/stats` |
+| Parameters | `statement_hash` (path, Required) |
+| Response | Description |
+|----------|-------------|
+| 200 | Successful Response |
+| 422 | Validation Error |
+
+
+---
+
+### GET /v1/users/{user_id}/endorsements
+**Get User Endorsements Endpoint**
+Get endorsements given by a user.
+| Aspect | Details |
+|--------|---------|
+| Operation ID | `get_user_endorsements_endpoint_v1_users__user_id__endorsements_get` |
+| Method | `GET` |
+| Path | `/v1/users/{user_id}/endorsements` |
+| Parameters | `user_id` (path, Required) `limit` (query, Optional) `offset` (query, Optional) `include_removed` (query, Optional) |
+| Response | Description |
+|----------|-------------|
+| 200 | Successful Response |
+| 422 | Validation Error |
+
+
+---
+
+### GET /v1/users/{user_id}/endorsements/stats
+**Get User Endorsement Stats Endpoint**
+Get endorsement statistics for a user.
+| Aspect | Details |
+|--------|---------|
+| Operation ID | `get_user_endorsement_stats_endpoint_v1_users__user_id__endorsements_stats_get` |
+| Method | `GET` |
+| Path | `/v1/users/{user_id}/endorsements/stats` |
+| Parameters | `user_id` (path, Required) |
+| Response | Description |
+|----------|-------------|
+| 200 | Successful Response |
+| 422 | Validation Error |
+
+
+---
+
+### GET /v1/users/{user_id}/thanks/received
+**Get Thanks Received Endpoint**
+Get thanks received by user.
+| Aspect | Details |
+|--------|---------|
+| Operation ID | `get_thanks_received_endpoint_v1_users__user_id__thanks_received_get` |
+| Method | `GET` |
+| Path | `/v1/users/{user_id}/thanks/received` |
+| Parameters | `user_id` (path, Required) `limit` (query, Optional) `offset` (query, Optional) `hours` (query, Optional) |
+| Response | Description |
+|----------|-------------|
+| 200 | Successful Response |
+| 422 | Validation Error |
+
+
+---
+
+### GET /v1/users/{user_id}/thanks/sent
+**Get Thanks Sent Endpoint**
+Get thanks sent by user.
+| Aspect | Details |
+|--------|---------|
+| Operation ID | `get_thanks_sent_endpoint_v1_users__user_id__thanks_sent_get` |
+| Method | `GET` |
+| Path | `/v1/users/{user_id}/thanks/sent` |
+| Parameters | `user_id` (path, Required) `limit` (query, Optional) `offset` (query, Optional) `hours` (query, Optional) |
+| Response | Description |
+|----------|-------------|
+| 200 | Successful Response |
+| 422 | Validation Error |
 
 
 ---
@@ -2522,177 +2675,6 @@ Max 100 hashes per request.
 
 ---
 
-## Interactions
-### POST /v1/entities/{entity_id}/revisions/{revision_id}/thank
-**Send Thank Endpoint**
-Send a thank for a specific revision.
-| Aspect | Details |
-|--------|---------|
-| Operation ID | `send_thank_endpoint_v1_entities__entity_id__revisions__revision_id__thank_post` |
-| Method | `POST` |
-| Path | `/v1/entities/{entity_id}/revisions/{revision_id}/thank` |
-| Parameters | `entity_id` (path, Required) `revision_id` (path, Required) `X-User-ID` (header, Required) |
-| Response | Description |
-|----------|-------------|
-| 200 | Successful Response |
-| 422 | Validation Error |
-
-
----
-
-### GET /v1/entities/{entity_id}/revisions/{revision_id}/thanks
-**Get Revision Thanks Endpoint**
-Get all thanks for a specific revision.
-| Aspect | Details |
-|--------|---------|
-| Operation ID | `get_revision_thanks_endpoint_v1_entities__entity_id__revisions__revision_id__thanks_get` |
-| Method | `GET` |
-| Path | `/v1/entities/{entity_id}/revisions/{revision_id}/thanks` |
-| Parameters | `entity_id` (path, Required) `revision_id` (path, Required) |
-| Response | Description |
-|----------|-------------|
-| 200 | Successful Response |
-| 422 | Validation Error |
-
-
----
-
-### DELETE /v1/statements/{statement_hash}/endorse
-**Withdraw Endorsement Endpoint**
-Withdraw endorsement from a statement.
-| Aspect | Details |
-|--------|---------|
-| Operation ID | `withdraw_endorsement_endpoint_v1_statements__statement_hash__endorse_delete` |
-| Method | `DELETE` |
-| Path | `/v1/statements/{statement_hash}/endorse` |
-| Parameters | `statement_hash` (path, Required) `X-User-ID` (header, Required) |
-| Response | Description |
-|----------|-------------|
-| 200 | Successful Response |
-| 422 | Validation Error |
-
-
----
-
-### POST /v1/statements/{statement_hash}/endorse
-**Endorse Statement Endpoint**
-Endorse a statement to signal trust.
-| Aspect | Details |
-|--------|---------|
-| Operation ID | `endorse_statement_endpoint_v1_statements__statement_hash__endorse_post` |
-| Method | `POST` |
-| Path | `/v1/statements/{statement_hash}/endorse` |
-| Parameters | `statement_hash` (path, Required) `X-User-ID` (header, Required) |
-| Response | Description |
-|----------|-------------|
-| 200 | Successful Response |
-| 422 | Validation Error |
-
-
----
-
-### GET /v1/statements/{statement_hash}/endorsements
-**Get Statement Endorsements Endpoint**
-Get endorsements for a statement.
-| Aspect | Details |
-|--------|---------|
-| Operation ID | `get_statement_endorsements_endpoint_v1_statements__statement_hash__endorsements_get` |
-| Method | `GET` |
-| Path | `/v1/statements/{statement_hash}/endorsements` |
-| Parameters | `statement_hash` (path, Required) `limit` (query, Optional) `offset` (query, Optional) `include_removed` (query, Optional) |
-| Response | Description |
-|----------|-------------|
-| 200 | Successful Response |
-| 422 | Validation Error |
-
-
----
-
-### GET /v1/statements/{statement_hash}/endorsements/stats
-**Get Statement Endorsement Stats**
-Get endorsement statistics for a statement.
-| Aspect | Details |
-|--------|---------|
-| Operation ID | `get_statement_endorsement_stats_v1_statements__statement_hash__endorsements_stats_get` |
-| Method | `GET` |
-| Path | `/v1/statements/{statement_hash}/endorsements/stats` |
-| Parameters | `statement_hash` (path, Required) |
-| Response | Description |
-|----------|-------------|
-| 200 | Successful Response |
-| 422 | Validation Error |
-
-
----
-
-### GET /v1/users/{user_id}/endorsements
-**Get User Endorsements Endpoint**
-Get endorsements given by a user.
-| Aspect | Details |
-|--------|---------|
-| Operation ID | `get_user_endorsements_endpoint_v1_users__user_id__endorsements_get` |
-| Method | `GET` |
-| Path | `/v1/users/{user_id}/endorsements` |
-| Parameters | `user_id` (path, Required) `limit` (query, Optional) `offset` (query, Optional) `include_removed` (query, Optional) |
-| Response | Description |
-|----------|-------------|
-| 200 | Successful Response |
-| 422 | Validation Error |
-
-
----
-
-### GET /v1/users/{user_id}/endorsements/stats
-**Get User Endorsement Stats Endpoint**
-Get endorsement statistics for a user.
-| Aspect | Details |
-|--------|---------|
-| Operation ID | `get_user_endorsement_stats_endpoint_v1_users__user_id__endorsements_stats_get` |
-| Method | `GET` |
-| Path | `/v1/users/{user_id}/endorsements/stats` |
-| Parameters | `user_id` (path, Required) |
-| Response | Description |
-|----------|-------------|
-| 200 | Successful Response |
-| 422 | Validation Error |
-
-
----
-
-### GET /v1/users/{user_id}/thanks/received
-**Get Thanks Received Endpoint**
-Get thanks received by user.
-| Aspect | Details |
-|--------|---------|
-| Operation ID | `get_thanks_received_endpoint_v1_users__user_id__thanks_received_get` |
-| Method | `GET` |
-| Path | `/v1/users/{user_id}/thanks/received` |
-| Parameters | `user_id` (path, Required) `limit` (query, Optional) `offset` (query, Optional) `hours` (query, Optional) |
-| Response | Description |
-|----------|-------------|
-| 200 | Successful Response |
-| 422 | Validation Error |
-
-
----
-
-### GET /v1/users/{user_id}/thanks/sent
-**Get Thanks Sent Endpoint**
-Get thanks sent by user.
-| Aspect | Details |
-|--------|---------|
-| Operation ID | `get_thanks_sent_endpoint_v1_users__user_id__thanks_sent_get` |
-| Method | `GET` |
-| Path | `/v1/users/{user_id}/thanks/sent` |
-| Parameters | `user_id` (path, Required) `limit` (query, Optional) `offset` (query, Optional) `hours` (query, Optional) |
-| Response | Description |
-|----------|-------------|
-| 200 | Successful Response |
-| 422 | Validation Error |
-
-
----
-
 ## Data Models
 ### AddPropertyRequest
 Request model for adding claims to a single property.
@@ -2832,6 +2814,13 @@ Response model for entity descriptions.
 ---
 ### EditType
 Enumeration of different types of edits that can be made to entities.
+
+---
+### ElasticsearchDocumentResponse
+Response model for Elasticsearch document preview.
+| Field | Type | Description |
+|-------|------|-------------|
+| `document` | object | Elasticsearch document *(required)* |
 
 ---
 ### EndorsementListResponse
@@ -3309,12 +3298,6 @@ Response model for settings endpoint (excludes sensitive values).
 | Field | Type | Description |
 |-------|------|-------------|
 | `s3_endpoint` | string |  *(required)* |
-| `s3_references_bucket` | string |  *(required)* |
-| `s3_qualifiers_bucket` | string |  *(required)* |
-| `s3_sitelinks_bucket` | string |  *(required)* |
-| `s3_snaks_bucket` | string |  *(required)* |
-| `s3_statements_bucket` | string |  *(required)* |
-| `s3_terms_bucket` | string |  *(required)* |
 | `s3_revisions_bucket` | string |  *(required)* |
 | `s3_snak_version` | string |  *(required)* |
 | `s3_sitelink_version` | string |  *(required)* |
