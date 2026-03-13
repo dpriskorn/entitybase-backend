@@ -37,9 +37,9 @@ package "Infrastructure Layer" as InfrastructureLayer #LightGray {
 package "Data Models" as DataModels #LightCyan {
     "WatchlistEntryResponse" as WatchlistEntryResponse
     "WatchlistResponse" as WatchlistResponse
-    "EndorsementResponse" as EndorsementResponse
-    "EndorsementListResponse" as EndorsementListResponse
-    "EndorsementStatsResponse" as EndorsementStatsResponse
+    "QualifierResponse" as QualifierResponse
+    "SnakResponse" as SnakResponse
+    "ReconstructedSnakValue" as ReconstructedSnakValue
     ... (10 total components)
 }
 

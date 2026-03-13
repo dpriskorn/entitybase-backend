@@ -2,30 +2,39 @@
 
 import pytest
 
-from models.data.rest_api.v1.entitybase.response.misc import (
+from models.data.rest_api.v1.entitybase.response.cleanup import CleanupOrphanedResponse
+from models.data.rest_api.v1.entitybase.response.entity_data import (
+    EntitiesResponse,
+    EntityJsonResponse,
+    PropertiesResponse,
+    TopEntityByBacklinks,
+    TurtleResponse,
+)
+from models.data.rest_api.v1.entitybase.response.metadata import (
+    RevisionMetadataResponse,
+)
+from models.data.rest_api.v1.entitybase.response.sitelinks import SitelinksResponse
+from models.data.rest_api.v1.entitybase.response.stats import (
+    GeneralStatsResponse,
+    RangeStatus,
+    RangeStatuses,
+    WatchCounts,
+)
+from models.data.rest_api.v1.entitybase.response.terms import (
     AliasesResponse,
     BatchAliasesResponse,
     BatchDescriptionsResponse,
     BatchLabelsResponse,
-    CleanupOrphanedResponse,
-    DeleteResponse,
     DescriptionResponse,
     DescriptionsResponse,
-    EntityJsonResponse,
-    GeneralStatsResponse,
     LabelResponse,
     LabelsResponse,
-    PropertiesResponse,
-    RangeStatus,
-    RangeStatuses,
-    RevisionMetadataResponse,
-    SitelinksResponse,
-    TermsPerLanguage,
     TermsByType,
-    TopEntityByBacklinks,
-    TurtleResponse,
+    TermsPerLanguage,
+)
+from models.data.rest_api.v1.entitybase.response.utilities import (
+    DeleteResponse,
     VersionResponse,
-    WatchCounts,
 )
 
 

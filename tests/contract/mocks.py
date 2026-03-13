@@ -22,10 +22,12 @@ class MockConnectionManager:
     """Mock Vitess connection manager."""
 
     def __init__(self) -> None:
-        self.connection = MagicMock()
+        self._cursor = MockCursor()
+        self._connection = MagicMock()
+        self._connection.cursor = lambda: self._cursor
 
-    def acquire(self) -> Any:
-        return self.connection
+    def acquire(self) -> MagicMock:
+        return self._connection
 
     def release(self, connection: Any) -> None:
         pass
@@ -38,6 +40,10 @@ class MockConnectionManager:
 class MockCursor:
     def __init__(self) -> None:
         self._rows: list[tuple] = []
+
+    @property
+    def cursor(self) -> "MockCursor":
+        return self
 
     def execute(self, query: str, params: Any = None) -> None:
         pass

@@ -42,7 +42,7 @@ from models.data.rest_api.v1.entitybase.response import (
 from models.data.rest_api.v1.entitybase.response import RevisionIdResult
 from models.data.rest_api.v1.entitybase.response import TurtleResponse
 from models.data.rest_api.v1.entitybase.response import BacklinksResponse
-from models.data.rest_api.v1.entitybase.response.misc import AllSitelinksResponse
+from models.data.rest_api.v1.entitybase.response.sitelinks import AllSitelinksResponse
 from models.rest_api.entitybase.v1.handlers.entity.delete import EntityDeleteHandler
 from models.rest_api.entitybase.v1.handlers.entity.status import EntityStatusHandler
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler

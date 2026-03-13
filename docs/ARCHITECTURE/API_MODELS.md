@@ -1,5 +1,17 @@
 # API Models Overview
 
+## models/data/rest_api/v1/entitybase/response/cleanup.py
+
+### CleanupOrphanedResponse
+
+Response model for cleanup orphaned statements.
+
+**Fields**:
+
+- `cleaned_count` (int): Number of statements cleaned up from S3 and Vitess
+- `failed_count` (int): Number of statements that failed to clean up
+- `errors` (list[str]): List of error messages for failed cleanups
+
 ## models/data/rest_api/v1/entitybase/response/endorsements.py
 
 ### BatchEndorsementStatsResponse
@@ -371,6 +383,49 @@ Individual sitelink entry.
 - `url` (str): URL of the page. Example: 'https://en.wikipedia.org/wiki/Test_Page'.
 - `badges` (List[str]): List of badges associated with the sitelink. Example: ['featuredarticle']
 
+## models/data/rest_api/v1/entitybase/response/entity_data.py
+
+### EntitiesResponse
+
+Response model for entities search.
+
+**Fields**:
+
+- `entities` (dict[str, Any]): Entities data
+
+### EntityJsonResponse
+
+Response model for JSON format entity data.
+
+**Fields**:
+
+- `data` (dict[str, Any]): Entity data in JSON format
+
+### PropertiesResponse
+
+Response model for entity properties.
+
+**Fields**:
+
+- `properties` (dict[str, Any]): Entity properties
+
+### TopEntityByBacklinks
+
+Model for entity backlink ranking.
+
+**Fields**:
+
+- `entity_id` (str): Entity ID
+- `backlink_count` (int): Number of backlinks to this entity
+
+### TurtleResponse
+
+Response model for Turtle format entity data.
+
+**Fields**:
+
+- `turtle` (str): Entity data in Turtle format
+
 ## models/data/rest_api/v1/entitybase/response/events.py
 
 ### RDFChangeEvent
@@ -547,137 +602,7 @@ Model for entity listing entries.
 - `entity_type` (str): Entity type (Q, P, etc.)
 - `reason` (str): Reason for listing
 
-## models/data/rest_api/v1/entitybase/response/misc.py
-
-### AliasesResponse
-
-Response model for entity aliases.
-
-**Fields**:
-
-- `aliases` (list[str]): List of alias texts for the specified language
-
-### AllSitelinksResponse
-
-Response model for all entity sitelinks.
-
-**Fields**:
-
-- `sitelinks` (dict[str, Any]): Dictionary mapping site key to sitelink data
-
-### BatchAliasesResponse
-
-Response model for batch aliases lookup by hash.
-
-**Fields**:
-
-- `aliases` (dict[str, list[str]]): Dictionary mapping hash strings to alias text lists
-
-### BatchDescriptionsResponse
-
-Response model for batch descriptions lookup by hash.
-
-**Fields**:
-
-- `descriptions` (dict[str, str]): Dictionary mapping hash strings to description text
-
-### BatchLabelsResponse
-
-Response model for batch labels lookup by hash.
-
-**Fields**:
-
-- `labels` (dict[str, str]): Dictionary mapping hash strings to label text
-
-### BatchSitelinksResponse
-
-Response model for batch sitelinks lookup by hash.
-
-**Fields**:
-
-- `sitelinks` (dict[str, str]): Dictionary mapping hash strings to sitelink titles
-
-### CleanupOrphanedResponse
-
-**Fields**:
-
-- `cleaned_count` (int): Number of statements cleaned up from S3 and Vitess
-- `failed_count` (int): Number of statements that failed to clean up
-- `errors` (list[str]): List of error messages for failed cleanups
-
-### DeleteResponse
-
-Response for DELETE operations.
-
-**Fields**:
-
-- `success` (bool): Whether the operation succeeded.
-
-### DescriptionResponse
-
-Response model for entity descriptions.
-
-**Fields**:
-
-- `value` (str): The description text for the specified language
-
-### DescriptionsResponse
-
-Response model for all entity descriptions.
-
-**Fields**:
-
-- `descriptions` (dict[str, str]): Descriptions per language
-
-### EntitiesResponse
-
-Response model for entities search.
-
-**Fields**:
-
-- `entities` (dict[str, Any]): Entities data
-
-### EntityJsonResponse
-
-Response model for JSON format entity data.
-
-**Fields**:
-
-- `data` (Dict[str, Any]): Entity data in JSON format
-
-### GeneralStatsResponse
-
-API response for general wiki statistics.
-
-**Fields**:
-
-- `date` (str): Date of statistics computation.
-- `total_statements` (int): Total number of statements.
-- `total_qualifiers` (int): Total number of qualifiers.
-- `total_references` (int): Total number of references.
-- `total_items` (int): Total number of items.
-- `total_lexemes` (int): Total number of lexemes.
-- `total_properties` (int): Total number of properties.
-- `total_sitelinks` (int): Total number of sitelinks.
-- `total_terms` (int): Total number of terms (labels + descriptions + aliases).
-- `terms_per_language` (TermsPerLanguage): Terms count per language.
-- `terms_by_type` (TermsByType): Terms count by type (labels, descriptions, aliases).
-
-### LabelResponse
-
-Response model for entity labels.
-
-**Fields**:
-
-- `value` (str): The label text for the specified language
-
-### LabelsResponse
-
-Response model for all entity labels.
-
-**Fields**:
-
-- `labels` (dict[str, str]): Labels per language
+## models/data/rest_api/v1/entitybase/response/metadata.py
 
 ### MetadataContent
 
@@ -695,34 +620,6 @@ Model for metadata data content.
 
 - `data` (str | dict[str, Any]): Metadata content as text or structured data
 
-### PropertiesResponse
-
-Response model for entity properties.
-
-**Fields**:
-
-- `properties` (dict[str, Any]): Entity properties
-
-### RangeStatus
-
-Model for ID range status.
-
-**Fields**:
-
-- `current_start` (int): Current range start ID
-- `current_end` (int): Current range end ID
-- `next_id` (int): Next available ID
-- `ids_used` (int): Number of IDs used
-- `utilization` (float): Utilization percentage
-
-### RangeStatuses
-
-Model for all ID range statuses.
-
-**Fields**:
-
-- `ranges` (dict[str, RangeStatus]): Range statuses by entity type
-
 ### RevisionMetadataResponse
 
 Metadata for entity revisions.
@@ -734,107 +631,7 @@ Metadata for entity revisions.
 - `user_id` (int): User ID
 - `edit_summary` (str): Edit summary
 
-### SitelinksResponse
-
-Response model for all entity sitelinks.
-
-**Fields**:
-
-- `sitelinks` (dict[str, str]): Sitelinks per site
-
-### TermHashResponse
-
-Response for single term (label/description/alias/lemma) operations.
-
-**Fields**:
-
-- `hash` (int): Hash of the stored term.
-
-### TermHashesResponse
-
-Response for multi-term operations (e.g., aliases PUT).
-
-**Fields**:
-
-- `hashes` (list[int]): Hashes of the stored terms.
-
-### TermsByType
-
-Model for terms count by type.
-
-**Fields**:
-
-- `counts` (dict[str, int]): Type to count mapping.
-
-### TermsPerLanguage
-
-Model for terms count per language.
-
-**Fields**:
-
-- `terms` (dict[str, int]): Language to count mapping.
-
-### TermsResponse
-
-Model for batch terms result.
-
-**Fields**:
-
-- `terms` (dict[int, tuple[str, str]]): Terms by hash
-
-### TopEntityByBacklinks
-
-Model for entity backlink ranking.
-
-**Fields**:
-
-- `entity_id` (str): Entity ID
-- `backlink_count` (int): Number of backlinks to this entity
-
-### TurtleResponse
-
-Response model for Turtle format entity data.
-
-**Fields**:
-
-- `turtle` (str): Entity data in Turtle format
-
-### VersionResponse
-
-Response model for version endpoint.
-
-**Fields**:
-
-- `api_version` (str): API version
-- `entitybase_version` (str): EntityBase version
-
-### WatchCounts
-
-Model for user watch counts.
-
-**Fields**:
-
-- `entity_count` (int): Number of entities watched
-- `property_count` (int): Number of properties watched
-
-## models/data/rest_api/v1/entitybase/response/misc2.py
-
-### GeneralStatsData
-
-Container for computed general wiki statistics.
-
-**Fields**:
-
-- `total_statements` (int): Total number of statements.
-- `total_qualifiers` (int): Total number of qualifiers.
-- `total_references` (int): Total number of references.
-- `total_items` (int): Total number of items.
-- `total_lexemes` (int): Total number of lexemes.
-- `total_properties` (int): Total number of properties.
-- `total_sitelinks` (int): Total number of sitelinks.
-- `total_terms` (int): Total number of terms (labels + descriptions + aliases).
-- `terms_per_language` (TermsPerLanguage): Terms count per language.
-- `terms_by_type` (TermsByType): Terms count by type (labels, descriptions, aliases).
+## models/data/rest_api/v1/entitybase/response/qualifiers.py
 
 ### QualifierResponse
 
@@ -842,7 +639,7 @@ Response model for qualifier data.
 
 **Fields**:
 
-- `qualifier` (Dict[str, Any]): Full qualifier JSON object with reconstructed snaks. Values may be int, str, dict, or list containing reconstructed snaks.
+- `qualifier` (dict[str, Any]): Full qualifier JSON object with reconstructed snaks. Values may be int, str, dict, or list containing reconstructed snaks.
 - `content_hash` (int): Hash of the qualifier content. Example: 123456789.
 - `created_at` (str): Timestamp when qualifier was created. Example: '2023-01-01T12:00:00Z'.
 
@@ -855,26 +652,7 @@ Response model for reconstructed snak value from hash.
 - `snaktype` (str): Type of snak. Example: 'value', 'novalue', 'somevalue'.
 - `property` (str): Property ID. Example: 'P31'.
 - `datatype` (str | None): Datatype of the snak. Example: 'wikibase-item'.
-- `datavalue` (Dict[str, Any] | None): Data value of the snak. Example: {'value': 'Q1', 'type': 'wikibase-entityid'}.
-
-### ReferenceResponse
-
-Response model for reference data.
-
-**Fields**:
-
-- `reference` (Dict[str, Any]): Full reference JSON object. Example: {'snaks': {'P854': [{'value': 'https://example.com'}]}}.
-- `content_hash` (int): Hash of the reference content. Example: 123456789.
-- `created_at` (str): Timestamp when reference was created. Example: '2023-01-01T12:00:00Z'.
-
-### ReferenceSnaks
-
-Model for reference snaks structure (inner reference data).
-
-**Fields**:
-
-- `snaks` (Dict[str, Any]): No description
-- `snaks_order` (Optional[List[str]]): No description
+- `datavalue` (dict[str, Any] | None): Data value of the snak. Example: {'value': 'Q1', 'type': 'wikibase-entityid'}.
 
 ### SerializableQualifierValue
 
@@ -882,7 +660,7 @@ Serializable form of qualifier values for JSON serialization.
 
 **Fields**:
 
-- `value` (Dict[str, Any] | int | str | list['SerializableQualifierValue'] | None): Serializable qualifier value (dict, int, str, or list of SerializableQualifierValue).
+- `value` (dict[str, Any] | int | str | list['SerializableQualifierValue'] | None): Serializable qualifier value (dict, int, str, or list of SerializableQualifierValue).
 
 ### SnakResponse
 
@@ -890,7 +668,7 @@ Response model for snak data.
 
 **Fields**:
 
-- `snak` (Dict[str, Any]): Full snak JSON object. Example: {'snaktype': 'value', 'property': 'P31', 'datatype': 'wikibase-item', 'datavalue': {...}}.
+- `snak` (dict[str, Any]): Full snak JSON object. Example: {'snaktype': 'value', 'property': 'P31', 'datatype': 'wikibase-item', 'datavalue': {...}}.
 - `content_hash` (int): Hash of the snak content. Example: 123456789.
 - `created_at` (str): Timestamp when snak was created. Example: '2023-01-01T12:00:00Z'.
 
@@ -950,6 +728,27 @@ Model for Wikibase predicate URIs for a property.
 - `qualifier` (str): Qualifier property predicate
 - `reference` (str): Reference property predicate
 - `statement_value_node` (str): Statement value node predicate
+
+## models/data/rest_api/v1/entitybase/response/references.py
+
+### ReferenceResponse
+
+Response model for reference data.
+
+**Fields**:
+
+- `reference` (dict[str, Any]): Full reference JSON object. Example: {'snaks': {'P854': [{'value': 'https://example.com'}]}}.
+- `content_hash` (int): Hash of the reference content. Example: 123456789.
+- `created_at` (str): Timestamp when reference was created. Example: '2023-01-01T12:00:00Z'.
+
+### ReferenceSnaks
+
+Model for reference snaks structure (inner reference data).
+
+**Fields**:
+
+- `snaks` (dict[str, Any]): No description
+- `snaks_order` (list[str] | None): No description
 
 ## models/data/rest_api/v1/entitybase/response/result.py
 
@@ -1044,6 +843,32 @@ Response model for settings endpoint (excludes sensitive values).
 - `ttl_dump_compression` (bool): No description
 - `ttl_dump_generate_checksums` (bool): No description
 
+## models/data/rest_api/v1/entitybase/response/sitelinks.py
+
+### AllSitelinksResponse
+
+Response model for all entity sitelinks.
+
+**Fields**:
+
+- `sitelinks` (dict[str, Any]): Dictionary mapping site key to sitelink data
+
+### BatchSitelinksResponse
+
+Response model for batch sitelinks lookup by hash.
+
+**Fields**:
+
+- `sitelinks` (dict[str, str]): Dictionary mapping hash strings to sitelink titles
+
+### SitelinksResponse
+
+Response model for all entity sitelinks.
+
+**Fields**:
+
+- `sitelinks` (dict[str, str]): Sitelinks per site
+
 ## models/data/rest_api/v1/entitybase/response/statement.py
 
 ### BatchStatementsResponse
@@ -1131,6 +956,215 @@ Response model for statements.
 **Fields**:
 
 - `statements` (dict[str, Any]): Statements data
+
+## models/data/rest_api/v1/entitybase/response/stats.py
+
+### DeduplicationDatabaseStatsResponse
+
+API response for database deduplication statistics.
+
+**Fields**:
+
+- `statements` (DeduplicationStatsByType): Statement deduplication stats
+- `qualifiers` (DeduplicationStatsByType): Qualifier deduplication stats
+- `references` (DeduplicationStatsByType): Reference deduplication stats
+- `snaks` (DeduplicationStatsByType): Snak deduplication stats
+- `sitelinks` (DeduplicationStatsByType): Sitelink deduplication stats
+- `terms` (DeduplicationStatsByType): Term deduplication stats
+
+### DeduplicationStatsByType
+
+Deduplication stats for a single data type.
+
+**Fields**:
+
+- `unique_hashes` (int): Number of unique hashes stored
+- `total_ref_count` (int): Total reference count (what would be stored without deduplication)
+- `deduplication_factor` (float): Deduplication factor as a percentage (0-100)
+- `space_saved` (int): Number of duplicates eliminated
+
+### DeduplicationStatsResponse
+
+API response for deduplication statistics.
+
+**Fields**:
+
+- `statements` (DeduplicationStatsByType): Statement deduplication stats
+- `qualifiers` (DeduplicationStatsByType): Qualifier deduplication stats
+- `references` (DeduplicationStatsByType): Reference deduplication stats
+- `snaks` (DeduplicationStatsByType): Snak deduplication stats
+- `sitelinks` (DeduplicationStatsByType): Sitelink deduplication stats
+- `terms` (DeduplicationStatsByType): Term deduplication stats
+
+### GeneralStatsData
+
+Container for computed general wiki statistics.
+
+**Fields**:
+
+- `total_statements` (int): Total number of statements.
+- `total_qualifiers` (int): Total number of qualifiers.
+- `total_references` (int): Total number of references.
+- `total_items` (int): Total number of items.
+- `total_lexemes` (int): Total number of lexemes.
+- `total_properties` (int): Total number of properties.
+- `total_sitelinks` (int): Total number of sitelinks.
+- `total_terms` (int): Total number of terms (labels + descriptions + aliases).
+- `terms_per_language` (TermsPerLanguage): Terms count per language.
+- `terms_by_type` (TermsByType): Terms count by type (labels, descriptions, aliases).
+
+### GeneralStatsResponse
+
+API response for general wiki statistics.
+
+**Fields**:
+
+- `date` (str): Date of statistics computation.
+- `total_statements` (int): Total number of statements.
+- `total_qualifiers` (int): Total number of qualifiers.
+- `total_references` (int): Total number of references.
+- `total_items` (int): Total number of items.
+- `total_lexemes` (int): Total number of lexemes.
+- `total_properties` (int): Total number of properties.
+- `total_sitelinks` (int): Total number of sitelinks.
+- `total_terms` (int): Total number of terms (labels + descriptions + aliases).
+- `terms_per_language` (TermsPerLanguage): Terms count per language.
+- `terms_by_type` (TermsByType): Terms count by type (labels, descriptions, aliases).
+
+### RangeStatus
+
+Model for ID range status.
+
+**Fields**:
+
+- `current_start` (int): Current range start ID
+- `current_end` (int): Current range end ID
+- `next_id` (int): Next available ID
+- `ids_used` (int): Number of IDs used
+- `utilization` (float): Utilization percentage
+
+### RangeStatuses
+
+Model for all ID range statuses.
+
+**Fields**:
+
+- `ranges` (dict[str, RangeStatus]): Range statuses by entity type
+
+### WatchCounts
+
+Model for user watch counts.
+
+**Fields**:
+
+- `entity_count` (int): Number of entities watched
+- `property_count` (int): Number of properties watched
+
+## models/data/rest_api/v1/entitybase/response/terms.py
+
+### AliasesResponse
+
+Response model for entity aliases.
+
+**Fields**:
+
+- `aliases` (list[str]): List of alias texts for the specified language
+
+### BatchAliasesResponse
+
+Response model for batch aliases lookup by hash.
+
+**Fields**:
+
+- `aliases` (dict[str, list[str]]): Dictionary mapping hash strings to alias text lists
+
+### BatchDescriptionsResponse
+
+Response model for batch descriptions lookup by hash.
+
+**Fields**:
+
+- `descriptions` (dict[str, str]): Dictionary mapping hash strings to description text
+
+### BatchLabelsResponse
+
+Response model for batch labels lookup by hash.
+
+**Fields**:
+
+- `labels` (dict[str, str]): Dictionary mapping hash strings to label text
+
+### DescriptionResponse
+
+Response model for entity descriptions.
+
+**Fields**:
+
+- `value` (str): The description text for the specified language
+
+### DescriptionsResponse
+
+Response model for all entity descriptions.
+
+**Fields**:
+
+- `descriptions` (dict[str, str]): Descriptions per language
+
+### LabelResponse
+
+Response model for entity labels.
+
+**Fields**:
+
+- `value` (str): The label text for the specified language
+
+### LabelsResponse
+
+Response model for all entity labels.
+
+**Fields**:
+
+- `labels` (dict[str, str]): Labels per language
+
+### TermHashResponse
+
+Response for single term (label/description/alias/lemma) operations.
+
+**Fields**:
+
+- `hash` (int): Hash of the stored term.
+
+### TermHashesResponse
+
+Response for multi-term operations (e.g., aliases PUT).
+
+**Fields**:
+
+- `hashes` (list[int]): Hashes of the stored terms.
+
+### TermsByType
+
+Model for terms count by type.
+
+**Fields**:
+
+- `counts` (dict[str, int]): Type to count mapping.
+
+### TermsPerLanguage
+
+Model for terms count per language.
+
+**Fields**:
+
+- `terms` (dict[str, int]): Language to count mapping.
+
+### TermsResponse
+
+Model for batch terms result.
+
+**Fields**:
+
+- `terms` (dict[int, tuple[str, str]]): Terms by hash
 
 ## models/data/rest_api/v1/entitybase/response/thanks.py
 
@@ -1275,6 +1309,25 @@ API response for user statistics.
 - `date` (str): Date of statistics computation. Example: '2023-01-01'.
 - `total_users` (int): Total number of users. Example: 1000.
 - `active_users` (int): Number of active users. Example: 500.
+
+## models/data/rest_api/v1/entitybase/response/utilities.py
+
+### DeleteResponse
+
+Response for DELETE operations.
+
+**Fields**:
+
+- `success` (bool): Whether the operation succeeded.
+
+### VersionResponse
+
+Response model for version endpoint.
+
+**Fields**:
+
+- `api_version` (str): API version
+- `entitybase_version` (str): EntityBase version
 
 ## models/data/rest_api/v1/entitybase/response/watchlist.py
 

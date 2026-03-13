@@ -329,6 +329,44 @@ async def test_get_general_stats(api_prefix: str, initialized_app: None) -> None
 
 @pytest.mark.asyncio
 @pytest.mark.integration
+async def test_get_deduplication_stats(api_prefix: str, initialized_app: None) -> None:
+    """Test getting deduplication statistics"""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        response = await client.get(f"{api_prefix}/stats/deduplication")
+        assert response.status_code == 200
+        data = response.json()
+        assert "statements" in data
+        assert "qualifiers" in data
+        assert "references" in data
+        assert "snaks" in data
+        assert "sitelinks" in data
+        assert "terms" in data
+
+        for field in [
+            "statements",
+            "qualifiers",
+            "references",
+            "snaks",
+            "sitelinks",
+            "terms",
+        ]:
+            stats = data[field]
+            assert "unique_hashes" in stats
+            assert "total_ref_count" in stats
+            assert "deduplication_factor" in stats
+            assert "space_saved" in stats
+            assert isinstance(stats["unique_hashes"], int)
+            assert isinstance(stats["total_ref_count"], int)
+            assert isinstance(stats["deduplication_factor"], float)
+            assert isinstance(stats["space_saved"], int)
+
+
+@pytest.mark.asyncio
+@pytest.mark.integration
 async def test_watchlist_add(api_prefix: str, initialized_app: None) -> None:
     """Test adding a watchlist entry"""
     from models.rest_api.main import app

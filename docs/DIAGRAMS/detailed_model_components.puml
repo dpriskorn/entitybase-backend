@@ -17,6 +17,9 @@ package "Models" as Models #LightCyan {
     "BatchSitelinks" as BatchSitelinksResponse
     "BatchStatements" as BatchStatementsResponse
     "CleanupOrphaned" as CleanupOrphanedResponse
+    "DeduplicationDatabaseStats" as DeduplicationDatabaseStatsResponse
+    "DeduplicationStatsByType" as DeduplicationStatsByType
+    "DeduplicationStats" as DeduplicationStatsResponse
     "DeduplicationStats" as DeduplicationStatsResponse
     "Delete" as DeleteResponse
     "Description" as DescriptionResponse

@@ -3,7 +3,7 @@
 from fastapi import APIRouter
 
 from models.config.version import API_VERSION, ENTITYBASE_VERSION
-from models.data.rest_api.v1.entitybase.response.misc import VersionResponse
+from models.data.rest_api.v1.entitybase.response.utilities import VersionResponse
 
 version_router = APIRouter(tags=["version"])
 

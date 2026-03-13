@@ -2,11 +2,15 @@
 
 import logging
 
-from models.data.rest_api.v1.entitybase.response import (
+from models.data.rest_api.v1.entitybase.response.stats import (
+    DeduplicationDatabaseStatsResponse,
+    DeduplicationStatsByType,
+    GeneralStatsData,
+)
+from models.data.rest_api.v1.entitybase.response.terms import (
     TermsByType,
     TermsPerLanguage,
 )
-from models.data.rest_api.v1.entitybase.response import GeneralStatsData
 from models.rest_api.entitybase.v1.service import Service
 
 logger = logging.getLogger(__name__)
@@ -37,8 +41,8 @@ class GeneralStatsService(Service):
             total_properties=total_properties,
             total_sitelinks=total_sitelinks,
             total_terms=total_terms,
-            terms_per_language=TermsPerLanguage(terms=terms_per_language),
-            terms_by_type=TermsByType(counts=terms_by_type),
+            terms_per_language=terms_per_language,
+            terms_by_type=terms_by_type,
         )
 
     def get_total_statements(self) -> int:
@@ -200,3 +204,98 @@ class GeneralStatsService(Service):
         except Exception as e:
             logger.debug(f"Error getting terms by type: {e}")
         return TermsByType(counts=data)
+
+    def compute_deduplication_stats(self) -> DeduplicationDatabaseStatsResponse:
+        """Compute deduplication statistics for all data types."""
+        statements = self._get_table_deduplication_stats("statements")
+        qualifiers = self._get_table_deduplication_stats("qualifiers")
+        references = self._get_table_deduplication_stats("refs")
+        snaks = self._get_table_deduplication_stats("snaks")
+        sitelinks = self._get_table_deduplication_stats("sitelinks")
+        terms = self._get_terms_deduplication_stats()
+
+        return DeduplicationDatabaseStatsResponse(
+            statements=statements,
+            qualifiers=qualifiers,
+            references=references,
+            snaks=snaks,
+            sitelinks=sitelinks,
+            terms=terms,
+        )
+
+    def _get_table_deduplication_stats(
+        self, table_name: str
+    ) -> DeduplicationStatsByType:
+        """Get deduplication stats for a specific table."""
+        try:
+            with self.state.vitess_client.cursor as cursor:
+                cursor.execute(
+                    f"SELECT COUNT(*), COALESCE(SUM(ref_count), 0) FROM {table_name}"
+                )
+                result = cursor.fetchone()
+                if result and result[0] > 0:
+                    unique_hashes = result[0]
+                    total_ref_count = result[1]
+                    space_saved = total_ref_count - unique_hashes
+                    deduplication_factor = (
+                        (space_saved / total_ref_count * 100)
+                        if total_ref_count > 0
+                        else 0.0
+                    )
+                    return DeduplicationStatsByType(
+                        unique_hashes=unique_hashes,
+                        total_ref_count=total_ref_count,
+                        deduplication_factor=round(deduplication_factor, 2),
+                        space_saved=space_saved,
+                    )
+        except Exception as e:
+            logger.debug(f"Error getting deduplication stats for {table_name}: {e}")
+
+        return DeduplicationStatsByType(
+            unique_hashes=0,
+            total_ref_count=0,
+            deduplication_factor=0.0,
+            space_saved=0,
+        )
+
+    def _get_terms_deduplication_stats(self) -> DeduplicationStatsByType:
+        """Get deduplication stats for terms (labels, descriptions, aliases tables)."""
+        try:
+            with self.state.vitess_client.cursor as cursor:
+                total_unique = 0
+                total_ref_count = 0
+
+                for table in ["labels", "descriptions", "aliases"]:
+                    try:
+                        cursor.execute(
+                            f"SELECT COUNT(*), COALESCE(SUM(ref_count), 0) FROM {table}"
+                        )
+                        result = cursor.fetchone()
+                        if result:
+                            total_unique += result[0]
+                            total_ref_count += result[1]
+                    except Exception:
+                        logger.debug(f"{table} table does not exist, skipping")
+
+                if total_unique > 0:
+                    space_saved = total_ref_count - total_unique
+                    deduplication_factor = (
+                        (space_saved / total_ref_count * 100)
+                        if total_ref_count > 0
+                        else 0.0
+                    )
+                    return DeduplicationStatsByType(
+                        unique_hashes=total_unique,
+                        total_ref_count=total_ref_count,
+                        deduplication_factor=round(deduplication_factor, 2),
+                        space_saved=space_saved,
+                    )
+        except Exception as e:
+            logger.debug(f"Error getting terms deduplication stats: {e}")
+
+        return DeduplicationStatsByType(
+            unique_hashes=0,
+            total_ref_count=0,
+            deduplication_factor=0.0,
+            space_saved=0,
+        )

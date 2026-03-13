@@ -12,7 +12,7 @@
 
 ```bash
 # Create an empty item
-curl -X POST https://api.example.com/v1/entitybase/entities/items \
+curl -X POST https://api.example.com/v1/entities/items \
   -H "X-User-ID: 1" \
   -H "X-Edit-Summary: Creating new item"
 ```
@@ -48,7 +48,7 @@ After creating an entity, add labels using:
 
 ```bash
 # Add a label
-curl -X PUT https://api.example.com/v1/entitybase/entities/Q123/labels/en \
+curl -X PUT https://api.example.com/v1/entities/Q123/labels/en \
   -H "Content-Type: application/json" \
   -H "X-User-ID: 1" \
   -H "X-Edit-Summary: Adding label" \
@@ -79,14 +79,14 @@ All endpoints requiring modifications (POST, PUT, PATCH, DELETE) require headers
 ---
 
 ## Items
-### POST /v1/entitybase/entities/items
+### POST /v1/entities/items
 **Create Item**
 Create a new empty item entity.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `create_item_v1_entitybase_entities_items_post` |
+| Operation ID | `create_item_v1_entities_items_post` |
 | Method | `POST` |
-| Path | `/v1/entitybase/entities/items` |
+| Path | `/v1/entities/items` |
 | Parameters | `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Response | Description |
 |----------|-------------|
@@ -97,14 +97,14 @@ Create a new empty item entity.
 ---
 
 ## Properties
-### POST /v1/entitybase/entities/properties
+### POST /v1/entities/properties
 **Create Property**
 Create a new empty property entity.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `create_property_v1_entitybase_entities_properties_post` |
+| Operation ID | `create_property_v1_entities_properties_post` |
 | Method | `POST` |
-| Path | `/v1/entitybase/entities/properties` |
+| Path | `/v1/entities/properties` |
 | Parameters | `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Response | Description |
 |----------|-------------|
@@ -114,14 +114,14 @@ Create a new empty property entity.
 
 ---
 
-### GET /v1/entitybase/entity/{entity_id}/properties/{property_list}
+### GET /v1/entity/{entity_id}/properties/{property_list}
 **Get Entity Property Hashes**
 Get statement hashes for specified properties in an entity.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_entity_property_hashes_v1_entitybase_entity__entity_id__properties__property_list__get` |
+| Operation ID | `get_entity_property_hashes_v1_entity__entity_id__properties__property_list__get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entity/{entity_id}/properties/{property_list}` |
+| Path | `/v1/entity/{entity_id}/properties/{property_list}` |
 | Parameters | `entity_id` (path, Required) `property_list` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -132,14 +132,14 @@ Get statement hashes for specified properties in an entity.
 ---
 
 ## Lexemes
-### POST /v1/entitybase/entities/lexemes
+### POST /v1/entities/lexemes
 **Create Lexeme**
 Create a new lexeme entity.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `create_lexeme_v1_entitybase_entities_lexemes_post` |
+| Operation ID | `create_lexeme_v1_entities_lexemes_post` |
 | Method | `POST` |
-| Path | `/v1/entitybase/entities/lexemes` |
+| Path | `/v1/entities/lexemes` |
 | Parameters | `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[EntityCreateRequest](#entitycreaterequest)` |
 | Response | Description |
@@ -180,14 +180,14 @@ Create a new lexeme entity.
 
 ---
 
-### DELETE /v1/entitybase/entities/lexemes/forms/{form_id}
+### DELETE /v1/entities/lexemes/forms/{form_id}
 **Delete Form**
 Delete a form by ID.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `delete_form_v1_entitybase_entities_lexemes_forms__form_id__delete` |
+| Operation ID | `delete_form_v1_entities_lexemes_forms__form_id__delete` |
 | Method | `DELETE` |
-| Path | `/v1/entitybase/entities/lexemes/forms/{form_id}` |
+| Path | `/v1/entities/lexemes/forms/{form_id}` |
 | Parameters | `form_id` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Response | Description |
 |----------|-------------|
@@ -197,14 +197,14 @@ Delete a form by ID.
 
 ---
 
-### GET /v1/entitybase/entities/lexemes/forms/{form_id}
+### GET /v1/entities/lexemes/forms/{form_id}
 **Get Form By Id**
 Get single form by ID (accepts L42-F1 or F1 format).
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_form_by_id_v1_entitybase_entities_lexemes_forms__form_id__get` |
+| Operation ID | `get_form_by_id_v1_entities_lexemes_forms__form_id__get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/lexemes/forms/{form_id}` |
+| Path | `/v1/entities/lexemes/forms/{form_id}` |
 | Parameters | `form_id` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -214,14 +214,14 @@ Get single form by ID (accepts L42-F1 or F1 format).
 
 ---
 
-### GET /v1/entitybase/entities/lexemes/forms/{form_id}/representation
+### GET /v1/entities/lexemes/forms/{form_id}/representation
 **Get Form Representations**
 Get all representations for a form.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_form_representations_v1_entitybase_entities_lexemes_forms__form_id__representation_get` |
+| Operation ID | `get_form_representations_v1_entities_lexemes_forms__form_id__representation_get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/lexemes/forms/{form_id}/representation` |
+| Path | `/v1/entities/lexemes/forms/{form_id}/representation` |
 | Parameters | `form_id` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -231,14 +231,14 @@ Get all representations for a form.
 
 ---
 
-### DELETE /v1/entitybase/entities/lexemes/forms/{form_id}/representation/{langcode}
+### DELETE /v1/entities/lexemes/forms/{form_id}/representation/{langcode}
 **Delete Form Representation**
 Delete form representation for language.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `delete_form_representation_v1_entitybase_entities_lexemes_forms__form_id__representation__langcode__delete` |
+| Operation ID | `delete_form_representation_v1_entities_lexemes_forms__form_id__representation__langcode__delete` |
 | Method | `DELETE` |
-| Path | `/v1/entitybase/entities/lexemes/forms/{form_id}/representation/{langcode}` |
+| Path | `/v1/entities/lexemes/forms/{form_id}/representation/{langcode}` |
 | Parameters | `form_id` (path, Required) `langcode` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Response | Description |
 |----------|-------------|
@@ -248,14 +248,14 @@ Delete form representation for language.
 
 ---
 
-### GET /v1/entitybase/entities/lexemes/forms/{form_id}/representation/{langcode}
+### GET /v1/entities/lexemes/forms/{form_id}/representation/{langcode}
 **Get Form Representation**
 Get representation for a form in specific language.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_form_representation_v1_entitybase_entities_lexemes_forms__form_id__representation__langcode__get` |
+| Operation ID | `get_form_representation_v1_entities_lexemes_forms__form_id__representation__langcode__get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/lexemes/forms/{form_id}/representation/{langcode}` |
+| Path | `/v1/entities/lexemes/forms/{form_id}/representation/{langcode}` |
 | Parameters | `form_id` (path, Required) `langcode` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -265,14 +265,14 @@ Get representation for a form in specific language.
 
 ---
 
-### POST /v1/entitybase/entities/lexemes/forms/{form_id}/representation/{langcode}
+### POST /v1/entities/lexemes/forms/{form_id}/representation/{langcode}
 **Add Form Representation**
 Add a new form representation for language.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `add_form_representation_v1_entitybase_entities_lexemes_forms__form_id__representation__langcode__post` |
+| Operation ID | `add_form_representation_v1_entities_lexemes_forms__form_id__representation__langcode__post` |
 | Method | `POST` |
-| Path | `/v1/entitybase/entities/lexemes/forms/{form_id}/representation/{langcode}` |
+| Path | `/v1/entities/lexemes/forms/{form_id}/representation/{langcode}` |
 | Parameters | `form_id` (path, Required) `langcode` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[TermUpdateRequest](#termupdaterequest)` |
 | Response | Description |
@@ -290,14 +290,14 @@ Add a new form representation for language.
 
 ---
 
-### PUT /v1/entitybase/entities/lexemes/forms/{form_id}/representation/{langcode}
+### PUT /v1/entities/lexemes/forms/{form_id}/representation/{langcode}
 **Update Form Representation**
 Update form representation for language.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `update_form_representation_v1_entitybase_entities_lexemes_forms__form_id__representation__langcode__put` |
+| Operation ID | `update_form_representation_v1_entities_lexemes_forms__form_id__representation__langcode__put` |
 | Method | `PUT` |
-| Path | `/v1/entitybase/entities/lexemes/forms/{form_id}/representation/{langcode}` |
+| Path | `/v1/entities/lexemes/forms/{form_id}/representation/{langcode}` |
 | Parameters | `form_id` (path, Required) `langcode` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[TermUpdateRequest](#termupdaterequest)` |
 | Response | Description |
@@ -315,14 +315,14 @@ Update form representation for language.
 
 ---
 
-### POST /v1/entitybase/entities/lexemes/forms/{form_id}/statements
+### POST /v1/entities/lexemes/forms/{form_id}/statements
 **Add Form Statement**
 Add a statement to a form.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `add_form_statement_v1_entitybase_entities_lexemes_forms__form_id__statements_post` |
+| Operation ID | `add_form_statement_v1_entities_lexemes_forms__form_id__statements_post` |
 | Method | `POST` |
-| Path | `/v1/entitybase/entities/lexemes/forms/{form_id}/statements` |
+| Path | `/v1/entities/lexemes/forms/{form_id}/statements` |
 | Parameters | `form_id` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[AddStatementRequest](#addstatementrequest)` |
 | Response | Description |
@@ -339,14 +339,14 @@ Add a statement to a form.
 
 ---
 
-### DELETE /v1/entitybase/entities/lexemes/senses/{sense_id}
+### DELETE /v1/entities/lexemes/senses/{sense_id}
 **Delete Sense**
 Delete a sense by ID.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `delete_sense_v1_entitybase_entities_lexemes_senses__sense_id__delete` |
+| Operation ID | `delete_sense_v1_entities_lexemes_senses__sense_id__delete` |
 | Method | `DELETE` |
-| Path | `/v1/entitybase/entities/lexemes/senses/{sense_id}` |
+| Path | `/v1/entities/lexemes/senses/{sense_id}` |
 | Parameters | `sense_id` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Response | Description |
 |----------|-------------|
@@ -356,14 +356,14 @@ Delete a sense by ID.
 
 ---
 
-### GET /v1/entitybase/entities/lexemes/senses/{sense_id}
+### GET /v1/entities/lexemes/senses/{sense_id}
 **Get Sense By Id**
 Get single sense by ID (accepts L42-S1 or S1 format).
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_sense_by_id_v1_entitybase_entities_lexemes_senses__sense_id__get` |
+| Operation ID | `get_sense_by_id_v1_entities_lexemes_senses__sense_id__get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/lexemes/senses/{sense_id}` |
+| Path | `/v1/entities/lexemes/senses/{sense_id}` |
 | Parameters | `sense_id` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -373,14 +373,14 @@ Get single sense by ID (accepts L42-S1 or S1 format).
 
 ---
 
-### GET /v1/entitybase/entities/lexemes/senses/{sense_id}/glosses
+### GET /v1/entities/lexemes/senses/{sense_id}/glosses
 **Get Sense Glosses**
 Get all glosses for a sense.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_sense_glosses_v1_entitybase_entities_lexemes_senses__sense_id__glosses_get` |
+| Operation ID | `get_sense_glosses_v1_entities_lexemes_senses__sense_id__glosses_get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/lexemes/senses/{sense_id}/glosses` |
+| Path | `/v1/entities/lexemes/senses/{sense_id}/glosses` |
 | Parameters | `sense_id` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -390,14 +390,14 @@ Get all glosses for a sense.
 
 ---
 
-### DELETE /v1/entitybase/entities/lexemes/senses/{sense_id}/glosses/{langcode}
+### DELETE /v1/entities/lexemes/senses/{sense_id}/glosses/{langcode}
 **Delete Sense Gloss**
 Delete sense gloss for language.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `delete_sense_gloss_v1_entitybase_entities_lexemes_senses__sense_id__glosses__langcode__delete` |
+| Operation ID | `delete_sense_gloss_v1_entities_lexemes_senses__sense_id__glosses__langcode__delete` |
 | Method | `DELETE` |
-| Path | `/v1/entitybase/entities/lexemes/senses/{sense_id}/glosses/{langcode}` |
+| Path | `/v1/entities/lexemes/senses/{sense_id}/glosses/{langcode}` |
 | Parameters | `sense_id` (path, Required) `langcode` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Response | Description |
 |----------|-------------|
@@ -407,14 +407,14 @@ Delete sense gloss for language.
 
 ---
 
-### GET /v1/entitybase/entities/lexemes/senses/{sense_id}/glosses/{langcode}
+### GET /v1/entities/lexemes/senses/{sense_id}/glosses/{langcode}
 **Get Sense Gloss By Language**
 Get gloss for a sense in specific language.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_sense_gloss_by_language_v1_entitybase_entities_lexemes_senses__sense_id__glosses__langcode__get` |
+| Operation ID | `get_sense_gloss_by_language_v1_entities_lexemes_senses__sense_id__glosses__langcode__get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/lexemes/senses/{sense_id}/glosses/{langcode}` |
+| Path | `/v1/entities/lexemes/senses/{sense_id}/glosses/{langcode}` |
 | Parameters | `sense_id` (path, Required) `langcode` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -424,14 +424,14 @@ Get gloss for a sense in specific language.
 
 ---
 
-### POST /v1/entitybase/entities/lexemes/senses/{sense_id}/glosses/{langcode}
+### POST /v1/entities/lexemes/senses/{sense_id}/glosses/{langcode}
 **Add Sense Gloss**
 Add a new sense gloss for a language.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `add_sense_gloss_v1_entitybase_entities_lexemes_senses__sense_id__glosses__langcode__post` |
+| Operation ID | `add_sense_gloss_v1_entities_lexemes_senses__sense_id__glosses__langcode__post` |
 | Method | `POST` |
-| Path | `/v1/entitybase/entities/lexemes/senses/{sense_id}/glosses/{langcode}` |
+| Path | `/v1/entities/lexemes/senses/{sense_id}/glosses/{langcode}` |
 | Parameters | `sense_id` (path, Required) `langcode` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[TermUpdateRequest](#termupdaterequest)` |
 | Response | Description |
@@ -449,14 +449,14 @@ Add a new sense gloss for a language.
 
 ---
 
-### PUT /v1/entitybase/entities/lexemes/senses/{sense_id}/glosses/{langcode}
+### PUT /v1/entities/lexemes/senses/{sense_id}/glosses/{langcode}
 **Update Sense Gloss**
 Update sense gloss for language.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `update_sense_gloss_v1_entitybase_entities_lexemes_senses__sense_id__glosses__langcode__put` |
+| Operation ID | `update_sense_gloss_v1_entities_lexemes_senses__sense_id__glosses__langcode__put` |
 | Method | `PUT` |
-| Path | `/v1/entitybase/entities/lexemes/senses/{sense_id}/glosses/{langcode}` |
+| Path | `/v1/entities/lexemes/senses/{sense_id}/glosses/{langcode}` |
 | Parameters | `sense_id` (path, Required) `langcode` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[TermUpdateRequest](#termupdaterequest)` |
 | Response | Description |
@@ -474,14 +474,14 @@ Update sense gloss for language.
 
 ---
 
-### POST /v1/entitybase/entities/lexemes/senses/{sense_id}/statements
+### POST /v1/entities/lexemes/senses/{sense_id}/statements
 **Add Sense Statement**
 Add a statement to a sense.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `add_sense_statement_v1_entitybase_entities_lexemes_senses__sense_id__statements_post` |
+| Operation ID | `add_sense_statement_v1_entities_lexemes_senses__sense_id__statements_post` |
 | Method | `POST` |
-| Path | `/v1/entitybase/entities/lexemes/senses/{sense_id}/statements` |
+| Path | `/v1/entities/lexemes/senses/{sense_id}/statements` |
 | Parameters | `sense_id` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[AddStatementRequest](#addstatementrequest)` |
 | Response | Description |
@@ -498,14 +498,14 @@ Add a statement to a sense.
 
 ---
 
-### GET /v1/entitybase/entities/lexemes/{lexeme_id}/forms
+### GET /v1/entities/lexemes/{lexeme_id}/forms
 **Get Lexeme Forms**
 List all forms for a lexeme, sorted by numeric suffix.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_lexeme_forms_v1_entitybase_entities_lexemes__lexeme_id__forms_get` |
+| Operation ID | `get_lexeme_forms_v1_entities_lexemes__lexeme_id__forms_get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/lexemes/{lexeme_id}/forms` |
+| Path | `/v1/entities/lexemes/{lexeme_id}/forms` |
 | Parameters | `lexeme_id` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -515,14 +515,14 @@ List all forms for a lexeme, sorted by numeric suffix.
 
 ---
 
-### POST /v1/entitybase/entities/lexemes/{lexeme_id}/forms
+### POST /v1/entities/lexemes/{lexeme_id}/forms
 **Create Lexeme Form**
 Create a new form for a lexeme.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `create_lexeme_form_v1_entitybase_entities_lexemes__lexeme_id__forms_post` |
+| Operation ID | `create_lexeme_form_v1_entities_lexemes__lexeme_id__forms_post` |
 | Method | `POST` |
-| Path | `/v1/entitybase/entities/lexemes/{lexeme_id}/forms` |
+| Path | `/v1/entities/lexemes/{lexeme_id}/forms` |
 | Parameters | `lexeme_id` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[FormCreateRequest](#formcreaterequest)` |
 | Response | Description |
@@ -543,14 +543,14 @@ Create a new form for a lexeme.
 
 ---
 
-### GET /v1/entitybase/entities/lexemes/{lexeme_id}/language
+### GET /v1/entities/lexemes/{lexeme_id}/language
 **Get Lexeme Language**
 Get the language of a lexeme.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_lexeme_language_v1_entitybase_entities_lexemes__lexeme_id__language_get` |
+| Operation ID | `get_lexeme_language_v1_entities_lexemes__lexeme_id__language_get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/lexemes/{lexeme_id}/language` |
+| Path | `/v1/entities/lexemes/{lexeme_id}/language` |
 | Parameters | `lexeme_id` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -560,14 +560,14 @@ Get the language of a lexeme.
 
 ---
 
-### PUT /v1/entitybase/entities/lexemes/{lexeme_id}/language
+### PUT /v1/entities/lexemes/{lexeme_id}/language
 **Update Lexeme Language**
 Update the language of a lexeme.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `update_lexeme_language_v1_entitybase_entities_lexemes__lexeme_id__language_put` |
+| Operation ID | `update_lexeme_language_v1_entities_lexemes__lexeme_id__language_put` |
 | Method | `PUT` |
-| Path | `/v1/entitybase/entities/lexemes/{lexeme_id}/language` |
+| Path | `/v1/entities/lexemes/{lexeme_id}/language` |
 | Parameters | `lexeme_id` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[LexemeLanguageRequest](#lexemelanguagerequest)` |
 | Response | Description |
@@ -584,14 +584,14 @@ Update the language of a lexeme.
 
 ---
 
-### GET /v1/entitybase/entities/lexemes/{lexeme_id}/lemmas
+### GET /v1/entities/lexemes/{lexeme_id}/lemmas
 **Get Lexeme Lemmas**
 Get all lemmas for a lexeme.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_lexeme_lemmas_v1_entitybase_entities_lexemes__lexeme_id__lemmas_get` |
+| Operation ID | `get_lexeme_lemmas_v1_entities_lexemes__lexeme_id__lemmas_get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/lexemes/{lexeme_id}/lemmas` |
+| Path | `/v1/entities/lexemes/{lexeme_id}/lemmas` |
 | Parameters | `lexeme_id` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -601,14 +601,14 @@ Get all lemmas for a lexeme.
 
 ---
 
-### DELETE /v1/entitybase/entities/lexemes/{lexeme_id}/lemmas/{langcode}
+### DELETE /v1/entities/lexemes/{lexeme_id}/lemmas/{langcode}
 **Delete Lexeme Lemma**
 Delete lemma for language.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `delete_lexeme_lemma_v1_entitybase_entities_lexemes__lexeme_id__lemmas__langcode__delete` |
+| Operation ID | `delete_lexeme_lemma_v1_entities_lexemes__lexeme_id__lemmas__langcode__delete` |
 | Method | `DELETE` |
-| Path | `/v1/entitybase/entities/lexemes/{lexeme_id}/lemmas/{langcode}` |
+| Path | `/v1/entities/lexemes/{lexeme_id}/lemmas/{langcode}` |
 | Parameters | `lexeme_id` (path, Required) `langcode` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Response | Description |
 |----------|-------------|
@@ -618,14 +618,14 @@ Delete lemma for language.
 
 ---
 
-### GET /v1/entitybase/entities/lexemes/{lexeme_id}/lemmas/{langcode}
+### GET /v1/entities/lexemes/{lexeme_id}/lemmas/{langcode}
 **Get Lexeme Lemma**
 Get lemma for a lexeme in specific language.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_lexeme_lemma_v1_entitybase_entities_lexemes__lexeme_id__lemmas__langcode__get` |
+| Operation ID | `get_lexeme_lemma_v1_entities_lexemes__lexeme_id__lemmas__langcode__get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/lexemes/{lexeme_id}/lemmas/{langcode}` |
+| Path | `/v1/entities/lexemes/{lexeme_id}/lemmas/{langcode}` |
 | Parameters | `lexeme_id` (path, Required) `langcode` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -635,14 +635,14 @@ Get lemma for a lexeme in specific language.
 
 ---
 
-### POST /v1/entitybase/entities/lexemes/{lexeme_id}/lemmas/{langcode}
+### POST /v1/entities/lexemes/{lexeme_id}/lemmas/{langcode}
 **Add Lexeme Lemma**
 Add a new lemma for language.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `add_lexeme_lemma_v1_entitybase_entities_lexemes__lexeme_id__lemmas__langcode__post` |
+| Operation ID | `add_lexeme_lemma_v1_entities_lexemes__lexeme_id__lemmas__langcode__post` |
 | Method | `POST` |
-| Path | `/v1/entitybase/entities/lexemes/{lexeme_id}/lemmas/{langcode}` |
+| Path | `/v1/entities/lexemes/{lexeme_id}/lemmas/{langcode}` |
 | Parameters | `lexeme_id` (path, Required) `langcode` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[TermUpdateRequest](#termupdaterequest)` |
 | Response | Description |
@@ -660,14 +660,14 @@ Add a new lemma for language.
 
 ---
 
-### PUT /v1/entitybase/entities/lexemes/{lexeme_id}/lemmas/{langcode}
+### PUT /v1/entities/lexemes/{lexeme_id}/lemmas/{langcode}
 **Update Lexeme Lemma**
 Update lemma for language.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `update_lexeme_lemma_v1_entitybase_entities_lexemes__lexeme_id__lemmas__langcode__put` |
+| Operation ID | `update_lexeme_lemma_v1_entities_lexemes__lexeme_id__lemmas__langcode__put` |
 | Method | `PUT` |
-| Path | `/v1/entitybase/entities/lexemes/{lexeme_id}/lemmas/{langcode}` |
+| Path | `/v1/entities/lexemes/{lexeme_id}/lemmas/{langcode}` |
 | Parameters | `lexeme_id` (path, Required) `langcode` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[TermUpdateRequest](#termupdaterequest)` |
 | Response | Description |
@@ -685,14 +685,14 @@ Update lemma for language.
 
 ---
 
-### GET /v1/entitybase/entities/lexemes/{lexeme_id}/lexicalcategory
+### GET /v1/entities/lexemes/{lexeme_id}/lexicalcategory
 **Get Lexeme Lexicalcategory**
 Get the lexical category of a lexeme.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_lexeme_lexicalcategory_v1_entitybase_entities_lexemes__lexeme_id__lexicalcategory_get` |
+| Operation ID | `get_lexeme_lexicalcategory_v1_entities_lexemes__lexeme_id__lexicalcategory_get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/lexemes/{lexeme_id}/lexicalcategory` |
+| Path | `/v1/entities/lexemes/{lexeme_id}/lexicalcategory` |
 | Parameters | `lexeme_id` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -702,14 +702,14 @@ Get the lexical category of a lexeme.
 
 ---
 
-### PUT /v1/entitybase/entities/lexemes/{lexeme_id}/lexicalcategory
+### PUT /v1/entities/lexemes/{lexeme_id}/lexicalcategory
 **Update Lexeme Lexicalcategory**
 Update the lexical category of a lexeme.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `update_lexeme_lexicalcategory_v1_entitybase_entities_lexemes__lexeme_id__lexicalcategory_put` |
+| Operation ID | `update_lexeme_lexicalcategory_v1_entities_lexemes__lexeme_id__lexicalcategory_put` |
 | Method | `PUT` |
-| Path | `/v1/entitybase/entities/lexemes/{lexeme_id}/lexicalcategory` |
+| Path | `/v1/entities/lexemes/{lexeme_id}/lexicalcategory` |
 | Parameters | `lexeme_id` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[LexemeLexicalCategoryRequest](#lexemelexicalcategoryrequest)` |
 | Response | Description |
@@ -726,14 +726,14 @@ Update the lexical category of a lexeme.
 
 ---
 
-### GET /v1/entitybase/entities/lexemes/{lexeme_id}/senses
+### GET /v1/entities/lexemes/{lexeme_id}/senses
 **Get Lexeme Senses**
 List all senses for a lexeme, sorted by numeric suffix.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_lexeme_senses_v1_entitybase_entities_lexemes__lexeme_id__senses_get` |
+| Operation ID | `get_lexeme_senses_v1_entities_lexemes__lexeme_id__senses_get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/lexemes/{lexeme_id}/senses` |
+| Path | `/v1/entities/lexemes/{lexeme_id}/senses` |
 | Parameters | `lexeme_id` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -743,14 +743,14 @@ List all senses for a lexeme, sorted by numeric suffix.
 
 ---
 
-### POST /v1/entitybase/entities/lexemes/{lexeme_id}/senses
+### POST /v1/entities/lexemes/{lexeme_id}/senses
 **Create Lexeme Sense**
 Create a new sense for a lexeme.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `create_lexeme_sense_v1_entitybase_entities_lexemes__lexeme_id__senses_post` |
+| Operation ID | `create_lexeme_sense_v1_entities_lexemes__lexeme_id__senses_post` |
 | Method | `POST` |
-| Path | `/v1/entitybase/entities/lexemes/{lexeme_id}/senses` |
+| Path | `/v1/entities/lexemes/{lexeme_id}/senses` |
 | Parameters | `lexeme_id` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[SenseCreateRequest](#sensecreaterequest)` |
 | Response | Description |
@@ -769,14 +769,14 @@ Create a new sense for a lexeme.
 ---
 
 ## Entities
-### DELETE /v1/entitybase/entities/{entity_id}
+### DELETE /v1/entities/{entity_id}
 **Delete Entity**
 Delete an entity.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `delete_entity_v1_entitybase_entities__entity_id__delete` |
+| Operation ID | `delete_entity_v1_entities__entity_id__delete` |
 | Method | `DELETE` |
-| Path | `/v1/entitybase/entities/{entity_id}` |
+| Path | `/v1/entities/{entity_id}` |
 | Parameters | `entity_id` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[EntityDeleteRequest](#entitydeleterequest)` |
 | Response | Description |
@@ -793,14 +793,14 @@ Delete an entity.
 
 ---
 
-### GET /v1/entitybase/entities/{entity_id}
+### GET /v1/entities/{entity_id}
 **Get Entity**
 Retrieve a single entity by its ID.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_entity_v1_entitybase_entities__entity_id__get` |
+| Operation ID | `get_entity_v1_entities__entity_id__get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/{entity_id}` |
+| Path | `/v1/entities/{entity_id}` |
 | Parameters | `entity_id` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -810,14 +810,14 @@ Retrieve a single entity by its ID.
 
 ---
 
-### GET /v1/entitybase/entities/{entity_id}.json
+### GET /v1/entities/{entity_id}.json
 **Get Entity Data Json**
 Get entity data in JSON format.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_entity_data_json_v1_entitybase_entities__entity_id__json_get` |
+| Operation ID | `get_entity_data_json_v1_entities__entity_id__json_get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/{entity_id}.json` |
+| Path | `/v1/entities/{entity_id}.json` |
 | Parameters | `entity_id` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -827,14 +827,14 @@ Get entity data in JSON format.
 
 ---
 
-### GET /v1/entitybase/entities/{entity_id}.ttl
+### GET /v1/entities/{entity_id}.ttl
 **Get Entity Data Turtle**
 Get entity data in Turtle format.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_entity_data_turtle_v1_entitybase_entities__entity_id__ttl_get` |
+| Operation ID | `get_entity_data_turtle_v1_entities__entity_id__ttl_get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/{entity_id}.ttl` |
+| Path | `/v1/entities/{entity_id}.ttl` |
 | Parameters | `entity_id` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -844,14 +844,14 @@ Get entity data in Turtle format.
 
 ---
 
-### DELETE /v1/entitybase/entities/{entity_id}/aliases/{language_code}
+### DELETE /v1/entities/{entity_id}/aliases/{language_code}
 **Delete Entity Aliases**
 Delete all aliases for entity language.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `delete_entity_aliases_v1_entitybase_entities__entity_id__aliases__language_code__delete` |
+| Operation ID | `delete_entity_aliases_v1_entities__entity_id__aliases__language_code__delete` |
 | Method | `DELETE` |
-| Path | `/v1/entitybase/entities/{entity_id}/aliases/{language_code}` |
+| Path | `/v1/entities/{entity_id}/aliases/{language_code}` |
 | Parameters | `entity_id` (path, Required) `language_code` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Response | Description |
 |----------|-------------|
@@ -861,14 +861,14 @@ Delete all aliases for entity language.
 
 ---
 
-### GET /v1/entitybase/entities/{entity_id}/aliases/{language_code}
+### GET /v1/entities/{entity_id}/aliases/{language_code}
 **Get Entity Aliases**
 Get entity alias texts for language.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_entity_aliases_v1_entitybase_entities__entity_id__aliases__language_code__get` |
+| Operation ID | `get_entity_aliases_v1_entities__entity_id__aliases__language_code__get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/{entity_id}/aliases/{language_code}` |
+| Path | `/v1/entities/{entity_id}/aliases/{language_code}` |
 | Parameters | `entity_id` (path, Required) `language_code` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -878,14 +878,14 @@ Get entity alias texts for language.
 
 ---
 
-### POST /v1/entitybase/entities/{entity_id}/aliases/{language_code}
+### POST /v1/entities/{entity_id}/aliases/{language_code}
 **Add Entity Alias**
 Add a single alias to entity for language.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `add_entity_alias_v1_entitybase_entities__entity_id__aliases__language_code__post` |
+| Operation ID | `add_entity_alias_v1_entities__entity_id__aliases__language_code__post` |
 | Method | `POST` |
-| Path | `/v1/entitybase/entities/{entity_id}/aliases/{language_code}` |
+| Path | `/v1/entities/{entity_id}/aliases/{language_code}` |
 | Parameters | `entity_id` (path, Required) `language_code` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[TermUpdateRequest](#termupdaterequest)` |
 | Response | Description |
@@ -903,14 +903,14 @@ Add a single alias to entity for language.
 
 ---
 
-### PUT /v1/entitybase/entities/{entity_id}/aliases/{language_code}
+### PUT /v1/entities/{entity_id}/aliases/{language_code}
 **Update Entity Aliases**
 Update entity aliases for language.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `update_entity_aliases_v1_entitybase_entities__entity_id__aliases__language_code__put` |
+| Operation ID | `update_entity_aliases_v1_entities__entity_id__aliases__language_code__put` |
 | Method | `PUT` |
-| Path | `/v1/entitybase/entities/{entity_id}/aliases/{language_code}` |
+| Path | `/v1/entities/{entity_id}/aliases/{language_code}` |
 | Parameters | `entity_id` (path, Required) `language_code` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | Inline schema |
 | Response | Description |
@@ -921,14 +921,14 @@ Update entity aliases for language.
 
 ---
 
-### DELETE /v1/entitybase/entities/{entity_id}/archive
+### DELETE /v1/entities/{entity_id}/archive
 **Unarchive Entity**
 Unarchive an entity.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `unarchive_entity_v1_entitybase_entities__entity_id__archive_delete` |
+| Operation ID | `unarchive_entity_v1_entities__entity_id__archive_delete` |
 | Method | `DELETE` |
-| Path | `/v1/entitybase/entities/{entity_id}/archive` |
+| Path | `/v1/entities/{entity_id}/archive` |
 | Parameters | `entity_id` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[EntityStatusRequest](#entitystatusrequest)` |
 | Response | Description |
@@ -945,14 +945,14 @@ Unarchive an entity.
 
 ---
 
-### POST /v1/entitybase/entities/{entity_id}/archive
+### POST /v1/entities/{entity_id}/archive
 **Archive Entity**
 Archive an entity.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `archive_entity_v1_entitybase_entities__entity_id__archive_post` |
+| Operation ID | `archive_entity_v1_entities__entity_id__archive_post` |
 | Method | `POST` |
-| Path | `/v1/entitybase/entities/{entity_id}/archive` |
+| Path | `/v1/entities/{entity_id}/archive` |
 | Parameters | `entity_id` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[EntityStatusRequest](#entitystatusrequest)` |
 | Response | Description |
@@ -969,14 +969,14 @@ Archive an entity.
 
 ---
 
-### GET /v1/entitybase/entities/{entity_id}/backlinks
+### GET /v1/entities/{entity_id}/backlinks
 **Get Entity Backlinks**
 Get backlinks for an entity.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_entity_backlinks_v1_entitybase_entities__entity_id__backlinks_get` |
+| Operation ID | `get_entity_backlinks_v1_entities__entity_id__backlinks_get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/{entity_id}/backlinks` |
+| Path | `/v1/entities/{entity_id}/backlinks` |
 | Parameters | `entity_id` (path, Required) `limit` (query, Optional) `offset` (query, Optional) |
 | Response | Description |
 |----------|-------------|
@@ -986,14 +986,14 @@ Get backlinks for an entity.
 
 ---
 
-### DELETE /v1/entitybase/entities/{entity_id}/descriptions/{language_code}
+### DELETE /v1/entities/{entity_id}/descriptions/{language_code}
 **Delete Entity Description**
 Delete entity description for language.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `delete_entity_description_v1_entitybase_entities__entity_id__descriptions__language_code__delete` |
+| Operation ID | `delete_entity_description_v1_entities__entity_id__descriptions__language_code__delete` |
 | Method | `DELETE` |
-| Path | `/v1/entitybase/entities/{entity_id}/descriptions/{language_code}` |
+| Path | `/v1/entities/{entity_id}/descriptions/{language_code}` |
 | Parameters | `entity_id` (path, Required) `language_code` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Response | Description |
 |----------|-------------|
@@ -1003,14 +1003,14 @@ Delete entity description for language.
 
 ---
 
-### GET /v1/entitybase/entities/{entity_id}/descriptions/{language_code}
+### GET /v1/entities/{entity_id}/descriptions/{language_code}
 **Get Entity Description**
 Get entity description text for language.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_entity_description_v1_entitybase_entities__entity_id__descriptions__language_code__get` |
+| Operation ID | `get_entity_description_v1_entities__entity_id__descriptions__language_code__get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/{entity_id}/descriptions/{language_code}` |
+| Path | `/v1/entities/{entity_id}/descriptions/{language_code}` |
 | Parameters | `entity_id` (path, Required) `language_code` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -1020,14 +1020,14 @@ Get entity description text for language.
 
 ---
 
-### POST /v1/entitybase/entities/{entity_id}/descriptions/{language_code}
+### POST /v1/entities/{entity_id}/descriptions/{language_code}
 **Add Entity Description**
 Add a new description to entity for language (alias for PUT).
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `add_entity_description_v1_entitybase_entities__entity_id__descriptions__language_code__post` |
+| Operation ID | `add_entity_description_v1_entities__entity_id__descriptions__language_code__post` |
 | Method | `POST` |
-| Path | `/v1/entitybase/entities/{entity_id}/descriptions/{language_code}` |
+| Path | `/v1/entities/{entity_id}/descriptions/{language_code}` |
 | Parameters | `entity_id` (path, Required) `language_code` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[TermUpdateRequest](#termupdaterequest)` |
 | Response | Description |
@@ -1045,14 +1045,14 @@ Add a new description to entity for language (alias for PUT).
 
 ---
 
-### PUT /v1/entitybase/entities/{entity_id}/descriptions/{language_code}
+### PUT /v1/entities/{entity_id}/descriptions/{language_code}
 **Update Entity Description**
 Update entity description for language.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `update_entity_description_v1_entitybase_entities__entity_id__descriptions__language_code__put` |
+| Operation ID | `update_entity_description_v1_entities__entity_id__descriptions__language_code__put` |
 | Method | `PUT` |
-| Path | `/v1/entitybase/entities/{entity_id}/descriptions/{language_code}` |
+| Path | `/v1/entities/{entity_id}/descriptions/{language_code}` |
 | Parameters | `entity_id` (path, Required) `language_code` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[TermUpdateRequest](#termupdaterequest)` |
 | Response | Description |
@@ -1070,14 +1070,14 @@ Update entity description for language.
 
 ---
 
-### DELETE /v1/entitybase/entities/{entity_id}/labels/{language_code}
+### DELETE /v1/entities/{entity_id}/labels/{language_code}
 **Delete Entity Label**
 Delete entity label for language.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `delete_entity_label_v1_entitybase_entities__entity_id__labels__language_code__delete` |
+| Operation ID | `delete_entity_label_v1_entities__entity_id__labels__language_code__delete` |
 | Method | `DELETE` |
-| Path | `/v1/entitybase/entities/{entity_id}/labels/{language_code}` |
+| Path | `/v1/entities/{entity_id}/labels/{language_code}` |
 | Parameters | `entity_id` (path, Required) `language_code` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Response | Description |
 |----------|-------------|
@@ -1087,14 +1087,14 @@ Delete entity label for language.
 
 ---
 
-### GET /v1/entitybase/entities/{entity_id}/labels/{language_code}
+### GET /v1/entities/{entity_id}/labels/{language_code}
 **Get Entity Label**
 Get entity label text for language.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_entity_label_v1_entitybase_entities__entity_id__labels__language_code__get` |
+| Operation ID | `get_entity_label_v1_entities__entity_id__labels__language_code__get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/{entity_id}/labels/{language_code}` |
+| Path | `/v1/entities/{entity_id}/labels/{language_code}` |
 | Parameters | `entity_id` (path, Required) `language_code` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -1104,14 +1104,14 @@ Get entity label text for language.
 
 ---
 
-### POST /v1/entitybase/entities/{entity_id}/labels/{language_code}
+### POST /v1/entities/{entity_id}/labels/{language_code}
 **Add Entity Label**
 Add a new label to entity for language (alias for PUT).
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `add_entity_label_v1_entitybase_entities__entity_id__labels__language_code__post` |
+| Operation ID | `add_entity_label_v1_entities__entity_id__labels__language_code__post` |
 | Method | `POST` |
-| Path | `/v1/entitybase/entities/{entity_id}/labels/{language_code}` |
+| Path | `/v1/entities/{entity_id}/labels/{language_code}` |
 | Parameters | `entity_id` (path, Required) `language_code` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[TermUpdateRequest](#termupdaterequest)` |
 | Response | Description |
@@ -1129,14 +1129,14 @@ Add a new label to entity for language (alias for PUT).
 
 ---
 
-### PUT /v1/entitybase/entities/{entity_id}/labels/{language_code}
+### PUT /v1/entities/{entity_id}/labels/{language_code}
 **Update Entity Label**
 Update entity label for language.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `update_entity_label_v1_entitybase_entities__entity_id__labels__language_code__put` |
+| Operation ID | `update_entity_label_v1_entities__entity_id__labels__language_code__put` |
 | Method | `PUT` |
-| Path | `/v1/entitybase/entities/{entity_id}/labels/{language_code}` |
+| Path | `/v1/entities/{entity_id}/labels/{language_code}` |
 | Parameters | `entity_id` (path, Required) `language_code` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[TermUpdateRequest](#termupdaterequest)` |
 | Response | Description |
@@ -1154,14 +1154,14 @@ Update entity label for language.
 
 ---
 
-### DELETE /v1/entitybase/entities/{entity_id}/lock
+### DELETE /v1/entities/{entity_id}/lock
 **Unlock Entity**
 Remove lock from an entity.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `unlock_entity_v1_entitybase_entities__entity_id__lock_delete` |
+| Operation ID | `unlock_entity_v1_entities__entity_id__lock_delete` |
 | Method | `DELETE` |
-| Path | `/v1/entitybase/entities/{entity_id}/lock` |
+| Path | `/v1/entities/{entity_id}/lock` |
 | Parameters | `entity_id` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[EntityStatusRequest](#entitystatusrequest)` |
 | Response | Description |
@@ -1178,14 +1178,14 @@ Remove lock from an entity.
 
 ---
 
-### POST /v1/entitybase/entities/{entity_id}/lock
+### POST /v1/entities/{entity_id}/lock
 **Lock Entity**
 Lock an entity from edits.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `lock_entity_v1_entitybase_entities__entity_id__lock_post` |
+| Operation ID | `lock_entity_v1_entities__entity_id__lock_post` |
 | Method | `POST` |
-| Path | `/v1/entitybase/entities/{entity_id}/lock` |
+| Path | `/v1/entities/{entity_id}/lock` |
 | Parameters | `entity_id` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[EntityStatusRequest](#entitystatusrequest)` |
 | Response | Description |
@@ -1202,14 +1202,14 @@ Lock an entity from edits.
 
 ---
 
-### DELETE /v1/entitybase/entities/{entity_id}/mass-edit-protect
+### DELETE /v1/entities/{entity_id}/mass-edit-protect
 **Mass Edit Unprotect Entity**
 Remove mass edit protection from an entity.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `mass_edit_unprotect_entity_v1_entitybase_entities__entity_id__mass_edit_protect_delete` |
+| Operation ID | `mass_edit_unprotect_entity_v1_entities__entity_id__mass_edit_protect_delete` |
 | Method | `DELETE` |
-| Path | `/v1/entitybase/entities/{entity_id}/mass-edit-protect` |
+| Path | `/v1/entities/{entity_id}/mass-edit-protect` |
 | Parameters | `entity_id` (path, Required) |
 | Request Body | `[EntityStatusRequest](#entitystatusrequest)` |
 | Response | Description |
@@ -1226,14 +1226,14 @@ Remove mass edit protection from an entity.
 
 ---
 
-### POST /v1/entitybase/entities/{entity_id}/mass-edit-protect
+### POST /v1/entities/{entity_id}/mass-edit-protect
 **Mass Edit Protect Entity**
 Add mass edit protection to an entity.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `mass_edit_protect_entity_v1_entitybase_entities__entity_id__mass_edit_protect_post` |
+| Operation ID | `mass_edit_protect_entity_v1_entities__entity_id__mass_edit_protect_post` |
 | Method | `POST` |
-| Path | `/v1/entitybase/entities/{entity_id}/mass-edit-protect` |
+| Path | `/v1/entities/{entity_id}/mass-edit-protect` |
 | Parameters | `entity_id` (path, Required) |
 | Request Body | `[EntityStatusRequest](#entitystatusrequest)` |
 | Response | Description |
@@ -1250,16 +1250,16 @@ Add mass edit protection to an entity.
 
 ---
 
-### GET /v1/entitybase/entities/{entity_id}/properties
+### GET /v1/entities/{entity_id}/properties
 **Get Entity Properties**
 Get list of unique property IDs for an entity's head revision.
 
 Returns sorted list of properties used in entity statements.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_entity_properties_v1_entitybase_entities__entity_id__properties_get` |
+| Operation ID | `get_entity_properties_v1_entities__entity_id__properties_get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/{entity_id}/properties` |
+| Path | `/v1/entities/{entity_id}/properties` |
 | Parameters | `entity_id` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -1269,14 +1269,14 @@ Returns sorted list of properties used in entity statements.
 
 ---
 
-### POST /v1/entitybase/entities/{entity_id}/properties/{property_id}
+### POST /v1/entities/{entity_id}/properties/{property_id}
 **Add Entity Property**
 Add claims for a single property to an entity.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `add_entity_property_v1_entitybase_entities__entity_id__properties__property_id__post` |
+| Operation ID | `add_entity_property_v1_entities__entity_id__properties__property_id__post` |
 | Method | `POST` |
-| Path | `/v1/entitybase/entities/{entity_id}/properties/{property_id}` |
+| Path | `/v1/entities/{entity_id}/properties/{property_id}` |
 | Parameters | `entity_id` (path, Required) `property_id` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[AddPropertyRequest](#addpropertyrequest)` |
 | Response | Description |
@@ -1295,14 +1295,14 @@ Add claims for a single property to an entity.
 
 ---
 
-### GET /v1/entitybase/entities/{entity_id}/properties/{property_list}
+### GET /v1/entities/{entity_id}/properties/{property_list}
 **Get Entity Property Hashes**
 Get entity property hashes for specified properties.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_entity_property_hashes_v1_entitybase_entities__entity_id__properties__property_list__get` |
+| Operation ID | `get_entity_property_hashes_v1_entities__entity_id__properties__property_list__get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/{entity_id}/properties/{property_list}` |
+| Path | `/v1/entities/{entity_id}/properties/{property_list}` |
 | Parameters | `entity_id` (path, Required) `property_list` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -1312,16 +1312,16 @@ Get entity property hashes for specified properties.
 
 ---
 
-### GET /v1/entitybase/entities/{entity_id}/property_counts
+### GET /v1/entities/{entity_id}/property_counts
 **Get Entity Property Counts**
 Get statement counts per property for an entity's head revision.
 
 Returns dict mapping property ID -> count of statements.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_entity_property_counts_v1_entitybase_entities__entity_id__property_counts_get` |
+| Operation ID | `get_entity_property_counts_v1_entities__entity_id__property_counts_get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/{entity_id}/property_counts` |
+| Path | `/v1/entities/{entity_id}/property_counts` |
 | Parameters | `entity_id` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -1331,14 +1331,14 @@ Returns dict mapping property ID -> count of statements.
 
 ---
 
-### POST /v1/entitybase/entities/{entity_id}/revert
+### POST /v1/entities/{entity_id}/revert
 **Revert Entity**
 Revert entity to a previous revision.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `revert_entity_v1_entitybase_entities__entity_id__revert_post` |
+| Operation ID | `revert_entity_v1_entities__entity_id__revert_post` |
 | Method | `POST` |
-| Path | `/v1/entitybase/entities/{entity_id}/revert` |
+| Path | `/v1/entities/{entity_id}/revert` |
 | Parameters | `entity_id` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[EntityRevertRequest](#entityrevertrequest)` |
 | Response | Description |
@@ -1356,14 +1356,14 @@ Revert entity to a previous revision.
 
 ---
 
-### GET /v1/entitybase/entities/{entity_id}/revision/{revision_id}
+### GET /v1/entities/{entity_id}/revision/{revision_id}
 **Get Entity Revision**
 Get a specific revision of an entity.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_entity_revision_v1_entitybase_entities__entity_id__revision__revision_id__get` |
+| Operation ID | `get_entity_revision_v1_entities__entity_id__revision__revision_id__get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/{entity_id}/revision/{revision_id}` |
+| Path | `/v1/entities/{entity_id}/revision/{revision_id}` |
 | Parameters | `entity_id` (path, Required) `revision_id` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -1373,14 +1373,14 @@ Get a specific revision of an entity.
 
 ---
 
-### GET /v1/entitybase/entities/{entity_id}/revision/{revision_id}/json
+### GET /v1/entities/{entity_id}/revision/{revision_id}/json
 **Get Entity Json Revision**
 Get JSON representation of a specific entity revision.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_entity_json_revision_v1_entitybase_entities__entity_id__revision__revision_id__json_get` |
+| Operation ID | `get_entity_json_revision_v1_entities__entity_id__revision__revision_id__json_get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/{entity_id}/revision/{revision_id}/json` |
+| Path | `/v1/entities/{entity_id}/revision/{revision_id}/json` |
 | Parameters | `entity_id` (path, Required) `revision_id` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -1390,14 +1390,14 @@ Get JSON representation of a specific entity revision.
 
 ---
 
-### GET /v1/entitybase/entities/{entity_id}/revision/{revision_id}/ttl
+### GET /v1/entities/{entity_id}/revision/{revision_id}/ttl
 **Get Entity Ttl Revision**
 Get Turtle (TTL) representation of a specific entity revision.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_entity_ttl_revision_v1_entitybase_entities__entity_id__revision__revision_id__ttl_get` |
+| Operation ID | `get_entity_ttl_revision_v1_entities__entity_id__revision__revision_id__ttl_get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/{entity_id}/revision/{revision_id}/ttl` |
+| Path | `/v1/entities/{entity_id}/revision/{revision_id}/ttl` |
 | Parameters | `entity_id` (path, Required) `revision_id` (path, Required) `format` (query, Optional) |
 | Response | Description |
 |----------|-------------|
@@ -1407,14 +1407,14 @@ Get Turtle (TTL) representation of a specific entity revision.
 
 ---
 
-### GET /v1/entitybase/entities/{entity_id}/revisions
+### GET /v1/entities/{entity_id}/revisions
 **Get Entity History**
 Get the revision history for an entity.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_entity_history_v1_entitybase_entities__entity_id__revisions_get` |
+| Operation ID | `get_entity_history_v1_entities__entity_id__revisions_get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/{entity_id}/revisions` |
+| Path | `/v1/entities/{entity_id}/revisions` |
 | Parameters | `entity_id` (path, Required) `limit` (query, Optional) `offset` (query, Optional) |
 | Response | Description |
 |----------|-------------|
@@ -1424,14 +1424,14 @@ Get the revision history for an entity.
 
 ---
 
-### DELETE /v1/entitybase/entities/{entity_id}/semi-protect
+### DELETE /v1/entities/{entity_id}/semi-protect
 **Unsemi Protect Entity**
 Remove semi-protection from an entity.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `unsemi_protect_entity_v1_entitybase_entities__entity_id__semi_protect_delete` |
+| Operation ID | `unsemi_protect_entity_v1_entities__entity_id__semi_protect_delete` |
 | Method | `DELETE` |
-| Path | `/v1/entitybase/entities/{entity_id}/semi-protect` |
+| Path | `/v1/entities/{entity_id}/semi-protect` |
 | Parameters | `entity_id` (path, Required) |
 | Request Body | `[EntityStatusRequest](#entitystatusrequest)` |
 | Response | Description |
@@ -1448,14 +1448,14 @@ Remove semi-protection from an entity.
 
 ---
 
-### POST /v1/entitybase/entities/{entity_id}/semi-protect
+### POST /v1/entities/{entity_id}/semi-protect
 **Semi Protect Entity**
 Semi-protect an entity.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `semi_protect_entity_v1_entitybase_entities__entity_id__semi_protect_post` |
+| Operation ID | `semi_protect_entity_v1_entities__entity_id__semi_protect_post` |
 | Method | `POST` |
-| Path | `/v1/entitybase/entities/{entity_id}/semi-protect` |
+| Path | `/v1/entities/{entity_id}/semi-protect` |
 | Parameters | `entity_id` (path, Required) |
 | Request Body | `[EntityStatusRequest](#entitystatusrequest)` |
 | Response | Description |
@@ -1472,14 +1472,14 @@ Semi-protect an entity.
 
 ---
 
-### GET /v1/entitybase/entities/{entity_id}/sitelinks
+### GET /v1/entities/{entity_id}/sitelinks
 **Get All Sitelinks**
 Get all sitelinks for an entity.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_all_sitelinks_v1_entitybase_entities__entity_id__sitelinks_get` |
+| Operation ID | `get_all_sitelinks_v1_entities__entity_id__sitelinks_get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/{entity_id}/sitelinks` |
+| Path | `/v1/entities/{entity_id}/sitelinks` |
 | Parameters | `entity_id` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -1489,14 +1489,14 @@ Get all sitelinks for an entity.
 
 ---
 
-### DELETE /v1/entitybase/entities/{entity_id}/sitelinks/{site}
+### DELETE /v1/entities/{entity_id}/sitelinks/{site}
 **Delete Entity Sitelink**
 Delete a sitelink from an entity.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `delete_entity_sitelink_v1_entitybase_entities__entity_id__sitelinks__site__delete` |
+| Operation ID | `delete_entity_sitelink_v1_entities__entity_id__sitelinks__site__delete` |
 | Method | `DELETE` |
-| Path | `/v1/entitybase/entities/{entity_id}/sitelinks/{site}` |
+| Path | `/v1/entities/{entity_id}/sitelinks/{site}` |
 | Parameters | `entity_id` (path, Required) `site` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Response | Description |
 |----------|-------------|
@@ -1506,14 +1506,14 @@ Delete a sitelink from an entity.
 
 ---
 
-### GET /v1/entitybase/entities/{entity_id}/sitelinks/{site}
+### GET /v1/entities/{entity_id}/sitelinks/{site}
 **Get Entity Sitelink**
 Get a single sitelink for an entity.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_entity_sitelink_v1_entitybase_entities__entity_id__sitelinks__site__get` |
+| Operation ID | `get_entity_sitelink_v1_entities__entity_id__sitelinks__site__get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/{entity_id}/sitelinks/{site}` |
+| Path | `/v1/entities/{entity_id}/sitelinks/{site}` |
 | Parameters | `entity_id` (path, Required) `site` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -1523,14 +1523,14 @@ Get a single sitelink for an entity.
 
 ---
 
-### POST /v1/entitybase/entities/{entity_id}/sitelinks/{site}
+### POST /v1/entities/{entity_id}/sitelinks/{site}
 **Post Entity Sitelink**
 Add a new sitelink for an entity.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `post_entity_sitelink_v1_entitybase_entities__entity_id__sitelinks__site__post` |
+| Operation ID | `post_entity_sitelink_v1_entities__entity_id__sitelinks__site__post` |
 | Method | `POST` |
-| Path | `/v1/entitybase/entities/{entity_id}/sitelinks/{site}` |
+| Path | `/v1/entities/{entity_id}/sitelinks/{site}` |
 | Parameters | `entity_id` (path, Required) `site` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[SitelinkData](#sitelinkdata)` |
 | Response | Description |
@@ -1550,14 +1550,14 @@ Add a new sitelink for an entity.
 
 ---
 
-### PUT /v1/entitybase/entities/{entity_id}/sitelinks/{site}
+### PUT /v1/entities/{entity_id}/sitelinks/{site}
 **Put Entity Sitelink**
 Update an existing sitelink for an entity.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `put_entity_sitelink_v1_entitybase_entities__entity_id__sitelinks__site__put` |
+| Operation ID | `put_entity_sitelink_v1_entities__entity_id__sitelinks__site__put` |
 | Method | `PUT` |
-| Path | `/v1/entitybase/entities/{entity_id}/sitelinks/{site}` |
+| Path | `/v1/entities/{entity_id}/sitelinks/{site}` |
 | Parameters | `entity_id` (path, Required) `site` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[SitelinkData](#sitelinkdata)` |
 | Response | Description |
@@ -1577,14 +1577,14 @@ Update an existing sitelink for an entity.
 
 ---
 
-### POST /v1/entitybase/entities/{entity_id}/statements
+### POST /v1/entities/{entity_id}/statements
 **Add Entity Statement**
 Add a single statement to an entity.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `add_entity_statement_v1_entitybase_entities__entity_id__statements_post` |
+| Operation ID | `add_entity_statement_v1_entities__entity_id__statements_post` |
 | Method | `POST` |
-| Path | `/v1/entitybase/entities/{entity_id}/statements` |
+| Path | `/v1/entities/{entity_id}/statements` |
 | Parameters | `entity_id` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[AddStatementRequest](#addstatementrequest)` |
 | Response | Description |
@@ -1601,14 +1601,14 @@ Add a single statement to an entity.
 
 ---
 
-### DELETE /v1/entitybase/entities/{entity_id}/statements/{statement_hash}
+### DELETE /v1/entities/{entity_id}/statements/{statement_hash}
 **Remove Entity Statement**
 Remove a statement by hash from an entity.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `remove_entity_statement_v1_entitybase_entities__entity_id__statements__statement_hash__delete` |
+| Operation ID | `remove_entity_statement_v1_entities__entity_id__statements__statement_hash__delete` |
 | Method | `DELETE` |
-| Path | `/v1/entitybase/entities/{entity_id}/statements/{statement_hash}` |
+| Path | `/v1/entities/{entity_id}/statements/{statement_hash}` |
 | Parameters | `entity_id` (path, Required) `statement_hash` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[RemoveStatementRequest](#removestatementrequest)` |
 | Response | Description |
@@ -1623,14 +1623,14 @@ Remove a statement by hash from an entity.
 
 ---
 
-### PATCH /v1/entitybase/entities/{entity_id}/statements/{statement_hash}
+### PATCH /v1/entities/{entity_id}/statements/{statement_hash}
 **Patch Entity Statement**
 Replace a statement by hash with new claim data.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `patch_entity_statement_v1_entitybase_entities__entity_id__statements__statement_hash__patch` |
+| Operation ID | `patch_entity_statement_v1_entities__entity_id__statements__statement_hash__patch` |
 | Method | `PATCH` |
-| Path | `/v1/entitybase/entities/{entity_id}/statements/{statement_hash}` |
+| Path | `/v1/entities/{entity_id}/statements/{statement_hash}` |
 | Parameters | `entity_id` (path, Required) `statement_hash` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[PatchStatementRequest](#patchstatementrequest)` |
 | Response | Description |
@@ -1648,7 +1648,7 @@ Replace a statement by hash with new claim data.
 ---
 
 ## Statements
-### GET /v1/entitybase/statements/batch
+### GET /v1/statements/batch
 **Get Batch Statements**
 Get statement hashes for multiple entities.
 
@@ -1663,9 +1663,9 @@ Example: GET /statements/batch?entity_ids=Q1,Q2&property_ids=P31
 Returns: {"Q1": {"P31": [123, 456]}, "Q2": {"P31": [789]}}
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_batch_statements_v1_entitybase_statements_batch_get` |
+| Operation ID | `get_batch_statements_v1_statements_batch_get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/statements/batch` |
+| Path | `/v1/statements/batch` |
 | Parameters | `entity_ids` (query, Required) `property_ids` (query, Optional) |
 | Response | Description |
 |----------|-------------|
@@ -1675,14 +1675,14 @@ Returns: {"Q1": {"P31": [123, 456]}, "Q2": {"P31": [789]}}
 
 ---
 
-### POST /v1/entitybase/statements/cleanup-orphaned
+### POST /v1/statements/cleanup-orphaned
 **Cleanup Orphaned Statements**
 Clean up orphaned statements that are no longer referenced.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `cleanup_orphaned_statements_v1_entitybase_statements_cleanup_orphaned_post` |
+| Operation ID | `cleanup_orphaned_statements_v1_statements_cleanup_orphaned_post` |
 | Method | `POST` |
-| Path | `/v1/entitybase/statements/cleanup-orphaned` |
+| Path | `/v1/statements/cleanup-orphaned` |
 | Request Body | `[CleanupOrphanedRequest](#cleanuporphanedrequest)` |
 | Response | Description |
 |----------|-------------|
@@ -1699,14 +1699,14 @@ Clean up orphaned statements that are no longer referenced.
 
 ---
 
-### GET /v1/entitybase/statements/most_used
+### GET /v1/statements/most_used
 **Get Most Used Statements**
 Get most used statements based on reference count.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_most_used_statements_v1_entitybase_statements_most_used_get` |
+| Operation ID | `get_most_used_statements_v1_statements_most_used_get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/statements/most_used` |
+| Path | `/v1/statements/most_used` |
 | Parameters | `limit` (query, Optional) `min_ref_count` (query, Optional) |
 | Response | Description |
 |----------|-------------|
@@ -1716,14 +1716,14 @@ Get most used statements based on reference count.
 
 ---
 
-### GET /v1/entitybase/statements/{content_hash}
+### GET /v1/statements/{content_hash}
 **Get Statement**
 Retrieve a single statement by its content hash.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_statement_v1_entitybase_statements__content_hash__get` |
+| Operation ID | `get_statement_v1_statements__content_hash__get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/statements/{content_hash}` |
+| Path | `/v1/statements/{content_hash}` |
 | Parameters | `content_hash` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -1734,14 +1734,29 @@ Retrieve a single statement by its content hash.
 ---
 
 ## Statistics
-### GET /v1/entitybase/stats
+### GET /v1/stats
 **Get General Stats**
 Get general wiki statistics.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_general_stats_v1_entitybase_stats_get` |
+| Operation ID | `get_general_stats_v1_stats_get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/stats` |
+| Path | `/v1/stats` |
+| Response | Description |
+|----------|-------------|
+| 200 | Successful Response |
+
+
+---
+
+### GET /v1/stats/deduplication
+**Get Deduplication Stats**
+Get deduplication statistics for all data types.
+| Aspect | Details |
+|--------|---------|
+| Operation ID | `get_deduplication_stats_v1_stats_deduplication_get` |
+| Method | `GET` |
+| Path | `/v1/stats/deduplication` |
 | Response | Description |
 |----------|-------------|
 | 200 | Successful Response |
@@ -1750,14 +1765,14 @@ Get general wiki statistics.
 ---
 
 ## Watchlist
-### GET /v1/entitybase/users/{user_id}/watchlist
+### GET /v1/users/{user_id}/watchlist
 **Get Watches**
 Get user's watchlist.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_watches_v1_entitybase_users__user_id__watchlist_get` |
+| Operation ID | `get_watches_v1_users__user_id__watchlist_get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/users/{user_id}/watchlist` |
+| Path | `/v1/users/{user_id}/watchlist` |
 | Parameters | `user_id` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -1767,14 +1782,14 @@ Get user's watchlist.
 
 ---
 
-### POST /v1/entitybase/users/{user_id}/watchlist
+### POST /v1/users/{user_id}/watchlist
 **Add Watch**
 Add a watchlist entry for user.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `add_watch_v1_entitybase_users__user_id__watchlist_post` |
+| Operation ID | `add_watch_v1_users__user_id__watchlist_post` |
 | Method | `POST` |
-| Path | `/v1/entitybase/users/{user_id}/watchlist` |
+| Path | `/v1/users/{user_id}/watchlist` |
 | Parameters | `user_id` (path, Required) |
 | Request Body | `[WatchlistAddRequest](#watchlistaddrequest)` |
 | Response | Description |
@@ -1792,14 +1807,14 @@ Add a watchlist entry for user.
 
 ---
 
-### GET /v1/entitybase/users/{user_id}/watchlist/notifications
+### GET /v1/users/{user_id}/watchlist/notifications
 **Get Notifications**
 Get user's recent watchlist notifications.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_notifications_v1_entitybase_users__user_id__watchlist_notifications_get` |
+| Operation ID | `get_notifications_v1_users__user_id__watchlist_notifications_get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/users/{user_id}/watchlist/notifications` |
+| Path | `/v1/users/{user_id}/watchlist/notifications` |
 | Parameters | `user_id` (path, Required) `hours` (query, Optional) `limit` (query, Optional) `offset` (query, Optional) |
 | Response | Description |
 |----------|-------------|
@@ -1809,14 +1824,14 @@ Get user's recent watchlist notifications.
 
 ---
 
-### PUT /v1/entitybase/users/{user_id}/watchlist/notifications/{notification_id}/check
+### PUT /v1/users/{user_id}/watchlist/notifications/{notification_id}/check
 **Mark Checked**
 Mark a notification as checked.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `mark_checked_v1_entitybase_users__user_id__watchlist_notifications__notification_id__check_put` |
+| Operation ID | `mark_checked_v1_users__user_id__watchlist_notifications__notification_id__check_put` |
 | Method | `PUT` |
-| Path | `/v1/entitybase/users/{user_id}/watchlist/notifications/{notification_id}/check` |
+| Path | `/v1/users/{user_id}/watchlist/notifications/{notification_id}/check` |
 | Parameters | `user_id` (path, Required) `notification_id` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -1826,14 +1841,14 @@ Mark a notification as checked.
 
 ---
 
-### POST /v1/entitybase/users/{user_id}/watchlist/remove
+### POST /v1/users/{user_id}/watchlist/remove
 **Remove Watch**
 Remove a watchlist entry for user.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `remove_watch_v1_entitybase_users__user_id__watchlist_remove_post` |
+| Operation ID | `remove_watch_v1_users__user_id__watchlist_remove_post` |
 | Method | `POST` |
-| Path | `/v1/entitybase/users/{user_id}/watchlist/remove` |
+| Path | `/v1/users/{user_id}/watchlist/remove` |
 | Parameters | `user_id` (path, Required) |
 | Request Body | `[WatchlistRemoveRequest](#watchlistremoverequest)` |
 | Response | Description |
@@ -1851,14 +1866,14 @@ Remove a watchlist entry for user.
 
 ---
 
-### GET /v1/entitybase/users/{user_id}/watchlist/stats
+### GET /v1/users/{user_id}/watchlist/stats
 **Get Watch Counts**
 Get user's watchlist statistics.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_watch_counts_v1_entitybase_users__user_id__watchlist_stats_get` |
+| Operation ID | `get_watch_counts_v1_users__user_id__watchlist_stats_get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/users/{user_id}/watchlist/stats` |
+| Path | `/v1/users/{user_id}/watchlist/stats` |
 | Parameters | `user_id` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -1868,14 +1883,14 @@ Get user's watchlist statistics.
 
 ---
 
-### DELETE /v1/entitybase/users/{user_id}/watchlist/{watch_id}
+### DELETE /v1/users/{user_id}/watchlist/{watch_id}
 **Remove Watch By Id**
 Remove a watchlist entry by ID.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `remove_watch_by_id_v1_entitybase_users__user_id__watchlist__watch_id__delete` |
+| Operation ID | `remove_watch_by_id_v1_users__user_id__watchlist__watch_id__delete` |
 | Method | `DELETE` |
-| Path | `/v1/entitybase/users/{user_id}/watchlist/{watch_id}` |
+| Path | `/v1/users/{user_id}/watchlist/{watch_id}` |
 | Parameters | `user_id` (path, Required) `watch_id` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -1886,7 +1901,7 @@ Remove a watchlist entry by ID.
 ---
 
 ## Import
-### POST /v1/entitybase/import
+### POST /v1/import
 **Import a single entity (item, property, or lexeme)**
 Import a single entity of any type.
 
@@ -1918,9 +1933,9 @@ Errors:
 - 400: Validation error
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `import_entity_v1_entitybase_import_post` |
+| Operation ID | `import_entity_v1_import_post` |
 | Method | `POST` |
-| Path | `/v1/entitybase/import` |
+| Path | `/v1/import` |
 | Request Body | `[EntityCreateRequest](#entitycreaterequest)` |
 | Response | Description |
 |----------|-------------|
@@ -1961,13 +1976,13 @@ Errors:
 ---
 
 ## Redirects
-### POST /v1/entitybase/entities/{entity_id}/revert-redirect
+### POST /v1/entities/{entity_id}/revert-redirect
 **Revert Entity Redirect**
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `revert_entity_redirect_v1_entitybase_entities__entity_id__revert_redirect_post` |
+| Operation ID | `revert_entity_redirect_v1_entities__entity_id__revert_redirect_post` |
 | Method | `POST` |
-| Path | `/v1/entitybase/entities/{entity_id}/revert-redirect` |
+| Path | `/v1/entities/{entity_id}/revert-redirect` |
 | Parameters | `entity_id` (path, Required) `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[RedirectRevertRequest](#redirectrevertrequest)` |
 | Response | Description |
@@ -1985,14 +2000,14 @@ Errors:
 
 ---
 
-### POST /v1/entitybase/redirects
+### POST /v1/redirects
 **Create Entity Redirect**
 Create a redirect for an entity.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `create_entity_redirect_v1_entitybase_redirects_post` |
+| Operation ID | `create_entity_redirect_v1_redirects_post` |
 | Method | `POST` |
-| Path | `/v1/entitybase/redirects` |
+| Path | `/v1/redirects` |
 | Parameters | `X-User-ID` (header, Required) `X-Edit-Summary` (header, Required) `X-Base-Revision-ID` (header, Optional) |
 | Request Body | `[EntityRedirectRequest](#entityredirectrequest)` |
 | Response | Description |
@@ -2012,14 +2027,14 @@ Create a redirect for an entity.
 ---
 
 ## List
-### GET /v1/entitybase/entities
+### GET /v1/entities
 **List Entities**
 List entities based on type, status, edit_type, limit, and offset.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `list_entities_v1_entitybase_entities_get` |
+| Operation ID | `list_entities_v1_entities_get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities` |
+| Path | `/v1/entities` |
 | Parameters | `entity_type` (query, Optional) `status` (query, Optional) `edit_type` (query, Optional) `limit` (query, Optional) `offset` (query, Optional) |
 | Response | Description |
 |----------|-------------|
@@ -2029,14 +2044,14 @@ List entities based on type, status, edit_type, limit, and offset.
 
 ---
 
-### GET /v1/entitybase/entities/items
+### GET /v1/entities/items
 **List Items**
 List all items (Q-prefixed entities).
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `list_items_v1_entitybase_entities_items_get` |
+| Operation ID | `list_items_v1_entities_items_get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/items` |
+| Path | `/v1/entities/items` |
 | Parameters | `limit` (query, Optional) `offset` (query, Optional) |
 | Response | Description |
 |----------|-------------|
@@ -2046,14 +2061,14 @@ List all items (Q-prefixed entities).
 
 ---
 
-### GET /v1/entitybase/entities/lexemes
+### GET /v1/entities/lexemes
 **List Lexemes**
 List all lexemes (L-prefixed entities).
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `list_lexemes_v1_entitybase_entities_lexemes_get` |
+| Operation ID | `list_lexemes_v1_entities_lexemes_get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/lexemes` |
+| Path | `/v1/entities/lexemes` |
 | Parameters | `limit` (query, Optional) `offset` (query, Optional) |
 | Response | Description |
 |----------|-------------|
@@ -2063,14 +2078,14 @@ List all lexemes (L-prefixed entities).
 
 ---
 
-### GET /v1/entitybase/entities/properties
+### GET /v1/entities/properties
 **List Properties**
 List all properties (P-prefixed entities).
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `list_properties_v1_entitybase_entities_properties_get` |
+| Operation ID | `list_properties_v1_entities_properties_get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/entities/properties` |
+| Path | `/v1/entities/properties` |
 | Parameters | `limit` (query, Optional) `offset` (query, Optional) |
 | Response | Description |
 |----------|-------------|
@@ -2081,7 +2096,7 @@ List all properties (P-prefixed entities).
 ---
 
 ## Debug
-### GET /v1/entitybase/debug/entity/{entity_id}
+### GET /v1/debug/entity/{entity_id}
 **Debug Entity**
 Debug endpoint to check entity in database.
 
@@ -2089,9 +2104,9 @@ This endpoint queries the entity_id_mapping table directly to verify
 if an entity exists and what its internal_id is.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `debug_entity_v1_entitybase_debug_entity__entity_id__get` |
+| Operation ID | `debug_entity_v1_debug_entity__entity_id__get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/debug/entity/{entity_id}` |
+| Path | `/v1/debug/entity/{entity_id}` |
 | Parameters | `entity_id` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -2101,14 +2116,14 @@ if an entity exists and what its internal_id is.
 
 ---
 
-### GET /v1/entitybase/debug/entity_head/{entity_id}
+### GET /v1/debug/entity_head/{entity_id}
 **Debug Entity Head**
 Debug endpoint to check entity_head table.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `debug_entity_head_v1_entitybase_debug_entity_head__entity_id__get` |
+| Operation ID | `debug_entity_head_v1_debug_entity_head__entity_id__get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/debug/entity_head/{entity_id}` |
+| Path | `/v1/debug/entity_head/{entity_id}` |
 | Parameters | `entity_id` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -2166,186 +2181,15 @@ Get current application settings (excludes sensitive values).
 
 ---
 
-## Interactions
-### POST /v1/entitybase/entities/{entity_id}/revisions/{revision_id}/thank
-**Send Thank Endpoint**
-Send a thank for a specific revision.
-| Aspect | Details |
-|--------|---------|
-| Operation ID | `send_thank_endpoint_v1_entitybase_entities__entity_id__revisions__revision_id__thank_post` |
-| Method | `POST` |
-| Path | `/v1/entitybase/entities/{entity_id}/revisions/{revision_id}/thank` |
-| Parameters | `entity_id` (path, Required) `revision_id` (path, Required) `X-User-ID` (header, Required) |
-| Response | Description |
-|----------|-------------|
-| 200 | Successful Response |
-| 422 | Validation Error |
-
-
----
-
-### GET /v1/entitybase/entities/{entity_id}/revisions/{revision_id}/thanks
-**Get Revision Thanks Endpoint**
-Get all thanks for a specific revision.
-| Aspect | Details |
-|--------|---------|
-| Operation ID | `get_revision_thanks_endpoint_v1_entitybase_entities__entity_id__revisions__revision_id__thanks_get` |
-| Method | `GET` |
-| Path | `/v1/entitybase/entities/{entity_id}/revisions/{revision_id}/thanks` |
-| Parameters | `entity_id` (path, Required) `revision_id` (path, Required) |
-| Response | Description |
-|----------|-------------|
-| 200 | Successful Response |
-| 422 | Validation Error |
-
-
----
-
-### DELETE /v1/entitybase/statements/{statement_hash}/endorse
-**Withdraw Endorsement Endpoint**
-Withdraw endorsement from a statement.
-| Aspect | Details |
-|--------|---------|
-| Operation ID | `withdraw_endorsement_endpoint_v1_entitybase_statements__statement_hash__endorse_delete` |
-| Method | `DELETE` |
-| Path | `/v1/entitybase/statements/{statement_hash}/endorse` |
-| Parameters | `statement_hash` (path, Required) `X-User-ID` (header, Required) |
-| Response | Description |
-|----------|-------------|
-| 200 | Successful Response |
-| 422 | Validation Error |
-
-
----
-
-### POST /v1/entitybase/statements/{statement_hash}/endorse
-**Endorse Statement Endpoint**
-Endorse a statement to signal trust.
-| Aspect | Details |
-|--------|---------|
-| Operation ID | `endorse_statement_endpoint_v1_entitybase_statements__statement_hash__endorse_post` |
-| Method | `POST` |
-| Path | `/v1/entitybase/statements/{statement_hash}/endorse` |
-| Parameters | `statement_hash` (path, Required) `X-User-ID` (header, Required) |
-| Response | Description |
-|----------|-------------|
-| 200 | Successful Response |
-| 422 | Validation Error |
-
-
----
-
-### GET /v1/entitybase/statements/{statement_hash}/endorsements
-**Get Statement Endorsements Endpoint**
-Get endorsements for a statement.
-| Aspect | Details |
-|--------|---------|
-| Operation ID | `get_statement_endorsements_endpoint_v1_entitybase_statements__statement_hash__endorsements_get` |
-| Method | `GET` |
-| Path | `/v1/entitybase/statements/{statement_hash}/endorsements` |
-| Parameters | `statement_hash` (path, Required) `limit` (query, Optional) `offset` (query, Optional) `include_removed` (query, Optional) |
-| Response | Description |
-|----------|-------------|
-| 200 | Successful Response |
-| 422 | Validation Error |
-
-
----
-
-### GET /v1/entitybase/statements/{statement_hash}/endorsements/stats
-**Get Statement Endorsement Stats**
-Get endorsement statistics for a statement.
-| Aspect | Details |
-|--------|---------|
-| Operation ID | `get_statement_endorsement_stats_v1_entitybase_statements__statement_hash__endorsements_stats_get` |
-| Method | `GET` |
-| Path | `/v1/entitybase/statements/{statement_hash}/endorsements/stats` |
-| Parameters | `statement_hash` (path, Required) |
-| Response | Description |
-|----------|-------------|
-| 200 | Successful Response |
-| 422 | Validation Error |
-
-
----
-
-### GET /v1/entitybase/users/{user_id}/endorsements
-**Get User Endorsements Endpoint**
-Get endorsements given by a user.
-| Aspect | Details |
-|--------|---------|
-| Operation ID | `get_user_endorsements_endpoint_v1_entitybase_users__user_id__endorsements_get` |
-| Method | `GET` |
-| Path | `/v1/entitybase/users/{user_id}/endorsements` |
-| Parameters | `user_id` (path, Required) `limit` (query, Optional) `offset` (query, Optional) `include_removed` (query, Optional) |
-| Response | Description |
-|----------|-------------|
-| 200 | Successful Response |
-| 422 | Validation Error |
-
-
----
-
-### GET /v1/entitybase/users/{user_id}/endorsements/stats
-**Get User Endorsement Stats Endpoint**
-Get endorsement statistics for a user.
-| Aspect | Details |
-|--------|---------|
-| Operation ID | `get_user_endorsement_stats_endpoint_v1_entitybase_users__user_id__endorsements_stats_get` |
-| Method | `GET` |
-| Path | `/v1/entitybase/users/{user_id}/endorsements/stats` |
-| Parameters | `user_id` (path, Required) |
-| Response | Description |
-|----------|-------------|
-| 200 | Successful Response |
-| 422 | Validation Error |
-
-
----
-
-### GET /v1/entitybase/users/{user_id}/thanks/received
-**Get Thanks Received Endpoint**
-Get thanks received by user.
-| Aspect | Details |
-|--------|---------|
-| Operation ID | `get_thanks_received_endpoint_v1_entitybase_users__user_id__thanks_received_get` |
-| Method | `GET` |
-| Path | `/v1/entitybase/users/{user_id}/thanks/received` |
-| Parameters | `user_id` (path, Required) `limit` (query, Optional) `offset` (query, Optional) `hours` (query, Optional) |
-| Response | Description |
-|----------|-------------|
-| 200 | Successful Response |
-| 422 | Validation Error |
-
-
----
-
-### GET /v1/entitybase/users/{user_id}/thanks/sent
-**Get Thanks Sent Endpoint**
-Get thanks sent by user.
-| Aspect | Details |
-|--------|---------|
-| Operation ID | `get_thanks_sent_endpoint_v1_entitybase_users__user_id__thanks_sent_get` |
-| Method | `GET` |
-| Path | `/v1/entitybase/users/{user_id}/thanks/sent` |
-| Parameters | `user_id` (path, Required) `limit` (query, Optional) `offset` (query, Optional) `hours` (query, Optional) |
-| Response | Description |
-|----------|-------------|
-| 200 | Successful Response |
-| 422 | Validation Error |
-
-
----
-
 ## Users
-### POST /v1/entitybase/users
+### POST /v1/users
 **Create User**
 Create a new user.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `create_user_v1_entitybase_users_post` |
+| Operation ID | `create_user_v1_users_post` |
 | Method | `POST` |
-| Path | `/v1/entitybase/users` |
+| Path | `/v1/users` |
 | Request Body | `[UserCreateRequest](#usercreaterequest)` |
 | Response | Description |
 |----------|-------------|
@@ -2361,14 +2205,14 @@ Create a new user.
 
 ---
 
-### GET /v1/entitybase/users/stat
+### GET /v1/users/stat
 **Get User Stats**
 Get user statistics.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_user_stats_v1_entitybase_users_stat_get` |
+| Operation ID | `get_user_stats_v1_users_stat_get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/users/stat` |
+| Path | `/v1/users/stat` |
 | Response | Description |
 |----------|-------------|
 | 200 | Successful Response |
@@ -2376,14 +2220,14 @@ Get user statistics.
 
 ---
 
-### DELETE /v1/entitybase/users/{user_id}
+### DELETE /v1/users/{user_id}
 **Delete User**
 Delete a user by ID.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `delete_user_v1_entitybase_users__user_id__delete` |
+| Operation ID | `delete_user_v1_users__user_id__delete` |
 | Method | `DELETE` |
-| Path | `/v1/entitybase/users/{user_id}` |
+| Path | `/v1/users/{user_id}` |
 | Parameters | `user_id` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -2393,14 +2237,14 @@ Delete a user by ID.
 
 ---
 
-### GET /v1/entitybase/users/{user_id}
+### GET /v1/users/{user_id}
 **Get User**
 Get user information by MediaWiki user ID.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_user_v1_entitybase_users__user_id__get` |
+| Operation ID | `get_user_v1_users__user_id__get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/users/{user_id}` |
+| Path | `/v1/users/{user_id}` |
 | Parameters | `user_id` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -2410,14 +2254,14 @@ Get user information by MediaWiki user ID.
 
 ---
 
-### GET /v1/entitybase/users/{user_id}/activity
+### GET /v1/users/{user_id}/activity
 **Get User Activity**
 Get user's activity with filtering.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_user_activity_v1_entitybase_users__user_id__activity_get` |
+| Operation ID | `get_user_activity_v1_users__user_id__activity_get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/users/{user_id}/activity` |
+| Path | `/v1/users/{user_id}/activity` |
 | Parameters | `user_id` (path, Required) `type` (query, Optional) `hours` (query, Optional) `limit` (query, Optional) `offset` (query, Optional) |
 | Response | Description |
 |----------|-------------|
@@ -2427,14 +2271,14 @@ Get user's activity with filtering.
 
 ---
 
-### PUT /v1/entitybase/users/{user_id}/watchlist/toggle
+### PUT /v1/users/{user_id}/watchlist/toggle
 **Toggle Watchlist**
 Enable or disable watchlist for user.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `toggle_watchlist_v1_entitybase_users__user_id__watchlist_toggle_put` |
+| Operation ID | `toggle_watchlist_v1_users__user_id__watchlist_toggle_put` |
 | Method | `PUT` |
-| Path | `/v1/entitybase/users/{user_id}/watchlist/toggle` |
+| Path | `/v1/users/{user_id}/watchlist/toggle` |
 | Parameters | `user_id` (path, Required) |
 | Request Body | `[WatchlistToggleRequest](#watchlisttogglerequest)` |
 | Response | Description |
@@ -2452,7 +2296,7 @@ Enable or disable watchlist for user.
 ---
 
 ## Resolve
-### GET /v1/entitybase/resolve/aliases/{hashes}
+### GET /v1/resolve/aliases/{hashes}
 **Get Batch Aliases**
 Get batch aliases by hashes.
 
@@ -2462,9 +2306,9 @@ Supports single hash (e.g., /resolve/aliases/123) or comma-separated batch
 Returns dict mapping hash strings to alias text lists. Max 20 hashes per request.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_batch_aliases_v1_entitybase_resolve_aliases__hashes__get` |
+| Operation ID | `get_batch_aliases_v1_resolve_aliases__hashes__get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/resolve/aliases/{hashes}` |
+| Path | `/v1/resolve/aliases/{hashes}` |
 | Parameters | `hashes` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -2474,7 +2318,7 @@ Returns dict mapping hash strings to alias text lists. Max 20 hashes per request
 
 ---
 
-### GET /v1/entitybase/resolve/descriptions/{hashes}
+### GET /v1/resolve/descriptions/{hashes}
 **Get Batch Descriptions**
 Get batch descriptions by hashes.
 
@@ -2484,9 +2328,9 @@ Supports single hash (e.g., /resolve/descriptions/123) or comma-separated batch
 Returns dict mapping hash strings to description text. Max 20 hashes per request.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_batch_descriptions_v1_entitybase_resolve_descriptions__hashes__get` |
+| Operation ID | `get_batch_descriptions_v1_resolve_descriptions__hashes__get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/resolve/descriptions/{hashes}` |
+| Path | `/v1/resolve/descriptions/{hashes}` |
 | Parameters | `hashes` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -2496,7 +2340,7 @@ Returns dict mapping hash strings to description text. Max 20 hashes per request
 
 ---
 
-### GET /v1/entitybase/resolve/glosses/{hashes}
+### GET /v1/resolve/glosses/{hashes}
 **Get Glosses**
 Fetch sense glosses by hash(es).
 
@@ -2507,9 +2351,9 @@ Returns array of gloss strings in request order; null for missing hashes.
 Max 100 hashes per request.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_glosses_v1_entitybase_resolve_glosses__hashes__get` |
+| Operation ID | `get_glosses_v1_resolve_glosses__hashes__get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/resolve/glosses/{hashes}` |
+| Path | `/v1/resolve/glosses/{hashes}` |
 | Parameters | `hashes` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -2519,7 +2363,7 @@ Max 100 hashes per request.
 
 ---
 
-### GET /v1/entitybase/resolve/labels/{hashes}
+### GET /v1/resolve/labels/{hashes}
 **Get Batch Labels**
 Get batch labels by hashes.
 
@@ -2529,9 +2373,9 @@ Supports single hash (e.g., /resolve/labels/123) or comma-separated batch
 Returns dict mapping hash strings to label text. Max 20 hashes per request.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_batch_labels_v1_entitybase_resolve_labels__hashes__get` |
+| Operation ID | `get_batch_labels_v1_resolve_labels__hashes__get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/resolve/labels/{hashes}` |
+| Path | `/v1/resolve/labels/{hashes}` |
 | Parameters | `hashes` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -2541,7 +2385,7 @@ Returns dict mapping hash strings to label text. Max 20 hashes per request.
 
 ---
 
-### GET /v1/entitybase/resolve/qualifiers/{hashes}
+### GET /v1/resolve/qualifiers/{hashes}
 **Get Qualifiers**
 Fetch qualifiers by hash(es).
 
@@ -2552,9 +2396,9 @@ Returns array of qualifier dicts in request order; null for missing hashes.
 Max 100 hashes per request.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_qualifiers_v1_entitybase_resolve_qualifiers__hashes__get` |
+| Operation ID | `get_qualifiers_v1_resolve_qualifiers__hashes__get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/resolve/qualifiers/{hashes}` |
+| Path | `/v1/resolve/qualifiers/{hashes}` |
 | Parameters | `hashes` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -2564,7 +2408,7 @@ Max 100 hashes per request.
 
 ---
 
-### GET /v1/entitybase/resolve/references/{hashes}
+### GET /v1/resolve/references/{hashes}
 **Get References**
 Fetch references by hash(es).
 
@@ -2575,9 +2419,9 @@ Returns array of reference dicts in request order; null for missing hashes.
 Max 100 hashes per request.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_references_v1_entitybase_resolve_references__hashes__get` |
+| Operation ID | `get_references_v1_resolve_references__hashes__get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/resolve/references/{hashes}` |
+| Path | `/v1/resolve/references/{hashes}` |
 | Parameters | `hashes` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -2587,7 +2431,7 @@ Max 100 hashes per request.
 
 ---
 
-### GET /v1/entitybase/resolve/representations/{hashes}
+### GET /v1/resolve/representations/{hashes}
 **Get Representations**
 Fetch form representations by hash(es).
 
@@ -2598,9 +2442,9 @@ Returns array of representation strings in request order; null for missing hashe
 Max 100 hashes per request.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_representations_v1_entitybase_resolve_representations__hashes__get` |
+| Operation ID | `get_representations_v1_resolve_representations__hashes__get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/resolve/representations/{hashes}` |
+| Path | `/v1/resolve/representations/{hashes}` |
 | Parameters | `hashes` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -2610,7 +2454,7 @@ Max 100 hashes per request.
 
 ---
 
-### GET /v1/entitybase/resolve/sitelinks/{hashes}
+### GET /v1/resolve/sitelinks/{hashes}
 **Get Batch Sitelinks**
 Get batch sitelink titles by hashes.
 
@@ -2620,9 +2464,9 @@ Supports single hash (e.g., /resolve/sitelinks/123) or comma-separated batch
 Returns dict mapping hash strings to sitelink titles. Max 20 hashes per request.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_batch_sitelinks_v1_entitybase_resolve_sitelinks__hashes__get` |
+| Operation ID | `get_batch_sitelinks_v1_resolve_sitelinks__hashes__get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/resolve/sitelinks/{hashes}` |
+| Path | `/v1/resolve/sitelinks/{hashes}` |
 | Parameters | `hashes` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -2632,7 +2476,7 @@ Returns dict mapping hash strings to sitelink titles. Max 20 hashes per request.
 
 ---
 
-### GET /v1/entitybase/resolve/snaks/{hashes}
+### GET /v1/resolve/snaks/{hashes}
 **Get Snaks**
 Fetch snaks by hash(es).
 
@@ -2643,9 +2487,9 @@ Returns array of snak dicts in request order; null for missing hashes.
 Max 100 hashes per request.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_snaks_v1_entitybase_resolve_snaks__hashes__get` |
+| Operation ID | `get_snaks_v1_resolve_snaks__hashes__get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/resolve/snaks/{hashes}` |
+| Path | `/v1/resolve/snaks/{hashes}` |
 | Parameters | `hashes` (path, Required) |
 | Response | Description |
 |----------|-------------|
@@ -2655,7 +2499,7 @@ Max 100 hashes per request.
 
 ---
 
-### GET /v1/entitybase/resolve/statements/{hashes}
+### GET /v1/resolve/statements/{hashes}
 **Get Statements**
 Fetch statements by hash(es).
 
@@ -2666,10 +2510,181 @@ Returns array of statement dicts in request order; null for missing hashes.
 Max 100 hashes per request.
 | Aspect | Details |
 |--------|---------|
-| Operation ID | `get_statements_v1_entitybase_resolve_statements__hashes__get` |
+| Operation ID | `get_statements_v1_resolve_statements__hashes__get` |
 | Method | `GET` |
-| Path | `/v1/entitybase/resolve/statements/{hashes}` |
+| Path | `/v1/resolve/statements/{hashes}` |
 | Parameters | `hashes` (path, Required) |
+| Response | Description |
+|----------|-------------|
+| 200 | Successful Response |
+| 422 | Validation Error |
+
+
+---
+
+## Interactions
+### POST /v1/entities/{entity_id}/revisions/{revision_id}/thank
+**Send Thank Endpoint**
+Send a thank for a specific revision.
+| Aspect | Details |
+|--------|---------|
+| Operation ID | `send_thank_endpoint_v1_entities__entity_id__revisions__revision_id__thank_post` |
+| Method | `POST` |
+| Path | `/v1/entities/{entity_id}/revisions/{revision_id}/thank` |
+| Parameters | `entity_id` (path, Required) `revision_id` (path, Required) `X-User-ID` (header, Required) |
+| Response | Description |
+|----------|-------------|
+| 200 | Successful Response |
+| 422 | Validation Error |
+
+
+---
+
+### GET /v1/entities/{entity_id}/revisions/{revision_id}/thanks
+**Get Revision Thanks Endpoint**
+Get all thanks for a specific revision.
+| Aspect | Details |
+|--------|---------|
+| Operation ID | `get_revision_thanks_endpoint_v1_entities__entity_id__revisions__revision_id__thanks_get` |
+| Method | `GET` |
+| Path | `/v1/entities/{entity_id}/revisions/{revision_id}/thanks` |
+| Parameters | `entity_id` (path, Required) `revision_id` (path, Required) |
+| Response | Description |
+|----------|-------------|
+| 200 | Successful Response |
+| 422 | Validation Error |
+
+
+---
+
+### DELETE /v1/statements/{statement_hash}/endorse
+**Withdraw Endorsement Endpoint**
+Withdraw endorsement from a statement.
+| Aspect | Details |
+|--------|---------|
+| Operation ID | `withdraw_endorsement_endpoint_v1_statements__statement_hash__endorse_delete` |
+| Method | `DELETE` |
+| Path | `/v1/statements/{statement_hash}/endorse` |
+| Parameters | `statement_hash` (path, Required) `X-User-ID` (header, Required) |
+| Response | Description |
+|----------|-------------|
+| 200 | Successful Response |
+| 422 | Validation Error |
+
+
+---
+
+### POST /v1/statements/{statement_hash}/endorse
+**Endorse Statement Endpoint**
+Endorse a statement to signal trust.
+| Aspect | Details |
+|--------|---------|
+| Operation ID | `endorse_statement_endpoint_v1_statements__statement_hash__endorse_post` |
+| Method | `POST` |
+| Path | `/v1/statements/{statement_hash}/endorse` |
+| Parameters | `statement_hash` (path, Required) `X-User-ID` (header, Required) |
+| Response | Description |
+|----------|-------------|
+| 200 | Successful Response |
+| 422 | Validation Error |
+
+
+---
+
+### GET /v1/statements/{statement_hash}/endorsements
+**Get Statement Endorsements Endpoint**
+Get endorsements for a statement.
+| Aspect | Details |
+|--------|---------|
+| Operation ID | `get_statement_endorsements_endpoint_v1_statements__statement_hash__endorsements_get` |
+| Method | `GET` |
+| Path | `/v1/statements/{statement_hash}/endorsements` |
+| Parameters | `statement_hash` (path, Required) `limit` (query, Optional) `offset` (query, Optional) `include_removed` (query, Optional) |
+| Response | Description |
+|----------|-------------|
+| 200 | Successful Response |
+| 422 | Validation Error |
+
+
+---
+
+### GET /v1/statements/{statement_hash}/endorsements/stats
+**Get Statement Endorsement Stats**
+Get endorsement statistics for a statement.
+| Aspect | Details |
+|--------|---------|
+| Operation ID | `get_statement_endorsement_stats_v1_statements__statement_hash__endorsements_stats_get` |
+| Method | `GET` |
+| Path | `/v1/statements/{statement_hash}/endorsements/stats` |
+| Parameters | `statement_hash` (path, Required) |
+| Response | Description |
+|----------|-------------|
+| 200 | Successful Response |
+| 422 | Validation Error |
+
+
+---
+
+### GET /v1/users/{user_id}/endorsements
+**Get User Endorsements Endpoint**
+Get endorsements given by a user.
+| Aspect | Details |
+|--------|---------|
+| Operation ID | `get_user_endorsements_endpoint_v1_users__user_id__endorsements_get` |
+| Method | `GET` |
+| Path | `/v1/users/{user_id}/endorsements` |
+| Parameters | `user_id` (path, Required) `limit` (query, Optional) `offset` (query, Optional) `include_removed` (query, Optional) |
+| Response | Description |
+|----------|-------------|
+| 200 | Successful Response |
+| 422 | Validation Error |
+
+
+---
+
+### GET /v1/users/{user_id}/endorsements/stats
+**Get User Endorsement Stats Endpoint**
+Get endorsement statistics for a user.
+| Aspect | Details |
+|--------|---------|
+| Operation ID | `get_user_endorsement_stats_endpoint_v1_users__user_id__endorsements_stats_get` |
+| Method | `GET` |
+| Path | `/v1/users/{user_id}/endorsements/stats` |
+| Parameters | `user_id` (path, Required) |
+| Response | Description |
+|----------|-------------|
+| 200 | Successful Response |
+| 422 | Validation Error |
+
+
+---
+
+### GET /v1/users/{user_id}/thanks/received
+**Get Thanks Received Endpoint**
+Get thanks received by user.
+| Aspect | Details |
+|--------|---------|
+| Operation ID | `get_thanks_received_endpoint_v1_users__user_id__thanks_received_get` |
+| Method | `GET` |
+| Path | `/v1/users/{user_id}/thanks/received` |
+| Parameters | `user_id` (path, Required) `limit` (query, Optional) `offset` (query, Optional) `hours` (query, Optional) |
+| Response | Description |
+|----------|-------------|
+| 200 | Successful Response |
+| 422 | Validation Error |
+
+
+---
+
+### GET /v1/users/{user_id}/thanks/sent
+**Get Thanks Sent Endpoint**
+Get thanks sent by user.
+| Aspect | Details |
+|--------|---------|
+| Operation ID | `get_thanks_sent_endpoint_v1_users__user_id__thanks_sent_get` |
+| Method | `GET` |
+| Path | `/v1/users/{user_id}/thanks/sent` |
+| Parameters | `user_id` (path, Required) `limit` (query, Optional) `offset` (query, Optional) `hours` (query, Optional) |
 | Response | Description |
 |----------|-------------|
 | 200 | Successful Response |
@@ -2768,11 +2783,34 @@ Response model for batch statements lookup.
 
 ---
 ### CleanupOrphanedResponse
+Response model for cleanup orphaned statements.
 | Field | Type | Description |
 |-------|------|-------------|
 | `cleaned_count` | integer | Number of statements cleaned up from S3 and Vitess *(required)* |
 | `failed_count` | integer | Number of statements that failed to clean up |
 | `errors` | array[string] | List of error messages for failed cleanups |
+
+---
+### DeduplicationDatabaseStatsResponse
+API response for database deduplication statistics.
+| Field | Type | Description |
+|-------|------|-------------|
+| `statements` | DeduplicationStatsByType | Statement deduplication stats *(required)* |
+| `qualifiers` | DeduplicationStatsByType | Qualifier deduplication stats *(required)* |
+| `references` | DeduplicationStatsByType | Reference deduplication stats *(required)* |
+| `snaks` | DeduplicationStatsByType | Snak deduplication stats *(required)* |
+| `sitelinks` | DeduplicationStatsByType | Sitelink deduplication stats *(required)* |
+| `terms` | DeduplicationStatsByType | Term deduplication stats *(required)* |
+
+---
+### DeduplicationStatsByType
+Deduplication stats for a single data type.
+| Field | Type | Description |
+|-------|------|-------------|
+| `unique_hashes` | integer | Number of unique hashes stored *(required)* |
+| `total_ref_count` | integer | Total reference count (what would be stored without deduplication) *(required)* |
+| `deduplication_factor` | number | Deduplication factor as a percentage (0-100) *(required)* |
+| `space_saved` | integer | Number of duplicates eliminated *(required)* |
 
 ---
 ### DeleteResponse

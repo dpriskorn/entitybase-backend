@@ -8,6 +8,7 @@ from typing import Any, cast
 from models.config.settings import settings
 from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.response import (
+    DeduplicationDatabaseStatsResponse,
     GeneralStatsResponse,
     TermsByType,
     TermsPerLanguage,
@@ -261,3 +262,13 @@ class UserHandler(Handler):
         finally:
             cursor.close()
             self.state.vitess_client.connection_manager.release(connection)
+
+    def get_deduplication_statistics(self) -> DeduplicationDatabaseStatsResponse:
+        """Get deduplication statistics for all data types."""
+        logger.debug("Computing deduplication stats")
+        from models.rest_api.entitybase.v1.services.general_stats_service import (
+            GeneralStatsService,
+        )
+
+        service = GeneralStatsService(state=self.state)
+        return service.compute_deduplication_stats()

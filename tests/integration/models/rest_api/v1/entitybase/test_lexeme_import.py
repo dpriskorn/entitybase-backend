@@ -56,7 +56,7 @@ async def test_lexeme_import_with_lemmas() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.post(
-            "/v1/entitybase/import",
+            "/v1/import",
             json=lexeme_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -84,7 +84,7 @@ async def test_lexeme_import_without_lemmas_fails() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.post(
-            "/v1/entitybase/import",
+            "/v1/import",
             json=lexeme_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -113,7 +113,7 @@ async def test_lexeme_import_preserves_wikidata_id() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.post(
-            "/v1/entitybase/import",
+            "/v1/import",
             json=lexeme_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -145,14 +145,14 @@ async def test_lexeme_language_get_after_creation() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.post(
-            "/v1/entitybase/import",
+            "/v1/import",
             json=lexeme_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
 
         response = await client.get(
-            f"/v1/entitybase/entities/lexemes/{lexeme_id}/language"
+            f"/v1/entities/lexemes/{lexeme_id}/language"
         )
         assert response.status_code == 200
         result = response.json()
@@ -179,14 +179,14 @@ async def test_lexeme_lexicalcategory_get_after_creation() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.post(
-            "/v1/entitybase/import",
+            "/v1/import",
             json=lexeme_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
 
         response = await client.get(
-            f"/v1/entitybase/entities/lexemes/{lexeme_id}/lexicalcategory"
+            f"/v1/entities/lexemes/{lexeme_id}/lexicalcategory"
         )
         assert response.status_code == 200
         result = response.json()
@@ -213,14 +213,14 @@ async def test_lexeme_language_update_invalid_qid_fails() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.post(
-            "/v1/entitybase/import",
+            "/v1/import",
             json=lexeme_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
 
         response = await client.put(
-            f"/v1/entitybase/entities/lexemes/{lexeme_id}/language",
+            f"/v1/entities/lexemes/{lexeme_id}/language",
             json={"language": "invalid-qid"},
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
@@ -249,17 +249,77 @@ async def test_lexeme_lexicalcategory_update_invalid_qid_fails() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.post(
-            "/v1/entitybase/import",
+            "/v1/import",
             json=lexeme_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
 
         response = await client.put(
-            f"/v1/entitybase/entities/lexemes/{lexeme_id}/lexicalcategory",
+            f"/v1/entities/lexemes/{lexeme_id}/lexicalcategory",
             json={"lexical_category": "not-valid"},
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert response.status_code == 400
         error_msg = response.json().get("detail", response.json().get("message", ""))
         assert "qid" in error_msg.lower()
+
+
+@pytest.mark.asyncio
+@pytest.mark.integration
+async def test_lexeme_import_with_claims_and_references() -> None:
+    """Test that lexeme import works with claims containing references (Wikidata format).
+
+    This tests the fix for KeyError: 'hash' when WBI tries to parse references
+    in Wikidata JSON format (which includes hash fields).
+    """
+    from models.rest_api.main import app
+
+    lexeme_id = LexemeIdGenerator.get_next()
+
+    lexeme_data = {
+        "id": lexeme_id,
+        "type": "lexeme",
+        "language": "Q1860",
+        "lexical_category": "Q1084",
+        "lemmas": {"en": {"language": "en", "value": "test"}},
+        "labels": {"en": {"language": "en", "value": "test"}},
+        "claims": {
+            "P31": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P31",
+                        "hash": "abc123def456",
+                        "datavalue": {
+                            "value": {
+                                "entity-type": "item",
+                                "numeric-id": 42,
+                                "id": "Q42",
+                            },
+                            "type": "wikibase-entityid",
+                        },
+                        "datatype": "wikibase-item",
+                    },
+                    "type": "statement",
+                    "id": f"{lexeme_id}$123",
+                    "rank": "normal",
+                    "references": [
+                        {"hash": "ref_hash_abc123", "snaks": {}, "snaks-order": []}
+                    ],
+                }
+            ]
+        },
+    }
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        response = await client.post(
+            "/v1/import",
+            json=lexeme_data,
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
+        assert response.status_code == 200
+        result = response.json()
+        assert result["id"] == lexeme_id

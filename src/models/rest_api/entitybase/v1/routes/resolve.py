@@ -19,10 +19,10 @@ from models.data.rest_api.v1.entitybase.response import (
     SnakResponse,
     StatementResponse,
 )
-from models.data.rest_api.v1.entitybase.response.misc2 import (
-    ReferenceSnaks,
+from models.data.rest_api.v1.entitybase.response.qualifiers import (
     SerializableQualifierValue,
 )
+from models.data.rest_api.v1.entitybase.response.references import ReferenceSnaks
 from models.infrastructure.s3.exceptions import S3NotFoundError
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
