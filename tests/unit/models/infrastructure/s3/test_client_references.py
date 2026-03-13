@@ -92,3 +92,112 @@ class TestS3ClientReferences:
 
             assert len(result) == 2
             assert result[0] is None
+
+    def test_store_reference_not_configured(self):
+        """Test store_reference raises error when Vitess not configured."""
+        config = S3Config(
+            endpoint_url="http://localhost:4566",
+            access_key="test",
+            secret_key="test",
+            bucket="test-bucket",
+            region="us-east-1",
+        )
+
+        with patch(
+            "models.infrastructure.s3.client.S3ConnectionManager",
+            return_value=MagicMock(),
+        ):
+            client = MyS3Client(config=config)
+
+            ref_data = S3ReferenceData(
+                reference={"id": "ref1"}, hash=12345, created_at="2023-01-01T12:00:00Z"
+            )
+            with pytest.raises(Exception):
+                client.store_reference(12345, ref_data)
+
+    def test_store_reference_failure(self):
+        """Test store_reference raises error when storage fails."""
+        mock_connection_manager = MagicMock()
+        config = S3Config(
+            endpoint_url="http://localhost:4566",
+            access_key="test",
+            secret_key="test",
+            bucket="test-bucket",
+            region="us-east-1",
+        )
+
+        with patch(
+            "models.infrastructure.s3.client.S3ConnectionManager",
+            return_value=mock_connection_manager,
+        ):
+            client = MyS3Client(config=config)
+            client.vitess_references = MagicMock()
+            client.vitess_references.store_reference.return_value = MagicMock(
+                success=False, error="Database error"
+            )
+
+            ref_data = S3ReferenceData(
+                reference={"id": "ref1"}, hash=12345, created_at="2023-01-01T12:00:00Z"
+            )
+            with pytest.raises(Exception):
+                client.store_reference(12345, ref_data)
+
+    def test_load_reference_not_configured(self):
+        """Test load_reference raises error when Vitess not configured."""
+        config = S3Config(
+            endpoint_url="http://localhost:4566",
+            access_key="test",
+            secret_key="test",
+            bucket="test-bucket",
+            region="us-east-1",
+        )
+
+        with patch(
+            "models.infrastructure.s3.client.S3ConnectionManager",
+            return_value=MagicMock(),
+        ):
+            client = MyS3Client(config=config)
+
+            with pytest.raises(Exception):
+                client.load_reference(12345)
+
+    def test_load_reference_not_found(self):
+        """Test load_reference raises error when reference not found."""
+        mock_connection_manager = MagicMock()
+        config = S3Config(
+            endpoint_url="http://localhost:4566",
+            access_key="test",
+            secret_key="test",
+            bucket="test-bucket",
+            region="us-east-1",
+        )
+
+        with patch(
+            "models.infrastructure.s3.client.S3ConnectionManager",
+            return_value=mock_connection_manager,
+        ):
+            client = MyS3Client(config=config)
+            client.vitess_references = MagicMock()
+            client.vitess_references.load_reference.return_value = None
+
+            with pytest.raises(Exception):
+                client.load_reference(12345)
+
+    def test_load_references_batch_not_configured(self):
+        """Test load_references_batch raises error when Vitess not configured."""
+        config = S3Config(
+            endpoint_url="http://localhost:4566",
+            access_key="test",
+            secret_key="test",
+            bucket="test-bucket",
+            region="us-east-1",
+        )
+
+        with patch(
+            "models.infrastructure.s3.client.S3ConnectionManager",
+            return_value=MagicMock(),
+        ):
+            client = MyS3Client(config=config)
+
+            with pytest.raises(Exception):
+                client.load_references_batch([111, 222])

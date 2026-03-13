@@ -130,6 +130,25 @@ class TestS3ClientMetadata:
 
             assert result == "Main_Page"
 
+    def test_load_sitelink_metadata_not_configured(self):
+        """Test load_sitelink_metadata raises error when Vitess not configured."""
+        config = S3Config(
+            endpoint_url="http://localhost:4566",
+            access_key="test",
+            secret_key="test",
+            bucket="test-bucket",
+            region="us-east-1",
+        )
+
+        with patch(
+            "models.infrastructure.s3.client.S3ConnectionManager",
+            return_value=MagicMock(),
+        ):
+            client = MyS3Client(config=config)
+
+            with pytest.raises(Exception):
+                client.load_sitelink_metadata(12345)
+
     def test_load_sitelink_metadata_not_found(self):
         """Test load_sitelink_metadata raises error when not found."""
         mock_connection_manager = MagicMock()
@@ -176,3 +195,151 @@ class TestS3ClientMetadata:
             client.delete_metadata(MetadataType.LABELS, 12345)
 
             client.vitess_metadata.delete_metadata.assert_called_once()
+
+    def test_delete_metadata_not_configured(self):
+        """Test delete_metadata raises error when Vitess not configured."""
+        config = S3Config(
+            endpoint_url="http://localhost:4566",
+            access_key="test",
+            secret_key="test",
+            bucket="test-bucket",
+            region="us-east-1",
+        )
+
+        with patch(
+            "models.infrastructure.s3.client.S3ConnectionManager",
+            return_value=MagicMock(),
+        ):
+            client = MyS3Client(config=config)
+
+            with pytest.raises(Exception):
+                client.delete_metadata(MetadataType.LABELS, 12345)
+
+    def test_delete_metadata_failure(self):
+        """Test delete_metadata raises error when storage fails."""
+        mock_connection_manager = MagicMock()
+        config = S3Config(
+            endpoint_url="http://localhost:4566",
+            access_key="test",
+            secret_key="test",
+            bucket="test-bucket",
+            region="us-east-1",
+        )
+
+        with patch(
+            "models.infrastructure.s3.client.S3ConnectionManager",
+            return_value=mock_connection_manager,
+        ):
+            client = MyS3Client(config=config)
+            client.vitess_metadata = MagicMock()
+            client.vitess_metadata.delete_metadata.return_value = MagicMock(
+                success=False, error="Database error"
+            )
+
+            with pytest.raises(Exception):
+                client.delete_metadata(MetadataType.LABELS, 12345)
+
+    def test_store_term_metadata_not_configured(self):
+        """Test store_term_metadata raises error when Vitess not configured."""
+        config = S3Config(
+            endpoint_url="http://localhost:4566",
+            access_key="test",
+            secret_key="test",
+            bucket="test-bucket",
+            region="us-east-1",
+        )
+
+        with patch(
+            "models.infrastructure.s3.client.S3ConnectionManager",
+            return_value=MagicMock(),
+        ):
+            client = MyS3Client(config=config)
+
+            with pytest.raises(Exception):
+                client.store_term_metadata("Test", 12345, "labels")
+
+    def test_store_term_metadata_failure(self):
+        """Test store_term_metadata raises error when storage fails."""
+        mock_connection_manager = MagicMock()
+        config = S3Config(
+            endpoint_url="http://localhost:4566",
+            access_key="test",
+            secret_key="test",
+            bucket="test-bucket",
+            region="us-east-1",
+        )
+
+        with patch(
+            "models.infrastructure.s3.client.S3ConnectionManager",
+            return_value=mock_connection_manager,
+        ):
+            client = MyS3Client(config=config)
+            client.vitess_metadata = MagicMock()
+            client.vitess_metadata.store_metadata.return_value = MagicMock(
+                success=False, error="Database error"
+            )
+
+            with pytest.raises(Exception):
+                client.store_term_metadata("Test", 12345, "labels")
+
+    def test_load_metadata_not_configured(self):
+        """Test load_metadata raises error when Vitess not configured."""
+        config = S3Config(
+            endpoint_url="http://localhost:4566",
+            access_key="test",
+            secret_key="test",
+            bucket="test-bucket",
+            region="us-east-1",
+        )
+
+        with patch(
+            "models.infrastructure.s3.client.S3ConnectionManager",
+            return_value=MagicMock(),
+        ):
+            client = MyS3Client(config=config)
+
+            with pytest.raises(Exception):
+                client.load_metadata(MetadataType.LABELS, 12345)
+
+    def test_store_sitelink_metadata_not_configured(self):
+        """Test store_sitelink_metadata raises error when Vitess not configured."""
+        config = S3Config(
+            endpoint_url="http://localhost:4566",
+            access_key="test",
+            secret_key="test",
+            bucket="test-bucket",
+            region="us-east-1",
+        )
+
+        with patch(
+            "models.infrastructure.s3.client.S3ConnectionManager",
+            return_value=MagicMock(),
+        ):
+            client = MyS3Client(config=config)
+
+            with pytest.raises(Exception):
+                client.store_sitelink_metadata("Main_Page", 12345)
+
+    def test_store_sitelink_metadata_failure(self):
+        """Test store_sitelink_metadata raises error when storage fails."""
+        mock_connection_manager = MagicMock()
+        config = S3Config(
+            endpoint_url="http://localhost:4566",
+            access_key="test",
+            secret_key="test",
+            bucket="test-bucket",
+            region="us-east-1",
+        )
+
+        with patch(
+            "models.infrastructure.s3.client.S3ConnectionManager",
+            return_value=mock_connection_manager,
+        ):
+            client = MyS3Client(config=config)
+            client.vitess_sitelinks = MagicMock()
+            client.vitess_sitelinks.store_sitelink.return_value = MagicMock(
+                success=False, error="Database error"
+            )
+
+            with pytest.raises(Exception):
+                client.store_sitelink_metadata("Main_Page", 12345)

@@ -91,3 +91,112 @@ class TestS3ClientQualifiers:
             result = client.load_qualifiers_batch([111, 222])
 
             assert len(result) == 2
+
+    def test_store_qualifier_not_configured(self):
+        """Test store_qualifier raises error when Vitess not configured."""
+        config = S3Config(
+            endpoint_url="http://localhost:4566",
+            access_key="test",
+            secret_key="test",
+            bucket="test-bucket",
+            region="us-east-1",
+        )
+
+        with patch(
+            "models.infrastructure.s3.client.S3ConnectionManager",
+            return_value=MagicMock(),
+        ):
+            client = MyS3Client(config=config)
+
+            qual_data = S3QualifierData(
+                qualifier={"id": "q1"}, hash=12345, created_at="2023-01-01T12:00:00Z"
+            )
+            with pytest.raises(Exception):
+                client.store_qualifier(12345, qual_data)
+
+    def test_store_qualifier_failure(self):
+        """Test store_qualifier raises error when storage fails."""
+        mock_connection_manager = MagicMock()
+        config = S3Config(
+            endpoint_url="http://localhost:4566",
+            access_key="test",
+            secret_key="test",
+            bucket="test-bucket",
+            region="us-east-1",
+        )
+
+        with patch(
+            "models.infrastructure.s3.client.S3ConnectionManager",
+            return_value=mock_connection_manager,
+        ):
+            client = MyS3Client(config=config)
+            client.vitess_qualifiers = MagicMock()
+            client.vitess_qualifiers.store_qualifier.return_value = MagicMock(
+                success=False, error="Database error"
+            )
+
+            qual_data = S3QualifierData(
+                qualifier={"id": "q1"}, hash=12345, created_at="2023-01-01T12:00:00Z"
+            )
+            with pytest.raises(Exception):
+                client.store_qualifier(12345, qual_data)
+
+    def test_load_qualifier_not_configured(self):
+        """Test load_qualifier raises error when Vitess not configured."""
+        config = S3Config(
+            endpoint_url="http://localhost:4566",
+            access_key="test",
+            secret_key="test",
+            bucket="test-bucket",
+            region="us-east-1",
+        )
+
+        with patch(
+            "models.infrastructure.s3.client.S3ConnectionManager",
+            return_value=MagicMock(),
+        ):
+            client = MyS3Client(config=config)
+
+            with pytest.raises(Exception):
+                client.load_qualifier(12345)
+
+    def test_load_qualifier_not_found(self):
+        """Test load_qualifier raises error when qualifier not found."""
+        mock_connection_manager = MagicMock()
+        config = S3Config(
+            endpoint_url="http://localhost:4566",
+            access_key="test",
+            secret_key="test",
+            bucket="test-bucket",
+            region="us-east-1",
+        )
+
+        with patch(
+            "models.infrastructure.s3.client.S3ConnectionManager",
+            return_value=mock_connection_manager,
+        ):
+            client = MyS3Client(config=config)
+            client.vitess_qualifiers = MagicMock()
+            client.vitess_qualifiers.load_qualifier.return_value = None
+
+            with pytest.raises(Exception):
+                client.load_qualifier(12345)
+
+    def test_load_qualifiers_batch_not_configured(self):
+        """Test load_qualifiers_batch raises error when Vitess not configured."""
+        config = S3Config(
+            endpoint_url="http://localhost:4566",
+            access_key="test",
+            secret_key="test",
+            bucket="test-bucket",
+            region="us-east-1",
+        )
+
+        with patch(
+            "models.infrastructure.s3.client.S3ConnectionManager",
+            return_value=MagicMock(),
+        ):
+            client = MyS3Client(config=config)
+
+            with pytest.raises(Exception):
+                client.load_qualifiers_batch([111, 222])
