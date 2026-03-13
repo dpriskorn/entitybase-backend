@@ -12,11 +12,16 @@ COPY requirements-dev.txt ./
 
 RUN pip install --no-cache-dir -r requirements-dev.txt
 
+RUN pip install --no-cache-dir poetry
+
 COPY ./tests/ ./tests/
 COPY ./src/ ./
 COPY ./test_data/ ./test_data/
 COPY ./schemas/ ./schemas/
 COPY pyproject.toml .
+COPY poetry.lock .
+
+RUN poetry install --no-interaction
 
 ENV PYTHONPATH=/app
 ENV REST_API_URL=http://api:8000
