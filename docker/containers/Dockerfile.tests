@@ -21,7 +21,7 @@ COPY ./schemas/ ./schemas/
 COPY pyproject.toml .
 COPY poetry.lock .
 
-RUN poetry install --no-interaction
+RUN poetry install --no-interaction --no-root
 
 ENV PYTHONPATH=/app
 ENV REST_API_URL=http://api:8000
