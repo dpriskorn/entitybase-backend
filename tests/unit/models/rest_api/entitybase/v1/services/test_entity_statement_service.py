@@ -142,3 +142,214 @@ class TestEntityStatementService:
     # _fetch_revision_data
 
     # _store_updated_revision
+
+    def test_validate_property_id_invalid_format(self) -> None:
+        """Test validating invalid property ID format."""
+        from fastapi import HTTPException
+
+        service = EntityStatementService(state=MagicMock())
+
+        with pytest.raises(HTTPException) as exc_info:
+            service._validate_property_id("Q31")
+
+        assert exc_info.value.status_code == 400
+
+    def test_validate_property_id_not_numeric(self) -> None:
+        """Test validating property ID with non-numeric suffix."""
+        from fastapi import HTTPException
+
+        service = EntityStatementService(state=MagicMock())
+
+        with pytest.raises(HTTPException) as exc_info:
+            service._validate_property_id("Pabc")
+
+        assert exc_info.value.status_code == 400
+
+    def test_validate_property_id_empty(self) -> None:
+        """Test validating empty property ID."""
+        from fastapi import HTTPException
+
+        service = EntityStatementService(state=MagicMock())
+
+        with pytest.raises(HTTPException) as exc_info:
+            service._validate_property_id("")
+
+        assert exc_info.value.status_code == 400
+
+    def test_validate_property_exists_not_property(self) -> None:
+        """Test validating entity that is not a property."""
+        from fastapi import HTTPException
+
+        mock_state = MagicMock()
+        mock_read_handler = MagicMock()
+        mock_response = MagicMock()
+        mock_response.entity_data.revision = {"entity_type": "item"}
+        mock_read_handler.get_entity.return_value = mock_response
+
+        with patch(
+            "models.rest_api.entitybase.v1.services.entity_statement_service.EntityReadHandler",
+            return_value=mock_read_handler,
+        ):
+            service = EntityStatementService(state=mock_state)
+
+            with pytest.raises(HTTPException) as exc_info:
+                service._validate_property_exists("Q31")
+
+            assert exc_info.value.status_code == 400
+
+    def test_validate_property_exists_not_found(self) -> None:
+        """Test validating non-existent property."""
+        from fastapi import HTTPException
+
+        mock_state = MagicMock()
+        mock_read_handler = MagicMock()
+        mock_read_handler.get_entity.side_effect = Exception("Not found")
+
+        with patch(
+            "models.rest_api.entitybase.v1.services.entity_statement_service.EntityReadHandler",
+            return_value=mock_read_handler,
+        ):
+            service = EntityStatementService(state=mock_state)
+
+            with pytest.raises(HTTPException) as exc_info:
+                service._validate_property_exists("P99999")
+
+            assert exc_info.value.status_code == 400
+
+    def test_fetch_current_entity_data_success(self) -> None:
+        """Test fetching current entity data successfully."""
+        mock_state = MagicMock()
+        mock_read_handler = MagicMock()
+        mock_response = MagicMock()
+        mock_response.entity_data.revision = {"id": "Q1", "type": "item"}
+        mock_read_handler.get_entity.return_value = mock_response
+
+        with patch(
+            "models.rest_api.entitybase.v1.services.entity_statement_service.EntityReadHandler",
+            return_value=mock_read_handler,
+        ):
+            service = EntityStatementService(state=mock_state)
+            result = service._fetch_current_entity_data("Q1")
+
+            assert result.data["id"] == "Q1"
+
+    def test_fetch_current_entity_data_exception(self) -> None:
+        """Test fetching current entity data with exception."""
+        from fastapi import HTTPException
+
+        mock_state = MagicMock()
+        mock_read_handler = MagicMock()
+        mock_read_handler.get_entity.side_effect = Exception("Error")
+
+        with patch(
+            "models.rest_api.entitybase.v1.services.entity_statement_service.EntityReadHandler",
+            return_value=mock_read_handler,
+        ):
+            service = EntityStatementService(state=mock_state)
+
+            with pytest.raises(HTTPException) as exc_info:
+                service._fetch_current_entity_data("Q1")
+
+            assert exc_info.value.status_code == 400
+
+    def test_fetch_current_entity_not_found(self) -> None:
+        """Test fetching current entity when not found."""
+        from fastapi import HTTPException
+        from models.infrastructure.s3.exceptions import S3NotFoundError
+
+        mock_state = MagicMock()
+        mock_read_handler = MagicMock()
+        mock_read_handler.get_entity.side_effect = S3NotFoundError("Not found")
+
+        with patch(
+            "models.rest_api.entitybase.v1.services.entity_statement_service.EntityReadHandler",
+            return_value=mock_read_handler,
+        ):
+            service = EntityStatementService(state=mock_state)
+
+            with pytest.raises(HTTPException) as exc_info:
+                service._fetch_current_entity("Q1")
+
+            assert exc_info.value.status_code == 404
+
+    def test_fetch_current_entity_exception(self) -> None:
+        """Test fetching current entity with exception."""
+        from fastapi import HTTPException
+
+        mock_state = MagicMock()
+        mock_read_handler = MagicMock()
+        mock_read_handler.get_entity.side_effect = Exception("Error")
+
+        with patch(
+            "models.rest_api.entitybase.v1.services.entity_statement_service.EntityReadHandler",
+            return_value=mock_read_handler,
+        ):
+            service = EntityStatementService(state=mock_state)
+
+            with pytest.raises(HTTPException) as exc_info:
+                service._fetch_current_entity("Q1")
+
+            assert exc_info.value.status_code == 400
+
+    def test_remove_statement_from_revision_no_statements(self) -> None:
+        """Test removing statement when there are no statements."""
+        mock_revision = MagicMock()
+        mock_revision.hashes = MagicMock()
+        mock_revision.hashes.statements = None
+
+        result = EntityStatementService._remove_statement_from_revision(
+            mock_revision, "12345"
+        )
+
+        assert result.success is False
+        assert "No statements" in result.error
+
+    def test_remove_statement_from_revision_hash_not_found(self) -> None:
+        """Test removing statement when hash not found."""
+        mock_revision = MagicMock()
+        mock_hashes = MagicMock()
+        mock_hashes.statements = MagicMock()
+        mock_hashes.statements.root = [11111, 22222]
+        mock_revision.hashes = mock_hashes
+        mock_revision.properties = ["P31"]
+        mock_revision.property_counts = MagicMock()
+        mock_revision.property_counts.root = {"P31": 2}
+
+        result = EntityStatementService._remove_statement_from_revision(
+            mock_revision, "99999"
+        )
+
+        assert result.success is False
+        assert "not found" in result.error
+
+    def test_remove_statement_from_revision_invalid_hash(self) -> None:
+        """Test removing statement with invalid hash format."""
+        mock_revision = MagicMock()
+        mock_revision.hashes = MagicMock()
+        mock_revision.hashes.statements = MagicMock()
+        mock_revision.hashes.statements.root = []
+
+        result = EntityStatementService._remove_statement_from_revision(
+            mock_revision, "invalid"
+        )
+
+        assert result.success is False
+        assert "Invalid" in result.error
+
+    def test_remove_statement_from_revision_success(self) -> None:
+        """Test removing statement successfully."""
+        mock_revision = MagicMock()
+        mock_hashes = MagicMock()
+        mock_hashes.statements = MagicMock()
+        mock_hashes.statements.root = [11111, 22222]
+        mock_revision.hashes = mock_hashes
+        mock_revision.properties = ["P31"]
+        mock_revision.property_counts = MagicMock()
+        mock_revision.property_counts.root = {"P31": 2}
+
+        result = EntityStatementService._remove_statement_from_revision(
+            mock_revision, "11111"
+        )
+
+        assert result.success is True
+        assert 11111 not in mock_revision.hashes.statements.root
