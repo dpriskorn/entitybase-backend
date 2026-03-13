@@ -2,13 +2,164 @@
 
 import pytest
 from datetime import datetime, timezone
+from unittest.mock import MagicMock, AsyncMock, patch
 
+from models.data.infrastructure.stream.consumer import EntityChangeEventData
 from models.workers.incremental_rdf.rdf_change_builder import (
     EventConfig,
     RDFChangeEvent,
     RDFChangeEventBuilder,
     RDFDataField,
 )
+from models.workers.incremental_rdf.incremental_rdf_worker import (
+    IncrementalRDFWorker,
+)
+
+
+class TestIncrementalRDFWorker:
+    """Unit tests for IncrementalRDFWorker class."""
+
+    def test_worker_initialization(self):
+        """Test worker initialization."""
+        worker = IncrementalRDFWorker(worker_id="test-worker", worker_enabled=False)
+        assert worker.worker_id == "test-worker"
+        assert worker.worker_enabled is False
+        assert worker.vitess_client is None
+        assert worker.s3_client is None
+        assert worker.consumer is None
+        assert worker.producer is None
+
+    def test_get_kafka_brokers_empty(self):
+        """Test getting kafka brokers when not configured."""
+        with patch(
+            "models.workers.incremental_rdf.incremental_rdf_worker.settings"
+        ) as mock_settings:
+            mock_settings.kafka_bootstrap_servers = None
+            worker = IncrementalRDFWorker(worker_enabled=False)
+            brokers = worker._get_kafka_brokers()
+            assert brokers == []
+
+    def test_get_kafka_brokers_with_servers(self):
+        """Test getting kafka brokers when configured."""
+        with patch(
+            "models.workers.incremental_rdf.incremental_rdf_worker.settings"
+        ) as mock_settings:
+            mock_settings.kafka_bootstrap_servers = "broker1:9092, broker2:9092"
+            worker = IncrementalRDFWorker(worker_enabled=False)
+            brokers = worker._get_kafka_brokers()
+            assert brokers == ["broker1:9092", "broker2:9092"]
+
+    @pytest.mark.asyncio
+    async def test_lifespan_disabled_worker(self):
+        """Test lifespan when worker is disabled."""
+        worker = IncrementalRDFWorker(worker_enabled=False)
+        async with worker.lifespan():
+            pass
+
+    @pytest.mark.asyncio
+    async def test_process_message_invalid_no_entity_id(self):
+        """Test processing message with missing entity_id."""
+        worker = IncrementalRDFWorker(worker_enabled=False)
+        message = EntityChangeEventData(
+            id="",
+            rev=123,
+            from_rev=None,
+            type="update",
+            at="2024-01-01T00:00:00Z",
+            user="test",
+            summary="test",
+        )
+        await worker.process_message(message)
+
+    @pytest.mark.asyncio
+    async def test_process_message_invalid_no_revision_id(self):
+        """Test processing message with missing revision_id."""
+        worker = IncrementalRDFWorker(worker_enabled=False)
+        message = EntityChangeEventData(
+            id="Q42",
+            rev=0,
+            from_rev=None,
+            type="update",
+            at="2024-01-01T00:00:00Z",
+            user="test",
+            summary="test",
+        )
+        await worker.process_message(message)
+
+    @pytest.mark.asyncio
+    async def test_process_message_delete(self):
+        """Test processing delete message."""
+        worker = IncrementalRDFWorker(worker_enabled=False)
+        worker.producer = MagicMock()
+        worker.producer.publish = AsyncMock()
+
+        message = EntityChangeEventData(
+            id="Q42",
+            rev=123,
+            from_rev=None,
+            type="delete",
+            at="2024-01-01T00:00:00Z",
+            user="test",
+            summary="test",
+        )
+        await worker.process_message(message)
+
+        worker.producer.publish.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_run_no_consumer(self):
+        """Test run when consumer is not initialized."""
+        worker = IncrementalRDFWorker(worker_enabled=False)
+        await worker.run()
+
+    def test_compute_diff_and_rdf_import_operation(self):
+        """Test compute diff for import operation (no old data)."""
+        worker = IncrementalRDFWorker(worker_enabled=False)
+        operation, rdf_added = worker._compute_diff_and_rdf(
+            "Q42", None, {"entity": {"id": "Q42"}}
+        )
+        assert operation == "import"
+        assert rdf_added == ""
+
+    def test_compute_diff_and_rdf_diff_operation(self):
+        """Test compute diff for diff operation (with old data)."""
+        worker = IncrementalRDFWorker(worker_enabled=False)
+        with patch.object(
+            worker, "_compute_rdf_diff", return_value="<diff> ."
+        ) as mock_diff:
+            operation, rdf_added = worker._compute_diff_and_rdf(
+                "Q42",
+                {"entity": {"id": "Q42"}},
+                {"entity": {"id": "Q42"}},
+            )
+            assert operation == "diff"
+            mock_diff.assert_called_once()
+
+    def test_convert_to_entity_data_success(self):
+        """Test converting dict to EntityData."""
+        worker = IncrementalRDFWorker(worker_enabled=False)
+        entity_data = {
+            "entity": {
+                "id": "Q42",
+                "type": "item",
+                "labels": {"en": {"value": "Test"}},
+                "descriptions": {},
+                "aliases": {},
+                "statements": [],
+                "sitelinks": {},
+            }
+        }
+        result = worker._convert_to_entity_data(entity_data)
+        assert result is not None
+        assert result.id == "Q42"
+        assert result.type == "item"
+
+    def test_convert_to_entity_data_with_empty_entity_key(self):
+        """Test converting dict with empty entity key to EntityData."""
+        worker = IncrementalRDFWorker(worker_enabled=False)
+        result = worker._convert_to_entity_data({})
+        assert result is not None
+        assert result.id == ""
 
 
 class TestRDFDataField:
