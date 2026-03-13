@@ -2,6 +2,10 @@
 
 import pytest
 
+from models.data.infrastructure.elasticsearch import (
+    ElasticsearchDocument,
+    FlattenedClaims,
+)
 from models.services.elasticsearch.transformer import (
     _flatten_claims,
     transform_to_elasticsearch,
@@ -30,11 +34,11 @@ class TestTransformToElasticsearch:
 
         result = transform_to_elasticsearch(entity_json)
 
-        assert result["entity_id"] == "Q42"
-        assert result["entity_type"] == "item"
-        assert result["lastrevid"] == 12345
-        assert result["modified"] == "2025-01-01T00:00:00Z"
-        assert result["labels"] == {"en": {"language": "en", "value": "Test"}}
+        assert result.entity_id == "Q42"
+        assert result.entity_type == "item"
+        assert result.lastrevid == 12345
+        assert result.modified == "2025-01-01T00:00:00Z"
+        assert result.labels == {"en": {"language": "en", "value": "Test"}}
 
     def test_transform_property(self):
         """Test transforming a property entity."""
@@ -56,9 +60,9 @@ class TestTransformToElasticsearch:
 
         result = transform_to_elasticsearch(entity_json)
 
-        assert result["entity_id"] == "P31"
-        assert result["entity_type"] == "property"
-        assert result["datatype"] == "wikibase-item"
+        assert result.entity_id == "P31"
+        assert result.entity_type == "property"
+        assert result.datatype == "wikibase-item"
 
     def test_transform_lexeme(self):
         """Test transforming a lexeme entity."""
@@ -81,11 +85,11 @@ class TestTransformToElasticsearch:
 
         result = transform_to_elasticsearch(entity_json)
 
-        assert result["entity_id"] == "L42"
-        assert result["entity_type"] == "lexeme"
-        assert result["language"] == "Q1860"
-        assert result["lexicalCategory"] == "Q1084"
-        assert result["lemmas"] == {"en": {"language": "en", "value": "test"}}
+        assert result.entity_id == "L42"
+        assert result.entity_type == "lexeme"
+        assert result.language == "Q1860"
+        assert result.lexicalCategory == "Q1084"
+        assert result.lemmas == {"en": {"language": "en", "value": "test"}}
 
     def test_transform_empty_entities(self):
         """Test transforming with empty entities."""
@@ -93,7 +97,9 @@ class TestTransformToElasticsearch:
 
         result = transform_to_elasticsearch(entity_json)
 
-        assert result == {}
+        assert result.entity_id == ""
+        assert result.entity_type == ""
+        assert result.lastrevid == 0
 
     def test_transform_with_claims(self):
         """Test transforming entity with claims."""
@@ -127,8 +133,8 @@ class TestTransformToElasticsearch:
 
         result = transform_to_elasticsearch(entity_json)
 
-        assert result["claims_flat"] == {"P31": ["Q5"]}
-        assert "claims" in result
+        assert result.claims_flat == FlattenedClaims(data={"P31": ["Q5"]})
+        assert result.claims is not None
 
 
 class TestFlattenClaims:
@@ -153,7 +159,7 @@ class TestFlattenClaims:
 
         result = _flatten_claims(claims)
 
-        assert result == {"P31": ["Q5"]}
+        assert result == FlattenedClaims(data={"P31": ["Q5"]})
 
     def test_flatten_multiple_values(self):
         """Test flattening claims with multiple values."""
@@ -184,7 +190,7 @@ class TestFlattenClaims:
 
         result = _flatten_claims(claims)
 
-        assert result == {"P31": ["Q5", "Q6"]}
+        assert result == FlattenedClaims(data={"P31": ["Q5", "Q6"]})
 
     def test_flatten_time_value(self):
         """Test flattening time value claims."""
@@ -212,7 +218,7 @@ class TestFlattenClaims:
 
         result = _flatten_claims(claims)
 
-        assert result == {"P569": ["+1952-03-11T00:00:00Z"]}
+        assert result == FlattenedClaims(data={"P569": ["+1952-03-11T00:00:00Z"]})
 
     def test_flatten_string_value(self):
         """Test flattening string value claims."""
@@ -233,7 +239,7 @@ class TestFlattenClaims:
 
         result = _flatten_claims(claims)
 
-        assert result == {"P5275": ["12345"]}
+        assert result == FlattenedClaims(data={"P5275": ["12345"]})
 
     def test_flatten_novalue_snaktype(self):
         """Test that novalue snaktype is skipped."""
@@ -250,10 +256,10 @@ class TestFlattenClaims:
 
         result = _flatten_claims(claims)
 
-        assert result == {}
+        assert result == FlattenedClaims(data={})
 
     def test_flatten_empty_claims(self):
         """Test flattening empty claims."""
         result = _flatten_claims({})
 
-        assert result == {}
+        assert result == FlattenedClaims(data={})

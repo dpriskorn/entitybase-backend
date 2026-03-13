@@ -56,7 +56,7 @@ def transform_to_elasticsearch(entity_json: dict[str, Any]) -> ElasticsearchDocu
     if not entities:
         logger.warning("No entities found in input JSON")
         return ElasticsearchDocument(
-            entity_id="", entity_type="", lastrevid=0, modified=""
+            **{"@id": "", "@type": "", "lastrevid": 0, "modified": ""}
         )
 
     entity_id = list(entities.keys())[0]
@@ -65,21 +65,23 @@ def transform_to_elasticsearch(entity_json: dict[str, Any]) -> ElasticsearchDocu
     claims_flat = _flatten_claims(entity_data.get("claims", {}))
 
     doc = ElasticsearchDocument(
-        entity_id=entity_id,
-        entity_type=entity_data.get("type", ""),
-        lastrevid=entity_data.get("lastrevid", 0),
-        modified=entity_data.get("modified", ""),
-        datatype=entity_data.get("datatype"),
-        labels=entity_data.get("labels", {}),
-        descriptions=entity_data.get("descriptions", {}),
-        aliases=entity_data.get("aliases", {}),
-        claims=entity_data.get("claims", {}),
-        claims_flat=FlattenedClaims(data=claims_flat),
-        lemmas=entity_data.get("lemmas"),
-        forms=entity_data.get("forms"),
-        senses=entity_data.get("senses"),
-        language=entity_data.get("language"),
-        lexicalCategory=entity_data.get("lexicalCategory"),
+        **{
+            "@id": entity_id,
+            "@type": entity_data.get("type", ""),
+            "lastrevid": entity_data.get("lastrevid", 0),
+            "modified": entity_data.get("modified", ""),
+            "datatype": entity_data.get("datatype"),
+            "labels": entity_data.get("labels", {}),
+            "descriptions": entity_data.get("descriptions", {}),
+            "aliases": entity_data.get("aliases", {}),
+            "claims": entity_data.get("claims", {}),
+            "claims_flat": claims_flat,
+            "lemmas": entity_data.get("lemmas"),
+            "forms": entity_data.get("forms"),
+            "senses": entity_data.get("senses"),
+            "language": entity_data.get("language"),
+            "lexicalCategory": entity_data.get("lexicalCategory"),
+        }
     )
 
     logger.debug(f"Transformed entity {entity_id} to ES format")

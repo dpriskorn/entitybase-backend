@@ -3,6 +3,7 @@
 import pytest
 from unittest.mock import MagicMock, patch
 
+from models.data.infrastructure.elasticsearch import ElasticsearchDocumentResponse
 from models.services.elasticsearch.client import ElasticsearchClient
 
 
@@ -142,20 +143,31 @@ class TestElasticsearchClient:
         client = ElasticsearchClient()
         result = client.get_document("Q42")
 
-        assert result is None
+        assert result == ElasticsearchDocumentResponse(data=None)
 
     @patch("models.services.elasticsearch.client.OpenSearch")
     def test_get_document_success(self, mock_opensearch):
         """Test successful document retrieval."""
+        from models.data.infrastructure.elasticsearch import ElasticsearchDocument
+
         mock_client = MagicMock()
-        mock_client.get.return_value = {"_source": {"test": "data"}}
+        mock_client.get.return_value = {
+            "_source": {
+                "@id": "Q42",
+                "@type": "item",
+                "lastrevid": 12345,
+                "modified": "2025-01-01T00:00:00Z",
+            }
+        }
         mock_opensearch.return_value = mock_client
 
         client = ElasticsearchClient()
         client.connect()
         result = client.get_document("Q42")
 
-        assert result == {"test": "data"}
+        assert result.data is not None
+        assert result.data.entity_id == "Q42"
+        assert result.data.entity_type == "item"
 
     @patch("models.services.elasticsearch.client.OpenSearch")
     def test_get_document_not_found(self, mock_opensearch):
@@ -168,7 +180,7 @@ class TestElasticsearchClient:
         client.connect()
         result = client.get_document("Q999")
 
-        assert result is None
+        assert result == ElasticsearchDocumentResponse(data=None)
 
     @patch("models.services.elasticsearch.client.OpenSearch")
     def test_close(self, mock_opensearch):
