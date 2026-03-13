@@ -93,6 +93,36 @@ class TestMetadataVitessStorage:
 
         assert result.success is False
 
+    def test_load_lemmas_batch(self, mock_vitess_client):
+        """Test loading lemmas batch."""
+        storage = MetadataVitessStorage(vitess_client=mock_vitess_client)
+        mock_cursor = mock_vitess_client.cursor.__enter__.return_value
+        mock_cursor.fetchone.side_effect = [("Lemma1",), ("Lemma2",), None]
+
+        result = storage.load_lemmas_batch([111, 222, 333])
+
+        assert result == ["Lemma1", "Lemma2", None]
+
+    def test_load_form_representations_batch(self, mock_vitess_client):
+        """Test loading form representations batch."""
+        storage = MetadataVitessStorage(vitess_client=mock_vitess_client)
+        mock_cursor = mock_vitess_client.cursor.__enter__.return_value
+        mock_cursor.fetchone.side_effect = [("Form1",), ("Form2",), None]
+
+        result = storage.load_form_representations_batch([111, 222, 333])
+
+        assert result == ["Form1", "Form2", None]
+
+    def test_load_sense_glosses_batch(self, mock_vitess_client):
+        """Test loading sense glosses batch."""
+        storage = MetadataVitessStorage(vitess_client=mock_vitess_client)
+        mock_cursor = mock_vitess_client.cursor.__enter__.return_value
+        mock_cursor.fetchone.side_effect = [("Gloss1",), ("Gloss2",), None]
+
+        result = storage.load_sense_glosses_batch([111, 222, 333])
+
+        assert result == ["Gloss1", "Gloss2", None]
+
 
 class TestSitelinkVitessStorage:
     """Unit tests for SitelinkVitessStorage class."""
