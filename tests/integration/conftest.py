@@ -11,9 +11,11 @@ from botocore.exceptions import ClientError
 
 sys.path.insert(0, "src")
 
-os.environ["STREAMING_ENABLED"] = "false"
+os.environ["STREAMING_ENABLED"] = "true"
 if "KAFKA_BOOTSTRAP_SERVERS" not in os.environ:
     os.environ["KAFKA_BOOTSTRAP_SERVERS"] = "redpanda:9092"
+if "KAFKA_ENTITYCHANGE_JSON_TOPIC" not in os.environ:
+    os.environ["KAFKA_ENTITYCHANGE_JSON_TOPIC"] = "wikibase.entity_change"
 
 # noinspection PyPep8
 from models.config.settings import settings
