@@ -177,6 +177,18 @@ class Settings(BaseModel):
 
     def _load_streaming_config(self) -> None:
         """Load streaming configuration from environment variables."""
+        self.kafka_bootstrap_servers = os.getenv(
+            "KAFKA_BOOTSTRAP_SERVERS", self.kafka_bootstrap_servers
+        )
+        self.kafka_entitychange_json_topic = os.getenv(
+            "KAFKA_ENTITYCHANGE_JSON_TOPIC", self.kafka_entitychange_json_topic
+        )
+        self.kafka_entity_diff_topic = os.getenv(
+            "KAFKA_ENTITY_DIFF_TOPIC", self.kafka_entity_diff_topic
+        )
+        self.kafka_userchange_json_topic = os.getenv(
+            "KAFKA_USERCHANGE_JSON_TOPIC", self.kafka_userchange_json_topic
+        )
         self.streaming_entity_change_version = os.getenv(
             "STREAMING_ENTITY_CHANGE_VERSION", self.streaming_entity_change_version
         )

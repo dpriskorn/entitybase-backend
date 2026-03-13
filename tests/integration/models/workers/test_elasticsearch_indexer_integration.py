@@ -27,6 +27,17 @@ ELASTICSEARCH_INDEX = os.getenv("ELASTICSEARCH_INDEX", "entitybase")
 TEST_ENTITY_BASE = "Q999999"
 
 
+@pytest.fixture(scope="session", autouse=True)
+def configure_kafka_for_elasticsearch_tests():
+    """Configure Kafka for Elasticsearch integration tests.
+
+    These tests require specific Kafka configuration.
+    """
+    os.environ["KAFKA_BOOTSTRAP_SERVERS"] = KAFKA_BOOTSTRAP_SERVERS
+    os.environ["KAFKA_ENTITYCHANGE_JSON_TOPIC"] = KAFKA_TOPIC
+    yield
+
+
 def get_unique_consumer_id() -> str:
     """Generate a unique consumer group ID for each test."""
     return f"test-es-consumer-{uuid.uuid4().hex[:8]}"
