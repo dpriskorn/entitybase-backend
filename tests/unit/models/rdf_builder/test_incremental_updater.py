@@ -4,7 +4,13 @@ import pytest
 from unittest.mock import patch
 
 from models.rdf_builder.incremental_updater import IncrementalRDFUpdater
-from models.rdf_builder import DiffResult, EntityDiffs, StatementDiff, TermsDiff, SitelinksDiff
+from models.rdf_builder import (
+    DiffResult,
+    EntityDiffs,
+    StatementDiff,
+    TermsDiff,
+    SitelinksDiff,
+)
 from models.internal_representation.entity_data import EntityData
 
 

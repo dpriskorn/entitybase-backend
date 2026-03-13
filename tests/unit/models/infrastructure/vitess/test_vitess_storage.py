@@ -174,8 +174,15 @@ class TestReferenceVitessStorage:
         storage = ReferenceVitessStorage(vitess_client=mock_vitess_client)
         mock_cursor = mock_vitess_client.cursor.__enter__.return_value
         import json
+
         mock_cursor.fetchone.return_value = (
-            json.dumps({"reference": {"snaks": {}}, "hash": 12345, "created_at": "2026-01-01T00:00:00Z"}),
+            json.dumps(
+                {
+                    "reference": {"snaks": {}},
+                    "hash": 12345,
+                    "created_at": "2026-01-01T00:00:00Z",
+                }
+            ),
         )
 
         result = storage.load_reference(12345)
@@ -188,9 +195,28 @@ class TestReferenceVitessStorage:
         storage = ReferenceVitessStorage(vitess_client=mock_vitess_client)
         mock_cursor = mock_vitess_client.cursor.__enter__.return_value
         import json
+
         mock_cursor.fetchall.return_value = [
-            (12345, json.dumps({"reference": {"snaks": {}}, "hash": 12345, "created_at": "2026-01-01T00:00:00Z"})),
-            (12346, json.dumps({"reference": {"snaks": {}}, "hash": 12346, "created_at": "2026-01-01T00:00:00Z"})),
+            (
+                12345,
+                json.dumps(
+                    {
+                        "reference": {"snaks": {}},
+                        "hash": 12345,
+                        "created_at": "2026-01-01T00:00:00Z",
+                    }
+                ),
+            ),
+            (
+                12346,
+                json.dumps(
+                    {
+                        "reference": {"snaks": {}},
+                        "hash": 12346,
+                        "created_at": "2026-01-01T00:00:00Z",
+                    }
+                ),
+            ),
         ]
 
         result = storage.load_references_batch([12345, 12346])
@@ -204,8 +230,18 @@ class TestReferenceVitessStorage:
         storage = ReferenceVitessStorage(vitess_client=mock_vitess_client)
         mock_cursor = mock_vitess_client.cursor.__enter__.return_value
         import json
+
         mock_cursor.fetchall.return_value = [
-            (12345, json.dumps({"reference": {"snaks": {}}, "hash": 12345, "created_at": "2026-01-01T00:00:00Z"})),
+            (
+                12345,
+                json.dumps(
+                    {
+                        "reference": {"snaks": {}},
+                        "hash": 12345,
+                        "created_at": "2026-01-01T00:00:00Z",
+                    }
+                ),
+            ),
         ]
 
         result = storage.load_references_batch([12345, 99999])
