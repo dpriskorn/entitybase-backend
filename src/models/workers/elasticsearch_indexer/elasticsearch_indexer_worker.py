@@ -113,7 +113,7 @@ class ElasticsearchIndexerWorker(Worker):
             )
 
         s3_config = settings.get_s3_config
-        if s3_config.endpoint:
+        if s3_config.endpoint_url:
             self.s3_client = MyS3Client(config=s3_config)
             logger.info("S3 client initialized")
         else:
@@ -143,7 +143,7 @@ class ElasticsearchIndexerWorker(Worker):
         if self.elasticsearch_client:
             self.elasticsearch_client.close()
         if self.vitess_client and self.vitess_client.connection_manager:
-            self.vitess_client.connection_manager.close()
+            self.vitess_client.connection_manager.disconnect()
         logger.debug("All clients cleaned up")
 
     async def run(self) -> None:
