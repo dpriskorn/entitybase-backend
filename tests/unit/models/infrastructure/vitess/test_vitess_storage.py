@@ -169,6 +169,95 @@ class TestReferenceVitessStorage:
 
         assert result is None
 
+    def test_load_reference_success(self, mock_vitess_client):
+        """Test loading a reference successfully."""
+        storage = ReferenceVitessStorage(vitess_client=mock_vitess_client)
+        mock_cursor = mock_vitess_client.cursor.__enter__.return_value
+        import json
+        mock_cursor.fetchone.return_value = (
+            json.dumps({"reference": {"snaks": {}}, "hash": 12345, "created_at": "2026-01-01T00:00:00Z"}),
+        )
+
+        result = storage.load_reference(12345)
+
+        assert result is not None
+        assert result.content_hash == 12345
+
+    def test_load_references_batch(self, mock_vitess_client):
+        """Test loading multiple references in batch."""
+        storage = ReferenceVitessStorage(vitess_client=mock_vitess_client)
+        mock_cursor = mock_vitess_client.cursor.__enter__.return_value
+        import json
+        mock_cursor.fetchall.return_value = [
+            (12345, json.dumps({"reference": {"snaks": {}}, "hash": 12345, "created_at": "2026-01-01T00:00:00Z"})),
+            (12346, json.dumps({"reference": {"snaks": {}}, "hash": 12346, "created_at": "2026-01-01T00:00:00Z"})),
+        ]
+
+        result = storage.load_references_batch([12345, 12346])
+
+        assert len(result) == 2
+        assert result[0] is not None
+        assert result[1] is not None
+
+    def test_load_references_batch_with_none(self, mock_vitess_client):
+        """Test loading batch when some references don't exist."""
+        storage = ReferenceVitessStorage(vitess_client=mock_vitess_client)
+        mock_cursor = mock_vitess_client.cursor.__enter__.return_value
+        import json
+        mock_cursor.fetchall.return_value = [
+            (12345, json.dumps({"reference": {"snaks": {}}, "hash": 12345, "created_at": "2026-01-01T00:00:00Z"})),
+        ]
+
+        result = storage.load_references_batch([12345, 99999])
+
+        assert len(result) == 2
+        assert result[0] is not None
+        assert result[1] is None
+
+    def test_delete_reference(self, mock_vitess_client):
+        """Test deleting a reference."""
+        storage = ReferenceVitessStorage(vitess_client=mock_vitess_client)
+
+        result = storage.delete_reference(12345)
+
+        assert result.success is True
+
+    def test_increment_ref_count(self, mock_vitess_client):
+        """Test incrementing reference count."""
+        storage = ReferenceVitessStorage(vitess_client=mock_vitess_client)
+
+        result = storage.increment_ref_count(12345)
+
+        assert result.success is True
+
+    def test_decrement_ref_count(self, mock_vitess_client):
+        """Test decrementing reference count."""
+        storage = ReferenceVitessStorage(vitess_client=mock_vitess_client)
+
+        result = storage.decrement_ref_count(12345)
+
+        assert result.success is True
+
+    def test_exists(self, mock_vitess_client):
+        """Test checking if reference exists."""
+        storage = ReferenceVitessStorage(vitess_client=mock_vitess_client)
+        mock_cursor = mock_vitess_client.cursor.__enter__.return_value
+        mock_cursor.fetchone.return_value = (1,)
+
+        result = storage.exists(12345)
+
+        assert result is True
+
+    def test_exists_not_found(self, mock_vitess_client):
+        """Test checking if reference exists returns False."""
+        storage = ReferenceVitessStorage(vitess_client=mock_vitess_client)
+        mock_cursor = mock_vitess_client.cursor.__enter__.return_value
+        mock_cursor.fetchone.return_value = None
+
+        result = storage.exists(99999)
+
+        assert result is False
+
 
 class TestSnakVitessStorage:
     """Tests for SnakVitessStorage."""
