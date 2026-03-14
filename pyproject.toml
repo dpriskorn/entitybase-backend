@@ -39,8 +39,7 @@ build-backend = "poetry.core.masonry.api"
 package-mode = true
 packages = [{include = "models", from = "src"}]
 
-[tool.poetry.plugins]
-"poetry-plugin-export" = ""
+[tool.poetry.plugins.poetry-plugin-export]
 
 [dependency-groups]
 idworker = [
