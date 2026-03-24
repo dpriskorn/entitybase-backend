@@ -85,7 +85,7 @@ jobs:
       - name: Generate requirements files
         run: |
           pip install poetry-plugin-export
-          poetry export -f requirements.txt --output requirements.txt --with dev
+          poetry export -f requirements.txt --output requirements.txt --with dev --without-hashes
           poetry export -f requirements.txt --output requirements-idworker.txt --without-hashes
           poetry export -f requirements.txt --output requirements-json-worker.txt --without-hashes
           poetry export -f requirements.txt --output requirements-stats-worker.txt --without-hashes
