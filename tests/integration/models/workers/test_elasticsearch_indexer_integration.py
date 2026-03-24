@@ -83,7 +83,9 @@ async def get_elasticsearch_doc(
     while asyncio.get_event_loop().time() - start_time < timeout:
         try:
             async with aiohttp.ClientSession() as session:
-                async with session.get(url, timeout=aiohttp.ClientTimeout(total=5)) as resp:
+                async with session.get(
+                    url, timeout=aiohttp.ClientTimeout(total=5)
+                ) as resp:
                     if resp.status == 200:
                         data = await resp.json()
                         if data.get("found"):
@@ -172,7 +174,10 @@ async def test_entity_creation_indexes_to_elasticsearch(api_prefix: str) -> None
             response = await client.post(
                 f"{api_prefix}/entities/items",
                 json=entity_data,
-                headers={"X-Edit-Summary": "create test entity for ES", "X-User-ID": "0"},
+                headers={
+                    "X-Edit-Summary": "create test entity for ES",
+                    "X-User-ID": "0",
+                },
             )
             assert response.status_code == 200
 
@@ -345,7 +350,9 @@ async def test_entity_deletion_removes_from_elasticsearch(api_prefix: str) -> No
         while asyncio.get_event_loop().time() - start_time < 30.0:
             try:
                 async with aiohttp.ClientSession() as session:
-                    async with session.get(url, timeout=aiohttp.ClientTimeout(total=5)) as resp:
+                    async with session.get(
+                        url, timeout=aiohttp.ClientTimeout(total=5)
+                    ) as resp:
                         if resp.status == 404:
                             found = False
                             break
@@ -353,7 +360,9 @@ async def test_entity_deletion_removes_from_elasticsearch(api_prefix: str) -> No
                 pass
             await asyncio.sleep(1)
 
-        assert not found, f"Entity {entity_id} still found in Elasticsearch after deletion"
+        assert not found, (
+            f"Entity {entity_id} still found in Elasticsearch after deletion"
+        )
 
     finally:
         await consumer.stop()
