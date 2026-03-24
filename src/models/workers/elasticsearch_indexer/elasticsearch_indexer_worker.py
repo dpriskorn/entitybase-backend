@@ -2,13 +2,17 @@
 
 import asyncio
 import logging
+import os
 from contextlib import asynccontextmanager
 from typing import Any, AsyncGenerator, Optional
 
+from fastapi import FastAPI
 from pydantic import Field
+import uvicorn
 
 from models.config.settings import settings
 from models.data.infrastructure.stream.consumer import EntityChangeEventData
+from models.data.rest_api.v1.entitybase.response import WorkerHealthCheckResponse
 from models.infrastructure.s3.client import MyS3Client
 from models.infrastructure.stream.consumer import StreamConsumerClient
 from models.infrastructure.vitess.client import VitessClient
@@ -242,13 +246,59 @@ class ElasticsearchIndexerWorker(Worker):
             logger.error(f"Error fetching entity {entity_id} from S3: {e}")
             return None
 
+    def health_check(self) -> WorkerHealthCheckResponse:
+        """Return health status of the worker.
+
+        Returns:
+            WorkerHealthCheckResponse: Health status with status, worker_id, and range_status
+        """
+        return WorkerHealthCheckResponse(
+            status="healthy" if self.running else "starting",
+            worker_id=self.worker_id,
+            details={"running": self.running},
+            range_status={},
+        )
+
+
+async def run_server(app: FastAPI) -> None:
+    """Run the FastAPI server."""
+    config = uvicorn.Config(app, host="0.0.0.0", port=8007, loop="asyncio")
+    server = uvicorn.Server(config)
+    await server.serve()
+
 
 async def main() -> None:
     """Main entry point for the ElasticsearchIndexerWorker."""
+    log_level = os.getenv("LOG_LEVEL", "INFO")
+    logging.basicConfig(
+        level=getattr(logging, log_level.upper(), logging.INFO),
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
+
     worker = ElasticsearchIndexerWorker(
         worker_id="elasticsearch-indexer",
         worker_enabled=settings.elasticsearch_enabled,
     )
 
+    app = FastAPI(response_model_by_alias=True)
+
+    @app.get("/health")
+    def health() -> WorkerHealthCheckResponse:
+        """Health check endpoint returning JSON status."""
+        return worker.health_check()
+
+    await asyncio.gather(
+        run_worker(worker),
+        run_server(app),
+    )
+
+
+async def run_worker(worker: ElasticsearchIndexerWorker) -> None:
+    """Run the worker."""
+    worker.running = True
     async with worker.lifespan():
         await worker.run()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
