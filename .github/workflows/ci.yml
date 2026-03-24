@@ -82,6 +82,13 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
+      - name: Generate requirements files
+        run: |
+          poetry export -f requirements.txt --output requirements.txt --with dev
+          poetry export -f requirements.txt --output requirements-idworker.txt --without-hashes
+          poetry export -f requirements.txt --output requirements-json-worker.txt --without-hashes
+          poetry export -f requirements.txt --output requirements-stats-worker.txt --without-hashes
+          poetry export -f requirements.txt --output requirements-ttl-worker.txt --without-hashes
       - name: Build docker images
         run: |
           docker compose -f docker-compose.ci.yml build \
