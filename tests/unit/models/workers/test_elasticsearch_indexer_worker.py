@@ -384,3 +384,45 @@ class TestElasticsearchIndexerWorker:
         )
 
         await worker.run()
+
+    def test_health_check_running(self):
+        """Test health check when worker is running."""
+        worker = ElasticsearchIndexerWorker(
+            worker_id="test-worker",
+            worker_enabled=True,
+        )
+        worker.running = True
+
+        result = worker.health_check()
+
+        assert result.status == "healthy"
+        assert result.worker_id == "test-worker"
+        assert result.details == {"running": True}
+        assert result.range_status == {}
+
+    def test_health_check_not_running(self):
+        """Test health check when worker is not running."""
+        worker = ElasticsearchIndexerWorker(
+            worker_id="test-worker",
+            worker_enabled=True,
+        )
+        worker.running = False
+
+        result = worker.health_check()
+
+        assert result.status == "starting"
+        assert result.worker_id == "test-worker"
+        assert result.details == {"running": False}
+        assert result.range_status == {}
+
+    def test_health_check_disabled(self):
+        """Test health check when worker is disabled."""
+        worker = ElasticsearchIndexerWorker(
+            worker_id="test-worker",
+            worker_enabled=False,
+        )
+
+        result = worker.health_check()
+
+        assert result.status == "starting"
+        assert result.worker_id == "test-worker"
