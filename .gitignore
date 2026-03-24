@@ -43,3 +43,6 @@ test_data/properties/*.json
 e2e.env
 /data/
 /entitybase.db
+
+# Generated requirements (no longer needed - using poetry directly in Dockerfiles)
+requirements*.txt
