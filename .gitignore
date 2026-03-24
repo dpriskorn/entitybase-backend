@@ -41,3 +41,6 @@ test_data/properties/*.json
 /.cache/
 /draft/
 e2e.env
+
+# Generated requirements
+requirements*.txt
