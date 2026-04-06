@@ -116,6 +116,11 @@ class Settings(BaseModel):
     elasticsearch_verify_certs: bool = True
     elasticsearch_consumer_group: str = "entitybase-elasticsearch-indexer"
 
+    # Purge worker
+    purge_enabled: bool = True
+    purge_schedule: str = "0 0 * * *"  # Daily at midnight UTC
+    purge_batch_size: int = 100
+
     def model_post_init(self, context: Any) -> None:
         """Initialize all fields from environment variables.
 
@@ -316,6 +321,13 @@ class Settings(BaseModel):
         )
         self.elasticsearch_consumer_group = os.getenv(
             "ELASTICSEARCH_CONSUMER_GROUP", self.elasticsearch_consumer_group
+        )
+        self.purge_enabled = (
+            os.getenv("PURGE_ENABLED", str(self.purge_enabled)).lower() == "true"
+        )
+        self.purge_schedule = os.getenv("PURGE_SCHEDULE", self.purge_schedule)
+        self.purge_batch_size = int(
+            os.getenv("PURGE_BATCH_SIZE", str(self.purge_batch_size))
         )
         logger.debug(
             f"Workers config loaded: backlink_stats_enabled={self.backlink_stats_enabled}, "
