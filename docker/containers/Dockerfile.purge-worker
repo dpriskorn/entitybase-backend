@@ -20,7 +20,7 @@ RUN pip install --no-cache-dir -r requirements-purge-worker.txt
 COPY pyproject.toml /app/pyproject.toml
 
 # Copy application code
-COPY src/ ./src/
+COPY src/ ./
 
 # Set environment variables
 ENV PYTHONPATH=/app
