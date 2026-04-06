@@ -441,14 +441,14 @@ When building Docker images for workers, generate requirements files first:
 
 **IMPORTANT**: Requirements files are **generated automatically** by the export script. Do NOT edit them directly - they will be overwritten on the next run. If you need to modify dependencies, edit `pyproject.toml` or the export script instead.
 
-This generates:
-- `requirements.txt` - main dependencies
-- `requirements-dev.txt` - with dev group
-- `requirements-idworker.txt`
-- `requirements-stats-worker.txt`
-- `requirements-json-worker.txt`
-- `requirements-ttl-worker.txt`
-- `requirements-purge-worker.txt`
+Files are generated in `var/` directory:
+- `var/requirements.txt` - main dependencies
+- `var/requirements-dev.txt` - with dev group
+- `var/requirements-idworker.txt`
+- `var/requirements-stats-worker.txt`
+- `var/requirements-json-worker.txt`
+- `var/requirements-ttl-worker.txt`
+- `var/requirements-purge-worker.txt`
 
 The worker-specific files are used in their respective Dockerfiles for smaller images.
 

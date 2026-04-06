@@ -8,7 +8,7 @@ RUN echo "Building with requirements hash: $REQUIREMENTS_HASH"
 WORKDIR /app
 
 # Copy requirements first for better caching
-COPY requirements-json-worker.txt ./
+COPY ../var/requirements-json-worker.txt ./
 
 # Install system dependencies
 # RUN apt-get update && apt-get install -y wget git && rm -rf /var/lib/apt/lists/*
