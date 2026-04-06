@@ -12,5 +12,6 @@ $POETRY export --format requirements.txt --output requirements-idworker.txt --wi
 $POETRY export --format requirements.txt --output requirements-stats-worker.txt --without-hashes --with stats-worker
 $POETRY export --format requirements.txt --output requirements-json-worker.txt --without-hashes --with json-worker
 $POETRY export --format requirements.txt --output requirements-ttl-worker.txt --without-hashes --with ttl-worker
+$POETRY export --format requirements.txt --output docker/containers/requirements-purge-worker.txt --without-hashes --with purge-worker
 
 echo "Requirements files updated successfully"

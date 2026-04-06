@@ -432,6 +432,24 @@ which python  # Must point to .venv/bin/python
 ./run-docker-build-tests.sh  # With volume pruning
 ```
 
+#### Exporting Worker Requirements
+When building Docker images for workers, generate requirements files first:
+```bash
+# Export all worker requirements (runs from project root)
+./scripts/shell/export-requirements.sh
+```
+
+This generates:
+- `requirements.txt` - main dependencies
+- `requirements-dev.txt` - with dev group
+- `requirements-idworker.txt`
+- `requirements-stats-worker.txt`
+- `requirements-json-worker.txt`
+- `requirements-ttl-worker.txt`
+- `requirements-purge-worker.txt`
+
+The worker-specific files are used in their respective Dockerfiles for smaller images.
+
 #### Local Development
 ```bash
 # Install dependencies
