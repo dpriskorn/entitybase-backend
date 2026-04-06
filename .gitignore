@@ -44,3 +44,4 @@ e2e.env
 
 # Generated requirements
 requirements*.txt
+.python-version
