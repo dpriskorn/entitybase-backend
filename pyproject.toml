@@ -76,6 +76,12 @@ purge-worker = [
 api = [
     "wikibaseintegrator @ git+https://github.com/dpriskorn/WikibaseIntegrator.git@fix-hash",
 ]
+dev-worker = [
+    "pydantic",
+    "pymysql",
+    "boto3",
+    "aiokafka",
+]
 # We use a version of pytest that is compatible with pytest-asyncio
 dev = [
     "pytest (>=9.0)",

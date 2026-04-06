@@ -28,6 +28,7 @@ $POETRY export --format requirements.txt --output requirements-dev.txt --without
 sed -i "1i\\$WARNING" requirements-dev.txt
 
 export_requirements requirements-api.txt api
+export_requirements requirements-dev-worker.txt dev-worker
 export_requirements requirements-idworker.txt idworker
 export_requirements requirements-stats-worker.txt stats-worker
 export_requirements requirements-json-worker.txt json-worker
