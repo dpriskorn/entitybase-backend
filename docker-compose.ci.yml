@@ -38,49 +38,6 @@ services:
     mem_limit: 512m
     cpus: 0.5
 
-  redpanda:
-    image: redpandadata/redpanda:v25.3.6
-    container_name: redpanda
-    command:
-      - redpanda
-      - start
-      - --overprovisioned
-      - --smp 1
-      - --memory 1G
-      - --reserve-memory 0M
-      - --node-id 0
-      - --check=false
-      - --kafka-addr PLAINTEXT://0.0.0.0:9092
-      - --advertise-kafka-addr PLAINTEXT://localhost:9092
-    ports:
-      - "9092:9092"
-      - "9644:9644"
-    healthcheck:
-      test: ["CMD-SHELL", "rpk cluster health | grep -q 'Healthy'"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    mem_limit: "1.5g"
-    cpus: "1.0"
-
-  create-buckets:
-    container_name: create-buckets
-    build:
-      context: .
-      dockerfile: docker/containers/Dockerfile.api
-    environment:
-      MINIO_ENDPOINT: http://minio:9000
-      MINIO_ACCESS_KEY: fakekey
-      MINIO_SECRET_KEY: fakesecret
-      PYTHONPATH: /app/src
-      CI: "true"
-    depends_on:
-      minio:
-        condition: service_healthy
-    command: python -m models.workers.dev buckets setup
-    mem_limit: 512m
-    cpus: 0.5
-
   create-tables:
     build:
       context: .
@@ -120,10 +77,6 @@ services:
     depends_on:
       create-tables:
         condition: service_completed_successfully
-      # This is needed to make sure we don't
-      # start API before redpanda is up
-      redpanda:
-        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8001/health"]
       interval: 30s
@@ -356,7 +309,6 @@ services:
       STREAMING_ENTITY_DIFF_VERSION: "2.0.0"
 
       STREAMING_ENABLED: "false"
-      KAFKA_BROKERS: redpanda:9092
       KAFKA_ENTITY_CHANGE_TOPIC: entitybase.entity_change
       KAFKA_ENTITY_DIFF_TOPIC: entitybase.entity_diff
       LOG_LEVEL: "DEBUG"
@@ -374,4 +326,3 @@ services:
     cpus: 1.0
 
 volumes:
-  redpanda-data: {}

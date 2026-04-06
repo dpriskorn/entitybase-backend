@@ -96,7 +96,7 @@ jobs:
             api idworker create-buckets create-tables
       - name: Start infrastructure services
         run: |
-          docker compose -f docker-compose.ci.yml up -d mysql minio redpanda
+          docker compose -f docker-compose.ci.yml up -d mysql minio
       - name: Wait for MySQL
         timeout-minutes: 2
         run: |
@@ -109,13 +109,6 @@ jobs:
         run: |
           until curl -f http://localhost:9000/minio/health/live; do
             echo "Waiting for MinIO..."
-            sleep 2
-          done
-      - name: Wait for Redpanda
-        timeout-minutes: 2
-        run: |
-          until docker compose -f docker-compose.ci.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
-            echo "Waiting for Redpanda..."
             sleep 2
           done
       - name: Setup database tables
