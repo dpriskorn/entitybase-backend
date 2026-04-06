@@ -153,7 +153,9 @@ class PurgeWorker(BaseStatsWorker):
                         Bucket=bucket, Delete={"Objects": objects_to_delete}
                     )
                     deleted_count += len(objects_to_delete)
-                    logger.debug(f"Deleted {len(objects_to_delete)} objects from {bucket}")
+                    logger.debug(
+                        f"Deleted {len(objects_to_delete)} objects from {bucket}"
+                    )
 
         except ClientError as e:
             error_code = e.response.get("Error", {}).get("Code", "")
@@ -230,7 +232,9 @@ async def main() -> None:
         import uvicorn
         from fastapi import FastAPI
     except ImportError:
-        logger.warning("FastAPI/uvicorn not installed, running worker without HTTP server")
+        logger.warning(
+            "FastAPI/uvicorn not installed, running worker without HTTP server"
+        )
         await worker.start()
         return
 
