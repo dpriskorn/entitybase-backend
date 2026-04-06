@@ -71,11 +71,30 @@ class CreateTables(BaseModel):
         )
         return config
 
+    def ensure_database_exists(self) -> None:
+        """Create database if it doesn't exist."""
+        try:
+            conn = pymysql.connect(
+                host=self.vitess_config.host,
+                port=self.vitess_config.port,
+                user=self.vitess_config.user,
+                password=self.vitess_config.password,
+            )
+            with conn.cursor() as cursor:
+                cursor.execute("CREATE DATABASE IF NOT EXISTS entitybase")
+            conn.close()
+            logger.info("Database 'entitybase' created or already exists")
+        except Exception as e:
+            logger.error(f"Failed to create database: {e}")
+            raise
+
     async def ensure_tables_exist(self) -> Dict[str, str]:
         """Ensure all required tables exist using SchemaRepository."""
         results = {}
 
         try:
+            self.ensure_database_exists()
+
             from models.infrastructure.vitess.repositories.schema import (
                 SchemaRepository,
             )
@@ -106,6 +125,8 @@ class CreateTables(BaseModel):
         healthy_tables = 0
 
         try:
+            self.ensure_database_exists()
+
             conn = pymysql.connect(
                 host=self.vitess_config.host,
                 port=self.vitess_config.port,
