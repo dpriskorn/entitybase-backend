@@ -439,6 +439,8 @@ When building Docker images for workers, generate requirements files first:
 ./scripts/shell/export-requirements.sh
 ```
 
+**IMPORTANT**: Requirements files are **generated automatically** by the export script. Do NOT edit them directly - they will be overwritten on the next run. If you need to modify dependencies, edit `pyproject.toml` or the export script instead.
+
 This generates:
 - `requirements.txt` - main dependencies
 - `requirements-dev.txt` - with dev group
