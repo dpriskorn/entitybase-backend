@@ -441,7 +441,7 @@ def s3_client(s3_config, vitess_client):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def initialized_app(vitess_client, s3_client, create_s3_buckets):
+async def initialized_app(vitess_client, s3_client, create_s3_buckets):
     """Initialize the FastAPI app with state_handler for integration tests.
 
     This fixture ensures that app.state.state_handler is properly initialized
@@ -474,6 +474,7 @@ def initialized_app(vitess_client, s3_client, create_s3_buckets):
 
     logger.debug("Disconnecting StateHandler...")
     if state_handler:
+        await state_handler.async_shutdown()
         state_handler.disconnect()
         logger.debug("StateHandler disconnected in initialized_app fixture")
     logger.debug(
