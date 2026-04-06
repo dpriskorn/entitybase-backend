@@ -28,13 +28,29 @@ services:
       - MINIO_ROOT_USER=fakekey
       - MINIO_ROOT_PASSWORD=fakesecret
       - MINIO_DEFAULT_BUCKETS=testbucket
-    volumes:
-      - /data
+          - /data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 10s
       timeout: 5s
       retries: 10
+    mem_limit: 512m
+    cpus: 0.5
+
+  create-buckets:
+    container_name: create-buckets
+    build:
+      context: .
+      dockerfile: docker/containers/Dockerfile.api
+    environment:
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: fakekey
+      MINIO_SECRET_KEY: fakesecret
+      CI: "true"
+    depends_on:
+      minio:
+        condition: service_healthy
+    command: python -m models.workers.dev buckets setup
     mem_limit: 512m
     cpus: 0.5
 
@@ -323,6 +339,3 @@ services:
       retries: 10
       start_period: 10s
     mem_limit: 1g
-    cpus: 1.0
-
-volumes:
