@@ -8,10 +8,27 @@ from typing import Any
 
 import uvicorn
 from fastapi import FastAPI
+from pydantic import BaseModel, Field
 
 
-from models.data.rest_api.v1.entitybase.response import WorkerHealthCheckResponse
-from models.data.rest_api.v1.entitybase.response.id_response import IdResponse
+class IdResponse(BaseModel):
+    """Minimal ID response for workers."""
+
+    id: str = Field(description="Generated entity ID")
+
+
+class WorkerHealthCheckResponse(BaseModel):
+    """Minimal health check response for workers - no external dependencies."""
+
+    status: str = Field(description="Health status: healthy or unhealthy")
+    worker_id: str = Field(description="Unique worker identifier")
+    details: dict[str, Any] = Field(
+        default_factory=dict,
+        description="Worker health details including running status and last_run",
+    )
+    range_status: dict[str, Any] = Field(
+        default_factory=dict, description="Current ID range allocation status"
+    )
 from models.rest_api.entitybase.v1.services.enumeration_service import (
     EnumerationService,
 )
