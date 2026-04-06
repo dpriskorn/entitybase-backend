@@ -88,7 +88,8 @@ class PurgeWorker(VitessWorker):
                 await self.run_daily_computation()
             except Exception as e:
                 logger.error(f"Error in worker loop: {e}")
-                await asyncio.sleep(300)
+                logger.info(f"Retrying in 1 hour...")
+                await asyncio.sleep(3600)
 
     def _init_s3_client(self) -> None:
         """Initialize S3 client."""
