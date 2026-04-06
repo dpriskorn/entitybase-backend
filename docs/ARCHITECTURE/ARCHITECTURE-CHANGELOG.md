@@ -2,6 +2,42 @@
 
 This file tracks architectural changes, feature additions, and modifications to entitybase-backend.
 
+## [2026-04-06] Purge Worker and Dependency Optimization
+
+### Summary
+
+Added dedicated purge worker and optimized Docker image sizes by using `--only` flag in poetry export.
+
+### Changes
+
+1. **New Purge Worker** (`src/models/workers/purge/purge_worker.py`):
+   - Cleans S3 buckets (revisions, wikibase-dumps)
+   - Truncates database tables for cleanup operations
+   - Runs on schedule (default: daily at 2 AM)
+
+2. **Dependency Groups** (`pyproject.toml`):
+   - Added `api` group for wikibaseintegrator (API-only dependency)
+   - Added `purge-worker` group for purge worker dependencies
+   - Worker groups now use `--only` flag instead of `--with` to exclude main dependencies
+
+3. **Export Script** (`scripts/shell/export-requirements.sh`):
+   - Changed to use `--only` flag for worker requirements
+   - Added warning comment to generated files
+   - Removed duplicate requirements-purge-worker.txt (moved to docker/containers/)
+
+4. **Dockerfiles**:
+   - `Dockerfile.api` now uses `requirements-api.txt` instead of `requirements.txt`
+   - Worker Dockerfiles use leaner requirements (13-25 packages vs 58-64 before)
+
+### Image Size Reduction
+
+| Worker | Before (--with) | After (--only) |
+|--------|-----------------|----------------|
+| purge-worker | 64 deps | 13 deps |
+| idworker | 58 deps | 15 deps |
+| ttl-worker | 58 deps | 24 deps |
+| json-worker | 58 deps | 22 deps |
+
 ## [2026-03-13] Elasticsearch Transformer Pydantic Models
 
 ### Summary
