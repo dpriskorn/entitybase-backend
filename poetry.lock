@@ -240,7 +240,7 @@ version = "0.7.0"
 description = "Reusable constraint types to use with typing.Annotated"
 optional = false
 python-versions = ">=3.8"
-groups = ["main", "idworker", "json-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "idworker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "annotated_types-0.7.0-py3-none-any.whl", hash = "sha256:1f02e8b43a8fbbc3f3e0d4f0f4bfc8131bcb4eebe8849b8e5c773f3a1c582a53"},
     {file = "annotated_types-0.7.0.tar.gz", hash = "sha256:aff07c09a53a08bc8cfccb9c85b05f1aa9a2a6f23728d790723543408344ce89"},
@@ -361,7 +361,7 @@ version = "1.42.83"
 description = "The AWS SDK for Python"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "dev", "json-worker", "ttl-worker"]
+groups = ["main", "dev", "json-worker", "purge-worker", "ttl-worker"]
 files = [
     {file = "boto3-1.42.83-py3-none-any.whl", hash = "sha256:544846fdb10585bb7837e409868e8e04c6b372fa04479ba1597ce82cf1242076"},
     {file = "boto3-1.42.83.tar.gz", hash = "sha256:cc5621e603982cb3145b7f6c9970e02e297a1a0eb94637cc7f7b69d3017640ee"},
@@ -823,7 +823,7 @@ version = "1.42.83"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "dev", "json-worker", "ttl-worker"]
+groups = ["main", "dev", "json-worker", "purge-worker", "ttl-worker"]
 files = [
     {file = "botocore-1.42.83-py3-none-any.whl", hash = "sha256:ec0c3ecb3772936ed22a3bdda09883b34858933f71004686d460d829bab39d8e"},
     {file = "botocore-1.42.83.tar.gz", hash = "sha256:34bc8cb64b17ac17f8901f073fe4fc9572a5cac9393a37b2b3ea372a83b87f4a"},
@@ -1885,7 +1885,7 @@ version = "1.1.0"
 description = "JSON Matching Expressions"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "dev", "json-worker", "ttl-worker"]
+groups = ["main", "dev", "json-worker", "purge-worker", "ttl-worker"]
 files = [
     {file = "jmespath-1.1.0-py3-none-any.whl", hash = "sha256:a5663118de4908c91729bea0acadca56526eb2698e83de10cd116ae0f4e97c64"},
     {file = "jmespath-1.1.0.tar.gz", hash = "sha256:472c87d80f36026ae83c6ddd0f1d05d4e510134ed462851fd5f754c8c3cbb88d"},
@@ -3101,7 +3101,7 @@ version = "2.12.5"
 description = "Data validation using Python type hints"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "idworker", "json-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "idworker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "pydantic-2.12.5-py3-none-any.whl", hash = "sha256:e561593fccf61e8a20fc46dfc2dfe075b8be7d0188df33f221ad1f0139180f9d"},
     {file = "pydantic-2.12.5.tar.gz", hash = "sha256:4d351024c75c0f085a9febbb665ce8c0c6ec5d30e903bdb6394b7ede26aebb49"},
@@ -3123,7 +3123,7 @@ version = "2.41.5"
 description = "Core functionality for Pydantic validation and serialization"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "idworker", "json-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "idworker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "pydantic_core-2.41.5-cp310-cp310-macosx_10_12_x86_64.whl", hash = "sha256:77b63866ca88d804225eaa4af3e664c5faf3568cea95360d21f4725ab6e07146"},
     {file = "pydantic_core-2.41.5-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:dfa8a0c812ac681395907e71e1274819dec685fec28273a28905df579ef137e2"},
@@ -3356,7 +3356,7 @@ version = "1.1.2"
 description = "Pure Python MySQL Driver"
 optional = false
 python-versions = ">=3.8"
-groups = ["main", "idworker", "json-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "idworker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "pymysql-1.1.2-py3-none-any.whl", hash = "sha256:e6b1d89711dd51f8f74b1631fe08f039e7d76cf67a42a323d3178f0f25762ed9"},
     {file = "pymysql-1.1.2.tar.gz", hash = "sha256:4961d3e165614ae65014e361811a724e2044ad3ea3739de9903ae7c21f539f03"},
@@ -3499,7 +3499,7 @@ version = "2.9.0.post0"
 description = "Extensions to the standard Python datetime module"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
-groups = ["main", "dev", "json-worker", "ttl-worker"]
+groups = ["main", "dev", "json-worker", "purge-worker", "ttl-worker"]
 files = [
     {file = "python-dateutil-2.9.0.post0.tar.gz", hash = "sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3"},
     {file = "python_dateutil-2.9.0.post0-py2.py3-none-any.whl", hash = "sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427"},
@@ -3965,7 +3965,7 @@ version = "0.16.0"
 description = "An Amazon S3 Transfer Manager"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "dev", "json-worker", "ttl-worker"]
+groups = ["main", "dev", "json-worker", "purge-worker", "ttl-worker"]
 files = [
     {file = "s3transfer-0.16.0-py3-none-any.whl", hash = "sha256:18e25d66fed509e3868dc1572b3f427ff947dd2c56f844a5bf09481ad3f3b2fe"},
     {file = "s3transfer-0.16.0.tar.gz", hash = "sha256:8e990f13268025792229cd52fa10cb7163744bf56e719e0b9cb925ab79abf920"},
@@ -4004,7 +4004,7 @@ version = "1.17.0"
 description = "Python 2 and 3 compatibility utilities"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
-groups = ["main", "dev", "json-worker", "ttl-worker"]
+groups = ["main", "dev", "json-worker", "purge-worker", "ttl-worker"]
 files = [
     {file = "six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274"},
     {file = "six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81"},
@@ -4554,7 +4554,7 @@ version = "4.15.0"
 description = "Backported and Experimental Type Hints for Python 3.9+"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "dev", "idworker", "json-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "dev", "idworker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "typing_extensions-4.15.0-py3-none-any.whl", hash = "sha256:f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548"},
     {file = "typing_extensions-4.15.0.tar.gz", hash = "sha256:0cea48d173cc12fa28ecabc3b837ea3cf6f38c6d1136f85cbaaf598984861466"},
@@ -4566,7 +4566,7 @@ version = "0.4.2"
 description = "Runtime typing introspection tools"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "idworker", "json-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "idworker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "typing_inspection-0.4.2-py3-none-any.whl", hash = "sha256:4ed1cacbdc298c220f1bd249ed5287caa16f34d44ef4e9c3d0cbad5b521545e7"},
     {file = "typing_inspection-0.4.2.tar.gz", hash = "sha256:ba561c48a67c5958007083d386c3295464928b01faa735ab8547c5692e87f464"},
@@ -4669,7 +4669,7 @@ version = "2.6.3"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "dev", "json-worker", "ttl-worker"]
+groups = ["main", "dev", "json-worker", "purge-worker", "ttl-worker"]
 files = [
     {file = "urllib3-2.6.3-py3-none-any.whl", hash = "sha256:bf272323e553dfb2e87d9bfd225ca7b0f467b919d7bbd355436d3fd37cb0acd4"},
     {file = "urllib3-2.6.3.tar.gz", hash = "sha256:1b62b6884944a57dbe321509ab94fd4d3b307075e0c2eae991ac71ee15ad38ed"},
@@ -5060,4 +5060,4 @@ pyyaml = ">=6.0.2"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13,<4.0"
-content-hash = "6cffa4f4c21acd3f5363b0bfe8e89e886166b55447f17d635f659ca19e09ed20"
+content-hash = "6d9bd814a0816f36dfe0a60ad647b2975d3756c75a73726021e6c56de9de43ae"

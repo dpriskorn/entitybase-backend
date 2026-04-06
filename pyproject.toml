@@ -69,6 +69,11 @@ ttl-worker = [
     "boto3",
     "rdflib",
 ]
+purge-worker = [
+    "pydantic",
+    "pymysql",
+    "boto3",
+]
 # We use a version of pytest that is compatible with pytest-asyncio
 dev = [
     "pytest (>=9.0)",
