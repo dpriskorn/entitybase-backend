@@ -74,6 +74,7 @@ purge-worker = [
     "boto3",
 ]
 api = [
+    "uvicorn",
     "wikibaseintegrator @ git+https://github.com/dpriskorn/WikibaseIntegrator.git@fix-hash",
 ]
 dev-worker = [
