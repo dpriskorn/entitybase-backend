@@ -4,12 +4,7 @@ set -e
 
 echo "Exporting Poetry dependencies to requirements files..."
 
-# Use poetry from venv if available
-if [ -f ".venv/bin/poetry" ]; then
-    POETRY=".venv/bin/poetry"
-else
-    POETRY="poetry"
-fi
+POETRY="poetry"
 
 $POETRY export --format requirements.txt --output requirements.txt --without-hashes
 $POETRY export --format requirements.txt --output requirements-dev.txt --without-hashes --with dev
