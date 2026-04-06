@@ -85,11 +85,12 @@ jobs:
       - name: Generate requirements files
         run: |
           pip install poetry-plugin-export
-          poetry export -f requirements.txt --output requirements.txt --with dev --without-hashes
-          poetry export -f requirements.txt --output requirements-idworker.txt --without-hashes
-          poetry export -f requirements.txt --output requirements-json-worker.txt --without-hashes
-          poetry export -f requirements.txt --output requirements-stats-worker.txt --without-hashes
-          poetry export -f requirements.txt --output requirements-ttl-worker.txt --without-hashes
+          mkdir -p var
+          poetry export -f requirements.txt --output var/requirements.txt --with dev --without-hashes
+          poetry export -f requirements.txt --output var/requirements-idworker.txt --without-hashes
+          poetry export -f requirements.txt --output var/requirements-json-worker.txt --without-hashes
+          poetry export -f requirements.txt --output var/requirements-stats-worker.txt --without-hashes
+          poetry export -f requirements.txt --output var/requirements-ttl-worker.txt --without-hashes
       - name: Build docker images
         run: |
           docker compose -f docker-compose.ci.yml build \

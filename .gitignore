@@ -44,8 +44,8 @@ e2e.env
 /data/
 /entitybase.db
 
+/var/
+
 # Generated requirements (no longer needed - using poetry directly in Dockerfiles)
 requirements*.txt
-!docker/containers/requirements-purge-worker.txt
-!.gitkeep
 .python-version

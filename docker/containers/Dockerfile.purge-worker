@@ -8,7 +8,7 @@ RUN echo "Building purge worker with requirements hash: $REQUIREMENTS_HASH"
 WORKDIR /app
 
 # Copy requirements first for better caching
-COPY docker/containers/requirements-purge-worker.txt ./
+COPY ../var/requirements-purge-worker.txt ./
 
 # Install system dependencies
 # RUN apt-get update && apt-get install -y --no-install-recommends \

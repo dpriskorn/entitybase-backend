@@ -16,7 +16,7 @@ fi
 ./scripts/shell/export-requirements.sh
 
 # Calculate hash of requirements.txt to force rebuild on dependency changes
-REQUIREMENTS_HASH=$(md5sum requirements.txt | awk '{print $1}')
+REQUIREMENTS_HASH=$(md5sum var/requirements.txt | awk '{print $1}')
 echo "📦 Requirements hash: $REQUIREMENTS_HASH"
 
 # Build with requirements hash as build arg to force rebuild when dependencies change
