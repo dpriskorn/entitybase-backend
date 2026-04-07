@@ -38,7 +38,7 @@ from models.config.settings import settings
 
 
 class CreateTables(BaseModel):
-    """Development worker for database table creation and management."""
+    """Create worker for database table creation and management."""
 
     # Essential tables required for the application
     required_tables: List[str] = [

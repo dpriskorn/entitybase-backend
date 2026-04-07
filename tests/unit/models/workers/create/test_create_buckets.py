@@ -3,7 +3,7 @@
 import pytest
 from unittest.mock import MagicMock, AsyncMock, patch
 
-from models.workers.dev.create_buckets import (
+from models.workers.create.create_buckets import (
     CreateBuckets,
 )
 
@@ -13,7 +13,7 @@ class TestCreateBuckets:
 
     def test_initialization_defaults(self):
         """Test CreateBuckets initialization with defaults."""
-        with patch("models.workers.dev.create_buckets.CreateBuckets.model_post_init"):
+        with patch("models.workers.create.create_buckets.CreateBuckets.model_post_init"):
             worker = CreateBuckets()
             assert worker.minio_endpoint == "http://localhost:9000"
             assert worker.minio_access_key == "minioadmin"
@@ -21,7 +21,7 @@ class TestCreateBuckets:
 
     def test_initialization_custom(self):
         """Test CreateBuckets initialization with custom values."""
-        with patch("models.workers.dev.create_buckets.CreateBuckets.model_post_init"):
+        with patch("models.workers.create.create_buckets.CreateBuckets.model_post_init"):
             worker = CreateBuckets(
                 minio_endpoint="http://custom:9000",
                 minio_access_key="custom_key",
@@ -33,7 +33,7 @@ class TestCreateBuckets:
 
     def test_required_buckets_attribute(self):
         """Test required_buckets attribute exists."""
-        with patch("models.workers.dev.create_buckets.CreateBuckets.model_post_init"):
+        with patch("models.workers.create.create_buckets.CreateBuckets.model_post_init"):
             worker = CreateBuckets()
             # The model_post_init sets required_buckets from settings
             # Just verify the attribute can be set
@@ -42,7 +42,7 @@ class TestCreateBuckets:
 
     def test_model_dump(self):
         """Test model_dump includes expected fields."""
-        with patch("models.workers.dev.create_buckets.CreateBuckets.model_post_init"):
+        with patch("models.workers.create.create_buckets.CreateBuckets.model_post_init"):
             worker = CreateBuckets()
             worker.required_buckets = ["test"]
 
@@ -57,7 +57,7 @@ class TestBucketHealthCheckResult:
 
     def test_bucket_health_check_result_creation(self):
         """Test BucketHealthCheckResult creation."""
-        from models.workers.dev.create_buckets import BucketHealthCheckResult
+        from models.workers.create.create_buckets import BucketHealthCheckResult
 
         result: BucketHealthCheckResult = {
             "overall_status": "healthy",
@@ -74,7 +74,7 @@ class TestBucketSetupResult:
 
     def test_bucket_setup_result_creation(self):
         """Test BucketSetupResult creation."""
-        from models.workers.dev.create_buckets import BucketSetupResult
+        from models.workers.create.create_buckets import BucketSetupResult
 
         health_check: BucketHealthCheckResult = {
             "overall_status": "healthy",
