@@ -1,4 +1,4 @@
-"""Development worker for MinIO bucket setup and management."""
+"""Create worker for MinIO bucket setup and management."""
 
 import logging
 import os
@@ -34,7 +34,7 @@ sys.path.insert(0, src_path)
 
 
 class CreateBuckets(BaseModel):
-    """Development worker for MinIO bucket management and setup tasks."""
+    """Create worker for MinIO bucket management and setup tasks."""
 
     minio_endpoint: str = os.getenv("MINIO_ENDPOINT", "http://localhost:9000")
     minio_access_key: str = os.getenv("MINIO_ACCESS_KEY", "minioadmin")

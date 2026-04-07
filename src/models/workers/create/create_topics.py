@@ -36,7 +36,7 @@ sys.path.insert(0, src_path)
 
 
 class CreateTopics(BaseModel):
-    """Development worker for Kafka/Redpanda topic creation and management."""
+    """Create worker for Kafka/Redpanda topic creation and management."""
 
     model_config = {"arbitrary_types_allowed": True}
 

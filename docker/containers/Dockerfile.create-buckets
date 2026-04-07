@@ -6,12 +6,12 @@ WORKDIR /app
 
 ENV PYTHONPATH=/app
 
-COPY ../var/requirements-dev-worker.txt ./
+COPY ../var/requirements-create-buckets.txt ./
 COPY pyproject.toml /app/pyproject.toml
 
-RUN pip install --no-cache-dir -r requirements-dev-worker.txt
+RUN pip install --no-cache-dir -r requirements-create-buckets.txt
 
 COPY ./src/ ./
 COPY ./scripts/ ./scripts/
 
-CMD ["python", "-m", "models.workers.dev"]
+CMD ["python", "-m", "models.workers.create", "buckets", "setup"]

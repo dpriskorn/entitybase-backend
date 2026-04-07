@@ -3,7 +3,7 @@
 import pytest
 from unittest.mock import MagicMock, AsyncMock, patch
 
-from models.workers.dev.create_tables import (
+from models.workers.create.create_tables import (
     CreateTables,
 )
 
@@ -13,7 +13,7 @@ class TestCreateTables:
 
     def test_required_tables_list(self):
         """Test that required_tables contains expected tables."""
-        with patch("models.workers.dev.create_tables.CreateTables.model_post_init"):
+        with patch("models.workers.create.create_tables.CreateTables.model_post_init"):
             worker = CreateTables()
 
             assert "entity_id_mapping" in worker.required_tables
@@ -25,14 +25,14 @@ class TestCreateTables:
 
     def test_required_tables_count(self):
         """Test count of required tables."""
-        with patch("models.workers.dev.create_tables.CreateTables.model_post_init"):
+        with patch("models.workers.create.create_tables.CreateTables.model_post_init"):
             worker = CreateTables()
             # Should have 17 required tables based on the source
             assert len(worker.required_tables) >= 15
 
     def test_model_dump(self):
         """Test model_dump includes expected fields."""
-        with patch("models.workers.dev.create_tables.CreateTables.model_post_init"):
+        with patch("models.workers.create.create_tables.CreateTables.model_post_init"):
             worker = CreateTables()
 
             dumped = worker.model_dump()
@@ -44,7 +44,7 @@ class TestTableHealthCheckResult:
 
     def test_table_health_check_result_creation(self):
         """Test TableHealthCheckResult creation."""
-        from models.workers.dev.create_tables import TableHealthCheckResult
+        from models.workers.create.create_tables import TableHealthCheckResult
 
         result: TableHealthCheckResult = {
             "overall_status": "healthy",
@@ -62,7 +62,7 @@ class TestTableSetupResult:
 
     def test_table_setup_result_creation(self):
         """Test TableSetupResult creation."""
-        from models.workers.dev.create_tables import (
+        from models.workers.create.create_tables import (
             TableSetupResult,
             TableHealthCheckResult,
         )

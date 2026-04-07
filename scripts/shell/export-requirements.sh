@@ -31,7 +31,9 @@ $POETRY export --format requirements.txt --output var/requirements-dev.txt --wit
 sed -i "1i\\$WARNING" var/requirements-dev.txt
 
 export_requirements var/requirements-api.txt api
-export_requirements var/requirements-dev-worker.txt dev-worker
+export_requirements var/requirements-create-buckets.txt create-buckets
+export_requirements var/requirements-create-tables.txt create-tables
+export_requirements var/requirements-create-topics.txt create-topics
 export_requirements var/requirements-idworker.txt idworker
 export_requirements var/requirements-stats-worker.txt stats-worker
 export_requirements var/requirements-json-worker.txt json-worker

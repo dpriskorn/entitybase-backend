@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""CLI interface for the development worker."""
+"""CLI interface for the create worker."""
 
 import argparse
 import asyncio
@@ -16,13 +16,13 @@ sys.path.insert(0, str(src_path))
 from models.config.settings import settings
 
 # noinspection PyPep8
-from models.workers.dev.create_buckets import CreateBuckets
+from models.workers.create.create_buckets import CreateBuckets
 
 # noinspection PyPep8
-from models.workers.dev.create_tables import CreateTables
+from models.workers.create.create_tables import CreateTables
 
 # noinspection PyPep8
-from models.workers.dev.create_topics import CreateTopics
+from models.workers.create.create_topics import CreateTopics
 
 
 def setup_logging() -> None:
@@ -36,7 +36,7 @@ def setup_logging() -> None:
 def main() -> int:
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
-        description="Development worker for MinIO bucket management"
+        description="Create worker for infrastructure setup"
     )
     parser.add_argument(
         "--endpoint",
