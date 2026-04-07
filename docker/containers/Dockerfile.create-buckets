@@ -7,7 +7,7 @@ WORKDIR /app
 COPY ../../var/requirements-create-buckets.txt ./
 RUN pip install --no-cache-dir -r requirements-create-buckets.txt
 COPY pyproject.toml /app/
-COPY src/ ./src/
+COPY src/ ./
 COPY scripts/ ./scripts/
 
 ENV PYTHONPATH=/app
