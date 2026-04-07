@@ -15,11 +15,16 @@ logger = logging.getLogger(__name__)
 class VitessWorker(Worker, ABC):
     """Base worker that provides Vitess client connectivity."""
 
-    vitess_client: Any | None = None
+    vitess_client: Any | None = Field(default=None)
     worker_id: str = Field(
         default_factory=lambda: os.getenv("WORKER_ID", f"vitess-{os.getpid()}")
     )
     running: bool = Field(default=False)
+
+    def model_post_init(self, context: Any) -> None:
+        """Skip validation at init time - clients are created in start() method."""
+        if self.get_enabled_setting():
+            self.running = True
 
     async def start(self) -> None:
         """Start the vitess worker."""
