@@ -40,10 +40,12 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         logger.debug("Shutting down...")
 
 
+import os
+
 app = FastAPI(
     title="Wikibase Backend API",
     description="Backend API for Wikibase entity management",
-    version="1.0.0",
+    version=os.getenv("VERSION", "v2026.4.8"),
     lifespan=lifespan,
     response_model_by_alias=True,
 )
