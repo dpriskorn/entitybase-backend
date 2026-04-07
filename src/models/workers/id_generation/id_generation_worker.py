@@ -33,6 +33,10 @@ class IdGeneratorWorker(VitessWorker):
 
     enumeration_service: Any = None
 
+    def get_enabled_setting(self) -> bool:
+        """Check if the ID generation worker is enabled."""
+        return True
+
     def model_post_init(self, context: Any) -> None:
         # Setup signal handlers for graceful shutdown
         signal.signal(signal.SIGTERM, self._signal_handler)
