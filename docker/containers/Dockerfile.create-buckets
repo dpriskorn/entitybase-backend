@@ -4,14 +4,12 @@ RUN apt-get update && apt-get install -y wget git && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-ENV PYTHONPATH=/app
-
-COPY ../var/requirements-create-buckets.txt ./
-COPY pyproject.toml /app/pyproject.toml
-
+COPY ../../var/requirements-create-buckets.txt ./
 RUN pip install --no-cache-dir -r requirements-create-buckets.txt
+COPY pyproject.toml /app/
+COPY src/ ./src/
+COPY scripts/ ./scripts/
 
-COPY ./src/ ./
-COPY ./scripts/ ./scripts/
+ENV PYTHONPATH=/app
 
 CMD ["python", "-m", "models.workers.create", "buckets", "setup"]
