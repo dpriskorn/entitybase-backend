@@ -6,12 +6,9 @@ WORKDIR /app
 
 ENV PYTHONPATH=/app
 
-COPY ../var/requirements-create-topics.txt ./
-COPY pyproject.toml /app/pyproject.toml
-
-RUN pip install --no-cache-dir -r requirements-create-topics.txt
-
-COPY ./src/ ./
-COPY ./scripts/ ./scripts/
+COPY ../../var/requirements-create-topics.txt ./
+COPY pyproject.toml /app/
+COPY src/ ./src/
+COPY scripts/ ./scripts/
 
 CMD ["python", "-m", "models.workers.create", "topics", "setup"]
