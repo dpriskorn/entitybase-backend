@@ -11,8 +11,9 @@ WORKDIR /app
 COPY ../var/requirements-purge-worker.txt ./
 
 # Install system dependencies
-# RUN apt-get update && apt-get install -y --no-install-recommends \
-#     && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements-purge-worker.txt

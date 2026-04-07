@@ -192,14 +192,19 @@ class PurgeWorker(VitessWorker):
 
     async def health_check(self) -> WorkerHealthCheckResponse:
         """Health check for the worker."""
-        status = "healthy" if self.running else "unhealthy"
+        is_enabled = self.get_enabled_setting()
+        status = "healthy" if is_enabled else "disabled"
 
         return WorkerHealthCheckResponse(
             status=status,
             worker_id=self.worker_id,
             details={
                 "running": self.running,
+                "next_run_seconds": calculate_seconds_until_next_run(
+                    self.get_schedule_setting()
+                ),
                 "last_run": self.last_run.isoformat() if self.last_run else None,
+                "enabled": is_enabled,
             },
             range_status={},
         )
