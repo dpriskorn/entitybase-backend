@@ -15,15 +15,6 @@ sys.path.insert(0, str(src_path))
 # noinspection PyPep8
 from models.config.settings import settings
 
-# noinspection PyPep8
-from models.workers.create.create_buckets import CreateBuckets
-
-# noinspection PyPep8
-from models.workers.create.create_tables import CreateTables
-
-# noinspection PyPep8
-from models.workers.create.create_topics import CreateTopics
-
 
 def setup_logging() -> None:
     """Setup logging for CLI usage."""
@@ -128,6 +119,8 @@ def main() -> int:
 
 async def run_buckets_setup(args: argparse.Namespace) -> bool:
     """Run bucket setup operation."""
+    from models.workers.create.create_buckets import CreateBuckets
+
     create_buckets = CreateBuckets(
         minio_endpoint=args.endpoint,
         minio_access_key=args.access_key,
@@ -140,6 +133,8 @@ async def run_buckets_setup(args: argparse.Namespace) -> bool:
 
 async def run_buckets_health(args: argparse.Namespace) -> bool:
     """Run bucket health check operation."""
+    from models.workers.create.create_buckets import CreateBuckets
+
     create_buckets = CreateBuckets(
         minio_endpoint=args.endpoint,
         minio_access_key=args.access_key,
@@ -152,6 +147,8 @@ async def run_buckets_health(args: argparse.Namespace) -> bool:
 
 async def run_tables_setup(args: argparse.Namespace) -> bool:
     """Run table setup operation."""
+    from models.workers.create.create_tables import CreateTables
+
     create_tables = CreateTables()
     results = await create_tables.run_setup()
     print(f"Tables setup completed: {results['setup_status']}")
@@ -160,6 +157,8 @@ async def run_tables_setup(args: argparse.Namespace) -> bool:
 
 async def run_tables_health(args: argparse.Namespace) -> bool:
     """Run table health check operation."""
+    from models.workers.create.create_tables import CreateTables
+
     create_tables = CreateTables()
     health_status = await create_tables.table_health_check()
     print(f"Table health status: {health_status['overall_status']}")
@@ -171,6 +170,8 @@ async def run_tables_health(args: argparse.Namespace) -> bool:
 
 async def run_topics_setup(args: argparse.Namespace) -> bool:
     """Run topic setup operation."""
+    from models.workers.create.create_topics import CreateTopics
+
     create_topics = CreateTopics()
     results = await create_topics.run_setup()
     print(f"Topics setup completed: {results['setup_status']}")
@@ -179,6 +180,8 @@ async def run_topics_setup(args: argparse.Namespace) -> bool:
 
 async def run_topics_health(args: argparse.Namespace) -> bool:
     """Run topic health check operation."""
+    from models.workers.create.create_topics import CreateTopics
+
     create_topics = CreateTopics()
     health_status = await create_topics.topic_health_check()
     print(f"Topic health status: {health_status['overall_status']}")
