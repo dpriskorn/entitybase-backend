@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 S3_BUCKETS = ["revisions", "wikibase-dumps"]
 
 DB_TABLES = [
+    "entity_backlinks",
     "entity_id_mapping",
     "entity_head",
     "entity_redirects",
@@ -28,7 +29,6 @@ DB_TABLES = [
     "qualifiers",
     "refs",
     "snaks",
-    "entity_backlinks",
     "backlink_statistics",
     "user_daily_stats",
     "general_daily_stats",
@@ -51,6 +51,7 @@ class PurgeWorker(VitessWorker):
     """Worker that periodically purges all S3 buckets and truncates database tables."""
 
     s3_client: Any = Field(default=None, exclude=True)
+    last_run: datetime | None = None
 
     def get_enabled_setting(self) -> bool:
         """Check if purge worker is enabled."""
@@ -173,7 +174,9 @@ class PurgeWorker(VitessWorker):
         logger.info("Truncating database tables")
         truncated = 0
 
-        assert self.vitess_client is not None
+        if not self.vitess_client:
+            logger.error("Vitess client not initialized")
+            return 0
 
         with self.vitess_client.cursor as cursor:
             for table in DB_TABLES:
