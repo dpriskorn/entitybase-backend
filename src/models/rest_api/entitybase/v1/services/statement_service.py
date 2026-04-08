@@ -338,10 +338,18 @@ class StatementService(Service):
 
     @staticmethod
     def _process_snak_item(item: Any, snak_handler: SnakHandler) -> ProcessedSnakValue:
-        """Process a single snak item.
-
-        Returns ProcessedSnakValue with snak hash if item is a dict with "property",
-        otherwise returns original item wrapped in ProcessedSnakValue.
+        """Process a single snak item for storage.
+        
+        If the item is a snak dict (has "property" key), stores it in S3
+        and returns the content hash. If it's already a hash string,
+        passes it through unchanged.
+        
+        Args:
+            item: Either a snak dict with property, or an existing hash string
+            snak_handler: SnakHandler for S3 storage
+            
+        Returns:
+            ProcessedSnakValue with hash for new snaks, or original hash otherwise
         """
         if isinstance(item, dict) and "property" in item:
             snak_request = SnakRequest(
