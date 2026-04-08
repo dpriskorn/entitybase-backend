@@ -1,3 +1,5 @@
+"""Event response models for RDF changes."""
+
 from pydantic import BaseModel, Field, field_serializer, ConfigDict
 
 

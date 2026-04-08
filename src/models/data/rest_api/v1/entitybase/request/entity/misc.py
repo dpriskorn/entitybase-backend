@@ -1,3 +1,5 @@
+"""Miscellaneous entity request models (redirect, import, etc.)."""
+
 from pydantic import BaseModel, Field
 
 

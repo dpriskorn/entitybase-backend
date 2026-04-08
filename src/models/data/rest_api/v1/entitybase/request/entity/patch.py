@@ -1,3 +1,5 @@
+"""Entity patch request models for JSON Patch operations."""
+
 from typing import Any
 
 from pydantic import BaseModel, Field
