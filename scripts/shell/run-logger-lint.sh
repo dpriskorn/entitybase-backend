@@ -2,4 +2,4 @@
 cd "$(dirname "$0")/../.."
 set -Eeuo pipefail
 
-poetry run python scripts/linters/check_logger_debug.py src/
+python scripts/linters/check_logger_debug.py src/
