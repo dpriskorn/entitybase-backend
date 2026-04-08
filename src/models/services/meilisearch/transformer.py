@@ -15,40 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 def transform_to_meilisearch(entity_json: dict[str, Any]) -> MeilisearchDocument:
-    """Transform Wikibase entity JSON to Meilisearch document format.
-
-    Args:
-        entity_json: Entity JSON in Wikibase API format (with "entities" wrapper)
-
-    Returns:
-        Meilisearch document with flattened structure
-
-    Example input:
-        {
-            "entities": {
-                "Q42": {
-                    "type": "item",
-                    "labels": {"en": {"language": "en", "value": "Douglas Adams"}},
-                    "descriptions": {...},
-                    "aliases": {...},
-                    "claims": {...}
-                }
-            }
-        }
-
-    Example output:
-        {
-            "entity_id": "Q42",
-            "entity_type": "item",
-            "labels": {"en": {"value": "Douglas Adams", "language": "en"}},
-            "descriptions": {...},
-            "aliases": {...},
-            "claims_flat": {"P31": ["Q5"], "P21": ["Q6581097"]},
-            "claims": {...},
-            "lastrevid": 2441354823,
-            "modified": "2025-12-12T17:50:31Z"
-        }
-    """
+    """Transform Wikibase entity JSON to Meilisearch document format."""
     entities = entity_json.get("entities", {})
 
     if not entities:

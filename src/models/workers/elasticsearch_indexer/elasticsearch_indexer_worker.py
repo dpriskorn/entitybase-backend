@@ -26,14 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 class ElasticsearchIndexerWorker(Worker):
-    """Worker that consumes entity change events and indexes them to Elasticsearch.
-
-    This worker:
-    1. Consumes entity change events from entitybase.entity_change Kafka topic
-    2. Fetches entity snapshots from S3 for the new revision
-    3. Transforms entity data to Elasticsearch format
-    4. Indexes the document to OpenSearch
-    """
+    """Consumes entity changes from Kafka and indexes them to Elasticsearch."""
 
     vitess_client: Optional[VitessClient] = Field(default=None, exclude=True)
     s3_client: Optional[MyS3Client] = Field(default=None, exclude=True)
