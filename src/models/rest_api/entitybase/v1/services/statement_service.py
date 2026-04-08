@@ -6,7 +6,7 @@ import traceback
 from datetime import datetime, timezone
 from typing import Any, cast
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from models.data.common import OperationResult
 from models.config.settings import settings
@@ -37,15 +37,16 @@ class StatementProcessingContext(BaseModel):
 
     model_config = {"extra": "forbid"}
 
-    statement_hash: int
-    statement_data: dict[str, Any]
-    validator: JsonSchemaValidator | None
-    schema_version: str
-    idx: int
-    total_statements: int
+    statement_hash: int = Field(..., description="Hash of the statement content")
+    statement_data: dict[str, Any] = Field(..., description="Statement data dictionary")
+    validator: JsonSchemaValidator | None = Field(default=None, description="JSON schema validator instance")
+    schema_version: str = Field(..., description="Schema version for the statement")
+    idx: int = Field(..., description="Index of this statement in the list")
+    total_statements: int = Field(..., description="Total number of statements being processed")
 
 
 class StatementService(Service):
+    """Service for processing and hashing entity statements."""
     @staticmethod
     def hash_entity_statements(
         entity_data: PreparedRequestData,
