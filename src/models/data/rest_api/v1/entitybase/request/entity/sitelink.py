@@ -9,4 +9,7 @@ class SitelinkData(BaseModel):
     """Data for a single sitelink."""
 
     title: str = Field(description="Page title")
-    badges: List[str] = Field(default=[], description="List of badges")
+    badges: List[str] = Field(
+        default=[], 
+        description="List of badge QIDs (e.g., Q17437798 for featured article)"
+    )

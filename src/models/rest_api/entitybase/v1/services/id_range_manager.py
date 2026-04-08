@@ -15,14 +15,23 @@ logger = logging.getLogger(__name__)
 class IdRange(BaseModel):
     """Represents an allocated range of IDs for a specific entity type."""
 
-    entity_type: str
-    current_start: int
-    current_end: int
-    next_id: int
+    entity_type: str = Field(..., description="Entity type (e.g., Q, P, L)")
+    current_start: int = Field(..., description="Start of the allocated range")
+    current_end: int = Field(..., description="End of the allocated range")
+    next_id: int = Field(..., description="Next available ID in the range")
 
 
 class IdRangeManager(BaseModel):
-    """Manages ID range allocation and local ID generation to prevent write hotspots."""
+    """Manages ID range allocation and local ID generation to prevent write hotspots.
+    
+    Allocates ID ranges from the ID worker (default 80% threshold for
+    reallocation). Generates local IDs from the allocated range to
+    avoid database write contention.
+    
+    Attributes:
+        range_size: Number of IDs to allocate per range (default 1000000)
+        min_ids: Minimum ID values per entity type to avoid Wikidata conflicts
+    """
 
     vitess_client: Any
     range_size: int = 1_000_000

@@ -13,7 +13,12 @@ logger = logging.getLogger(__name__)
 
 
 class EnumerationService(BaseModel):
-    """Service for managing entity ID enumeration across different entity types."""
+    """Service for managing entity ID enumeration across different entity types.
+    
+    Handles ID allocation by communicating with the ID worker to reserve
+    ID ranges. Each entity type (item, property, lexeme) has separate
+    minimum ID values to prevent conflicts with existing Wikidata entities.
+    """
 
     worker_id: str
     vitess_client: Any
