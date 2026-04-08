@@ -4,6 +4,6 @@ set -Eeuo pipefail
 
 echo "Checking for functions returning -> Any..."
 
-poetry run python scripts/linters/check_any_returns.py src/
+python scripts/linters/check_any_returns.py src/
 
 echo "Any return linting passed!"
