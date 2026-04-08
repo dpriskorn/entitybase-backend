@@ -22,14 +22,30 @@ class EntityRequestBase(BaseModel):
     type: str = Field(
         default="item", description="Entity type (item, property, lexeme)"
     )
-    labels: Dict[str, Dict[str, str]] = {}
-    descriptions: Dict[str, Dict[str, str]] = {}
-    claims: Dict[str, Any] = {}
-    aliases: Dict[str, Any] = {}
-    sitelinks: Dict[str, Any] = {}
-    forms: List[Dict[str, Any]] = []
-    senses: List[Dict[str, Any]] = []
-    lemmas: Dict[str, Any] = {}
+    labels: Dict[str, Dict[str, str]] = Field(
+        default_factory=dict, description="Entity labels by language code"
+    )
+    descriptions: Dict[str, Dict[str, str]] = Field(
+        default_factory=dict, description="Entity descriptions by language code"
+    )
+    claims: Dict[str, Any] = Field(
+        default_factory=dict, description="Entity claims/statements by property"
+    )
+    aliases: Dict[str, Any] = Field(
+        default_factory=dict, description="Entity aliases by language code"
+    )
+    sitelinks: Dict[str, Any] = Field(
+        default_factory=dict, description="Entity sitelinks by site"
+    )
+    forms: List[Dict[str, Any]] = Field(
+        default_factory=list, description="Lexeme forms"
+    )
+    senses: List[Dict[str, Any]] = Field(
+        default_factory=list, description="Lexeme senses"
+    )
+    lemmas: Dict[str, Any] = Field(
+        default_factory=dict, description="Lexeme lemmas by language code"
+    )
     language: str = Field(
         default="",
         description="Lexeme language (QID)",
