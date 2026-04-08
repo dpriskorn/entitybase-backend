@@ -2,6 +2,63 @@
 
 This file tracks architectural changes, feature additions, and modifications to entitybase-backend.
 
+## [2026-04-08] Meilisearch Integration and Search API Refactoring
+
+### Summary
+
+Added Meilisearch integration as a second search engine option and refactored search preview endpoints to fetch from database.
+
+### Changes
+
+1. **Meilisearch Worker** (`src/models/workers/meilisearch_indexer/`):
+   - New `MeilisearchIndexerWorker` class that consumes entity change events from Kafka
+   - Fetches entity data from S3, transforms using `transform_to_meilisearch()`, indexes to Meilisearch
+   - Runs on port 8009 with health check endpoint
+
+2. **Meilisearch Client and Transformer** (`src/models/services/meilisearch/`):
+   - `MeilisearchClient` - Client for interacting with Meilisearch (connect, index_document, delete_document, get_document)
+   - `transform_to_meilisearch()` - Transformer function (mirrors Elasticsearch transformer)
+   - Uses `meilisearch` Python library
+
+3. **Meilisearch Data Models** (`src/models/data/infrastructure/meilisearch/`):
+   - `FlattenedClaims` - Model for flattened claims mapping
+   - `MeilisearchDocument` - Model for Meilisearch document from Wikibase entity
+   - `MeilisearchDocumentResponse` - Response model for document retrieval
+
+4. **Configuration** (`src/models/config/settings.py`):
+   - Added `meilisearch_enabled`, `meilisearch_host`, `meilisearch_port`, `meilisearch_api_key`, `meilisearch_index`, `meilisearch_consumer_group`
+
+5. **REST API Endpoints** (`src/models/rest_api/entitybase/v1/endpoints/entities.py`):
+   - Changed `POST /entities/elasticsearch/preview` to `GET /entities/{entity_id}/elasticsearch`
+   - Changed `POST /entities/meilisearch/preview` to `GET /entities/{entity_id}/meilisearch`
+   - Both endpoints now fetch entity from database automatically and return transformed document
+   - No longer requires sending JSON body - just pass entity ID
+
+6. **Dependency Groups** (`pyproject.toml`):
+   - Added `meilisearch (>=0.40.0,<0.41.0)` to main dependencies
+   - Added `meilisearch` to `api` dependency group
+   - Added new `meilisearch-indexer-worker` dependency group
+
+7. **Logging Standardization**:
+   - Added `datefmt="%Y-%m-%d %H:%M:%S"` to all `logging.basicConfig` calls
+   - Added custom `log_config` dict to all `uvicorn.Config` instances
+   - Ensures consistent datetime format in logs across all workers
+
+### Documentation Updated
+
+- `docs/features/ENDPOINTS.md` - Updated endpoint table with new search endpoints
+- `docs/ARCHITECTURE/WORKERS.md` - Added Elasticsearch and Meilisearch worker documentation
+- `docs/ARCHITECTURE/CONFIGURATION.md` - Added Meilisearch configuration settings
+
+### Architecture Notes
+
+**Search Worker Pattern**: Both Elasticsearch and Meilisearch workers call transformer functions directly rather than using REST API endpoints. This is more efficient because:
+- No HTTP overhead between worker and transformer
+- Runs in the same process/container
+- Direct access to S3 for entity data
+
+**REST API Endpoints**: The `GET /entities/{entity_id}/elasticsearch` and `/meilisearch` endpoints are for manual testing/preview - humans can query them to see transformed documents without running a worker.
+
 ## [2026-04-06] Purge Worker and Dependency Optimization
 
 ### Summary

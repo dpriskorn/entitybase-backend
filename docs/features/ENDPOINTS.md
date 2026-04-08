@@ -5,7 +5,8 @@ This API has 125 endpoints implemented, covering entity management (items, prope
 | Implemented | Method | Full Path | Description |
 |-------------|--------|-----------|-------------|
 | ✅ | GET | `/entities` | List entities based on type, status, edit_type, limit, and offset. |
-| ✅ | POST | `/entities/elasticsearch/preview` | Preview how an entity would be transformed for Elasticsearch. |
+| ✅ | GET | `/entities/{entity_id}/elasticsearch` | Get entity transformed for Elasticsearch (fetches from DB and returns transformed document). |
+| ✅ | GET | `/entities/{entity_id}/meilisearch` | Get entity transformed for Meilisearch (fetches from DB and returns transformed document). |
 | ✅ | GET | `/entities/items` | List all items (Q-prefixed entities). |
 | ✅ | POST | `/entities/items` | Create a new empty item entity. |
 | ✅ | GET | `/entities/lexemes` | List all lexemes (L-prefixed entities). |
