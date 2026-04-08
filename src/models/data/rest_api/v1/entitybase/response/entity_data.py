@@ -40,3 +40,9 @@ class ElasticsearchDocumentResponse(BaseModel):
     """Response model for Elasticsearch document preview."""
 
     document: dict[str, Any] = Field(..., description="Elasticsearch document")
+
+
+class MeilisearchDocumentResponse(BaseModel):
+    """Response model for Meilisearch document preview."""
+
+    document: dict[str, Any] = Field(..., description="Meilisearch document")

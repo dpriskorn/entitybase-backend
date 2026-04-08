@@ -180,7 +180,34 @@ async def run_worker(worker: IdGeneratorWorker) -> None:
 
 async def run_server(app: FastAPI) -> None:
     """Run the FastAPI server."""
-    config = uvicorn.Config(app, host="0.0.0.0", port=8001, loop="asyncio")
+    log_level = os.getenv("LOG_LEVEL", "INFO").upper()
+    logging_config = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "default": {
+                "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+                "datefmt": "%Y-%m-%d %H:%M:%S",
+            },
+        },
+        "handlers": {
+            "default": {
+                "class": "logging.StreamHandler",
+                "formatter": "default",
+            },
+        },
+        "root": {
+            "handlers": ["default"],
+            "level": log_level,
+        },
+    }
+    config = uvicorn.Config(
+        app,
+        host="0.0.0.0",
+        port=8001,
+        loop="asyncio",
+        log_config=logging_config,
+    )
     server = uvicorn.Server(config)
     await server.serve()
 
@@ -201,6 +228,7 @@ async def main() -> None:
     logging.basicConfig(
         level=getattr(logging, log_level.upper(), logging.INFO),
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
     )
 
     # Create worker
