@@ -21,7 +21,28 @@ class EntityReadHandler(Handler):
         self,
         entity_id: str,
     ) -> EntityResponse:
-        """Get entity by ID."""
+        """Get entity by ID.
+        
+        Fetches the latest revision of an entity from S3 using the head
+        revision ID from the database. Returns entity JSON with hashes
+        for statements, terms, and sitelinks.
+        
+        Args:
+            entity_id: Entity ID (e.g., Q42, P31, L1)
+            
+        Returns:
+            EntityResponse with entity data and state
+            
+        Raises:
+            HTTPException 404: Entity not found, deleted, or no revisions exist
+            HTTPException 503: Vitess or S3 not initialized
+            
+        Notes:
+            - Checks entity exists in Vitess first
+            - Gets head revision ID from database
+            - Fetches revision data from S3
+            - Returns 404 if entity is marked as deleted in state
+        """
         logger.debug(f"get_entity({entity_id}) called")
         if self.state.vitess_client is None:
             raise_validation_error("Vitess not initialized", status_code=503)

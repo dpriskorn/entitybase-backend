@@ -186,7 +186,7 @@ class EntityListItem(BaseModel):
 class EntityListItemWithEditType(EntityListItem):
     """Entity item with edit type and revision information."""
 
-    edit_type: str = Field(description="Edit type classification")
+    edit_type: str = Field(description="Edit type (manual-create, manual-update, etc.)")
     revision_id: int = Field(description="Specific revision ID")
 
 
