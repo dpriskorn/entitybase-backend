@@ -1,27 +1,18 @@
-# Use Python 3.13 slim image for smaller size
-FROM python:3.13-slim
+# Use Python 3.13 alpine image for smaller size
+FROM python:3.13-alpine
 
 ARG REQUIREMENTS_HASH=initial
 RUN echo "Building with requirements hash: $REQUIREMENTS_HASH"
 
-# Set working directory
 WORKDIR /app
 
-# Copy requirements first for better caching
 COPY ../var/requirements-idworker.txt ./
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
-
-# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements-idworker.txt
 
 COPY pyproject.toml /app/pyproject.toml
+COPY src/ ./ 
 
-# Copy application code
-COPY src/ ./
-
-# Set environment variables
 ENV PYTHONPATH=/app
 ENV WORKER_ID=id-worker
 ENV VITESS_HOST=vitess
@@ -29,8 +20,6 @@ ENV VITESS_PORT=15309
 ENV VITESS_DATABASE=page
 ENV VITESS_USER=root
 
-# Expose health check port
 EXPOSE 8001
 
-# Run the worker
 CMD ["python", "-m", "models.workers.id_generation.id_generation_worker"]

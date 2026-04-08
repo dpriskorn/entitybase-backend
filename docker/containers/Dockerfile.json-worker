@@ -1,31 +1,18 @@
-# Use Python 3.13 slim image for smaller size
-FROM python:3.13-slim
+# Use Python 3.13 alpine image for smaller size
+FROM python:3.13-alpine
 
 ARG REQUIREMENTS_HASH=initial
 RUN echo "Building with requirements hash: $REQUIREMENTS_HASH"
 
-# Set working directory
 WORKDIR /app
 
-# Copy requirements first for better caching
 COPY ../var/requirements-json-worker.txt ./
 
-# Install system dependencies
-# RUN apt-get update && apt-get install -y wget git && rm -rf /var/lib/apt/lists/*
-
-# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements-json-worker.txt
 
 COPY pyproject.toml /app/pyproject.toml
+COPY src/ ./ 
 
-# Copy application code
-COPY src/ ./
-
-# Set environment variables
 ENV PYTHONPATH=/app
 
-# Expose health check port
-# JSON dump worker uses 8002
-
-# Run the worker
 CMD ["python", "-m", "models.workers.json_dumps.json_dump_worker"]
