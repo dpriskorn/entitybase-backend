@@ -378,7 +378,34 @@ async def run_worker(worker: JsonDumpWorker) -> None:
 async def run_server(app: Any) -> None:
     if uvicorn is None:
         raise RuntimeError("uvicorn not installed, cannot run server")
-    config = uvicorn.Config(app, host="0.0.0.0", port=8002, loop="asyncio")
+    log_level = settings.get_log_level().upper()
+    logging_config = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "default": {
+                "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+                "datefmt": "%Y-%m-%d %H:%M:%S",
+            },
+        },
+        "handlers": {
+            "default": {
+                "class": "logging.StreamHandler",
+                "formatter": "default",
+            },
+        },
+        "root": {
+            "handlers": ["default"],
+            "level": log_level,
+        },
+    }
+    config = uvicorn.Config(
+        app,
+        host="0.0.0.0",
+        port=8002,
+        loop="asyncio",
+        log_config=logging_config,
+    )
     server = uvicorn.Server(config)
     await server.serve()
 
@@ -387,6 +414,7 @@ async def main() -> None:
     logging.basicConfig(
         level=settings.get_log_level(),
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
     )
 
     worker = JsonDumpWorker()

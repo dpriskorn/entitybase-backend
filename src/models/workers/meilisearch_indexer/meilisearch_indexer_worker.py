@@ -1,4 +1,4 @@
-"""Elasticsearch indexer worker for processing entity changes and indexing to OpenSearch."""
+"""Meilisearch indexer worker for processing entity changes and indexing to Meilisearch."""
 
 import asyncio
 import logging
@@ -16,29 +16,29 @@ from models.data.rest_api.v1.entitybase.response import WorkerHealthCheckRespons
 from models.infrastructure.s3.client import MyS3Client
 from models.infrastructure.stream.consumer import StreamConsumerClient
 from models.infrastructure.vitess.client import VitessClient
-from models.services.elasticsearch import (
-    ElasticsearchClient,
-    transform_to_elasticsearch,
+from models.services.meilisearch import (
+    MeilisearchClient,
+    transform_to_meilisearch,
 )
 from models.workers.worker import Worker
 
 logger = logging.getLogger(__name__)
 
 
-class ElasticsearchIndexerWorker(Worker):
-    """Worker that consumes entity change events and indexes them to Elasticsearch.
+class MeilisearchIndexerWorker(Worker):
+    """Worker that consumes entity change events and indexes them to Meilisearch.
 
     This worker:
     1. Consumes entity change events from entitybase.entity_change Kafka topic
     2. Fetches entity snapshots from S3 for the new revision
-    3. Transforms entity data to Elasticsearch format
-    4. Indexes the document to OpenSearch
+    3. Transforms entity data to Meilisearch format
+    4. Indexes the document to Meilisearch
     """
 
     vitess_client: Optional[VitessClient] = Field(default=None, exclude=True)
     s3_client: Optional[MyS3Client] = Field(default=None, exclude=True)
     consumer: Optional[StreamConsumerClient] = Field(default=None, exclude=True)
-    elasticsearch_client: Any = Field(default=None, exclude=True)
+    meilisearch_client: Any = Field(default=None, exclude=True)
     worker_enabled: bool = Field(default=False, exclude=True)
 
     @asynccontextmanager
@@ -46,26 +46,26 @@ class ElasticsearchIndexerWorker(Worker):
         """Lifespan context manager for startup/shutdown."""
         try:
             if not self.worker_enabled:
-                logger.info("ElasticsearchIndexerWorker disabled by configuration")
+                logger.info("MeilisearchIndexerWorker disabled by configuration")
                 yield
                 return
 
-            logger.info("Starting ElasticsearchIndexerWorker")
+            logger.info("Starting MeilisearchIndexerWorker")
 
             await self._initialize_clients()
 
-            logger.info("ElasticsearchIndexerWorker started successfully")
+            logger.info("MeilisearchIndexerWorker started successfully")
 
             yield
         except Exception as e:
-            logger.error(f"Failed to start ElasticsearchIndexerWorker: {e}")
+            logger.error(f"Failed to start MeilisearchIndexerWorker: {e}")
             raise
         finally:
             await self._cleanup_clients()
-            logger.info("ElasticsearchIndexerWorker stopped")
+            logger.info("MeilisearchIndexerWorker stopped")
 
     async def _initialize_clients(self) -> None:
-        """Initialize Kafka consumer, S3 client, and Elasticsearch client."""
+        """Initialize Kafka consumer, S3 client, and Meilisearch client."""
         kafka_brokers = self._get_kafka_brokers()
 
         if kafka_brokers:
@@ -76,7 +76,7 @@ class ElasticsearchIndexerWorker(Worker):
             )
 
         await self._initialize_storage_clients()
-        await self._initialize_elasticsearch()
+        await self._initialize_meilisearch()
 
     def _get_kafka_brokers(self) -> list[str]:
         """Get Kafka brokers from settings."""
@@ -93,13 +93,13 @@ class ElasticsearchIndexerWorker(Worker):
         consumer_config = StreamConsumerConfig(
             brokers=kafka_brokers,
             topic=settings.kafka_entitychange_json_topic,
-            group_id=settings.elasticsearch_consumer_group,
+            group_id=settings.meilisearch_consumer_group,
         )
         self.consumer = StreamConsumerClient(config=consumer_config)
         await self.consumer.start()
         logger.info(
             f"Kafka consumer started: topic={settings.kafka_entitychange_json_topic}, "
-            f"group={settings.elasticsearch_consumer_group}"
+            f"group={settings.meilisearch_consumer_group}"
         )
 
     async def _initialize_storage_clients(self) -> None:
@@ -123,29 +123,28 @@ class ElasticsearchIndexerWorker(Worker):
         else:
             logger.warning("S3 not configured, worker cannot fetch entity snapshots")
 
-    async def _initialize_elasticsearch(self) -> None:
-        """Initialize Elasticsearch client."""
-        self.elasticsearch_client = ElasticsearchClient(
-            host=settings.elasticsearch_host,
-            port=settings.elasticsearch_port,
-            index=settings.elasticsearch_index,
-            username=settings.elasticsearch_username or None,
-            password=settings.elasticsearch_password or None,
+    async def _initialize_meilisearch(self) -> None:
+        """Initialize Meilisearch client."""
+        self.meilisearch_client = MeilisearchClient(
+            host=settings.meilisearch_host,
+            port=settings.meilisearch_port,
+            api_key=settings.meilisearch_api_key or None,
+            index=settings.meilisearch_index,
         )
 
-        if self.elasticsearch_client.connect():
+        if self.meilisearch_client.connect():
             logger.info(
-                f"Elasticsearch client connected: {settings.elasticsearch_host}:{settings.elasticsearch_port}/{settings.elasticsearch_index}"
+                f"Meilisearch client connected: {settings.meilisearch_host}:{settings.meilisearch_port}/{settings.meilisearch_index}"
             )
         else:
-            logger.error("Failed to connect to Elasticsearch")
+            logger.error("Failed to connect to Meilisearch")
 
     async def _cleanup_clients(self) -> None:
         """Clean up all clients."""
         if self.consumer:
             await self.consumer.stop()
-        if self.elasticsearch_client:
-            self.elasticsearch_client.close()
+        if self.meilisearch_client:
+            self.meilisearch_client.close()
         if self.vitess_client and self.vitess_client.connection_manager:
             self.vitess_client.connection_manager.disconnect()
         logger.debug("All clients cleaned up")
@@ -190,17 +189,17 @@ class ElasticsearchIndexerWorker(Worker):
 
     async def _handle_delete(self, entity_id: str) -> None:
         """Handle entity deletion."""
-        if self.elasticsearch_client:
-            self.elasticsearch_client.delete_document(entity_id)
-            logger.info(f"Deleted entity {entity_id} from Elasticsearch")
+        if self.meilisearch_client:
+            self.meilisearch_client.delete_document(entity_id)
+            logger.info(f"Deleted entity {entity_id} from Meilisearch")
 
     async def _handle_change(
         self, entity_id: str, revision_id: int, change_type: str
     ) -> None:
         """Handle entity change (create/update)."""
-        if not self.s3_client or not self.elasticsearch_client:
+        if not self.s3_client or not self.meilisearch_client:
             logger.warning(
-                "S3 or Elasticsearch client not available, skipping indexing"
+                "S3 or Meilisearch client not available, skipping indexing"
             )
             return
 
@@ -210,11 +209,13 @@ class ElasticsearchIndexerWorker(Worker):
                 logger.warning(f"Could not fetch entity {entity_id} from S3")
                 return
 
-            es_document = transform_to_elasticsearch(entity_json)
+            meilisearch_document = transform_to_meilisearch(entity_json)
 
-            success = self.elasticsearch_client.index_document(entity_id, es_document)
+            success = self.meilisearch_client.index_document(
+                entity_id, meilisearch_document.model_dump(mode="json")
+            )
             if success:
-                logger.info(f"Indexed entity {entity_id} to Elasticsearch")
+                logger.info(f"Indexed entity {entity_id} to Meilisearch")
             else:
                 logger.error(f"Failed to index entity {entity_id}")
 
@@ -286,7 +287,7 @@ async def run_server(app: FastAPI) -> None:
     config = uvicorn.Config(
         app,
         host="0.0.0.0",
-        port=8007,
+        port=8009,
         loop="asyncio",
         log_config=logging_config,
     )
@@ -295,7 +296,7 @@ async def run_server(app: FastAPI) -> None:
 
 
 async def main() -> None:
-    """Main entry point for the ElasticsearchIndexerWorker."""
+    """Main entry point for the MeilisearchIndexerWorker."""
     log_level = os.getenv("LOG_LEVEL", "INFO")
     logging.basicConfig(
         level=getattr(logging, log_level.upper(), logging.INFO),
@@ -303,9 +304,9 @@ async def main() -> None:
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-    worker = ElasticsearchIndexerWorker(
-        worker_id="elasticsearch-indexer",
-        worker_enabled=settings.elasticsearch_enabled,
+    worker = MeilisearchIndexerWorker(
+        worker_id="meilisearch-indexer",
+        worker_enabled=settings.meilisearch_enabled,
     )
 
     app = FastAPI(response_model_by_alias=True)
@@ -321,7 +322,7 @@ async def main() -> None:
     )
 
 
-async def run_worker(worker: ElasticsearchIndexerWorker) -> None:
+async def run_worker(worker: MeilisearchIndexerWorker) -> None:
     """Run the worker."""
     worker.running = True
     async with worker.lifespan():

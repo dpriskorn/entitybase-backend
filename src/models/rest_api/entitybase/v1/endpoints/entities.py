@@ -44,6 +44,7 @@ from models.data.rest_api.v1.entitybase.response import TurtleResponse
 from models.data.rest_api.v1.entitybase.response import BacklinksResponse
 from models.data.rest_api.v1.entitybase.response.entity_data import (
     ElasticsearchDocumentResponse,
+    MeilisearchDocumentResponse,
 )
 from models.data.rest_api.v1.entitybase.response.sitelinks import AllSitelinksResponse
 from models.rest_api.entitybase.v1.handlers.entity.delete import EntityDeleteHandler
@@ -58,6 +59,7 @@ from models.rest_api.entitybase.v1.services.entity_statement_service import (
 )
 from models.rest_api.utils import raise_validation_error, validate_state_clients
 from models.services.elasticsearch import transform_to_elasticsearch
+from models.services.meilisearch import transform_to_meilisearch
 from models.rest_api.entitybase.v1.endpoints.base import (
     get_entity_read_handler,
     get_entity_delete_handler,
@@ -663,3 +665,22 @@ async def preview_elasticsearch_document(
     logger.debug("preview_elasticsearch_document called")
     document = transform_to_elasticsearch(entity_json)
     return ElasticsearchDocumentResponse(document=document)
+
+
+@router.post(
+    "/entities/meilisearch/preview",
+    response_model=MeilisearchDocumentResponse,
+)
+async def preview_meilisearch_document(
+    entity_json: dict[str, Any] = Body(
+        ..., description="Entity JSON in Wikibase format"
+    ),
+) -> MeilisearchDocumentResponse:
+    """Preview how an entity would be transformed for Meilisearch.
+
+    Accepts entity JSON in Wikibase API format and returns the transformed
+    Meilisearch document for review before indexing.
+    """
+    logger.debug("preview_meilisearch_document called")
+    document = transform_to_meilisearch(entity_json)
+    return MeilisearchDocumentResponse(document=document)

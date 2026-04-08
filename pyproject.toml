@@ -16,6 +16,7 @@ dependencies = [
     "cryptography (>=45.0.0,<46.0.0)",
     "fastapi (>=0.127.1,<0.128.0)",
     "jsonschema (>=4.23.0,<5.0.0)",
+    "meilisearch (>=0.40.0,<0.41.0)",
     "mypy-boto3-s3 (>=1.42.21,<2.0.0)",
     "opensearch-py (>=3.0.0,<4.0.0)",
     "pydantic (>=2.12.5,<3.0.0)",
@@ -90,6 +91,7 @@ api = [
     "cryptography",
     "fastapi",
     "jsonschema",
+    "meilisearch",
     "mypy-boto3-s3",
     "opensearch-py",
     "pydantic",
@@ -115,6 +117,10 @@ create-tables = [
 ]
 create-topics = [
     "aiokafka",
+    "pydantic",
+]
+meilisearch-indexer-worker = [
+    "meilisearch",
     "pydantic",
 ]
 # We use a version of pytest that is compatible with pytest-asyncio
