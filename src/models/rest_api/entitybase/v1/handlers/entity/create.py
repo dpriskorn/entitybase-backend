@@ -32,7 +32,24 @@ class EntityCreateHandler(EntityHandler):
         validator: Any | None = None,
         auto_assign_id: bool = False,
     ) -> EntityResponse:
-        """Create a new entity. Fails if entity already exists."""
+        """Create a new entity. Fails if entity already exists.
+        
+        Creates a new entity with the first revision. If auto_assign_id is
+        true, generates a new ID from the ID worker. Otherwise uses the ID
+        provided in request.id.
+        
+        Args:
+            request: Entity data with type, labels, claims, etc.
+            edit_headers: User ID and edit summary
+            auto_assign_id: Whether to auto-generate entity ID (default false)
+            validator: Optional JSON schema validator
+            
+        Returns:
+            EntityResponse with new entity ID and revision ID
+            
+        Raises:
+            HTTPException 400 if entity ID already exists
+        """
         if auto_assign_id:
             if self.enumeration_service is None:
                 raise_validation_error(

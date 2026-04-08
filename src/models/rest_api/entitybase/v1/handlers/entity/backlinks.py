@@ -20,7 +20,20 @@ class BacklinkHandler(Handler):
         limit: int = 100,
         offset: int = 0,
     ) -> BacklinksResponse:
-        """Get backlinks for an entity."""
+        """Get backlinks for an entity.
+        
+        Returns entities that reference this entity in their statements.
+        A backlink consists of the referencing entity ID, property used,
+        and statement rank (normal/preferred/deprecated).
+        
+        Args:
+            entity_id: Entity ID to get backlinks for
+            limit: Maximum number of backlinks (default 100)
+            offset: Number of backlinks to skip for pagination
+            
+        Returns:
+            BacklinksResponse with list of backlinks
+        """
         logger.debug(f"Getting backlinks for entity {entity_id}, limit {limit}")
         logger.debug(f"Resolving entity_id: {entity_id}")
         internal_id = self.state.vitess_client.id_resolver.resolve_id(entity_id)
