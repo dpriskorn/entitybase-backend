@@ -17,9 +17,9 @@ try:
     from meilisearch.client import Client as MeilisearchClientType
     from meilisearch.index import Index as MeilisearchIndexType
 except ImportError:
-    MeilisearchClientType = None
-    MeilisearchIndexType = None
-    meilisearch = None
+    MeilisearchClientType = None  # noqa: ERA001
+    MeilisearchIndexType = None  # noqa: ERA001
+    meilisearch = None  # noqa: ERA001
 
 
 class MeilisearchClient(BaseModel):
