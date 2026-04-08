@@ -11,19 +11,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install poetry
-        run: pipx install poetry
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-          cache: 'poetry'
-      - run: pip install --upgrade pip wheel
-      - run: poetry install --with=dev
+      - run: pip install ruff radon mypy
       - name: Run custom linters
         run: |
-          poetry run python scripts/linters/check_async_calls.py src/
-          poetry run python scripts/linters/check_int_fields.py src/
-          poetry run python scripts/linters/value_error_linter.py
+          python scripts/linters/check_async_calls.py src/
+          python scripts/linters/check_int_fields.py src/
+          python scripts/linters/value_error_linter.py
           bash scripts/shell/run-assert-linter.sh
           bash scripts/shell/run-response-model-lint.sh
           bash scripts/shell/run-logger-lint.sh
@@ -39,10 +35,9 @@ jobs:
           bash scripts/shell/run-status-code-lint.sh
       - name: Run external linters
         run: |
-          poetry run ruff check src/
-          poetry run radon cc src/ -n 11 -x 20 -e ".venv"
-          poetry run mypy src/
-          # poetry run vulture src/
+          ruff check src/
+          radon cc src/ -n 11 -x 20 -e ".venv"
+          mypy src/
 
   test:
     runs-on: ubuntu-latest
