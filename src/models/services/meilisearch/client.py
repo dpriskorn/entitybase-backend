@@ -32,7 +32,7 @@ class MeilisearchClient(BaseModel):
     api_key: str | None = Field(default=None)
     index_name: str = Field(default="entitybase")
     client: MeilisearchClientType | None = Field(default=None, exclude=True)
-    _index: MeilisearchIndexType | None = Field(default=None, exclude=True)
+    index: MeilisearchIndexType | None = Field(default=None, exclude=True)
 
     def model_post_init(self, context: Any) -> None:
         """Post-initialization hook."""
@@ -51,7 +51,7 @@ class MeilisearchClient(BaseModel):
         try:
             url = f"http://{self.host}:{self.port}"
             self.client = meilisearch.Client(url, self.api_key)
-            self._index = self.client.index(self.index_name)
+            self.index = self.client.index(self.index_name)
             logger.info(f"Connected to Meilisearch at {self.host}:{self.port}")
             return True
         except Exception as e:
@@ -68,13 +68,13 @@ class MeilisearchClient(BaseModel):
         Returns:
             True if successful, False otherwise
         """
-        if not self.client or not self._index:
+        if not self.client or not self.index:
             logger.error("Client not connected")
             return False
 
         try:
             doc_with_id = {"id": doc_id, **document}
-            task = self._index.add_documents([doc_with_id])
+            task = self.index.add_documents([doc_with_id])
             logger.debug(f"Indexed document {doc_id}, task UID: {task.task_uid}")
             return True
         except Exception as e:
@@ -90,12 +90,12 @@ class MeilisearchClient(BaseModel):
         Returns:
             True if successful, False otherwise
         """
-        if not self.client or not self._index:
+        if not self.client or not self.index:
             logger.error("Client not connected")
             return False
 
         try:
-            task = self._index.delete_document(doc_id)
+            task = self.index.delete_document(doc_id)
             logger.debug(f"Deleted document {doc_id}, task UID: {task.task_uid}")
             return True
         except Exception as e:
@@ -111,12 +111,12 @@ class MeilisearchClient(BaseModel):
         Returns:
             MeilisearchDocumentResponse with the document if found
         """
-        if not self.client or not self._index:
+        if not self.client or not self.index:
             logger.error("Client not connected")
             return MeilisearchDocumentResponse(data=None)
 
         try:
-            response = self._index.get_document(doc_id)
+            response = self.index.get_document(doc_id)
             if response:
                 return MeilisearchDocumentResponse(
                     data=MeilisearchDocument(**response)
@@ -128,5 +128,5 @@ class MeilisearchClient(BaseModel):
     def close(self) -> None:
         """Close the client connection."""
         self.client = None
-        self._index = None
+        self.index = None
         logger.info("Meilisearch connection closed")
