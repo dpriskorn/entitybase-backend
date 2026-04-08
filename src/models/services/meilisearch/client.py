@@ -3,6 +3,8 @@
 import logging
 from typing import Any
 
+from pydantic import BaseModel, Field
+
 from models.data.infrastructure.meilisearch import (
     MeilisearchDocument,
     MeilisearchDocumentResponse,
@@ -20,30 +22,21 @@ except ImportError:
     meilisearch = None
 
 
-class MeilisearchClient:
+class MeilisearchClient(BaseModel):
     """Client for interacting with Meilisearch."""
 
-    def __init__(
-        self,
-        host: str = "localhost",
-        port: int = 7700,
-        api_key: str | None = None,
-        index: str = "entitybase",
-    ):
-        """Initialize Meilisearch client.
+    model_config = {"arbitrary_types_allowed": True}
 
-        Args:
-            host: Meilisearch host
-            port: Meilisearch port
-            api_key: Optional API key for authentication
-            index: Default index name
-        """
-        self.host = host
-        self.port = port
-        self.api_key = api_key
-        self.index_name = index
-        self.client: MeilisearchClientType | None = None
-        self._index: MeilisearchIndexType | None = None
+    host: str = Field(default="localhost")
+    port: int = Field(default=7700)
+    api_key: str | None = Field(default=None)
+    index_name: str = Field(default="entitybase")
+    client: MeilisearchClientType | None = Field(default=None, exclude=True)
+    _index: MeilisearchIndexType | None = Field(default=None, exclude=True)
+
+    def model_post_init(self, context: Any) -> None:
+        """Post-initialization hook."""
+        pass
 
     def connect(self) -> bool:
         """Connect to Meilisearch.
