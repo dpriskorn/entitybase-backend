@@ -648,39 +648,57 @@ async def get_entity_backlinks(
     return await handler.get(entity_id, limit, offset)
 
 
-@router.post(
-    "/entities/elasticsearch/preview",
+@router.get(
+    "/entities/{entity_id}/elasticsearch",
     response_model=ElasticsearchDocumentResponse,
 )
-async def preview_elasticsearch_document(
-    entity_json: dict[str, Any] = Body(
-        ..., description="Entity JSON in Wikibase format"
-    ),
+async def get_elasticsearch_document(
+    entity_id: str,
+    req: Request,
 ) -> ElasticsearchDocumentResponse:
-    """Preview how an entity would be transformed for Elasticsearch.
+    """Get entity transformed for Elasticsearch.
 
-    Accepts entity JSON in Wikibase API format and returns the transformed
-    Elasticsearch document for review before indexing.
+    Fetches the entity from the database and returns the transformed
+    Elasticsearch document.
     """
-    logger.debug("preview_elasticsearch_document called")
+    logger.debug(f"get_elasticsearch_document called with entity_id: {entity_id}")
+    state = req.app.state.state_handler
+    handler = EntityReadHandler(state=state)
+    entity_response = handler.get_entity(entity_id)
+
+    entity_json = {
+        "entities": {
+            entity_id: entity_response.entity_data.revision
+        }
+    }
+
     document = transform_to_elasticsearch(entity_json)
     return ElasticsearchDocumentResponse(document=document)
 
 
-@router.post(
-    "/entities/meilisearch/preview",
+@router.get(
+    "/entities/{entity_id}/meilisearch",
     response_model=MeilisearchDocumentResponse,
 )
-async def preview_meilisearch_document(
-    entity_json: dict[str, Any] = Body(
-        ..., description="Entity JSON in Wikibase format"
-    ),
+async def get_meilisearch_document(
+    entity_id: str,
+    req: Request,
 ) -> MeilisearchDocumentResponse:
-    """Preview how an entity would be transformed for Meilisearch.
+    """Get entity transformed for Meilisearch.
 
-    Accepts entity JSON in Wikibase API format and returns the transformed
-    Meilisearch document for review before indexing.
+    Fetches the entity from the database and returns the transformed
+    Meilisearch document.
     """
-    logger.debug("preview_meilisearch_document called")
+    logger.debug(f"get_meilisearch_document called with entity_id: {entity_id}")
+    state = req.app.state.state_handler
+    handler = EntityReadHandler(state=state)
+    entity_response = handler.get_entity(entity_id)
+
+    entity_json = {
+        "entities": {
+            entity_id: entity_response.entity_data.revision
+        }
+    }
+
     document = transform_to_meilisearch(entity_json)
     return MeilisearchDocumentResponse(document=document)
