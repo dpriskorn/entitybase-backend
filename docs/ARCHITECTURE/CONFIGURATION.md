@@ -405,6 +405,42 @@ All settings can be overridden using environment variables with the same name.
 - **Default**: `'entitybase-elasticsearch-indexer'`
 - **Description**: No description available
 
+### `meilisearch_enabled`
+
+- **Type**: `bool`
+- **Default**: `false`
+- **Description**: Enable/disable the Meilisearch indexer worker.
+
+### `meilisearch_host`
+
+- **Type**: `str`
+- **Default**: `'localhost'`
+- **Description**: Meilisearch host address.
+
+### `meilisearch_port`
+
+- **Type**: `int`
+- **Default**: `7700`
+- **Description**: Meilisearch port number.
+
+### `meilisearch_api_key`
+
+- **Type**: `str`
+- **Default**: `''`
+- **Description**: API key for Meilisearch authentication.
+
+### `meilisearch_index`
+
+- **Type**: `str`
+- **Default**: `'entitybase'`
+- **Description**: Meilisearch index name.
+
+### `meilisearch_consumer_group`
+
+- **Type**: `str`
+- **Default**: `'entitybase-meilisearch-indexer'`
+- **Description**: Kafka consumer group for the Meilisearch indexer worker.
+
 ## Usage Example
 
 ```python
