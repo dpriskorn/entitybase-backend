@@ -1,33 +1,20 @@
-# Use Python 3.13 slim image for smaller size
-FROM python:3.13-slim
+# Use Python 3.13 alpine image for smaller size
+FROM python:3.13-alpine
 
 ARG REQUIREMENTS_HASH=initial
 RUN echo "Building purge worker with requirements hash: $REQUIREMENTS_HASH"
 
-# Set working directory
 WORKDIR /app
 
-# Copy requirements first for better caching
 COPY ../var/requirements-purge-worker.txt ./
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements-purge-worker.txt
 
 COPY pyproject.toml /app/pyproject.toml
-
-# Copy application code
 COPY src/ ./ 
 
-# Set environment variables
 ENV PYTHONPATH=/app
 
-# Expose health check port
 EXPOSE 8008
 
-# Run the purge worker
 CMD ["python", "-m", "models.workers.purge.purge_worker"]
