@@ -20,16 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 class IdGeneratorWorker(VitessWorker):
-    """Asynchronous worker service for generating Wikibase entity IDs using range-based allocation.
-
-    This worker reserves blocks (ranges) of IDs from the database to minimize contention
-    during high-volume entity creation. It monitors range status, handles graceful shutdown,
-    and provides health checks for monitoring.
-
-    The worker initializes Vitess and Enumeration services, then runs a continuous loop
-    checking ID range availability. IDs are allocated from pre-reserved ranges to ensure
-    efficient, low-latency ID generation.
-    """
+    """Generates Wikibase entity IDs using range-based allocation."""
 
     enumeration_service: Any = None
 

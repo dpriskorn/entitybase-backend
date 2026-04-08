@@ -61,6 +61,8 @@ logger = logging.getLogger(__name__)
 
 
 class TtlDumpWorker(Worker):
+    """Periodically generates RDF TTL dumps of all entities."""
+
     vitess_client: Any = None
     s3_client: Any = None
     converter: Any = None

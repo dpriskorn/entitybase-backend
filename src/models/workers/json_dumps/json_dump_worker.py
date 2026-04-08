@@ -43,6 +43,8 @@ logger = logging.getLogger(__name__)
 
 
 class JsonDumpWorker(Worker):
+    """Periodically generates JSON dumps of all entities."""
+
     vitess_client: Any = None
     s3_client: Any = None
     running: bool = False

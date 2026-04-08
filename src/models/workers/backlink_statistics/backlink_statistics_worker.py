@@ -25,6 +25,8 @@ logger = logging.getLogger(__name__)
 
 
 class BacklinkStatisticsWorker(BaseStatsWorker):
+    """Computes and stores backlink statistics for entities."""
+
     def get_enabled_setting(self) -> bool:
         """Check if backlink stats are enabled."""
         return settings.backlink_stats_enabled

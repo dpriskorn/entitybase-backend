@@ -23,6 +23,8 @@ logger = logging.getLogger(__name__)
 
 
 class UserStatsWorker(BaseStatsWorker):
+    """Computes and stores user activity statistics."""
+
     def get_enabled_setting(self) -> bool:
         """Check if user stats are enabled."""
         return settings.user_stats_enabled
