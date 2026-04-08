@@ -10,9 +10,9 @@ Tiered requirements based on function size:
 
 import ast
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 from typing import List
-from pydantic import BaseModel
 
 sys.path.append(str(Path(__file__).parent.resolve()))
 
@@ -29,7 +29,8 @@ LOGGER_TIERS = [
 MIN_LINES_THRESHOLD = 30  # Only check functions with more than this many lines
 
 
-class LoggerViolation(BaseModel):
+@dataclass
+class LoggerViolation:
     """Represents a logger violation found during linting."""
 
     func_name: str
@@ -130,37 +131,6 @@ class LoggerInfoChecker(ast.NodeVisitor):
             if body_lines <= max_lines:
                 return min_calls
         return 3  # Fallback for very large functions
-
-        # Count non-empty lines in function body
-        body_lines = 0
-        for i in range(start_line, end_line + 1):
-            line = self.source_lines[i].strip()
-            if line and not line.startswith("#"):
-                body_lines += 1
-
-        if body_lines <= 30:
-            return
-
-        # Check for logger calls
-        has_logger_call = False
-        for child in ast.walk(node):
-            if isinstance(child, ast.Call):
-                if self._is_logger_call(child):
-                    has_logger_call = True
-                    break
-
-        if not has_logger_call:
-            func_name = node.name
-            if is_line_allowed(self.file_path, node.lineno, self.allowlist):
-                return
-            self.violations.append(
-                LoggerViolation(
-                    func_name=func_name,
-                    line_no=node.lineno,
-                    message=f"Function '{func_name}' has {body_lines} lines but no logger.debug() call",
-                    file_path=self.file_path,
-                )
-            )
 
     def _is_logger_call(self, node: ast.Call) -> bool:
         """Check if this is a logger call (info, debug, warning, error, critical)."""
