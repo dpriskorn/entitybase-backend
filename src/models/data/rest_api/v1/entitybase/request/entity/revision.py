@@ -1,3 +1,5 @@
+"""Entity revision request models."""
+
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
