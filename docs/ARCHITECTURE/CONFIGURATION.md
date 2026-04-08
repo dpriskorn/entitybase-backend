@@ -153,6 +153,24 @@ All settings can be overridden using environment variables with the same name.
 - **Default**: `9200`
 - **Description**: No description available
 
+### `meilisearch_host`
+
+- **Type**: `str`
+- **Default**: `'localhost'`
+- **Description**: No description available
+
+### `meilisearch_port`
+
+- **Type**: `int`
+- **Default**: `7700`
+- **Description**: No description available
+
+### `meilisearch_api_key`
+
+- **Type**: `str`
+- **Default**: `''`
+- **Description**: No description available
+
 ## Workers Settings
 
 ### `backlink_stats_enabled`
@@ -408,38 +426,38 @@ All settings can be overridden using environment variables with the same name.
 ### `meilisearch_enabled`
 
 - **Type**: `bool`
-- **Default**: `false`
-- **Description**: Enable/disable the Meilisearch indexer worker.
-
-### `meilisearch_host`
-
-- **Type**: `str`
-- **Default**: `'localhost'`
-- **Description**: Meilisearch host address.
-
-### `meilisearch_port`
-
-- **Type**: `int`
-- **Default**: `7700`
-- **Description**: Meilisearch port number.
-
-### `meilisearch_api_key`
-
-- **Type**: `str`
-- **Default**: `''`
-- **Description**: API key for Meilisearch authentication.
+- **Default**: `False`
+- **Description**: Meilisearch worker
 
 ### `meilisearch_index`
 
 - **Type**: `str`
 - **Default**: `'entitybase'`
-- **Description**: Meilisearch index name.
+- **Description**: No description available
 
 ### `meilisearch_consumer_group`
 
 - **Type**: `str`
 - **Default**: `'entitybase-meilisearch-indexer'`
-- **Description**: Kafka consumer group for the Meilisearch indexer worker.
+- **Description**: No description available
+
+### `purge_enabled`
+
+- **Type**: `bool`
+- **Default**: `True`
+- **Description**: Purge worker
+
+### `purge_schedule`
+
+- **Type**: `str`
+- **Default**: `'0 0 * * *'`
+- **Description**: No description available
+
+### `purge_batch_size`
+
+- **Type**: `int`
+- **Default**: `100`
+- **Description**: No description available
 
 ## Usage Example
 

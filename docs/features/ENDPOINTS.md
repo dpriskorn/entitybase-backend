@@ -1,12 +1,10 @@
 # REST API Endpoints
 
-This API has 125 endpoints implemented, covering entity management (items, properties, lexemes), lexeme components (forms, senses, lemmas, glosses), entity terms (labels, descriptions, aliases), statements and claims, sitelinks, revision history, user management, and batch resolution endpoints.
+This API has 126 endpoints implemented, covering entity management (items, properties, lexemes), lexeme components (forms, senses, lemmas, glosses), entity terms (labels, descriptions, aliases), statements and claims, sitelinks, revision history, user management, and batch resolution endpoints.
 
 | Implemented | Method | Full Path | Description |
 |-------------|--------|-----------|-------------|
 | ✅ | GET | `/entities` | List entities based on type, status, edit_type, limit, and offset. |
-| ✅ | GET | `/entities/{entity_id}/elasticsearch` | Get entity transformed for Elasticsearch (fetches from DB and returns transformed document). |
-| ✅ | GET | `/entities/{entity_id}/meilisearch` | Get entity transformed for Meilisearch (fetches from DB and returns transformed document). |
 | ✅ | GET | `/entities/items` | List all items (Q-prefixed entities). |
 | ✅ | POST | `/entities/items` | Create a new empty item entity. |
 | ✅ | GET | `/entities/lexemes` | List all lexemes (L-prefixed entities). |
@@ -57,6 +55,7 @@ This API has 125 endpoints implemented, covering entity management (items, prope
 | ✅ | PUT | `/entities/{entity_id}/descriptions/{language_code}` | Update entity description for language. |
 | ✅ | DELETE | `/entities/{entity_id}/descriptions/{language_code}` | Delete entity description for language. |
 | ✅ | POST | `/entities/{entity_id}/descriptions/{language_code}` | Add a new description to entity for language (alias for PUT). |
+| ✅ | GET | `/entities/{entity_id}/elasticsearch` | Get entity transformed for Elasticsearch. |
 | ✅ | GET | `/entities/{entity_id}/labels/{language_code}` | Get entity label text for language. |
 | ✅ | PUT | `/entities/{entity_id}/labels/{language_code}` | Update entity label for language. |
 | ✅ | DELETE | `/entities/{entity_id}/labels/{language_code}` | Delete entity label for language. |
@@ -65,6 +64,7 @@ This API has 125 endpoints implemented, covering entity management (items, prope
 | ✅ | DELETE | `/entities/{entity_id}/lock` | Remove lock from an entity. |
 | ✅ | POST | `/entities/{entity_id}/mass-edit-protect` | Add mass edit protection to an entity. |
 | ✅ | DELETE | `/entities/{entity_id}/mass-edit-protect` | Remove mass edit protection from an entity. |
+| ✅ | GET | `/entities/{entity_id}/meilisearch` | Get entity transformed for Meilisearch. |
 | ✅ | GET | `/entities/{entity_id}/properties` | Get list of unique property IDs for an entity's head revision. |
 | ✅ | POST | `/entities/{entity_id}/properties/{property_id}` | Add claims for a single property to an entity. |
 | ✅ | GET | `/entities/{entity_id}/properties/{property_list}` | Get entity property hashes for specified properties. |
