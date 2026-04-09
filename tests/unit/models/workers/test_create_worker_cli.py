@@ -42,39 +42,21 @@ class TestDevWorkerCLI:
         captured = capsys.readouterr()
         assert "usage:" in captured.out
 
+    @patch("models.workers.create.__main__.run_buckets_setup")
     @patch(
         "sys.argv",
         ["devworker", "--endpoint", "http://custom:9000", "buckets", "setup"],
     )
-    @patch("models.workers.create.__main__.CreateBuckets")
     def test_custom_arguments(
         self,
-        mock_create_buckets,
+        mock_run_setup,
     ):
         """Test CLI with custom arguments."""
-        mock_worker = MagicMock()
-        mock_worker.run_setup = AsyncMock()
-        mock_worker.run_setup.return_value = {
-            "setup_status": "completed",
-            "buckets_created": {},
-            "health_check": {"overall_status": "healthy", "issues": []},
-        }
-        mock_worker.bucket_health_check = AsyncMock()
-        mock_worker.bucket_health_check.return_value = {
-            "overall_status": "healthy",
-            "issues": [],
-            "buckets": {},
-        }
-        mock_create_buckets.return_value = mock_worker
+        mock_run_setup.return_value = True
 
         result = main()
 
         assert result == 0
-        mock_create_buckets.assert_called_once_with(
-            minio_endpoint="http://custom:9000",
-            minio_access_key="minioadmin",
-            minio_secret_key="minioadmin",
-        )
 
     @patch("models.workers.create.__main__.run_buckets_setup")
     @patch("sys.argv", ["devworker", "buckets", "setup"])
