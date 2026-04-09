@@ -56,7 +56,23 @@ nav:
               - Statement Processing: DIAGRAMS/WRITE-PATHS/STATEMENT-PROCESSING-PATHS.md
               - Lexeme Update: DIAGRAMS/WRITE-PATHS/LEXEME-UPDATE-PROCESS.md
   - 📚 API Reference:
-      - API Reference: docs/API.md
+      - API: docs/api/README.md
+      - Items: docs/api/ITEMS.md
+      - Properties: docs/api/PROPERTIES.md
+      - Lexemes: docs/api/LEXEMES.md
+      - Entities: docs/api/ENTITIES.md
+      - Statements: docs/api/STATEMENTS.md
+      - Statistics: docs/api/STATISTICS.md
+      - Watchlist: docs/api/WATCHLIST.md
+      - Import: docs/api/IMPORT.md
+      - Redirects: docs/api/REDIRECTS.md
+      - List: docs/api/LIST.md
+      - Health: docs/api/HEALTH.md
+      - Version: docs/api/VERSION.md
+      - Settings: docs/api/SETTINGS.md
+      - Interactions: docs/api/INTERACTIONS.md
+      - Users: docs/api/USERS.md
+      - Data Models: docs/api/DATA_MODELS.md
       - OpenAPI Spec: docs/openapi.json
   - ✨ Features:
       - features/ENDPOINTS.md
