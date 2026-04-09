@@ -122,7 +122,7 @@ class MeilisearchIndexerWorker(Worker):
             host=settings.meilisearch_host,
             port=settings.meilisearch_port,
             api_key=settings.meilisearch_api_key or None,
-            index=settings.meilisearch_index,
+            index_name=settings.meilisearch_index,
         )
 
         if self.meilisearch_client.connect():
