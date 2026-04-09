@@ -17,7 +17,7 @@ from models.workers.utils import calculate_seconds_until_next_run
 
 logger = logging.getLogger(__name__)
 
-S3_BUCKETS = ["revisions", "wikibase-dumps"]
+S3_BUCKETS = ["revisions", "entitybase-dumps"]
 
 DB_TABLES = [
     "entity_backlinks",

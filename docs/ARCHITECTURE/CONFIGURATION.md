@@ -124,8 +124,9 @@ All settings can be overridden using environment variables with the same name.
 ### `s3_dump_bucket`
 
 - **Type**: `str`
-- **Default**: `'wikibase-dumps'`
-- **Description**: No description available
+- **Default**: `'entitybase-dumps'`
+- **Env**: `S3_DUMP_BUCKET`
+- **Description**: S3 bucket for JSON/TTL dumps exports
 
 ## API Settings
 
@@ -217,7 +218,8 @@ All settings can be overridden using environment variables with the same name.
 
 - **Type**: `str`
 - **Default**: `'wikidata'`
-- **Description**: rdf
+- **Env**: `WIKIBASE_REPOSITORY_NAME`
+- **Description**: RDF repository name (semantic reference to Wikidata data model)
 
 ### `property_registry_path`
 
@@ -241,13 +243,15 @@ All settings can be overridden using environment variables with the same name.
 
 - **Type**: `str`
 - **Default**: `''`
-- **Description**: No description available
+- **Env**: `KAFKA_ENTITYCHANGE_JSON_TOPIC`
+- **Description**: Kafka topic for entity change events (e.g., `entitybase.entity_change`)
 
 ### `kafka_entity_diff_topic`
 
 - **Type**: `str`
 - **Default**: `''`
-- **Description**: No description available
+- **Env**: `KAFKA_ENTITY_DIFF_TOPIC`
+- **Description**: Kafka topic for RDF diff events (e.g., `entitybase.entity_diff`)
 
 ### `kafka_userchange_json_topic`
 

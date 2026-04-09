@@ -92,7 +92,7 @@ class Settings(BaseModel):
     # JSON dump worker
     json_dump_enabled: bool = True
     json_dump_schedule: str = "0 2 * * 0"  # Sunday 2AM UTC
-    s3_dump_bucket: str = "wikibase-dumps"
+    s3_dump_bucket: str = "entitybase-dumps"
     json_dump_batch_size: int = 1000
     json_dump_parallel_workers: int = 50
     json_dump_generate_checksums: bool = True

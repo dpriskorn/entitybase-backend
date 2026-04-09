@@ -74,7 +74,7 @@ def fetch_snapshots_in_batches(entities, batch_size=1000):
         yield zip(batch, snapshots)
 
 
-def fetch_snapshot(entity_id, revision_id, bucket="wikibase-revisions"):
+def fetch_snapshot(entity_id, revision_id, bucket="revisions"):
     """Fetch single snapshot from S3"""
     key = f"{entity_id}/r{revision_id}.json"
     response = s3_client.get_object(Bucket=bucket, Key=key)
@@ -144,7 +144,7 @@ def generate_json_dump(entities, output_path, compress=True):
             "metadata": {
                 "revision_id": revision_id,
                 "entity_id": entity_id,
-                "s3_uri": f"s3://wikibase-revisions/{entity_id}/r{revision_id}.json",
+                "s3_uri": f"s3://revisions/{entity_id}/r{revision_id}.json",
                 "updated_at": entity_json.get("modified")
             }
         })
@@ -504,8 +504,8 @@ def generate_partitioned_dump(entities, output_dir, base_filename, format='ttl')
 | Option | Description | Default |
 |---------|-------------|---------|
 | `schedule` | Cron expression for weekly dumps | `0 2 * * 0` (Sunday 2AM) |
-| `s3_source_bucket` | S3 bucket for entity snapshots | wikibase-revisions |
-| `s3_dump_bucket` | S3 bucket for dumps | wikibase-dumps |
+| `s3_source_bucket` | S3 bucket for entity snapshots | revisions |
+| `s3_dump_bucket` | S3 bucket for dumps | entitybase-dumps |
 | `batch_size` | Entities per batch | 1000 |
 | `parallel_workers` | Parallel conversion threads | 50 |
 | `format_versions` | JSON and RDF formats to generate | `["canonical-1.0", "turtle-1.1"]` |

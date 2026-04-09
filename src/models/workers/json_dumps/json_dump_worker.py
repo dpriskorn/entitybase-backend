@@ -380,7 +380,7 @@ async def run_worker(worker: JsonDumpWorker) -> None:
 async def run_server(app: Any) -> None:
     if uvicorn is None:
         raise RuntimeError("uvicorn not installed, cannot run server")
-    log_level = settings.get_log_level().upper()
+    log_level = logging.getLevelName(settings.get_log_level())
     logging_config = {
         "version": 1,
         "disable_existing_loggers": False,

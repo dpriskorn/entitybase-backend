@@ -72,7 +72,7 @@ When statement added to entity revision:
 **Entity Revisions**
 
 ```
-s3://wikibase-revisions/entity/Q42/rev100.json
+s3://entitybase-revisions/entity/Q42/rev100.json
 ```
 
 ```json

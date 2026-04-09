@@ -214,7 +214,7 @@ Everything else in the system derives from this rule.
 #### Entity Diff Worker
 - **File**: `src/models/workers/entity_diff/entity_diff_worker.py`
 - **Purpose**: Computes RDF diffs between entity revisions
-- **Output**: Streams to `wikibase.entity_diff` Kafka topic
+- **Output**: Streams to `entitybase.entity_diff` Kafka topic
 
 #### Backlink Statistics Worker
 - **File**: `src/models/workers/backlink_statistics/backlink_statistics_worker.py`
