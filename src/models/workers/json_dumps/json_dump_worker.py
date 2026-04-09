@@ -315,7 +315,7 @@ class JsonDumpWorker(Worker):
         }
 
         with gzip.open(output_path, "wb") as f:
-            f.write(json.dumps(dump_data, indent=2).encode("utf-8"))  # type: ignore[arg-type]
+            f.write(json.dumps(dump_data, indent=2, default=str).encode("utf-8"))
 
     async def _fetch_entity_data(
         self, record: EntityDumpRecord
