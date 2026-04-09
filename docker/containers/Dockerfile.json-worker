@@ -6,7 +6,7 @@ RUN echo "Building with requirements hash: $REQUIREMENTS_HASH"
 
 WORKDIR /app
 
-COPY ../var/requirements-json-worker.txt ./
+COPY ./var/requirements-json-worker.txt ./
 
 RUN pip install --no-cache-dir -r requirements-json-worker.txt
 

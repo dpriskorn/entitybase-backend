@@ -6,7 +6,7 @@ RUN echo "Building purge worker with requirements hash: $REQUIREMENTS_HASH"
 
 WORKDIR /app
 
-COPY ../var/requirements-purge-worker.txt ./
+COPY ./var/requirements-purge-worker.txt ./
 
 RUN pip install --no-cache-dir -r requirements-purge-worker.txt
 
