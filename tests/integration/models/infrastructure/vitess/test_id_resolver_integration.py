@@ -13,8 +13,9 @@ def test_timer():
     )
 
 
+@pytest.mark.asyncio
 @pytest.mark.integration
-def test_id_resolver_resolve_id(db_conn, vitess_client):
+async def test_id_resolver_resolve_id(db_conn, vitess_client):
     """Test IdResolver.resolve_id with real database."""
     import time as time_module
 

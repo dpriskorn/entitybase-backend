@@ -40,7 +40,8 @@ def connection_manager() -> VitessConnectionManager:
     manager.disconnect()
 
 
-def test_acquire_timeout_when_pool_exhausted(connection_manager):
+@pytest.mark.asyncio
+async def test_acquire_timeout_when_pool_exhausted(connection_manager):
     """Test that acquire raises TimeoutError when pool is exhausted."""
     manager = connection_manager
     config = manager.config
@@ -61,7 +62,8 @@ def test_acquire_timeout_when_pool_exhausted(connection_manager):
             manager.release(conn)
 
 
-def test_release_closes_excess_connections(connection_manager):
+@pytest.mark.asyncio
+async def test_release_closes_excess_connections(connection_manager):
     """Test that release closes excess connections when pool is full."""
     manager = connection_manager
     config = manager.config
@@ -95,7 +97,8 @@ def test_release_closes_excess_connections(connection_manager):
                 conn.close()
 
 
-def test_acquire_replaces_closed_connections(connection_manager):
+@pytest.mark.asyncio
+async def test_acquire_replaces_closed_connections(connection_manager):
     """Test that acquire creates new connection if pooled connection is closed."""
     manager = connection_manager
 
@@ -122,7 +125,8 @@ def test_acquire_replaces_closed_connections(connection_manager):
             conn2.close()
 
 
-def test_concurrent_acquire_release(connection_manager):
+@pytest.mark.asyncio
+async def test_concurrent_acquire_release(connection_manager):
     """Test that concurrent acquire/release operations work correctly."""
     import threading
 
@@ -157,14 +161,16 @@ def test_concurrent_acquire_release(connection_manager):
     )
 
 
-def test_healthy_connection_with_real_database(connection_manager):
+@pytest.mark.asyncio
+async def test_healthy_connection_with_real_database(connection_manager):
     """Test that healthy_connection property works with real database."""
     manager = connection_manager
 
     assert manager.healthy_connection is True, "Connection should be healthy"
 
 
-def test_multiple_acquire_and_release(connection_manager):
+@pytest.mark.asyncio
+async def test_multiple_acquire_and_release(connection_manager):
     """Test multiple acquire and release cycles."""
     manager = connection_manager
     config = manager.config
@@ -183,7 +189,8 @@ def test_multiple_acquire_and_release(connection_manager):
     assert manager.pool.qsize() == config.pool_size
 
 
-def test_disconnect_closes_all_connections(connection_manager):
+@pytest.mark.asyncio
+async def test_disconnect_closes_all_connections(connection_manager):
     """Test that disconnect closes all pooled connections."""
     manager = connection_manager
 
