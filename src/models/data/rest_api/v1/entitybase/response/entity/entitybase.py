@@ -205,21 +205,21 @@ class EntityMetadataResponse(BaseModel):
     id: str = Field(description="Entity ID")
     type: str = Field(default="item", description="Entity type")
     labels: EntityLabelsResponse = Field(
-        default_factory=lambda: EntityLabelsResponse(), description="Entity labels"
+        default_factory=EntityLabelsResponse, description="Entity labels"
     )
     descriptions: EntityDescriptionsResponse = Field(
-        default_factory=lambda: EntityDescriptionsResponse(),
+        default_factory=EntityDescriptionsResponse,
         description="Entity descriptions",
     )
     aliases: EntityAliasesResponse = Field(
-        default_factory=lambda: EntityAliasesResponse(), description="Entity aliases"
+        default_factory=EntityAliasesResponse, description="Entity aliases"
     )
     statements: EntityStatementsResponse = Field(
-        default_factory=lambda: EntityStatementsResponse(),
+        default_factory=EntityStatementsResponse,
         description="Entity statements",
     )
     sitelinks: EntitySitelinksResponse = Field(
-        default_factory=lambda: EntitySitelinksResponse(),
+        default_factory=EntitySitelinksResponse,
         description="Entity sitelinks",
     )
 
