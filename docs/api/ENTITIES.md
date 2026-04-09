@@ -79,6 +79,50 @@ Get entity data in Turtle format.
 
 ---
 
+## Search Integration
+
+### GET /v1/entities/{entity_id}/elasticsearch
+**Get Elasticsearch Document**
+
+Get entity transformed for Elasticsearch indexing.
+
+Fetches the entity from the database and returns the transformed
+Elasticsearch document.
+
+| Aspect | Details |
+|--------|---------|
+| Operation ID | `get_elasticsearch_document_v1_entities__entity_id__elasticsearch_get` |
+| Method | `GET` |
+| Path | `/v1/entities/{entity_id}/elasticsearch` |
+| Parameters | `entity_id` (path, Required) |
+| Response | Description |
+|----------|-------------|
+| 200 | Successful Response |
+| 422 | Validation Error |
+
+---
+
+### GET /v1/entities/{entity_id}/meilisearch
+**Get Meilisearch Document**
+
+Get entity transformed for Meilisearch indexing.
+
+Fetches the entity from the database and returns the transformed
+Meilisearch document.
+
+| Aspect | Details |
+|--------|---------|
+| Operation ID | `get_meilisearch_document_v1_entities__entity_id__meilisearch_get` |
+| Method | `GET` |
+| Path | `/v1/entities/{entity_id}/meilisearch` |
+| Parameters | `entity_id` (path, Required) |
+| Response | Description |
+|----------|-------------|
+| 200 | Successful Response |
+| 422 | Validation Error |
+
+---
+
 ## Labels
 
 ### GET /v1/entities/{entity_id}/labels/{language_code}
