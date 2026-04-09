@@ -127,6 +127,7 @@ async def _consume_event(
 
 @pytest.mark.asyncio
 @pytest.mark.integration
+@pytest.mark.requires_kafka
 async def test_entity_creation_indexes_to_elasticsearch(api_prefix: str) -> None:
     """Test that creating an entity indexes it to Elasticsearch."""
     from models.rest_api.main import app
@@ -209,6 +210,7 @@ async def test_entity_creation_indexes_to_elasticsearch(api_prefix: str) -> None
 
 @pytest.mark.asyncio
 @pytest.mark.integration
+@pytest.mark.requires_kafka
 async def test_entity_update_indexes_to_elasticsearch(api_prefix: str) -> None:
     """Test that updating an entity updates it in Elasticsearch."""
     from models.rest_api.main import app
@@ -281,6 +283,7 @@ async def test_entity_update_indexes_to_elasticsearch(api_prefix: str) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
+@pytest.mark.requires_kafka
 async def test_entity_deletion_removes_from_elasticsearch(api_prefix: str) -> None:
     """Test that deleting an entity removes it from Elasticsearch."""
     from models.rest_api.main import app

@@ -262,7 +262,7 @@ jobs:
           S3_BUCKET: testbucket
           REST_API_URL: http://localhost:8000
           STREAMING_ENABLED: "false"
-        run: poetry run pytest tests/integration -k "test_watchlist or test_entity_deletion or test_item_terms" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
+        run: poetry run pytest tests/integration -k "test_watchlist or test_entity_deletion or test_item_terms" -m "not requires_kafka" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
         timeout-minutes: 10
 
       - name: Run integration tests (03 - late 50a)
