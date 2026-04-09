@@ -228,7 +228,7 @@ class UserHandler(Handler):
         )
 
     def get_general_stats(self) -> GeneralStatsResponse:
-        """Get general wiki statistics from the daily stats table."""
+        """Get general entity statistics from the daily stats table."""
         logger.debug("Fetching general stats from database")
         connection = self.state.vitess_client.connection_manager.acquire()
         cursor = connection.cursor()

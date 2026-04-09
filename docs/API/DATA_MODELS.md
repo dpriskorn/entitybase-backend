@@ -289,7 +289,7 @@ Response for endorsement statistics.
 ## Statistics Models
 
 ### GeneralStatsResponse
-API response for general wiki statistics.
+API response for general entity statistics.
 
 | Field | Type | Description |
 |-------|------|-------------|
