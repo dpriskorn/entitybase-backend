@@ -12,7 +12,14 @@ from botocore.exceptions import ClientError
 sys.path.insert(0, "src")
 
 if "STREAMING_ENABLED" not in os.environ:
-    os.environ["STREAMING_ENABLED"] = "true"
+    # Default to disabled - only enable if Kafka is available and not in CI
+    streaming_enabled = "false"
+    kafka_host = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "")
+    # Only enable streaming if Kafka is configured and CI env var is not set
+    if kafka_host and not os.getenv("CI"):
+        streaming_enabled = "true"
+    os.environ["STREAMING_ENABLED"] = streaming_enabled
+
 if "KAFKA_BOOTSTRAP_SERVERS" not in os.environ:
     os.environ["KAFKA_BOOTSTRAP_SERVERS"] = "redpanda:9092"
 if "KAFKA_ENTITYCHANGE_JSON_TOPIC" not in os.environ:
