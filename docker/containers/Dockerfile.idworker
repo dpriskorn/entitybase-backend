@@ -6,7 +6,7 @@ RUN echo "Building with requirements hash: $REQUIREMENTS_HASH"
 
 WORKDIR /app
 
-COPY ../var/requirements-idworker.txt ./
+COPY ./var/requirements-idworker.txt ./
 
 RUN pip install --no-cache-dir -r requirements-idworker.txt
 

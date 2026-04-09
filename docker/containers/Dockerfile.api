@@ -9,7 +9,7 @@ ENV VERSION=$VERSION
 
 ENV PYTHONPATH=/app
 
-COPY ../var/requirements-api.txt ./
+COPY ./var/requirements-api.txt ./
 COPY pyproject.toml /app/pyproject.toml
 
 RUN pip install --no-cache-dir -r requirements-api.txt
