@@ -28,7 +28,9 @@ class FormResponse(BaseModel):
         default_factory=dict, description="Representations by language"
     )
     grammatical_features: List[str] = Field(
-        default_factory=list, alias="grammaticalFeatures", description="Grammatical features"
+        default_factory=list,
+        alias="grammaticalFeatures",
+        description="Grammatical features",
     )
     claims: Dict[str, List[Dict[str, Any]]] = Field(
         default_factory=dict, description="Form claims/statements"

@@ -23,11 +23,11 @@ class IdRange(BaseModel):
 
 class IdRangeManager(BaseModel):
     """Manages ID range allocation and local ID generation to prevent write hotspots.
-    
+
     Allocates ID ranges from the ID worker (default 80% threshold for
     reallocation). Generates local IDs from the allocated range to
     avoid database write contention.
-    
+
     Attributes:
         range_size: Number of IDs to allocate per range (default 1000000)
         min_ids: Minimum ID values per entity type to avoid Wikidata conflicts

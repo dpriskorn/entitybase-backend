@@ -39,14 +39,19 @@ class StatementProcessingContext(BaseModel):
 
     statement_hash: int = Field(..., description="Hash of the statement content")
     statement_data: dict[str, Any] = Field(..., description="Statement data dictionary")
-    validator: JsonSchemaValidator | None = Field(default=None, description="JSON schema validator instance")
+    validator: JsonSchemaValidator | None = Field(
+        default=None, description="JSON schema validator instance"
+    )
     schema_version: str = Field(..., description="Schema version for the statement")
     idx: int = Field(..., description="Index of this statement in the list")
-    total_statements: int = Field(..., description="Total number of statements being processed")
+    total_statements: int = Field(
+        ..., description="Total number of statements being processed"
+    )
 
 
 class StatementService(Service):
     """Service for processing and hashing entity statements."""
+
     @staticmethod
     def hash_entity_statements(
         entity_data: PreparedRequestData,
@@ -339,15 +344,15 @@ class StatementService(Service):
     @staticmethod
     def _process_snak_item(item: Any, snak_handler: SnakHandler) -> ProcessedSnakValue:
         """Process a single snak item for storage.
-        
+
         If the item is a snak dict (has "property" key), stores it in S3
         and returns the content hash. If it's already a hash string,
         passes it through unchanged.
-        
+
         Args:
             item: Either a snak dict with property, or an existing hash string
             snak_handler: SnakHandler for S3 storage
-            
+
         Returns:
             ProcessedSnakValue with hash for new snaks, or original hash otherwise
         """

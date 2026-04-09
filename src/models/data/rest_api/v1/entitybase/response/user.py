@@ -11,7 +11,9 @@ class UserResponse(BaseModel):
 
     user_id: int = Field(..., description="Unique user identifier")
     created_at: datetime = Field(..., description="Timestamp when user was created")
-    preferences: dict | None = Field(default=None, description="User preferences dictionary")
+    preferences: dict | None = Field(
+        default=None, description="User preferences dictionary"
+    )
 
 
 class UserCreateResponse(BaseModel):

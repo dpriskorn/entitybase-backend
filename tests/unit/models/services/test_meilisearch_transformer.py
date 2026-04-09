@@ -66,15 +66,7 @@ class TestTransformToMeilisearch:
                     "descriptions": {},
                     "aliases": {},
                     "claims": {
-                        "P31": [
-                            {
-                                "mainsnak": {
-                                    "datavalue": {
-                                        "value": {"id": "Q5"}
-                                    }
-                                }
-                            }
-                        ]
+                        "P31": [{"mainsnak": {"datavalue": {"value": {"id": "Q5"}}}}]
                     },
                 }
             }
@@ -123,9 +115,7 @@ class TestFlattenClaims:
             "P31": [
                 {
                     "mainsnak": {
-                        "datavalue": {
-                            "value": {"id": "Q5", "entity-type": "item"}
-                        }
+                        "datavalue": {"value": {"id": "Q5", "entity-type": "item"}}
                     }
                 }
             ]
@@ -141,9 +131,7 @@ class TestFlattenClaims:
             "P569": [
                 {
                     "mainsnak": {
-                        "datavalue": {
-                            "value": {"time": "+1980-01-01T00:00:00Z"}
-                        }
+                        "datavalue": {"value": {"time": "+1980-01-01T00:00:00Z"}}
                     }
                 }
             ]
@@ -157,13 +145,7 @@ class TestFlattenClaims:
         """Test flattening claims with quantity values."""
         claims = {
             "P1111": [
-                {
-                    "mainsnak": {
-                        "datavalue": {
-                            "value": {"amount": "42.5", "unit": "1"}
-                        }
-                    }
-                }
+                {"mainsnak": {"datavalue": {"value": {"amount": "42.5", "unit": "1"}}}}
             ]
         }
 
@@ -173,17 +155,7 @@ class TestFlattenClaims:
 
     def test_flatten_claims_string_value(self):
         """Test flattening claims with string values."""
-        claims = {
-            "P1476": [
-                {
-                    "mainsnak": {
-                        "datavalue": {
-                            "value": "Test title"
-                        }
-                    }
-                }
-            ]
-        }
+        claims = {"P1476": [{"mainsnak": {"datavalue": {"value": "Test title"}}}]}
 
         result = _flatten_claims(claims)
 
@@ -193,20 +165,8 @@ class TestFlattenClaims:
         """Test flattening claims with multiple values."""
         claims = {
             "P31": [
-                {
-                    "mainsnak": {
-                        "datavalue": {
-                            "value": {"id": "Q5"}
-                        }
-                    }
-                },
-                {
-                    "mainsnak": {
-                        "datavalue": {
-                            "value": {"id": "Q6"}
-                        }
-                    }
-                },
+                {"mainsnak": {"datavalue": {"value": {"id": "Q5"}}}},
+                {"mainsnak": {"datavalue": {"value": {"id": "Q6"}}}},
             ]
         }
 
@@ -224,13 +184,7 @@ class TestFlattenClaims:
 
     def test_flatten_claims_no_datavalue(self):
         """Test flattening claims without datavalue."""
-        claims = {
-            "P31": [
-                {
-                    "mainsnak": {}
-                }
-            ]
-        }
+        claims = {"P31": [{"mainsnak": {}}]}
 
         result = _flatten_claims(claims)
 
@@ -243,9 +197,7 @@ class TestFlattenClaims:
                 {
                     "mainsnak": {
                         "snaktype": "novalue",
-                        "datavalue": {
-                            "value": {"id": "Q5"}
-                        }
+                        "datavalue": {"value": {"id": "Q5"}},
                     }
                 }
             ]

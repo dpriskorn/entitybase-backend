@@ -666,11 +666,7 @@ async def get_elasticsearch_document(
     handler = EntityReadHandler(state=state)
     entity_response = handler.get_entity(entity_id)
 
-    entity_json = {
-        "entities": {
-            entity_id: entity_response.entity_data.revision
-        }
-    }
+    entity_json = {"entities": {entity_id: entity_response.entity_data.revision}}
 
     document = transform_to_elasticsearch(entity_json)
     return ElasticsearchDocumentResponse(document=document)
@@ -694,11 +690,7 @@ async def get_meilisearch_document(
     handler = EntityReadHandler(state=state)
     entity_response = handler.get_entity(entity_id)
 
-    entity_json = {
-        "entities": {
-            entity_id: entity_response.entity_data.revision
-        }
-    }
+    entity_json = {"entities": {entity_id: entity_response.entity_data.revision}}
 
     document = transform_to_meilisearch(entity_json)
     return MeilisearchDocumentResponse(document=document)

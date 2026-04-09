@@ -103,13 +103,29 @@ class RevisionContext(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     entity_id: str = Field(..., description="Entity ID being processed")
-    request_data: Dict[str, Any] = Field(..., description="Request data dictionary for the entity operation")
-    entity_type: EntityType = Field(..., description="Type of entity (item, property, lexeme)")
-    edit_type: EditType | None = Field(default=None, description="Type of edit being performed")
-    edit_summary: str = Field(default="", description="Edit summary text for the revision")
-    base_revision_id: int = Field(default=0, description="Base revision ID for conflict detection")
-    is_creation: bool = Field(default=False, description="Whether this is a new entity creation")
-    vitess_client: Any = Field(default=None, description="Vitess database client instance")
+    request_data: Dict[str, Any] = Field(
+        ..., description="Request data dictionary for the entity operation"
+    )
+    entity_type: EntityType = Field(
+        ..., description="Type of entity (item, property, lexeme)"
+    )
+    edit_type: EditType | None = Field(
+        default=None, description="Type of edit being performed"
+    )
+    edit_summary: str = Field(
+        default="", description="Edit summary text for the revision"
+    )
+    base_revision_id: int = Field(
+        default=0, description="Base revision ID for conflict detection"
+    )
+    is_creation: bool = Field(
+        default=False, description="Whether this is a new entity creation"
+    )
+    vitess_client: Any = Field(
+        default=None, description="Vitess database client instance"
+    )
     s3_client: Any = Field(default=None, description="S3 storage client instance")
-    stream_producer: Any = Field(default=None, description="Kafka stream producer instance")
+    stream_producer: Any = Field(
+        default=None, description="Kafka stream producer instance"
+    )
     validator: Any | None = Field(default=None, description="Validator instance")

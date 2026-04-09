@@ -15,7 +15,11 @@ class RevisionReadResponse(BaseModel):
     data: RevisionData = Field(..., description="Revision data object")
     content: dict[str, Any] = Field(..., description="Raw revision content")
     schema_version: str = Field(default="", description="Schema version")
-    created_at: str = Field(default="", description="Timestamp when revision was created")
+    created_at: str = Field(
+        default="", description="Timestamp when revision was created"
+    )
     user_id: int = Field(default=0, description="User ID who made the revision")
     edit_summary: str = Field(default="", description="Edit summary text")
-    redirects_to: str = Field(default="", description="Redirect target if entity was redirected")
+    redirects_to: str = Field(
+        default="", description="Redirect target if entity was redirected"
+    )
