@@ -263,3 +263,127 @@ class TestFlattenClaims:
         result = _flatten_claims({})
 
         assert result == FlattenedClaims(data={})
+
+    def test_flatten_entity_type_only(self):
+        """Test flattening claims with entity-type but no id."""
+        claims = {
+            "P31": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P31",
+                        "datavalue": {
+                            "value": {"entity-type": "item"},
+                            "type": "wikibase-entityid",
+                        },
+                    }
+                }
+            ]
+        }
+
+        result = _flatten_claims(claims)
+
+        assert result == FlattenedClaims(data={"P31": ["{'entity-type': 'item'}"]})
+
+    def test_flatten_monolingual_text_value(self):
+        """Test flattening claims with monolingual text value."""
+        claims = {
+            "P1705": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P1705",
+                        "datavalue": {
+                            "value": {
+                                "text": "Hello world",
+                                "language": "en",
+                            },
+                            "type": "monolingualtext",
+                        },
+                    }
+                }
+            ]
+        }
+
+        result = _flatten_claims(claims)
+
+        assert result == FlattenedClaims(
+            data={"P1705": ["{'text': 'Hello world', 'language': 'en'}"]}
+        )
+
+    def test_flatten_quantity_value(self):
+        """Test flattening claims with quantity value."""
+        claims = {
+            "P1114": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P1114",
+                        "datavalue": {
+                            "value": {
+                                "amount": "42.5",
+                                "unit": "1",
+                            },
+                            "type": "quantity",
+                        },
+                    }
+                }
+            ]
+        }
+
+        result = _flatten_claims(claims)
+
+        assert result == FlattenedClaims(data={"P1114": ["42.5"]})
+
+    def test_flatten_entity_with_entity_type_and_id(self):
+        """Test flattening claims with both entity-type and id."""
+        claims = {
+            "P31": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P31",
+                        "datavalue": {
+                            "value": {"id": "Q5", "entity-type": "item"},
+                            "type": "wikibase-entityid",
+                        },
+                    }
+                }
+            ]
+        }
+
+        result = _flatten_claims(claims)
+
+        assert result == FlattenedClaims(data={"P31": ["Q5"]})
+
+    def test_flatten_globecoordinate_value(self):
+        """Test flattening claims with globecoordinate value."""
+        claims = {
+            "P626": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P626",
+                        "datavalue": {
+                            "value": {
+                                "latitude": 51.5074,
+                                "longitude": -0.1278,
+                                "precision": 0.0001,
+                                "globe": "http://www.wikidata.org/entity/Q2",
+                            },
+                            "type": "globecoordinate",
+                        },
+                    }
+                }
+            ]
+        }
+
+        result = _flatten_claims(claims)
+
+        assert result == FlattenedClaims(
+            data={
+                "P626": [
+                    "{'latitude': 51.5074, 'longitude': -0.1278, 'precision': 0.0001, 'globe': 'http://www.wikidata.org/entity/Q2'}"
+                ]
+            }
+        )
