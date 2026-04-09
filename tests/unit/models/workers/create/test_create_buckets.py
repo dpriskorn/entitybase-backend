@@ -68,13 +68,17 @@ class TestCreateBuckets:
         ):
             worker = CreateBuckets()
             worker.required_buckets = ["test-bucket"]
-            worker.s3_client = MagicMock()
-            worker.s3_client.head_bucket.return_value = None
 
-            result = await worker.ensure_buckets_exist()
+            mock_s3 = MagicMock()
+            mock_s3.head_bucket.return_value = None
 
-            assert result["test-bucket"] == "exists"
-            worker.s3_client.head_bucket.assert_called_once_with(Bucket="test-bucket")
+            with patch("models.workers.create.create_buckets._boto3") as mock_boto3:
+                mock_boto3.client.return_value = mock_s3
+
+                result = await worker.ensure_buckets_exist()
+
+                assert result["test-bucket"] == "exists"
+                mock_s3.head_bucket.assert_called_once_with(Bucket="test-bucket")
 
     @pytest.mark.asyncio
     async def test_ensure_buckets_exist_bucket_created(self):
@@ -84,17 +88,18 @@ class TestCreateBuckets:
         ):
             worker = CreateBuckets()
             worker.required_buckets = ["new-bucket"]
-            worker.s3_client = MagicMock()
 
+            mock_s3 = MagicMock()
             error_response = {"Error": {"Code": "404", "Message": "Not Found"}}
-            worker.s3_client.head_bucket.side_effect = ClientError(
-                error_response, "HeadBucket"
-            )
+            mock_s3.head_bucket.side_effect = ClientError(error_response, "HeadBucket")
 
-            result = await worker.ensure_buckets_exist()
+            with patch("models.workers.create.create_buckets._boto3") as mock_boto3:
+                mock_boto3.client.return_value = mock_s3
 
-            assert result["new-bucket"] == "created"
-            worker.s3_client.create_bucket.assert_called_once_with(Bucket="new-bucket")
+                result = await worker.ensure_buckets_exist()
+
+                assert result["new-bucket"] == "created"
+                mock_s3.create_bucket.assert_called_once_with(Bucket="new-bucket")
 
     @pytest.mark.asyncio
     async def test_ensure_buckets_exist_create_failure(self):
@@ -104,17 +109,20 @@ class TestCreateBuckets:
         ):
             worker = CreateBuckets()
             worker.required_buckets = ["fail-bucket"]
-            worker.s3_client = MagicMock()
 
+            mock_s3 = MagicMock()
             not_found_response = {"Error": {"Code": "404", "Message": "Not Found"}}
-            worker.s3_client.head_bucket.side_effect = ClientError(
+            mock_s3.head_bucket.side_effect = ClientError(
                 not_found_response, "HeadBucket"
             )
-            worker.s3_client.create_bucket.side_effect = Exception("Create failed")
+            mock_s3.create_bucket.side_effect = Exception("Create failed")
 
-            result = await worker.ensure_buckets_exist()
+            with patch("models.workers.create.create_buckets._boto3") as mock_boto3:
+                mock_boto3.client.return_value = mock_s3
 
-            assert "create_failed" in result["fail-bucket"]
+                result = await worker.ensure_buckets_exist()
+
+                assert "create_failed" in result["fail-bucket"]
 
     @pytest.mark.asyncio
     async def test_ensure_buckets_exist_other_client_error(self):
@@ -124,16 +132,17 @@ class TestCreateBuckets:
         ):
             worker = CreateBuckets()
             worker.required_buckets = ["error-bucket"]
-            worker.s3_client = MagicMock()
 
+            mock_s3 = MagicMock()
             error_response = {"Error": {"Code": "500", "Message": "Internal Error"}}
-            worker.s3_client.head_bucket.side_effect = ClientError(
-                error_response, "HeadBucket"
-            )
+            mock_s3.head_bucket.side_effect = ClientError(error_response, "HeadBucket")
 
-            result = await worker.ensure_buckets_exist()
+            with patch("models.workers.create.create_buckets._boto3") as mock_boto3:
+                mock_boto3.client.return_value = mock_s3
 
-            assert "error: 500" in result["error-bucket"]
+                result = await worker.ensure_buckets_exist()
+
+                assert "error: 500" in result["error-bucket"]
 
     @pytest.mark.asyncio
     async def test_ensure_buckets_exist_unexpected_error(self):
@@ -143,12 +152,16 @@ class TestCreateBuckets:
         ):
             worker = CreateBuckets()
             worker.required_buckets = ["unexpected-bucket"]
-            worker.s3_client = MagicMock()
-            worker.s3_client.head_bucket.side_effect = ValueError("Unexpected")
 
-            result = await worker.ensure_buckets_exist()
+            mock_s3 = MagicMock()
+            mock_s3.head_bucket.side_effect = ValueError("Unexpected")
 
-            assert "unexpected_error" in result["unexpected-bucket"]
+            with patch("models.workers.create.create_buckets._boto3") as mock_boto3:
+                mock_boto3.client.return_value = mock_s3
+
+                result = await worker.ensure_buckets_exist()
+
+                assert "unexpected_error" in result["unexpected-bucket"]
 
     @pytest.mark.asyncio
     async def test_cleanup_buckets_success(self):
@@ -158,13 +171,16 @@ class TestCreateBuckets:
         ):
             worker = CreateBuckets()
             worker.required_buckets = ["cleanup-bucket"]
-            worker.s3_client = MagicMock()
-            worker.s3_client.list_objects_v2.return_value = {}
-            worker.s3_client.delete_bucket.return_value = None
 
-            result = await worker.cleanup_buckets()
+            mock_s3 = MagicMock()
+            mock_s3.list_objects_v2.return_value = {}
 
-            assert result["cleanup-bucket"] == "deleted"
+            with patch("models.workers.create.create_buckets._boto3") as mock_boto3:
+                mock_boto3.client.return_value = mock_s3
+
+                result = await worker.cleanup_buckets()
+
+                assert result["cleanup-bucket"] == "deleted"
 
     @pytest.mark.asyncio
     async def test_cleanup_buckets_with_objects(self):
@@ -174,18 +190,22 @@ class TestCreateBuckets:
         ):
             worker = CreateBuckets()
             worker.required_buckets = ["bucket-with-objects"]
-            worker.s3_client = MagicMock()
-            worker.s3_client.list_objects_v2.return_value = {
+
+            mock_s3 = MagicMock()
+            mock_s3.list_objects_v2.return_value = {
                 "Contents": [
                     {"Key": "object1"},
                     {"Key": "object2"},
                 ]
             }
 
-            result = await worker.cleanup_buckets()
+            with patch("models.workers.create.create_buckets._boto3") as mock_boto3:
+                mock_boto3.client.return_value = mock_s3
 
-            assert result["bucket-with-objects"] == "deleted"
-            assert worker.s3_client.delete_object.call_count == 2
+                result = await worker.cleanup_buckets()
+
+                assert result["bucket-with-objects"] == "deleted"
+                assert mock_s3.delete_object.call_count == 2
 
     @pytest.mark.asyncio
     async def test_cleanup_buckets_not_found(self):
@@ -195,16 +215,19 @@ class TestCreateBuckets:
         ):
             worker = CreateBuckets()
             worker.required_buckets = ["missing-bucket"]
-            worker.s3_client = MagicMock()
 
+            mock_s3 = MagicMock()
             error_response = {"Error": {"Code": "NoSuchBucket", "Message": "Not Found"}}
-            worker.s3_client.list_objects_v2.side_effect = ClientError(
+            mock_s3.list_objects_v2.side_effect = ClientError(
                 error_response, "ListObjectsV2"
             )
 
-            result = await worker.cleanup_buckets()
+            with patch("models.workers.create.create_buckets._boto3") as mock_boto3:
+                mock_boto3.client.return_value = mock_s3
 
-            assert result["missing-bucket"] == "not_found"
+                result = await worker.cleanup_buckets()
+
+                assert result["missing-bucket"] == "not_found"
 
     @pytest.mark.asyncio
     async def test_cleanup_buckets_delete_failure(self):
@@ -214,17 +237,20 @@ class TestCreateBuckets:
         ):
             worker = CreateBuckets()
             worker.required_buckets = ["delete-fail-bucket"]
-            worker.s3_client = MagicMock()
-            worker.s3_client.list_objects_v2.return_value = {}
 
+            mock_s3 = MagicMock()
+            mock_s3.list_objects_v2.return_value = {}
             error_response = {"Error": {"Code": "AccessDenied", "Message": "Denied"}}
-            worker.s3_client.delete_bucket.side_effect = ClientError(
+            mock_s3.delete_bucket.side_effect = ClientError(
                 error_response, "DeleteBucket"
             )
 
-            result = await worker.cleanup_buckets()
+            with patch("models.workers.create.create_buckets._boto3") as mock_boto3:
+                mock_boto3.client.return_value = mock_s3
 
-            assert "delete_failed" in result["delete-fail-bucket"]
+                result = await worker.cleanup_buckets()
+
+                assert "delete_failed" in result["delete-fail-bucket"]
 
     @pytest.mark.asyncio
     async def test_bucket_health_check_healthy(self):
@@ -234,13 +260,17 @@ class TestCreateBuckets:
         ):
             worker = CreateBuckets()
             worker.required_buckets = ["healthy-bucket"]
-            worker.s3_client = MagicMock()
-            worker.s3_client.head_bucket.return_value = None
 
-            result = await worker.bucket_health_check()
+            mock_s3 = MagicMock()
+            mock_s3.head_bucket.return_value = None
 
-            assert result["overall_status"] == "healthy"
-            assert result["buckets"]["healthy-bucket"]["accessible"] is True
+            with patch("models.workers.create.create_buckets._boto3") as mock_boto3:
+                mock_boto3.client.return_value = mock_s3
+
+                result = await worker.bucket_health_check()
+
+                assert result["overall_status"] == "healthy"
+                assert result["buckets"]["healthy-bucket"]["accessible"] is True
 
     @pytest.mark.asyncio
     async def test_bucket_health_check_unhealthy(self):
@@ -250,18 +280,19 @@ class TestCreateBuckets:
         ):
             worker = CreateBuckets()
             worker.required_buckets = ["unhealthy-bucket"]
-            worker.s3_client = MagicMock()
 
+            mock_s3 = MagicMock()
             error_response = {"Error": {"Code": "403", "Message": "Forbidden"}}
-            worker.s3_client.head_bucket.side_effect = ClientError(
-                error_response, "HeadBucket"
-            )
+            mock_s3.head_bucket.side_effect = ClientError(error_response, "HeadBucket")
 
-            result = await worker.bucket_health_check()
+            with patch("models.workers.create.create_buckets._boto3") as mock_boto3:
+                mock_boto3.client.return_value = mock_s3
 
-            assert result["overall_status"] == "unhealthy"
-            assert result["buckets"]["unhealthy-bucket"]["accessible"] is False
-            assert len(result["issues"]) > 0
+                result = await worker.bucket_health_check()
+
+                assert result["overall_status"] == "unhealthy"
+                assert result["buckets"]["unhealthy-bucket"]["accessible"] is False
+                assert len(result["issues"]) > 0
 
     @pytest.mark.asyncio
     async def test_run_setup_healthy(self):
@@ -271,14 +302,18 @@ class TestCreateBuckets:
         ):
             worker = CreateBuckets()
             worker.required_buckets = ["setup-bucket"]
-            worker.s3_client = MagicMock()
-            worker.s3_client.head_bucket.return_value = None
 
-            result = await worker.run_setup()
+            mock_s3 = MagicMock()
+            mock_s3.head_bucket.return_value = None
 
-            assert result["setup_status"] == "completed"
-            assert result["buckets_created"]["setup-bucket"] == "exists"
-            assert result["health_check"]["overall_status"] == "healthy"
+            with patch("models.workers.create.create_buckets._boto3") as mock_boto3:
+                mock_boto3.client.return_value = mock_s3
+
+                result = await worker.run_setup()
+
+                assert result["setup_status"] == "completed"
+                assert result["buckets_created"]["setup-bucket"] == "exists"
+                assert result["health_check"]["overall_status"] == "healthy"
 
     @pytest.mark.asyncio
     async def test_run_setup_failed(self):
@@ -288,17 +323,18 @@ class TestCreateBuckets:
         ):
             worker = CreateBuckets()
             worker.required_buckets = ["fail-bucket"]
-            worker.s3_client = MagicMock()
 
+            mock_s3 = MagicMock()
             error_response = {"Error": {"Code": "403", "Message": "Forbidden"}}
-            worker.s3_client.head_bucket.side_effect = ClientError(
-                error_response, "HeadBucket"
-            )
+            mock_s3.head_bucket.side_effect = ClientError(error_response, "HeadBucket")
 
-            result = await worker.run_setup()
+            with patch("models.workers.create.create_buckets._boto3") as mock_boto3:
+                mock_boto3.client.return_value = mock_s3
 
-            assert result["setup_status"] == "failed"
-            assert result["health_check"]["overall_status"] == "unhealthy"
+                result = await worker.run_setup()
+
+                assert result["setup_status"] == "failed"
+                assert result["health_check"]["overall_status"] == "unhealthy"
 
     def test_s3_client_creation(self):
         """Test S3 client is created with correct parameters."""
@@ -313,6 +349,7 @@ class TestCreateBuckets:
             worker.required_buckets = []
 
             with patch("models.workers.create.create_buckets._boto3") as mock_boto3:
+                mock_boto3.client.return_value = MagicMock()
                 _ = worker.s3_client
                 mock_boto3.client.assert_called_once_with(
                     "s3",
