@@ -13,8 +13,8 @@ dependencies = [
     "aiohttp (>=3.13.0,<4.0.0)",
     "aiokafka (>=0.11.0,<1.0.0)",
     "boto3 (>=1.42.17,<2.0.0)",
-    "cryptography (>=45.0.0,<46.0.0)",
-    "fastapi (>=0.127.1,<0.128.0)",
+    "cryptography (>=46.0.0,<47.0.0)",
+    "fastapi (>=0.135.3,<0.136.0)",
     "jsonschema (>=4.23.0,<5.0.0)",
     "meilisearch (>=0.40.0,<0.41.0)",
     "mypy-boto3-s3 (>=1.42.21,<2.0.0)",
@@ -22,7 +22,7 @@ dependencies = [
     "pydantic (>=2.12.5,<3.0.0)",
     "pydantic-settings (>=2.12.0,<3.0.0)",
     "pymysql (>=1.1.2,<2.0.0)",
-    "pyld (>=2.0.0,<3.0.0)",
+    "pyld (>=3.0.0,<4.0.0)",
     "pyyaml (>=6.0.3,<7.0.0)",
     "rapidhash (>=0.1.0,<0.2.0)",
     "rdflib (>=7.5.0,<8.0.0)",
@@ -126,7 +126,7 @@ meilisearch-indexer-worker = [
 # We use a version of pytest that is compatible with pytest-asyncio
 dev = [
     "pytest (>=9.0)",
-    "pytest-cov (>=4.0.0,<5.0.0)",
+    "pytest-cov (>=5.0.0,<6.0.0)",
     "pytest-mock (>=3.12.0,<4.0.0)",
     "pytest-xdist (>=3.5.0,<4.0.0)",
     "pytest-asyncio (>=1.0.0,<2.0.0)",
@@ -161,6 +161,7 @@ markers = [
     "integration: marks tests as integration tests",
     "e2e: marks tests as e2e tests",
     "contract: marks tests as contract tests",
+    "requires_kafka: marks tests that require Kafka/Redpanda",
 ]
 
 [tool.vulture]
