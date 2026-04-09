@@ -206,3 +206,70 @@ class TestFlattenClaims:
         result = _flatten_claims(claims)
 
         assert "P31" not in result.data
+
+    def test_flatten_entity_type_only(self):
+        """Test flattening claims with entity-type but no id."""
+        claims = {
+            "P31": [
+                {
+                    "mainsnak": {
+                        "datavalue": {
+                            "value": {"entity-type": "item"},
+                            "type": "wikibase-entityid",
+                        }
+                    }
+                }
+            ]
+        }
+
+        result = _flatten_claims(claims)
+
+        assert result.data["P31"] == ["{'entity-type': 'item'}"]
+
+    def test_flatten_monolingual_text_value(self):
+        """Test flattening claims with monolingual text value."""
+        claims = {
+            "P1705": [
+                {
+                    "mainsnak": {
+                        "datavalue": {
+                            "value": {
+                                "text": "Hello world",
+                                "language": "en",
+                            },
+                            "type": "monolingualtext",
+                        }
+                    }
+                }
+            ]
+        }
+
+        result = _flatten_claims(claims)
+
+        assert result.data["P1705"] == ["{'text': 'Hello world', 'language': 'en'}"]
+
+    def test_flatten_globecoordinate_value(self):
+        """Test flattening claims with globecoordinate value."""
+        claims = {
+            "P626": [
+                {
+                    "mainsnak": {
+                        "datavalue": {
+                            "value": {
+                                "latitude": 51.5074,
+                                "longitude": -0.1278,
+                                "precision": 0.0001,
+                                "globe": "http://www.wikidata.org/entity/Q2",
+                            },
+                            "type": "globecoordinate",
+                        }
+                    }
+                }
+            ]
+        }
+
+        result = _flatten_claims(claims)
+
+        assert result.data["P626"] == [
+            "{'latitude': 51.5074, 'longitude': -0.1278, 'precision': 0.0001, 'globe': 'http://www.wikidata.org/entity/Q2'}"
+        ]
