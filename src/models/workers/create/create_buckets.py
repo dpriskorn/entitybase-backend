@@ -7,7 +7,7 @@ from typing import Any, Dict, List, TypedDict
 
 import boto3 as _boto3  # noqa  # type: ignore[import-untyped]
 from botocore.exceptions import ClientError  # type: ignore[import-untyped]
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class BucketHealthCheckResult(TypedDict):
@@ -36,10 +36,13 @@ sys.path.insert(0, src_path)
 class CreateBuckets(BaseModel):
     """Create worker for MinIO bucket management and setup tasks."""
 
+    model_config = {"frozen": False}
+
     minio_endpoint: str = os.getenv("MINIO_ENDPOINT", "http://localhost:9000")
     minio_access_key: str = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
     minio_secret_key: str = os.getenv("MINIO_SECRET_KEY", "minioadmin")
     required_buckets: List[str] = []
+    s3_client: Any = Field(default=None, exclude=True)
 
     def model_post_init(self, context: Any) -> None:
         # noinspection PyPep8
@@ -50,9 +53,8 @@ class CreateBuckets(BaseModel):
             settings.s3_dump_bucket,
         ]
 
-    @property
-    def s3_client(self) -> Any:
-        """Get S3 client with shared credentials for all buckets."""
+    def _create_s3_client(self) -> Any:
+        """Create S3 client with shared credentials for all buckets."""
         logger.info(
             f"Creating S3 client with endpoint={self.minio_endpoint}, "
             f"access_key={self.minio_access_key[:4]}..."
@@ -64,6 +66,12 @@ class CreateBuckets(BaseModel):
             aws_secret_access_key=self.minio_secret_key,
         )
 
+    def get_s3_client(self) -> Any:
+        """Get S3 client, creating it if necessary."""
+        if self.s3_client is None:
+            self.s3_client = self._create_s3_client()
+        return self.s3_client
+
     async def ensure_buckets_exist(self) -> Dict[str, str]:
         """Ensure all required buckets exist, creating them if necessary."""
         results = {}
@@ -71,7 +79,7 @@ class CreateBuckets(BaseModel):
         for bucket in self.required_buckets:
             try:
                 # Check if bucket exists
-                self.s3_client.head_bucket(Bucket=bucket)
+                self.get_s3_client().head_bucket(Bucket=bucket)
                 results[bucket] = "exists"
                 logger.info(f"Bucket already exists: {bucket}")
             except ClientError as e:
@@ -80,7 +88,7 @@ class CreateBuckets(BaseModel):
                 if error_code in {"404", "NoSuchBucket"}:
                     # Bucket doesn't exist, create it
                     try:
-                        self.s3_client.create_bucket(Bucket=bucket)
+                        self.get_s3_client().create_bucket(Bucket=bucket)
                         results[bucket] = "created"
                         logger.info(f"Created bucket: {bucket}")
                     except Exception as create_error:
@@ -107,13 +115,13 @@ class CreateBuckets(BaseModel):
         for bucket in self.required_buckets:
             try:
                 # Delete all objects in bucket first
-                objects = self.s3_client.list_objects_v2(Bucket=bucket)
+                objects = self.get_s3_client().list_objects_v2(Bucket=bucket)
                 if "Contents" in objects:
                     for obj in objects["Contents"]:
-                        self.s3_client.delete_object(Bucket=bucket, Key=obj["Key"])
+                        self.get_s3_client().delete_object(Bucket=bucket, Key=obj["Key"])
 
                 # Delete the bucket
-                self.s3_client.delete_bucket(Bucket=bucket)
+                self.get_s3_client().delete_bucket(Bucket=bucket)
                 results[bucket] = "deleted"
                 logger.info(f"Deleted bucket: {bucket}")
             except ClientError as e:
@@ -140,7 +148,7 @@ class CreateBuckets(BaseModel):
 
         for bucket in self.required_buckets:
             try:
-                self.s3_client.head_bucket(Bucket=bucket)
+                self.get_s3_client().head_bucket(Bucket=bucket)
                 health_status["buckets"][bucket] = {
                     "status": "accessible",
                     "accessible": True,
