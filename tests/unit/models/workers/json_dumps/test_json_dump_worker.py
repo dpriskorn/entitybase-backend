@@ -78,10 +78,8 @@ class TestJsonDumpWorker:
                 mock_datetime.time.side_effect = lambda h, m, s: datetime(
                     2025, 1, 1, h, m, s
                 ).time()
-                mock_datetime.combine.side_effect = (
-                    lambda d, t, tzinfo=None: datetime.combine(d, t).replace(
-                        tzinfo=tzinfo
-                    )
+                mock_datetime.combine.side_effect = lambda d, t, tzinfo=None: (
+                    datetime.combine(d, t).replace(tzinfo=tzinfo)
                     if tzinfo
                     else datetime.combine(d, t).replace(tzinfo=timezone.utc)
                 )
