@@ -192,7 +192,7 @@ curl "http://localhost:8000/v1/entitybase/rdf/entities.ttl"
 | `revisions` | Revision snapshots |
 | `sitelinks` | Site links |
 | `snaks` | Snak data |
-| `wikibase-dumps` | Entity exports |
+| `entitybase-dumps` | Entity exports |
 
 ---
 

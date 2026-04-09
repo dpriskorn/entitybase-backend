@@ -149,8 +149,8 @@ meta:
   dt: "2025-01-15T10:30:00Z"
   domain: wikidata.org
   request_id: abc123
-  stream: wikibase.rdf_change
-  topic: wikibase.rdf_change
+  stream: entitybase.rdf_change
+  topic: entitybase.rdf_change
 
 # Entity identification
 entity_id: "Q42"
@@ -198,8 +198,8 @@ def emit_rdf_change_event(producer_config, topic, change_event):
             "uri": f"http://{domain}/v1/mediawiki/wikibase/entity/rdf_change/{uuid.uuid4()}",
             "dt": datetime.now(timezone.utc).isoformat(),
             "domain": "wikidata.org",
-            "stream": "wikibase.rdf_change",
-            "topic": "wikibase.rdf_change"
+            "stream": "entitybase.rdf_change",
+            "topic": "entitybase.rdf_change"
         },
         "entity_id": change_event["entity_id"],
         "rev_id": change_event["rev_id"],
@@ -291,10 +291,10 @@ def process_entity_change(change_event):
 | Option | Description | Default |
 |---------|-------------|---------|
 | `input_kafka_bootstrap_servers` | Kafka brokers for change events | localhost:9092 |
-| `input_topic` | Input topic for entity changes | wikibase.entity_change |
+| `input_topic` | Input topic for entity changes | entitybase.entity_change |
 | `output_kafka_bootstrap_servers` | Kafka brokers for RDF changes | localhost:9092 |
-| `output_topic` | Output topic for RDF changes | wikibase.rdf_change |
-| `s3_bucket` | S3 bucket for snapshots | wikibase-revisions |
+| `output_topic` | Output topic for RDF changes | entitybase.rdf_change |
+| `s3_bucket` | S3 bucket for snapshots | entitybase-revisions |
 | `rdf_diff_library` | RDF library for diff computation | jena |
 | `import_mode_threshold` | Triple count threshold for import mode | 10000 |
 | `max_workers` | Parallel processing workers | 10 |
@@ -595,11 +595,11 @@ spec:
         - name: KAFKA_BROKERS
           value: "kafka:9092"
         - name: INPUT_TOPIC
-          value: "wikibase.entity_change"
+          value: "entitybase.entity_change"
         - name: OUTPUT_TOPIC
-          value: "wikibase.rdf_change"
+          value: "entitybase.rdf_change"
         - name: S3_BUCKET
-          value: "wikibase-revisions"
+          value: "revisions"
         ports:
         - containerPort: 9090
         resources:

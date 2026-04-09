@@ -8,7 +8,7 @@ S3 is used for immutable storage of entity revisions and deduplicated metadata. 
 
 ## Buckets
 
-### wikibase-revisions
+### revisions
 Stores entity revision snapshots.
 
 - **Path**: `{entity_id}/{revision_id}`
@@ -16,7 +16,7 @@ Stores entity revision snapshots.
 - **Content**: Full entity snapshot with hashes for deduplicated parts (terms, sitelinks, statements)
 - **Example**: `Q42/42` contains revision data with `sitelinks_hashes`, `statements_hashes`, etc.
 
-### wikibase-statements
+### entitybase-statements
 Stores deduplicated statement (claim) data.
 
 - **Path**: `{hash}`
@@ -24,7 +24,7 @@ Stores deduplicated statement (claim) data.
 - **Content**: Statement objects (mainsnak, qualifiers, references)
 - **Example**: `123456789` contains `{"mainsnak": {...}, "qualifiers": {...}}`
 
-### wikibase-terms
+### entitybase-terms
 Stores deduplicated term metadata (labels, descriptions, aliases).
 
 - **Path**: `{language}:{hash}`
@@ -32,7 +32,7 @@ Stores deduplicated term metadata (labels, descriptions, aliases).
 - **Content**: Raw term value (e.g., "Douglas Adams")
 - **Example**: `en:987654321` contains `Douglas Adams`
 
-### wikibase-sitelinks
+### entitybase-sitelinks
 Stores deduplicated sitelink titles.
 
 - **Path**: `{hash}`
@@ -40,7 +40,7 @@ Stores deduplicated sitelink titles.
 - **Content**: Raw title (e.g., "Main Page")
 - **Example**: `876543210` contains `Main Page`
 
-### wikibase-dumps
+### entitybase-dumps
 Stores periodic RDF dumps.
 
 - **Path**: `{date}/{entity_id}.ttl`

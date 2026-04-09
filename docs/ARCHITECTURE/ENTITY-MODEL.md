@@ -18,7 +18,7 @@ The **external entity ID** (e.g., `Q123`, `P42`, `L999`, `E100`) is the permanen
 - **RDF/JSON data**: Cross-entity references in claims use Q123
 - **RDF triples**: `<http://www.wikidata.org/entity/Q42> a wikibase:Item`
 - **RDF change events**: `entity_id: "Q42"` in event schemas
-- **S3 paths**: Human-readable inspection (e.g., `s3://wikibase-revisions/Q123/42.json`)
+- **S3 paths**: Human-readable inspection (e.g., `s3://entitybase-revisions/Q123/42.json`)
 
 **Characteristics:**
 
@@ -176,7 +176,7 @@ API Layer
 2. Query entity_revisions for content_hash:
    SELECT content_hash FROM entity_revisions WHERE entity_id = "Q123" AND revision_id = ?
 3. Fetch S3 snapshot:
-   GET s3://wikibase-revisions/123456789
+   GET s3://entitybase-revisions/123456789
 4. Reconstruct entity from S3 data + hash references
 ↓
 Client Response
@@ -218,7 +218,7 @@ Client Response
 
 ```text
 S3 Object Path (content_hash-based):
-  s3://wikibase-revisions/123456789
+  s3://entitybase-revisions/123456789
 
 Vitess Tables:
   entity_head:
