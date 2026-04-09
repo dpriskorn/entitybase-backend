@@ -127,18 +127,39 @@ async def main() -> None:
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-    worker = GeneralStatsWorker()
+    logger.info("Starting general statistics worker main()")
+    print("DEBUG: Starting general statistics worker main()")
 
-    if FastAPI is None:
-        logger.warning(
-            "FastAPI/uvicorn not installed, running worker without HTTP server"
-        )
-        await worker.start()
-    else:
-        app = FastAPI(response_model_by_alias=True)
+    try:
+        worker = GeneralStatsWorker()
+        logger.info(f"Worker created, running={worker.running}")
+        print(f"DEBUG: Worker created, running={worker.running}")
 
-        @app.get("/health")
-        async def health() -> WorkerHealthCheckResponse:
-            return await worker.health_check()
+        if FastAPI is None:
+            logger.warning(
+                "FastAPI/uvicorn not installed, running worker without HTTP server"
+            )
+            await worker.start()
+        else:
+            app = FastAPI(response_model_by_alias=True)
+            logger.info("FastAPI app created")
+            print("DEBUG: FastAPI app created")
 
-        await asyncio.gather(run_worker(worker), run_server(app))
+            @app.get("/health")
+            async def health() -> WorkerHealthCheckResponse:
+                return await worker.health_check()
+
+            logger.info("Starting asyncio.gather() for worker and server")
+            print("DEBUG: Starting asyncio.gather() for worker and server")
+
+            try:
+                await asyncio.gather(run_worker(worker), run_server(app))
+            except Exception as e:
+                logger.error(f"Error in asyncio.gather: {e}")
+                print(f"ERROR in asyncio.gather: {e}")
+                raise
+
+    except Exception as e:
+        logger.error(f"Fatal error in main(): {e}")
+        print(f"FATAL ERROR in main(): {e}")
+        raise

@@ -39,6 +39,10 @@ class NotificationCleanupWorker(VitessWorker):
     max_age_days: int = 30
     max_per_user: int = 500
 
+    def get_enabled_setting(self) -> bool:
+        """Check if the notification cleanup worker is enabled."""
+        return True
+
     @asynccontextmanager
     async def lifespan(self) -> AsyncGenerator[None, None]:
         """Lifespan context manager for startup/shutdown."""
