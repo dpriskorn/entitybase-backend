@@ -320,8 +320,11 @@ jobs:
         if: failure()
         run: |
           docker compose -f docker-compose.ci.yml logs --tail=100 mysql
-          docker compose -f docker-compose.ci.yml logs --tail=100 api
+          docker compose -f docker-compose.ci.yml logs --tail=100 minio
+          docker compose -f docker-compose.ci.yml logs --tail=100 create-tables
+          docker compose -f docker-compose.ci.yml logs --tail=100 create-buckets
           docker compose -f docker-compose.ci.yml logs --tail=100 idworker
+          docker compose -f docker-compose.ci.yml logs --tail=100 api
       - name: Down containers
         if: always()
         run: docker compose -f docker-compose.ci.yml down -v
