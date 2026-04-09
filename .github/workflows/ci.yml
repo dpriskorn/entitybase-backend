@@ -14,7 +14,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-      - run: pip install ruff radon mypy
+      - run: pip install ruff radon mypy types-pymysql types-PyYAML types-requests
       - name: Run custom linters
         run: |
           python scripts/linters/check_async_calls.py src/
