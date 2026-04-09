@@ -88,7 +88,7 @@ jobs:
           poetry export -f requirements.txt --output var/requirements-ttl-worker.txt --without-hashes
       - name: Build docker images
         run: |
-          docker compose -f docker-compose.ci.yml build \
+          docker compose -f docker-compose.ci.yml build --no-cache \
             api idworker create-buckets create-tables
       - name: Start infrastructure services
         run: |
