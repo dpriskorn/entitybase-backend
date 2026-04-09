@@ -350,7 +350,7 @@ class TestCreateBuckets:
 
             with patch("models.workers.create.create_buckets._boto3") as mock_boto3:
                 mock_boto3.client.return_value = MagicMock()
-                _ = worker.s3_client
+                _ = worker.get_s3_client()
                 mock_boto3.client.assert_called_once_with(
                     "s3",
                     endpoint_url="http://custom:9000",
