@@ -1,13 +1,13 @@
 # Statistics API
 
-> API endpoints for wiki statistics and deduplication metrics
+> API endpoints for entity statistics and deduplication metrics
 
 ---
 
 ## GET /v1/stats
 **Get General Stats**
 
-Get general wiki statistics.
+Get general entity statistics.
 
 | Aspect | Details |
 |--------|---------|

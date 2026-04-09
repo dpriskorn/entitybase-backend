@@ -53,7 +53,7 @@
 
 **Class**: `GeneralStatsWorker`
 **Location**: `models/workers/general_stats/general_stats_worker.py`
-**Purpose**: Computes and stores general wiki statistics including total entities, statements, terms, and itemized counts by type. Runs daily on schedule.
+**Purpose**: Computes and stores general entity statistics including total entities, statements, terms, and itemized counts by type. Runs daily on schedule.
 
 **Configuration**:
 - `general_stats_enabled`: True
