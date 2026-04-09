@@ -15,12 +15,13 @@ if "STREAMING_ENABLED" not in os.environ:
     # Default to disabled - only enable if Kafka is available and not in CI
     streaming_enabled = "false"
     kafka_host = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "")
-    # Only enable streaming if Kafka is configured and CI env var is not set
+    # Only enable streaming if Kafka is configured and not in CI
     if kafka_host and not os.getenv("CI"):
         streaming_enabled = "true"
     os.environ["STREAMING_ENABLED"] = streaming_enabled
 
-if "KAFKA_BOOTSTRAP_SERVERS" not in os.environ:
+# Only set default Kafka host if NOT in CI (CI doesn't have Kafka)
+if "KAFKA_BOOTSTRAP_SERVERS" not in os.environ and not os.getenv("CI"):
     os.environ["KAFKA_BOOTSTRAP_SERVERS"] = "redpanda:9092"
 if "KAFKA_ENTITYCHANGE_JSON_TOPIC" not in os.environ:
     os.environ["KAFKA_ENTITYCHANGE_JSON_TOPIC"] = "entitybase.entity_change"
