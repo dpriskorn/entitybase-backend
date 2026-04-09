@@ -228,4 +228,6 @@ lastrevid
 lexicalCategory
 get_document
 preview_elasticsearch_document
+get_elasticsearch_document
+get_meilisearch_document
 

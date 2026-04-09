@@ -422,6 +422,7 @@ which python  # Must point to .venv/bin/python
 - Never use `sudo pip install` or install to system Python
 - If you see "permission denied" errors, you're not using the venv
 - Run `which python` to verify you're using the venv
+- **Never install Poetry in the venv** - use Poetry installed system-wide or from your IDE
 
 #### Docker Development
 ```bash
