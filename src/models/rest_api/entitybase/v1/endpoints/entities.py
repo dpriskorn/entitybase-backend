@@ -201,9 +201,7 @@ async def delete_entity(  # type: ignore[no-any-return]
     entity_id: str,
     req: Request,
     headers: EditHeadersType,
-    request: EntityDeleteRequest = Body(
-        default_factory=lambda: EntityDeleteRequest(delete_type="soft")
-    ),
+    request: EntityDeleteRequest = Body(default_factory=EntityDeleteRequest),
 ) -> EntityDeleteResponse:
     """Delete an entity."""
     state = req.app.state.state_handler
@@ -220,7 +218,7 @@ async def lock_entity(
     entity_id: str,
     req: Request,
     headers: EditHeadersType,
-    request: EntityStatusRequest = Body(default_factory=lambda: EntityStatusRequest()),
+    request: EntityStatusRequest = Body(default_factory=EntityStatusRequest),
 ) -> EntityStatusResponse:
     """Lock an entity from edits."""
     state = req.app.state.state_handler
@@ -234,7 +232,7 @@ async def unlock_entity(
     entity_id: str,
     req: Request,
     headers: EditHeadersType,
-    request: EntityStatusRequest = Body(default_factory=lambda: EntityStatusRequest()),
+    request: EntityStatusRequest = Body(default_factory=EntityStatusRequest),
 ) -> EntityStatusResponse:
     """Remove lock from an entity."""
     state = req.app.state.state_handler
@@ -248,7 +246,7 @@ async def archive_entity(
     entity_id: str,
     req: Request,
     headers: EditHeadersType,
-    request: EntityStatusRequest = Body(default_factory=lambda: EntityStatusRequest()),
+    request: EntityStatusRequest = Body(default_factory=EntityStatusRequest),
 ) -> EntityStatusResponse:
     """Archive an entity."""
     state = req.app.state.state_handler
@@ -262,7 +260,7 @@ async def unarchive_entity(
     entity_id: str,
     req: Request,
     headers: EditHeadersType,
-    request: EntityStatusRequest = Body(default_factory=lambda: EntityStatusRequest()),
+    request: EntityStatusRequest = Body(default_factory=EntityStatusRequest),
 ) -> EntityStatusResponse:
     """Unarchive an entity."""
     state = req.app.state.state_handler
@@ -275,7 +273,7 @@ async def unarchive_entity(
 async def semi_protect_entity(
     entity_id: str,
     req: Request,
-    request: EntityStatusRequest = Body(default_factory=lambda: EntityStatusRequest()),
+    request: EntityStatusRequest = Body(default_factory=EntityStatusRequest),
 ) -> EntityStatusResponse:
     """Semi-protect an entity."""
     state = req.app.state.state_handler
@@ -290,7 +288,7 @@ async def semi_protect_entity(
 async def unsemi_protect_entity(
     entity_id: str,
     req: Request,
-    request: EntityStatusRequest = Body(default_factory=lambda: EntityStatusRequest()),
+    request: EntityStatusRequest = Body(default_factory=EntityStatusRequest),
 ) -> EntityStatusResponse:
     """Remove semi-protection from an entity."""
     state = req.app.state.state_handler
@@ -305,7 +303,7 @@ async def unsemi_protect_entity(
 async def mass_edit_protect_entity(
     entity_id: str,
     req: Request,
-    request: EntityStatusRequest = Body(default_factory=lambda: EntityStatusRequest()),
+    request: EntityStatusRequest = Body(default_factory=EntityStatusRequest),
 ) -> EntityStatusResponse:
     """Add mass edit protection to an entity."""
     state = req.app.state.state_handler
@@ -320,7 +318,7 @@ async def mass_edit_protect_entity(
 async def mass_edit_unprotect_entity(
     entity_id: str,
     req: Request,
-    request: EntityStatusRequest = Body(default_factory=lambda: EntityStatusRequest()),
+    request: EntityStatusRequest = Body(default_factory=EntityStatusRequest),
 ) -> EntityStatusResponse:
     """Remove mass edit protection from an entity."""
     state = req.app.state.state_handler
@@ -423,9 +421,7 @@ async def remove_entity_statement(
     statement_hash: str,
     req: Request,
     headers: EditHeadersType,
-    request: RemoveStatementRequest = Body(
-        default_factory=lambda: RemoveStatementRequest()
-    ),
+    request: RemoveStatementRequest = Body(default_factory=RemoveStatementRequest),
 ) -> OperationResult[RevisionIdResult]:
     """Remove a statement by hash from an entity."""
     state = req.app.state.state_handler

@@ -163,7 +163,8 @@ semi_protect_entity
 unsemi_protect_entity
 mass_edit_protect_entity
 mass_edit_unprotect_entity
-# False positives - unused but intentionally kept
+# False positives - legitimate lambda usage (deferred callbacks for rollback)
+_rollback_entity_registration
 get_notification_count
 hash_metadata
 create_s3_key
