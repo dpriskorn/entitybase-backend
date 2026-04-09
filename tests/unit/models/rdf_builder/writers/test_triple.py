@@ -422,8 +422,8 @@ class TestTripleWriters:
             ),
         )
 
-        mock_format_value.side_effect = (
-            lambda v: "wd:Q5" if v == "wd:Q5" else '"Book Title"@en'
+        mock_format_value.side_effect = lambda v: (
+            "wd:Q5" if v == "wd:Q5" else '"Book Title"@en'
         )
 
         # Mock property registry
@@ -495,8 +495,8 @@ class TestTripleWriters:
             ),
         )
 
-        mock_format_value.side_effect = (
-            lambda v: "wd:Q5" if v == "wd:Q5" else '"https://example.com"'
+        mock_format_value.side_effect = lambda v: (
+            "wd:Q5" if v == "wd:Q5" else '"https://example.com"'
         )
 
         # Mock property registry and RDF reference

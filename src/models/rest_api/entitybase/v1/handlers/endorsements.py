@@ -147,8 +147,8 @@ class EndorsementHandler(Handler):
         must_be_active: bool,
     ) -> StatementEndorsementResponse:
         """Find endorsement by user ID."""
-        filter_fn = (
-            lambda e: e.user_id == user_id and not e.removed_at
+        filter_fn = lambda e: (
+            e.user_id == user_id and not e.removed_at
             if must_be_active
             else e.user_id == user_id and e.removed_at is not None
         )
