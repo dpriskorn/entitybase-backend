@@ -223,7 +223,7 @@ async def run_server(app: Any) -> None:
         logger.warning("uvicorn not installed, running worker without HTTP server")
         return
 
-    log_level = settings.get_log_level().upper()
+    log_level = logging.getLevelName(settings.get_log_level())
     logging_config = {
         "version": 1,
         "disable_existing_loggers": False,
