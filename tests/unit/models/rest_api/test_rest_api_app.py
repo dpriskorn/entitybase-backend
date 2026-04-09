@@ -17,7 +17,7 @@ class TestRestApiApp:
         assert app is not None
         assert app.title == "Wikibase Backend API"
         assert app.description == "Backend API for Wikibase entity management"
-        assert app.version == "1.0.0"
+        assert app.version == "v2026.4.8"
 
     def test_app_has_lifespan(self):
         """Test that app has lifespan configured."""
