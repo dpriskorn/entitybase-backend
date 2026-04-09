@@ -4,6 +4,9 @@ FROM python:3.13-alpine
 ARG REQUIREMENTS_HASH=initial
 RUN echo "Building with requirements hash: $REQUIREMENTS_HASH"
 
+# Install wget for healthcheck
+RUN apk add --no-cache wget
+
 WORKDIR /app
 
 COPY ./var/requirements-idworker.txt ./
