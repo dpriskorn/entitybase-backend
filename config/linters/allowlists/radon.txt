@@ -143,6 +143,12 @@ _generate_checksum
 list_entities_by_type
 _validate_user
 _get_kafka_brokers
+# Intentionally duplicated for Elasticsearch and Meilisearch search backends
+_flatten_claims
+close
+delete_document
+get_document
+index_document
 # Vitess storage duplicate methods (intentional - same interface as S3 storage)
 exists
 load_statement
