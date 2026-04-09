@@ -118,9 +118,7 @@ class MeilisearchClient(BaseModel):
         try:
             response = self.index.get_document(doc_id)
             if response:
-                return MeilisearchDocumentResponse(
-                    data=MeilisearchDocument(**response)
-                )
+                return MeilisearchDocumentResponse(data=MeilisearchDocument(**response))
             return MeilisearchDocumentResponse(data=None)
         except Exception:
             return MeilisearchDocumentResponse(data=None)

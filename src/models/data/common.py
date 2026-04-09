@@ -16,7 +16,9 @@ class OperationResult(BaseModel, Generic[T]):
 
     success: bool = Field(..., description="Whether the operation succeeded")
     error: str = Field(default="", description="Error message if operation failed")
-    data: Optional[T] = Field(default=None, description="Result data if operation succeeded")
+    data: Optional[T] = Field(
+        default=None, description="Result data if operation succeeded"
+    )
 
     def get_data(self) -> T:
         """Return data, assuming success has been checked.

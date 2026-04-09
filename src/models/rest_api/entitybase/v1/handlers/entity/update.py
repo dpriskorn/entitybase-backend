@@ -62,7 +62,7 @@ class EntityUpdateHandler(
         validator: Any | None = None,
     ) -> EntityResponse:
         """Execute entity update using UpdateTransaction.
-        
+
         Runs the full entity update flow within a database transaction:
         1. Validation - check entity exists, not deleted, not locked/protected
         2. UpdateTransaction creation - prepare atomic update
@@ -71,17 +71,17 @@ class EntityUpdateHandler(
         5. Event publishing - emit change events to Kafka (if streaming enabled)
         6. Activity logging - log the edit activity
         7. Commit/Rollback - finalize or revert on error
-        
+
         Args:
             entity_id: Entity ID to update
             modified_data: Updated entity data (labels, claims, etc.)
             entity_type: Type of entity (item, property, lexeme)
             edit_headers: User ID and edit summary
             validator: Optional JSON schema validator
-            
+
         Returns:
             EntityResponse with updated entity data
-            
+
         Notes:
             - If streaming is disabled, events are skipped silently
             - Uses UpdateTransaction for atomic database updates

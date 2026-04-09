@@ -334,18 +334,14 @@ class Settings(BaseModel):
             os.getenv("MEILISEARCH_ENABLED", str(self.meilisearch_enabled)).lower()
             == "true"
         )
-        self.meilisearch_host = os.getenv(
-            "MEILISEARCH_HOST", self.meilisearch_host
-        )
+        self.meilisearch_host = os.getenv("MEILISEARCH_HOST", self.meilisearch_host)
         self.meilisearch_port = int(
             os.getenv("MEILISEARCH_PORT", str(self.meilisearch_port))
         )
         self.meilisearch_api_key = os.getenv(
             "MEILISEARCH_API_KEY", self.meilisearch_api_key
         )
-        self.meilisearch_index = os.getenv(
-            "MEILISEARCH_INDEX", self.meilisearch_index
-        )
+        self.meilisearch_index = os.getenv("MEILISEARCH_INDEX", self.meilisearch_index)
         self.meilisearch_consumer_group = os.getenv(
             "MEILISEARCH_CONSUMER_GROUP", self.meilisearch_consumer_group
         )

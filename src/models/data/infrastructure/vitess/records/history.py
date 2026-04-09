@@ -8,4 +8,6 @@ class HistoryRecord(BaseModel):
 
     revision_id: int = Field(..., description="Revision identifier")
     created_at: str = Field(..., description="Timestamp when revision was created")
-    is_mass_edit: bool = Field(default=False, description="Whether this revision was a mass edit")
+    is_mass_edit: bool = Field(
+        default=False, description="Whether this revision was a mass edit"
+    )

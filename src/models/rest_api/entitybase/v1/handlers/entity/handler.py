@@ -448,22 +448,22 @@ class EntityHandler(Handler):
         validator: Any | None,
     ) -> StatementHashResult:
         """Process and store statements for the entity.
-        
+
         Hashes all statements in the entity data, stores them in S3 with
         content-addressable storage (deduplication), and updates reference
         counts. Returns statement hashes and property counts.
-        
+
         Args:
             entity_id: Entity ID being processed
             request_data: PreparedRequestData with entity statement data
             validator: Optional JSON schema validator
-            
+
         Returns:
             StatementHashResult with hashes, properties, and counts
-            
+
         Raises:
             HTTPException 500: If statement hashing fails
-            
+
         Notes:
             - Uses rapidhash for content-addressable storage
             - Increments reference counts for new statements

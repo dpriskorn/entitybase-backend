@@ -191,9 +191,7 @@ class MeilisearchIndexerWorker(Worker):
     ) -> None:
         """Handle entity change (create/update)."""
         if not self.s3_client or not self.meilisearch_client:
-            logger.warning(
-                "S3 or Meilisearch client not available, skipping indexing"
-            )
+            logger.warning("S3 or Meilisearch client not available, skipping indexing")
             return
 
         try:
