@@ -61,11 +61,33 @@ class SettingsResponse(BaseModel):
     purge_worker_enabled: bool
     elasticsearch_enabled: bool
     meilisearch_enabled: bool
+    streaming_backend: str
+    kafka_userchange_json_topic: str
+    streaming_user_change_version: str
+    backlink_stats_worker_enabled: bool
+    elasticsearch_host: str
+    elasticsearch_port: int
+    elasticsearch_index: str
+    elasticsearch_username: str
+    elasticsearch_password: str
+    elasticsearch_use_ssl: bool
+    elasticsearch_verify_certs: bool
+    elasticsearch_consumer_group: str
+    meilisearch_host: str
+    meilisearch_port: int
+    meilisearch_api_key: str
+    meilisearch_index: str
+    meilisearch_consumer_group: str
+    purge_schedule: str
+    purge_batch_size: int
 
 
 def settings_to_response(settings: Any) -> SettingsResponse:
     """Convert Settings object to SettingsResponse, excluding sensitive fields."""
+    import os
     exclude = {"s3_access_key", "s3_secret_key", "vitess_password", "vitess_user"}
     data = settings.model_dump(exclude=exclude)
     data["property_registry_path"] = str(data["property_registry_path"])
+    data["streaming_enabled"] = os.getenv("STREAMING_ENABLED", "false").lower() == "true"
+    data["backlink_stats_enabled"] = os.getenv("BACKLINK_STATS_ENABLED", "true").lower() == "true"
     return SettingsResponse(**data)
