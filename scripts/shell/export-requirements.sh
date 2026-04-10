@@ -2,18 +2,21 @@
 cd "$(dirname "$0")/../.."
 set -e
 
+ID_WORKER_ENABLED=${ID_WORKER_ENABLED:-false}
+JSON_WORKER_ENABLED=${JSON_WORKER_ENABLED:-false}
+TTL_WORKER_ENABLED=${TTL_WORKER_ENABLED:-false}
+STATS_WORKER_ENABLED=${STATS_WORKER_ENABLED:-false}
+PURGE_WORKER_ENABLED=${PURGE_WORKER_ENABLED:-false}
+
 echo "Exporting Poetry dependencies to requirements files..."
 echo ""
 
 mkdir -p var
 
 POETRY="poetry"
-TOTAL=11
-CURRENT=0
 
 step() {
-    CURRENT=$((CURRENT + 1))
-    printf "[%d/%d] %s\n" "$CURRENT" "$TOTAL" "$1"
+    printf "[%s] %s\n" "$1" "$2"
 }
 
 add_warning() {
@@ -26,49 +29,59 @@ add_warning() {
     sed -i "1i\\$warning" "$file"
 }
 
-step "Exporting main requirements.txt"
+step "main" "Exporting main requirements.txt"
 $POETRY export --format requirements.txt --output var/requirements.txt --without-hashes
 add_warning var/requirements.txt
 
-step "Exporting requirements-dev.txt"
+step "dev" "Exporting requirements-dev.txt"
 $POETRY export --format requirements.txt --output var/requirements-dev.txt --without-hashes --with dev
 add_warning var/requirements-dev.txt
 
-step "Exporting API requirements"
+step "api" "Exporting API requirements"
 $POETRY export --format requirements.txt --output var/requirements-api.txt --without-hashes --only=api
 add_warning var/requirements-api.txt
 
-step "Exporting create-buckets requirements"
+step "create-buckets" "Exporting create-buckets requirements"
 $POETRY export --format requirements.txt --output var/requirements-create-buckets.txt --without-hashes --only=create-buckets
 add_warning var/requirements-create-buckets.txt
 
-step "Exporting create-tables requirements"
+step "create-tables" "Exporting create-tables requirements"
 $POETRY export --format requirements.txt --output var/requirements-create-tables.txt --without-hashes --only=create-tables
 add_warning var/requirements-create-tables.txt
 
-step "Exporting create-topics requirements"
+step "create-topics" "Exporting create-topics requirements"
 $POETRY export --format requirements.txt --output var/requirements-create-topics.txt --without-hashes --only=create-topics
 add_warning var/requirements-create-topics.txt
 
-step "Exporting idworker requirements"
-$POETRY export --format requirements.txt --output var/requirements-idworker.txt --without-hashes --only=idworker
-add_warning var/requirements-idworker.txt
+if [ "$ID_WORKER_ENABLED" = "true" ]; then
+    step "idworker" "Exporting idworker requirements"
+    $POETRY export --format requirements.txt --output var/requirements-idworker.txt --without-hashes --only=idworker
+    add_warning var/requirements-idworker.txt
+fi
 
-step "Exporting stats-worker requirements"
-$POETRY export --format requirements.txt --output var/requirements-stats-worker.txt --without-hashes --only=stats-worker
-add_warning var/requirements-stats-worker.txt
+if [ "$STATS_WORKER_ENABLED" = "true" ]; then
+    step "stats-worker" "Exporting stats-worker requirements"
+    $POETRY export --format requirements.txt --output var/requirements-stats-worker.txt --without-hashes --only=stats-worker
+    add_warning var/requirements-stats-worker.txt
+fi
 
-step "Exporting json-worker requirements"
-$POETRY export --format requirements.txt --output var/requirements-json-worker.txt --without-hashes --only=json-worker
-add_warning var/requirements-json-worker.txt
+if [ "$JSON_WORKER_ENABLED" = "true" ]; then
+    step "json-worker" "Exporting json-worker requirements"
+    $POETRY export --format requirements.txt --output var/requirements-json-worker.txt --without-hashes --only=json-worker
+    add_warning var/requirements-json-worker.txt
+fi
 
-step "Exporting ttl-worker requirements"
-$POETRY export --format requirements.txt --output var/requirements-ttl-worker.txt --without-hashes --only=ttl-worker
-add_warning var/requirements-ttl-worker.txt
+if [ "$TTL_WORKER_ENABLED" = "true" ]; then
+    step "ttl-worker" "Exporting ttl-worker requirements"
+    $POETRY export --format requirements.txt --output var/requirements-ttl-worker.txt --without-hashes --only=ttl-worker
+    add_warning var/requirements-ttl-worker.txt
+fi
 
-step "Exporting purge-worker requirements"
-$POETRY export --format requirements.txt --output var/requirements-purge-worker.txt --without-hashes --only=purge-worker
-add_warning var/requirements-purge-worker.txt
+if [ "$PURGE_WORKER_ENABLED" = "true" ]; then
+    step "purge-worker" "Exporting purge-worker requirements"
+    $POETRY export --format requirements.txt --output var/requirements-purge-worker.txt --without-hashes --only=purge-worker
+    add_warning var/requirements-purge-worker.txt
+fi
 
 echo ""
-echo "✓ All 11 requirements files updated successfully in var/"
+echo "✓ Requirements files updated successfully in var/"
