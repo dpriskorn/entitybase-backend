@@ -367,7 +367,7 @@ async def test_get_deduplication_stats(api_prefix: str, initialized_app: None) -
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-@pytest.mark.skip_kafka
+@pytest.mark.requires_kafka
 async def test_watchlist_add(api_prefix: str, initialized_app: None) -> None:
     """Test adding a watchlist entry"""
     from models.rest_api.main import app

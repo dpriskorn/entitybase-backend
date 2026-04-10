@@ -16,10 +16,10 @@ def pytest_configure(config):
 
 def pytest_collection_modifyitems(config, items):
     """Skip tests marked with requires_kafka when Kafka is not available."""
-    skip_kafka = pytest.mark.skip(reason="Kafka/Redpanda not available")
+    skip_marker = pytest.mark.skip(reason="Kafka/Redpanda not available")
     for item in items:
         if "requires_kafka" in item.keywords:
-            item.add_marker(skip_kafka)
+            item.add_marker(skip_marker)
 
 
 @pytest.fixture
