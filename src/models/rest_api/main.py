@@ -25,6 +25,7 @@ from models.rest_api.utils import raise_validation_error
 import logging.config
 
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
+API_PORT = int(os.environ.get("API_PORT", 8080))
 API_WORKERS = int(os.environ.get("API_WORKERS", 1))
 
 LOGGING_CONFIG = {
@@ -266,7 +267,7 @@ if __name__ == "__main__":
     uvicorn.run(
         "models.rest_api.main:app",
         host="0.0.0.0",
-        port=8000,
+        port=API_PORT,
         log_config=LOGGING_CONFIG,
         workers=API_WORKERS,
     )
