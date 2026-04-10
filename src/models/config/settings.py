@@ -371,9 +371,7 @@ class Settings(BaseModel):
         self.meilisearch_consumer_group = os.getenv(
             "MEILISEARCH_CONSUMER_GROUP", self.meilisearch_consumer_group
         )
-        self.purge_enabled = (
-            os.getenv("PURGE_ENABLED", str(self.purge_enabled)).lower() == "true"
-        )
+        self.purge_worker_enabled = os.getenv("PURGE_ENABLED", str(self.purge_worker_enabled)).lower() == "true"
         self.purge_schedule = os.getenv("PURGE_SCHEDULE", self.purge_schedule)
         self.purge_batch_size = int(
             os.getenv("PURGE_BATCH_SIZE", str(self.purge_batch_size))
