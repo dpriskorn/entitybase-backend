@@ -41,22 +41,26 @@ class SettingsResponse(BaseModel):
     backlink_stats_enabled: bool
     backlink_stats_schedule: str
     backlink_stats_top_limit: int
-    user_stats_enabled: bool
+    user_stats_worker_enabled: bool
     user_stats_schedule: str
-    general_stats_enabled: bool
+    general_stats_worker_enabled: bool
     general_stats_schedule: str
-    json_dump_enabled: bool
+    json_worker_enabled: bool
     json_dump_schedule: str
     s3_dump_bucket: str
     json_dump_batch_size: int
     json_dump_parallel_workers: int
     json_dump_generate_checksums: bool
-    ttl_dump_enabled: bool
+    ttl_worker_enabled: bool
     ttl_dump_schedule: str
     ttl_dump_batch_size: int
     ttl_dump_parallel_workers: int
     ttl_dump_compression: bool
     ttl_dump_generate_checksums: bool
+    id_worker_enabled: bool
+    purge_worker_enabled: bool
+    elasticsearch_enabled: bool
+    meilisearch_enabled: bool
 
 
 def settings_to_response(settings: Any) -> SettingsResponse:

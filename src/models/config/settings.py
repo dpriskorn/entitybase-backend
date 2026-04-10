@@ -82,16 +82,16 @@ class Settings(BaseModel):
     api_description: str = ""
 
     # workers
-    backlink_stats_enabled: bool = True
+    backlink_stats_worker_enabled: bool = True
     backlink_stats_schedule: str = "0 2 * * *"  # Daily at 2 AM
     backlink_stats_top_limit: int = 100
-    user_stats_enabled: bool = True
+    user_stats_worker_enabled: bool = True
     user_stats_schedule: str = "0 2 * * *"  # Daily at 2 AM
-    general_stats_enabled: bool = True
+    general_stats_worker_enabled: bool = True
     general_stats_schedule: str = "0 2 * * *"  # Daily at 2 AM
 
     # JSON dump worker
-    json_dump_enabled: bool = True
+    json_worker_enabled: bool = True
     json_dump_schedule: str = "0 2 * * 0"  # Sunday 2AM UTC
     s3_dump_bucket: str = "entitybase-dumps"
     json_dump_batch_size: int = 1000
@@ -99,12 +99,15 @@ class Settings(BaseModel):
     json_dump_generate_checksums: bool = True
 
     # TTL dump worker
-    ttl_dump_enabled: bool = True
+    ttl_worker_enabled: bool = True
     ttl_dump_schedule: str = "0 3 * * 0"  # Sunday 3AM UTC (after JSON dump)
     ttl_dump_batch_size: int = 1000
     ttl_dump_parallel_workers: int = 50
     ttl_dump_compression: bool = True
     ttl_dump_generate_checksums: bool = True
+
+    # ID worker
+    id_worker_enabled: bool = True
 
     # Elasticsearch worker
     elasticsearch_enabled: bool = False
@@ -126,7 +129,7 @@ class Settings(BaseModel):
     meilisearch_consumer_group: str = "entitybase-meilisearch-indexer"
 
     # Purge worker
-    purge_enabled: bool = True
+    purge_worker_enabled: bool = True
     purge_schedule: str = "0 0 * * *"  # Daily at midnight UTC
     purge_batch_size: int = 100
 
@@ -245,22 +248,33 @@ class Settings(BaseModel):
     def _load_workers_config(self) -> None:
         """Load workers configuration from environment variables."""
         logger.debug("Loading workers configuration from environment variables")
-        self.backlink_stats_enabled = (
-            os.getenv(
-                "BACKLINK_STATS_ENABLED", str(self.backlink_stats_enabled)
-            ).lower()
-            == "true"
-        )
-        self.user_stats_enabled = (
-            os.getenv("USER_STATS_ENABLED", str(self.user_stats_enabled)).lower()
-            == "true"
-        )
-        self.general_stats_enabled = (
-            os.getenv("GENERAL_STATS_ENABLED", str(self.general_stats_enabled)).lower()
-            == "true"
-        )
-        self.json_dump_enabled = (
-            os.getenv("JSON_DUMP_ENABLED", str(self.json_dump_enabled)).lower()
+        
+        # Stats worker (enables/disables all stats workers at once)
+        stats_worker_enabled = os.getenv("STATS_WORKER_ENABLED", "false").lower() == "true"
+        
+        if os.getenv("STATS_WORKER_ENABLED"):
+            # If STATS_WORKER_ENABLED is explicitly set, use it for all
+            self.backlink_stats_worker_enabled = stats_worker_enabled
+            self.user_stats_worker_enabled = stats_worker_enabled
+            self.general_stats_worker_enabled = stats_worker_enabled
+        else:
+            # Otherwise load individual settings
+            self.backlink_stats_worker_enabled = (
+                os.getenv(
+                    "BACKLINK_STATS_WORKER_ENABLED", str(self.backlink_stats_worker_enabled)
+                ).lower()
+                == "true"
+            )
+            self.user_stats_worker_enabled = (
+                os.getenv("USER_STATS_WORKER_ENABLED", str(self.user_stats_worker_enabled)).lower()
+                == "true"
+            )
+            self.general_stats_worker_enabled = (
+                os.getenv("GENERAL_STATS_WORKER_ENABLED", str(self.general_stats_worker_enabled)).lower()
+                == "true"
+            )
+        self.json_worker_enabled = (
+            os.getenv("JSON_WORKER_ENABLED", str(self.json_worker_enabled)).lower()
             == "true"
         )
         self.json_dump_schedule = os.getenv(
@@ -281,8 +295,8 @@ class Settings(BaseModel):
             ).lower()
             == "true"
         )
-        self.ttl_dump_enabled = (
-            os.getenv("TTL_DUMP_ENABLED", str(self.ttl_dump_enabled)).lower() == "true"
+        self.ttl_worker_enabled = (
+            os.getenv("TTL_WORKER_ENABLED", str(self.ttl_worker_enabled)).lower() == "true"
         )
         self.ttl_dump_schedule = os.getenv("TTL_DUMP_SCHEDULE", self.ttl_dump_schedule)
         self.ttl_dump_batch_size = int(
@@ -300,6 +314,14 @@ class Settings(BaseModel):
             os.getenv(
                 "TTL_DUMP_GENERATE_CHECKSUMS", str(self.ttl_dump_generate_checksums)
             ).lower()
+            == "true"
+        )
+        self.id_worker_enabled = (
+            os.getenv("ID_WORKER_ENABLED", str(self.id_worker_enabled)).lower()
+            == "true"
+        )
+        self.purge_worker_enabled = (
+            os.getenv("PURGE_WORKER_ENABLED", str(self.purge_worker_enabled)).lower()
             == "true"
         )
         self.elasticsearch_enabled = (
@@ -357,8 +379,8 @@ class Settings(BaseModel):
             os.getenv("PURGE_BATCH_SIZE", str(self.purge_batch_size))
         )
         logger.debug(
-            f"Workers config loaded: backlink_stats_enabled={self.backlink_stats_enabled}, "
-            f"user_stats_enabled={self.user_stats_enabled}, json_dump_enabled={self.json_dump_enabled}"
+            f"Workers config loaded: backlink_stats_worker_enabled={self.backlink_stats_worker_enabled}, "
+            f"user_stats_worker_enabled={self.user_stats_worker_enabled}, json_worker_enabled={self.json_worker_enabled}"
         )
 
     def get_log_level(self) -> int:
