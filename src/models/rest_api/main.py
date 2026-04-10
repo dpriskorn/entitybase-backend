@@ -122,8 +122,10 @@ async def _create_database_tables(state_handler: StateHandler) -> None:
 
 async def _initialize_app_state(app_: FastAPI, state_handler: StateHandler) -> None:
     """Initialize app state and log success."""
+    from datetime import datetime, timezone
     logger.info("Clients, validator, and enumeration service initialized successfully")
     app_.state.state_handler = state_handler
+    app_.state.start_time = datetime.now(timezone.utc).isoformat()
 
 
 async def _cleanup_app_state(app_: FastAPI) -> None:
