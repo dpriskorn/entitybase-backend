@@ -359,6 +359,8 @@ class TestStateHandler:
         self.cached_s3_client: MockS3Client | None = None
         self.cached_enumeration_service: Any = None
         self.entity_change_stream_producer = None
+        self.entitydiff_stream_producer = None
+        self.user_change_stream_producer = None
 
     @property
     def settings(self) -> Any:
