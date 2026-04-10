@@ -226,6 +226,9 @@ get_state_from_request
 get_deduplication_stats
 # Elasticsearch models - kept for future use
 lastrevid
+# Unused but kept for potential future use
+backlink_stats_enabled
+uptime_endpoint
 lexicalCategory
 get_document
 preview_elasticsearch_document

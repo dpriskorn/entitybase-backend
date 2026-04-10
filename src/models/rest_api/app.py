@@ -29,7 +29,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         state_handler = StateHandler(
             settings=settings,
         )
-        state_handler.start()
+        await state_handler.start()
         app_.state.state_handler = state_handler
         yield
 

@@ -118,7 +118,9 @@ class CreateBuckets(BaseModel):
                 objects = self.get_s3_client().list_objects_v2(Bucket=bucket)
                 if "Contents" in objects:
                     for obj in objects["Contents"]:
-                        self.get_s3_client().delete_object(Bucket=bucket, Key=obj["Key"])
+                        self.get_s3_client().delete_object(
+                            Bucket=bucket, Key=obj["Key"]
+                        )
 
                 # Delete the bucket
                 self.get_s3_client().delete_bucket(Bucket=bucket)
