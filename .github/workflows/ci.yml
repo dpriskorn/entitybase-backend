@@ -152,14 +152,6 @@ jobs:
         run: poetry run pytest tests/e2e -k "entity_crud or entity_lifecycle or entitybase_properties or entity_properties_e2e or entity_revisions_e2e or entity_sitelinks_e2e" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
         timeout-minutes: 15
 
-      - name: Upload e2e coverage to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage.xml
-          flags: e2e-basics
-          name: e2e-basics
-
       - name: Run e2e tests (02 - terms)
         env:
           VITESS_HOST: localhost
@@ -240,14 +232,6 @@ jobs:
           STREAMING_ENABLED: "false"
         run: poetry run pytest tests/integration -k "test_app or test_id_resolver or test_connection_pool" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
         timeout-minutes: 10
-
-      - name: Upload integration coverage to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage.xml
-          flags: integration
-          name: integration-tests
 
       - name: Run integration tests (02 - mid 50)
         env:
