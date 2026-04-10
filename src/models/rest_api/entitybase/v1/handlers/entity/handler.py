@@ -91,6 +91,7 @@ class EntityHandler(Handler):
             s3_client=self.state.s3_client,
             stream_producer=self.state.entity_change_stream_producer,
             validator=ctx.validator,
+            edit_headers=ctx.edit_headers,
         )
 
         # 1. Validate request

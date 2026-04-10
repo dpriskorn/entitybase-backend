@@ -129,3 +129,4 @@ class RevisionContext(BaseModel):
         default=None, description="Kafka stream producer instance"
     )
     validator: Any | None = Field(default=None, description="Validator instance")
+    edit_headers: Any = Field(default=None, description="Edit headers")
