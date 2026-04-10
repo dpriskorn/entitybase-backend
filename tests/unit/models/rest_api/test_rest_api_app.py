@@ -2,7 +2,7 @@
 
 import logging
 import pytest
-from unittest.mock import AsyncMock, PropertyMock, patch, MagicMock
+from unittest.mock import AsyncMock, PropertyMock, patch
 
 from fastapi import FastAPI
 
@@ -46,8 +46,9 @@ class TestRestApiApp:
         from models.rest_api.app import lifespan
 
         app_mock = FastAPI()
-        mock_state_handler = MagicMock()
-        mock_state_handler.start.return_value = None
+        mock_state_handler = mocker.Mock()
+        mock_state_handler.start = AsyncMock()
+        mock_state_handler.async_shutdown = AsyncMock()
 
         mocker.patch(
             "models.rest_api.app.StateHandler",
@@ -64,8 +65,9 @@ class TestRestApiApp:
         from models.rest_api.app import lifespan
 
         app_mock = FastAPI()
-        mock_state_handler = MagicMock()
-        mock_state_handler.start.side_effect = RuntimeError("Startup failed")
+        mock_state_handler = mocker.Mock()
+        mock_state_handler.start = AsyncMock(side_effect=RuntimeError("Startup failed"))
+        mock_state_handler.async_shutdown = AsyncMock()
 
         mocker.patch(
             "models.rest_api.app.StateHandler",
@@ -84,8 +86,8 @@ class TestRestApiApp:
         from models.rest_api.app import lifespan
 
         app_mock = FastAPI()
-        mock_state_handler = MagicMock()
-        mock_state_handler.start.return_value = None
+        mock_state_handler = mocker.Mock()
+        mock_state_handler.start = AsyncMock()
         mock_state_handler.async_shutdown = AsyncMock()
 
         mocker.patch(
