@@ -16,6 +16,7 @@ RUN pip install --no-cache-dir -r requirements-api.txt
 
 COPY ./src/ ./
 COPY ./scripts/ ./scripts/
+COPY log_conf.yaml ./log_conf.yaml
 
 EXPOSE 8080
 
