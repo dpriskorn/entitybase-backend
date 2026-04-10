@@ -1,4 +1,4 @@
-.PHONY: lint test test-fast coverage help ruff mypy radon vulture stop api api-no-cache api-vps vps-reset docs docs-generate docs-build docs-serve check release push-release ci
+.PHONY: lint test test-fast coverage help ruff mypy radon vulture stop api-vps vps-reset docs docs-generate docs-build docs-serve check release push-release ci
 
 help:
 	@echo "Available targets:"
@@ -44,12 +44,6 @@ help:
 
 check:
 	./scripts/shell/check-docker-services.sh
-
-api:
-	./scripts/shell/run-api-local.sh
-
-api-no-cache:
-	./scripts/shell/run-api-local.sh --no-cache
 
 api-vps:
 	./scripts/shell/run-api-vps.sh

@@ -101,9 +101,7 @@ class TestUserStatsWorker:
             active_users=50,
         )
 
-        with patch(
-            "models.workers.user_stats.user_stats_worker.date"
-        ) as mock_date:
+        with patch("models.workers.user_stats.user_stats_worker.date") as mock_date:
             mock_date.today.return_value.isoformat.return_value = "2024-01-01"
 
             await worker._store_statistics(stats)
