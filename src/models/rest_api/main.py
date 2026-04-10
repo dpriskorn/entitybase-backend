@@ -30,7 +30,7 @@ API_WORKERS = int(os.environ.get("API_WORKERS", 1))
 
 LOGGING_CONFIG = {
     "version": 1,
-    "disable_existing_loggers": True,
+    "disable_existing_loggers": False,
     "formatters": {
         "standard": {"format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s"},
     },
@@ -43,13 +43,15 @@ LOGGING_CONFIG = {
         },
     },
     "loggers": {
-        "": {"level": LOG_LEVEL, "handlers": ["default"], "propagate": True},
+        # ROOT logger
+        "": {"level": LOG_LEVEL, "handlers": ["default"], "propagate": False},
         "uvicorn.error": {"level": "DEBUG", "handlers": ["default"]},
         "uvicorn.access": {"level": "DEBUG", "handlers": ["default"]},
     },
 }
 
-logging.config.dictConfig(LOGGING_CONFIG)
+# We let uvicorn handle all logging
+# logging.config.dictConfig(LOGGING_CONFIG)
 
 aws_loggers = [
     "botocore",
