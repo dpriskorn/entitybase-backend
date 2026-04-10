@@ -22,35 +22,6 @@ from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.entitybase.v1.routes import include_routes
 from models.rest_api.utils import raise_validation_error
 
-access_logger = logging.getLogger("uvicorn.access")
-access_logger.setLevel(logging.INFO)
-
-import copy
-
-
-class AccessLogMiddleware(BaseHTTPMiddleware):
-    """Middleware to add entity ID to access logs for import endpoint."""
-
-    async def dispatch(
-        self, request: StarletteRequest, call_next: Any
-    ) -> StarletteResponse:
-        response = await call_next(request)
-        if request.url.path == "/v1/import" and response.status_code == 200:
-            try:
-                body = await request.body()
-                if body:
-                    import json
-
-                    data = json.loads(body)
-                    entity_id = data.get("id", "unknown")
-                    access_logger.info(
-                        f"Import completed: entity_id={entity_id}, "
-                        f"status={response.status_code}"
-                    )
-            except Exception:
-                pass
-        return response
-
 
 aws_loggers = [
     "botocore",
@@ -187,7 +158,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.add_middleware(StartupMiddleware)
-app.add_middleware(AccessLogMiddleware)
 
 
 @app.exception_handler(ValidationError)
