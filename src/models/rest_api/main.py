@@ -102,7 +102,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
 async def _initialize_state_handler() -> StateHandler:
     """Initialize the state handler."""
     state_handler = StateHandler(settings=settings)
-    state_handler.start()
+    await state_handler.start()
     return state_handler
 
 
