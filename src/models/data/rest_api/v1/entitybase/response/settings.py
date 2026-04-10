@@ -85,9 +85,14 @@ class SettingsResponse(BaseModel):
 def settings_to_response(settings: Any) -> SettingsResponse:
     """Convert Settings object to SettingsResponse, excluding sensitive fields."""
     import os
+
     exclude = {"s3_access_key", "s3_secret_key", "vitess_password", "vitess_user"}
     data = settings.model_dump(exclude=exclude)
     data["property_registry_path"] = str(data["property_registry_path"])
-    data["streaming_enabled"] = os.getenv("STREAMING_ENABLED", "false").lower() == "true"
-    data["backlink_stats_enabled"] = os.getenv("BACKLINK_STATS_ENABLED", "true").lower() == "true"
+    data["streaming_enabled"] = (
+        os.getenv("STREAMING_ENABLED", "false").lower() == "true"
+    )
+    data["backlink_stats_enabled"] = (
+        os.getenv("BACKLINK_STATS_ENABLED", "true").lower() == "true"
+    )
     return SettingsResponse(**data)

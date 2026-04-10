@@ -194,9 +194,8 @@ class Settings(BaseModel):
 
     def _load_streaming_config(self) -> None:
         """Load streaming configuration from environment variables."""
-        self.streaming_backend = os.getenv(
-            "STREAMING_BACKEND", self.streaming_backend
-        )
+        logger.debug("Loading streaming configuration from environment variables")
+        self.streaming_backend = os.getenv("STREAMING_BACKEND", self.streaming_backend)
         self.kafka_bootstrap_servers = os.getenv(
             "KAFKA_BOOTSTRAP_SERVERS", self.kafka_bootstrap_servers
         )
@@ -248,10 +247,12 @@ class Settings(BaseModel):
     def _load_workers_config(self) -> None:
         """Load workers configuration from environment variables."""
         logger.debug("Loading workers configuration from environment variables")
-        
+
         # Stats worker (enables/disables all stats workers at once)
-        stats_worker_enabled = os.getenv("STATS_WORKER_ENABLED", "false").lower() == "true"
-        
+        stats_worker_enabled = (
+            os.getenv("STATS_WORKER_ENABLED", "false").lower() == "true"
+        )
+
         if os.getenv("STATS_WORKER_ENABLED"):
             # If STATS_WORKER_ENABLED is explicitly set, use it for all
             self.backlink_stats_worker_enabled = stats_worker_enabled
@@ -261,16 +262,22 @@ class Settings(BaseModel):
             # Otherwise load individual settings
             self.backlink_stats_worker_enabled = (
                 os.getenv(
-                    "BACKLINK_STATS_WORKER_ENABLED", str(self.backlink_stats_worker_enabled)
+                    "BACKLINK_STATS_WORKER_ENABLED",
+                    str(self.backlink_stats_worker_enabled),
                 ).lower()
                 == "true"
             )
             self.user_stats_worker_enabled = (
-                os.getenv("USER_STATS_WORKER_ENABLED", str(self.user_stats_worker_enabled)).lower()
+                os.getenv(
+                    "USER_STATS_WORKER_ENABLED", str(self.user_stats_worker_enabled)
+                ).lower()
                 == "true"
             )
             self.general_stats_worker_enabled = (
-                os.getenv("GENERAL_STATS_WORKER_ENABLED", str(self.general_stats_worker_enabled)).lower()
+                os.getenv(
+                    "GENERAL_STATS_WORKER_ENABLED",
+                    str(self.general_stats_worker_enabled),
+                ).lower()
                 == "true"
             )
         self.json_worker_enabled = (
@@ -296,7 +303,8 @@ class Settings(BaseModel):
             == "true"
         )
         self.ttl_worker_enabled = (
-            os.getenv("TTL_WORKER_ENABLED", str(self.ttl_worker_enabled)).lower() == "true"
+            os.getenv("TTL_WORKER_ENABLED", str(self.ttl_worker_enabled)).lower()
+            == "true"
         )
         self.ttl_dump_schedule = os.getenv("TTL_DUMP_SCHEDULE", self.ttl_dump_schedule)
         self.ttl_dump_batch_size = int(
@@ -371,7 +379,9 @@ class Settings(BaseModel):
         self.meilisearch_consumer_group = os.getenv(
             "MEILISEARCH_CONSUMER_GROUP", self.meilisearch_consumer_group
         )
-        self.purge_worker_enabled = os.getenv("PURGE_ENABLED", str(self.purge_worker_enabled)).lower() == "true"
+        self.purge_worker_enabled = (
+            os.getenv("PURGE_ENABLED", str(self.purge_worker_enabled)).lower() == "true"
+        )
         self.purge_schedule = os.getenv("PURGE_SCHEDULE", self.purge_schedule)
         self.purge_batch_size = int(
             os.getenv("PURGE_BATCH_SIZE", str(self.purge_batch_size))

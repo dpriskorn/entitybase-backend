@@ -37,9 +37,7 @@ def _check_client_status(client: Any, client_name: str) -> str:
     return client_status
 
 
-def _check_producer_status(
-    producer: Any, settings: Settings, topic_attr: str
-) -> str:
+def _check_producer_status(producer: Any, settings: Settings, topic_attr: str) -> str:
     """Check Kafka stream producer status.
 
     Args:
@@ -54,7 +52,11 @@ def _check_producer_status(
     if not topic_value:
         return "not_configured"
 
-    if producer and hasattr(producer, "healthy_connection") and producer.healthy_connection:
+    if (
+        producer
+        and hasattr(producer, "healthy_connection")
+        and producer.healthy_connection
+    ):
         return "connected"
     return "disconnected"
 

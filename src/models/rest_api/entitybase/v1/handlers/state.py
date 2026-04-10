@@ -58,7 +58,9 @@ class StateHandler(BaseModel):
             try:
                 response = requests.get("http://redpanda-health:8080", timeout=5)
                 is_healthy = response.status_code == 200
-                logger.debug(f"Redpanda health check: status={response.status_code}, healthy={is_healthy}")
+                logger.debug(
+                    f"Redpanda health check: status={response.status_code}, healthy={is_healthy}"
+                )
                 return is_healthy
             except Exception:
                 logger.error("Redpanda health check failed, skipping producer start")
@@ -83,7 +85,9 @@ class StateHandler(BaseModel):
         else:
             logger.info("Streaming is enabled")
             if self._is_streaming_backend_healthy():
-                logger.info(f"Streaming backend ({self.settings.streaming_backend}) is healthy, starting producers")
+                logger.info(
+                    f"Streaming backend ({self.settings.streaming_backend}) is healthy, starting producers"
+                )
 
                 # Start entity change producer
                 if self.entity_change_stream_producer:

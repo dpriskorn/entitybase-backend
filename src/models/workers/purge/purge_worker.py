@@ -55,7 +55,7 @@ class PurgeWorker(VitessWorker):
 
     def get_enabled_setting(self) -> bool:
         """Check if purge worker is enabled."""
-        return settings.purge_enabled
+        return settings.purge_worker_enabled
 
     def get_schedule_setting(self) -> str:
         """Get the schedule for purge worker."""
