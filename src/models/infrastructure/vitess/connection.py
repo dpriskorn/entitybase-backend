@@ -38,7 +38,7 @@ class VitessConnectionManager(BaseModel):
 
     def _create_new_connection(self) -> Connection:
         """Create a new database connection."""
-        logger.info(
+        logger.debug(
             f"Attempting database connection to {self.config.host}:{self.config.port}..."
         )
         logger.debug(
@@ -54,7 +54,7 @@ class VitessConnectionManager(BaseModel):
                 database=self.config.database,
                 autocommit=True,
             )
-            logger.info(
+            logger.debug(
                 f"Successfully connected to database at {self.config.host}:{self.config.port}"
             )
             return connection
