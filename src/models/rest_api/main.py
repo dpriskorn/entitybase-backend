@@ -25,6 +25,7 @@ from models.rest_api.utils import raise_validation_error
 import logging.config
 
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
+API_WORKERS = int(os.environ.get("API_WORKERS", 1))
 
 LOGGING_CONFIG = {
     "version": 1,
@@ -41,7 +42,7 @@ LOGGING_CONFIG = {
         },
     },
     "loggers": {
-        "": {"level": LOG_LEVEL, "handlers": ["default"], "propagate": False},
+        "": {"level": LOG_LEVEL, "handlers": ["default"], "propagate": True},
         "uvicorn.error": {"level": "DEBUG", "handlers": ["default"]},
         "uvicorn.access": {"level": "DEBUG", "handlers": ["default"]},
     },
@@ -257,3 +258,15 @@ async def get_openapi() -> dict:
 async def redirect_to_docs() -> RedirectResponse:
     """Redirect to the OpenAPI docs."""
     return RedirectResponse(url="/docs")
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=8000,
+        log_config=LOGGING_CONFIG,
+        workers=API_WORKERS,
+    )

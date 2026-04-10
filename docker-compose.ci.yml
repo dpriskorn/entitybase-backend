@@ -331,7 +331,7 @@ services:
       ENVIRONMENT: "dev"
       USER_AGENT: "Entitybase/1.0 User:So9q"
       CI: "true"
-    command: uvicorn models.rest_api.main:app --host 0.0.0.0 --port 8000 --log-config none
+    command: uvicorn models.rest_api.main:app --host 0.0.0.0 --port 8000
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8000/health"]
       interval: 5s
