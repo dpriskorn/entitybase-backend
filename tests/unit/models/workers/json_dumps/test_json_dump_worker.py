@@ -199,16 +199,26 @@ class TestJsonDumpWorker:
     @pytest.mark.asyncio
     async def test_start_disabled_worker(self):
         """Test worker exits when json_dump_enabled is False."""
+        from contextlib import asynccontextmanager
+        from models.workers.json_dumps.json_dump_worker import (
+            JsonDumpWorker as WorkerClass,
+        )
+
         worker = JsonDumpWorker()
 
-        with patch(
-            "models.workers.json_dumps.json_dump_worker.settings"
-        ) as mock_settings:
-            mock_settings.json_dump_enabled = False
+        @asynccontextmanager
+        async def mock_lifespan(self):
+            yield
 
-            await worker.start()
+        with patch.object(WorkerClass, "lifespan", mock_lifespan):
+            with patch(
+                "models.workers.json_dumps.json_dump_worker.settings"
+            ) as mock_settings:
+                mock_settings.json_worker_enabled = False
 
-            worker.running = False
+                await worker.start()
+
+                worker.running = False
 
     @pytest.mark.asyncio
     async def test_start_loop_error_recovery(self):
@@ -236,7 +246,7 @@ class TestJsonDumpWorker:
             with patch(
                 "models.workers.json_dumps.json_dump_worker.settings"
             ) as mock_settings:
-                mock_settings.json_dump_enabled = True
+                mock_settings.json_worker_enabled = True
 
                 with patch.object(WorkerClass, "lifespan", mock_lifespan):
                     with patch.object(
