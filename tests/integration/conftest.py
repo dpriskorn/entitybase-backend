@@ -11,6 +11,10 @@ from botocore.exceptions import ClientError
 
 sys.path.insert(0, "src")
 
+# In CI, always disable streaming regardless of what test.env loaded
+if os.getenv("CI"):
+    os.environ["STREAMING_ENABLED"] = "false"
+
 if "STREAMING_ENABLED" not in os.environ:
     # Default to disabled - only enable if Kafka is available and not in CI
     streaming_enabled = "false"
