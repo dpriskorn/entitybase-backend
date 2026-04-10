@@ -3,6 +3,11 @@
 import pytest
 from unittest.mock import MagicMock, AsyncMock, patch
 
+from models.config.settings import settings
+from models.data.rest_api.v1.entitybase.response.entity.backlink_statistics import (
+    BacklinkStatisticsData,
+    TopEntityByBacklinks,
+)
 from models.workers.backlink_statistics.backlink_statistics_worker import (
     BacklinkStatisticsWorker,
 )
@@ -13,12 +18,8 @@ class TestBacklinkStatisticsWorker:
 
     def test_get_enabled_setting(self):
         """Test getting enabled setting."""
-        with patch(
-            "models.workers.backlink_statistics.backlink_statistics_worker.settings"
-        ) as mock_settings:
-            mock_settings.backlink_stats_enabled = True
-            worker = BacklinkStatisticsWorker(vitess_client=MagicMock())
-            assert worker.get_enabled_setting() is True
+        worker = BacklinkStatisticsWorker(vitess_client=MagicMock())
+        assert worker.get_enabled_setting() == settings.backlink_stats_worker_enabled
 
     def test_get_schedule_setting(self):
         """Test getting schedule setting."""
@@ -97,3 +98,28 @@ class TestBacklinkStatisticsWorker:
                 await worker.run_daily_computation()
 
             mock_logger.error.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_store_statistics_with_vitess_client(self):
+        """Test storing statistics with vitess client."""
+        mock_vitess_client = MagicMock()
+        mock_vitess_client.backlink_repository = MagicMock()
+
+        worker = BacklinkStatisticsWorker(vitess_client=mock_vitess_client)
+
+        stats = BacklinkStatisticsData(
+            total_backlinks=100,
+            unique_entities_with_backlinks=50,
+            top_entities_by_backlinks=[
+                TopEntityByBacklinks(entity_id="Q1", backlink_count=10)
+            ],
+        )
+
+        with patch(
+            "models.workers.backlink_statistics.backlink_statistics_worker.date"
+        ) as mock_date:
+            mock_date.today.return_value.isoformat.return_value = "2024-01-01"
+
+            await worker._store_statistics(stats)
+
+            mock_vitess_client.backlink_repository.insert_backlink_statistics.assert_called_once()
