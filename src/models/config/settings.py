@@ -57,6 +57,7 @@ class Settings(BaseModel):
 
     # streaming
     _streaming_enabled: bool = False
+    streaming_backend: str = "redpanda"
     kafka_bootstrap_servers: str = ""
     kafka_entitychange_json_topic: str = ""
     kafka_entity_diff_topic: str = ""
@@ -190,6 +191,9 @@ class Settings(BaseModel):
 
     def _load_streaming_config(self) -> None:
         """Load streaming configuration from environment variables."""
+        self.streaming_backend = os.getenv(
+            "STREAMING_BACKEND", self.streaming_backend
+        )
         self.kafka_bootstrap_servers = os.getenv(
             "KAFKA_BOOTSTRAP_SERVERS", self.kafka_bootstrap_servers
         )
