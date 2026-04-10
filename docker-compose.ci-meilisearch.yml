@@ -175,7 +175,7 @@ services:
       LOG_LEVEL: "DEBUG"
       ENVIRONMENT: "dev"
       CI: "true"
-    command: uvicorn models.rest_api.main:app --host 0.0.0.0 --port 8000
+    command: uvicorn models.rest_api.main:app --host 0.0.0.0 --port 8000 --log-config none
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8000/health"]
       interval: 5s
