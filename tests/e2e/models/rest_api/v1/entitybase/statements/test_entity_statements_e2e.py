@@ -127,11 +127,8 @@ async def test_remove_statement(
         assert len(statements) > 0, "Expected at least one statement to exist"
         statement_hash = statements[0]
 
-        # Remove statement - send empty body as required by endpoint
-        response = await client.request(
-            "DELETE",
+        response = await client.delete(
             f"{api_prefix}/entities/{entity_id}/statements/{statement_hash}",
-            content=b"{}",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
