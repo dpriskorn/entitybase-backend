@@ -7,6 +7,7 @@ from contextlib import asynccontextmanager
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
 from jsonschema import ValidationError  # type: ignore[import-untyped]
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -147,6 +148,13 @@ if settings.api_description:
     app_kwargs["description"] = settings.api_description
 
 app = FastAPI(**app_kwargs)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:8080"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.add_middleware(StartupMiddleware)
 
 
