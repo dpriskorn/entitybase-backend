@@ -20,7 +20,6 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 
 COPY ./src/ ./
 COPY ./scripts/ ./scripts/
-COPY log_conf.yaml ./log_conf.yaml
 
 EXPOSE 8080
 
