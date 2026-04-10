@@ -22,6 +22,32 @@ from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.entitybase.v1.routes import include_routes
 from models.rest_api.utils import raise_validation_error
 
+import logging.config
+
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
+
+LOGGING_CONFIG = {
+    "version": 1,
+    "disable_existing_loggers": True,
+    "formatters": {
+        "standard": {"format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s"},
+    },
+    "handlers": {
+        "default": {
+            "level": "INFO",
+            "formatter": "standard",
+            "class": "logging.StreamHandler",
+            "stream": "ext://sys.stdout",
+        },
+    },
+    "loggers": {
+        "": {"level": LOG_LEVEL, "handlers": ["default"], "propagate": False},
+        "uvicorn.error": {"level": "DEBUG", "handlers": ["default"]},
+        "uvicorn.access": {"level": "DEBUG", "handlers": ["default"]},
+    },
+}
+
+logging.config.dictConfig(LOGGING_CONFIG)
 
 aws_loggers = [
     "botocore",
