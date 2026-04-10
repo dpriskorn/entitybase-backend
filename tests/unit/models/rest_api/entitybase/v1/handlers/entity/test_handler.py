@@ -57,6 +57,7 @@ class TestEntityHandler:
             is_creation=True,
             vitess_client=mock_vitess,
             s3_client=mock_s3,
+            edit_headers=None,
         )
 
         hash_result = StatementHashResult(
@@ -93,6 +94,7 @@ class TestEntityHandler:
             is_creation=True,
             vitess_client=mock_vitess,
             s3_client=mock_s3,
+            edit_headers=None,
         )
 
         revision_data_with_p6104 = handler._build_revision_data(
@@ -117,6 +119,7 @@ class TestEntityHandler:
             is_creation=True,
             vitess_client=mock_vitess,
             s3_client=mock_s3,
+            edit_headers=None,
         )
 
         revision_data_empty_claims = handler._build_revision_data(
@@ -169,6 +172,7 @@ class TestEntityHandler:
             is_creation=True,
             vitess_client=mock_vitess,
             s3_client=mock_s3,
+            edit_headers=None,
         )
 
         response = await EntityHandler._build_entity_response(ctx, result)
@@ -261,6 +265,7 @@ class TestEntityHandler:
             is_creation=True,
             vitess_client=mock_vitess,
             s3_client=mock_s3,
+            edit_headers=None,
         )
 
         result = await handler._process_entity_data_new(ctx)
@@ -293,6 +298,7 @@ class TestEntityHandler:
             is_creation=True,
             vitess_client=mock_vitess,
             s3_client=mock_s3,
+            edit_headers=None,
         )
 
         result = await handler._hash_terms_new(ctx)
@@ -326,6 +332,7 @@ class TestEntityHandler:
             is_creation=True,
             vitess_client=mock_vitess,
             s3_client=mock_s3,
+            edit_headers=None,
         )
 
         result = await handler._hash_sitelinks_new(ctx)
@@ -355,6 +362,7 @@ class TestEntityHandler:
             is_creation=True,
             vitess_client=mock_vitess,
             s3_client=mock_s3,
+            edit_headers=None,
         )
 
         with pytest.raises(Exception):  # Should raise validation error with 404
