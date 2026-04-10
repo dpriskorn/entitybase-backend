@@ -29,7 +29,7 @@ class BacklinkStatisticsWorker(BaseStatsWorker):
 
     def get_enabled_setting(self) -> bool:
         """Check if backlink stats are enabled."""
-        return settings.backlink_stats_enabled
+        return settings.backlink_stats_worker_enabled
 
     def get_schedule_setting(self) -> str:
         """Get the schedule for backlink stats."""

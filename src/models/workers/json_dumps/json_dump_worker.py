@@ -76,7 +76,7 @@ class JsonDumpWorker(Worker):
         logger.info("Shutting down JSON Dump Worker")
 
     async def start(self) -> None:
-        if not settings.json_dump_enabled:
+        if not settings.json_worker_enabled:
             logger.info("JSON Dump Worker disabled")
             return
 

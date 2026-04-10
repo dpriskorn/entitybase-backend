@@ -105,7 +105,7 @@ class TtlDumpWorker(Worker):
         logger.info("Shutting down TTL Dump Worker")
 
     async def start(self) -> None:
-        if not settings.ttl_dump_enabled:
+        if not settings.ttl_worker_enabled:
             logger.info("TTL Dump Worker disabled")
             return
 

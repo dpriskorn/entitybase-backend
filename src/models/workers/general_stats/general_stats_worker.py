@@ -27,7 +27,7 @@ class GeneralStatsWorker(BaseStatsWorker):
 
     def get_enabled_setting(self) -> bool:
         """Check if general stats are enabled."""
-        return settings.general_stats_enabled
+        return settings.general_stats_worker_enabled
 
     def get_schedule_setting(self) -> str:
         """Get the schedule for general stats."""
