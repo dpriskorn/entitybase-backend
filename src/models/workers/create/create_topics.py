@@ -52,8 +52,8 @@ class CreateTopics(BaseModel):
         )
         logger.info(f"Using bootstrap servers: {self.kafka_bootstrap_servers}")
         self.required_topics = [
-            os.getenv("KAFKA_ENTITY_CHANGE_TOPIC", "entitybase.entity_change"),
-            os.getenv("KAFKA_ENTITY_DIFF_TOPIC", "entitybase.entity_diff"),
+            os.getenv("KAFKA_ENTITY_CHANGE_TOPIC", "entity_change"),
+            os.getenv("KAFKA_ENTITY_DIFF_TOPIC", "entity_diff"),
         ]
 
     async def ensure_topics_exist(self) -> Dict[str, str]:

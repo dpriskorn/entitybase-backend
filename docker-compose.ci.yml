@@ -325,8 +325,8 @@ services:
       STREAMING_ENTITY_DIFF_VERSION: "2.0.0"
 
       STREAMING_ENABLED: "false"
-      KAFKA_ENTITY_CHANGE_TOPIC: entitybase.entity_change
-      KAFKA_ENTITY_DIFF_TOPIC: entitybase.entity_diff
+      KAFKA_ENTITY_CHANGE_TOPIC: ${KAFKA_ENTITY_CHANGE_TOPIC:-entity_change}
+      KAFKA_ENTITY_DIFF_TOPIC: ${KAFKA_ENTITY_DIFF_TOPIC:-entity_diff}
       LOG_LEVEL: "DEBUG"
       ENVIRONMENT: "dev"
       USER_AGENT: "Entitybase/1.0 User:So9q"

@@ -15,8 +15,8 @@ class TestCreateTopics:
             with patch("models.workers.create.create_topics.os.getenv") as mock_getenv:
                 mock_getenv.side_effect = lambda k, d=None: {
                     "KAFKA_BOOTSTRAP_SERVERS": "redpanda:9092",
-                    "KAFKA_ENTITY_CHANGE_TOPIC": "entitybase.entity_change",
-                    "KAFKA_ENTITY_DIFF_TOPIC": "entitybase.entity_diff",
+                    "KAFKA_ENTITY_CHANGE_TOPIC": "entity_change",
+                    "KAFKA_ENTITY_DIFF_TOPIC": "entity_diff",
                 }.get(k, d)
 
                 topics = CreateTopics()
