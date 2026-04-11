@@ -53,7 +53,6 @@ class CreateTopics(BaseModel):
         logger.info(f"Using bootstrap servers: {self.kafka_bootstrap_servers}")
         self.required_topics = [
             os.getenv("KAFKA_ENTITY_CHANGE_TOPIC", "entity_change"),
-            os.getenv("KAFKA_ENTITY_DIFF_TOPIC", "entity_diff"),
             os.getenv("KAFKA_INCREMENTAL_RDF_TOPIC", "incremental_rdf_diff"),
         ]
 
