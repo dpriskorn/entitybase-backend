@@ -190,8 +190,10 @@ class MeilisearchIndexerWorker(Worker):
         self, entity_id: str, revision_id: int, change_type: str
     ) -> None:
         """Handle entity change (create/update)."""
-        if not self.s3_client or not self.meilisearch_client:
-            logger.warning("S3 or Meilisearch client not available, skipping indexing")
+        if not self.s3_client or not self.vitess_client or not self.meilisearch_client:
+            logger.warning(
+                "S3, Vitess, or Meilisearch client not available, skipping indexing"
+            )
             return
 
         try:
@@ -217,7 +219,10 @@ class MeilisearchIndexerWorker(Worker):
         self, entity_id: str, revision_id: int
     ) -> Optional[dict[str, Any]]:
         """Fetch entity data from S3."""
-        if not self.s3_client:
+        if not self.s3_client or not self.vitess_client:
+            logger.warning(
+                f"Cannot fetch entity {entity_id}: S3 or Vitess client not available"
+            )
             return None
 
         try:
