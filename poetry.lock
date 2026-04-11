@@ -160,7 +160,7 @@ version = "0.13.0"
 description = "Kafka integration with asyncio"
 optional = false
 python-versions = ">=3.10"
-groups = ["main", "api", "create-topics"]
+groups = ["main", "api", "create-topics", "incremental-rdf-worker"]
 files = [
     {file = "aiokafka-0.13.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:557245613c599145ec895d8f953cdaa45eb76f66c1b887fbdbdbc7764a902c1d"},
     {file = "aiokafka-0.13.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:e147396c692807be6ef72d3b1cbf980bf46967e5e389ee0aed880f8d45a33eca"},
@@ -228,7 +228,7 @@ version = "0.0.4"
 description = "Document parameters, class attributes, return types, and variables inline, with Annotated."
 optional = false
 python-versions = ">=3.8"
-groups = ["main", "api", "idworker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "idworker", "incremental-rdf-worker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "annotated_doc-0.0.4-py3-none-any.whl", hash = "sha256:571ac1dc6991c450b25a9c2d84a3705e2ae7a53467b5d111c24fa8baabbed320"},
     {file = "annotated_doc-0.0.4.tar.gz", hash = "sha256:fbcda96e87e9c92ad167c2e53839e57503ecfda18804ea28102353485033faa4"},
@@ -240,7 +240,7 @@ version = "0.7.0"
 description = "Reusable constraint types to use with typing.Annotated"
 optional = false
 python-versions = ">=3.8"
-groups = ["main", "api", "create-buckets", "create-tables", "create-topics", "idworker", "json-worker", "meilisearch-indexer-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "create-buckets", "create-tables", "create-topics", "idworker", "incremental-rdf-worker", "json-worker", "meilisearch-indexer-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "annotated_types-0.7.0-py3-none-any.whl", hash = "sha256:1f02e8b43a8fbbc3f3e0d4f0f4bfc8131bcb4eebe8849b8e5c773f3a1c582a53"},
     {file = "annotated_types-0.7.0.tar.gz", hash = "sha256:aff07c09a53a08bc8cfccb9c85b05f1aa9a2a6f23728d790723543408344ce89"},
@@ -252,7 +252,7 @@ version = "4.13.0"
 description = "High-level concurrency and networking framework on top of asyncio or Trio"
 optional = false
 python-versions = ">=3.10"
-groups = ["main", "api", "dev", "idworker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "dev", "idworker", "incremental-rdf-worker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "anyio-4.13.0-py3-none-any.whl", hash = "sha256:08b310f9e24a9594186fd75b4f73f4a4152069e3853f1ed8bfbf58369f4ad708"},
     {file = "anyio-4.13.0.tar.gz", hash = "sha256:334b70e641fd2221c1505b3890c69882fe4a2df910cba14d97019b90b24439dc"},
@@ -270,7 +270,7 @@ version = "5.0.1"
 description = "Timeout context manager for asyncio programs"
 optional = false
 python-versions = ">=3.8"
-groups = ["main", "api", "create-topics"]
+groups = ["main", "api", "create-topics", "incremental-rdf-worker"]
 files = [
     {file = "async_timeout-5.0.1-py3-none-any.whl", hash = "sha256:39e3809566ff85354557ec2398b55e096c8364bacac9405a7a1fa429e77fe76c"},
     {file = "async_timeout-5.0.1.tar.gz", hash = "sha256:d9321a7a3d5a6a5e187e824d2fa0793ce379a202935782d555d6e9d2735677d3"},
@@ -361,7 +361,7 @@ version = "1.42.83"
 description = "The AWS SDK for Python"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "api", "create-buckets", "dev", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "create-buckets", "dev", "incremental-rdf-worker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "boto3-1.42.83-py3-none-any.whl", hash = "sha256:544846fdb10585bb7837e409868e8e04c6b372fa04479ba1597ce82cf1242076"},
     {file = "boto3-1.42.83.tar.gz", hash = "sha256:cc5621e603982cb3145b7f6c9970e02e297a1a0eb94637cc7f7b69d3017640ee"},
@@ -824,7 +824,7 @@ version = "1.42.83"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "api", "create-buckets", "dev", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "create-buckets", "dev", "incremental-rdf-worker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "botocore-1.42.83-py3-none-any.whl", hash = "sha256:ec0c3ecb3772936ed22a3bdda09883b34858933f71004686d460d829bab39d8e"},
     {file = "botocore-1.42.83.tar.gz", hash = "sha256:34bc8cb64b17ac17f8901f073fe4fc9572a5cac9393a37b2b3ea372a83b87f4a"},
@@ -862,7 +862,7 @@ version = "7.0.5"
 description = "Extensible memoizing collections and decorators"
 optional = false
 python-versions = ">=3.10"
-groups = ["main", "api"]
+groups = ["main", "api", "incremental-rdf-worker"]
 files = [
     {file = "cachetools-7.0.5-py3-none-any.whl", hash = "sha256:46bc8ebefbe485407621d0a4264b23c080cedd913921bad7ac3ed2f26c183114"},
     {file = "cachetools-7.0.5.tar.gz", hash = "sha256:0cd042c24377200c1dcd225f8b7b12b0ca53cc2c961b43757e774ebe190fd990"},
@@ -892,7 +892,7 @@ version = "2026.2.25"
 description = "Python package for providing Mozilla's CA Bundle."
 optional = false
 python-versions = ">=3.7"
-groups = ["main", "api", "dev", "meilisearch-indexer-worker", "ttl-worker"]
+groups = ["main", "api", "dev", "incremental-rdf-worker", "meilisearch-indexer-worker", "ttl-worker"]
 files = [
     {file = "certifi-2026.2.25-py3-none-any.whl", hash = "sha256:027692e4402ad994f1c42e52a4997a9763c646b73e4096e4d5d6db8af1d6f0fa"},
     {file = "certifi-2026.2.25.tar.gz", hash = "sha256:e887ab5cee78ea814d3472169153c2d12cd43b14bd03329a39a9c6e2e80bfba7"},
@@ -904,7 +904,7 @@ version = "2.0.0"
 description = "Foreign Function Interface for Python calling C code."
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "api", "create-tables", "dev", "idworker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "create-tables", "dev", "idworker", "incremental-rdf-worker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
 markers = "platform_python_implementation != \"PyPy\""
 files = [
     {file = "cffi-2.0.0-cp310-cp310-macosx_10_13_x86_64.whl", hash = "sha256:0cf2d91ecc3fcc0625c2c530fe004f82c110405f101548512cce44322fa8ac44"},
@@ -1002,7 +1002,7 @@ version = "3.4.7"
 description = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
 optional = false
 python-versions = ">=3.7"
-groups = ["main", "api", "dev", "meilisearch-indexer-worker", "ttl-worker"]
+groups = ["main", "api", "dev", "incremental-rdf-worker", "meilisearch-indexer-worker", "ttl-worker"]
 files = [
     {file = "charset_normalizer-3.4.7-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:cdd68a1fb318e290a2077696b7eb7a21a49163c455979c639bf5a5dcdc46617d"},
     {file = "charset_normalizer-3.4.7-cp310-cp310-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:e17b8d5d6a8c47c85e68ca8379def1303fd360c3e22093a807cd34a71cd082b8"},
@@ -1141,7 +1141,7 @@ version = "8.3.2"
 description = "Composable command line interface toolkit"
 optional = false
 python-versions = ">=3.10"
-groups = ["main", "api", "dev", "idworker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "dev", "idworker", "incremental-rdf-worker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "click-8.3.2-py3-none-any.whl", hash = "sha256:1924d2c27c5653561cd2cae4548d1406039cb79b858b747cfea24924bbc1616d"},
     {file = "click-8.3.2.tar.gz", hash = "sha256:14162b8b3b3550a7d479eafa77dfd3c38d9dc8951f6f69c78913a8f9a7540fd5"},
@@ -1156,12 +1156,12 @@ version = "0.4.6"
 description = "Cross-platform colored terminal text."
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7"
-groups = ["main", "api", "dev", "idworker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "dev", "idworker", "incremental-rdf-worker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6"},
     {file = "colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"},
 ]
-markers = {main = "platform_system == \"Windows\"", api = "platform_system == \"Windows\"", idworker = "platform_system == \"Windows\"", json-worker = "platform_system == \"Windows\"", purge-worker = "platform_system == \"Windows\"", stats-worker = "platform_system == \"Windows\"", ttl-worker = "platform_system == \"Windows\""}
+markers = {main = "platform_system == \"Windows\"", api = "platform_system == \"Windows\"", idworker = "platform_system == \"Windows\"", incremental-rdf-worker = "platform_system == \"Windows\"", json-worker = "platform_system == \"Windows\"", purge-worker = "platform_system == \"Windows\"", stats-worker = "platform_system == \"Windows\"", ttl-worker = "platform_system == \"Windows\""}
 
 [[package]]
 name = "coverage"
@@ -1288,7 +1288,7 @@ version = "46.0.7"
 description = "cryptography is a package which provides cryptographic recipes and primitives to Python developers."
 optional = false
 python-versions = "!=3.9.0,!=3.9.1,>=3.8"
-groups = ["main", "api", "create-tables", "dev", "idworker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "create-tables", "dev", "idworker", "incremental-rdf-worker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "cryptography-46.0.7-cp311-abi3-macosx_10_9_universal2.whl", hash = "sha256:ea42cbe97209df307fdc3b155f1b6fa2577c0defa8f1f7d3be7d31d189108ad4"},
     {file = "cryptography-46.0.7-cp311-abi3-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:b36a4695e29fe69215d75960b22577197aca3f7a25b9cf9d165dcfe9d80bc325"},
@@ -1413,7 +1413,7 @@ version = "0.135.3"
 description = "FastAPI framework, high performance, easy to learn, fast to code, ready for production"
 optional = false
 python-versions = ">=3.10"
-groups = ["main", "api", "idworker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "idworker", "incremental-rdf-worker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "fastapi-0.135.3-py3-none-any.whl", hash = "sha256:9b0f590c813acd13d0ab43dd8494138eb58e484bfac405db1f3187cfc5810d98"},
     {file = "fastapi-0.135.3.tar.gz", hash = "sha256:bd6d7caf1a2bdd8d676843cdcd2287729572a1ef524fc4d65c17ae002a1be654"},
@@ -1437,7 +1437,7 @@ version = "2.4.7"
 description = "A simple immutable dictionary"
 optional = false
 python-versions = ">=3.6"
-groups = ["main", "api"]
+groups = ["main", "api", "incremental-rdf-worker"]
 files = [
     {file = "frozendict-2.4.7-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:bd37c087a538944652363cfd77fb7abe8100cc1f48afea0b88b38bf0f469c3d2"},
     {file = "frozendict-2.4.7-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:2b96f224a5431889f04b2bc99c0e9abe285679464273ead83d7d7f2a15907d35"},
@@ -1773,7 +1773,7 @@ version = "0.16.0"
 description = "A pure-Python, bring-your-own-I/O implementation of HTTP/1.1"
 optional = false
 python-versions = ">=3.8"
-groups = ["main", "api", "dev", "idworker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "dev", "idworker", "incremental-rdf-worker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "h11-0.16.0-py3-none-any.whl", hash = "sha256:63cf8bbe7522de3bf65932fda1d9c2772064ffb3dae62d55932da54b31cb6c86"},
     {file = "h11-0.16.0.tar.gz", hash = "sha256:4e35b956cf45792e4caa5885e69fba00bdbc6ffafbfa020300e549b208ee5ff1"},
@@ -1860,7 +1860,7 @@ version = "3.11"
 description = "Internationalized Domain Names in Applications (IDNA)"
 optional = false
 python-versions = ">=3.8"
-groups = ["main", "api", "dev", "idworker", "json-worker", "meilisearch-indexer-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "dev", "idworker", "incremental-rdf-worker", "json-worker", "meilisearch-indexer-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "idna-3.11-py3-none-any.whl", hash = "sha256:771a87f49d9defaf64091e6e6fe9c18d4833f140bd19464795bc32d966ca37ea"},
     {file = "idna-3.11.tar.gz", hash = "sha256:795dafcc9c04ed0c1fb032c2aa73654d8e8c5023a7df64a53f39190ada629902"},
@@ -1905,7 +1905,7 @@ version = "1.1.0"
 description = "JSON Matching Expressions"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "api", "create-buckets", "dev", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "create-buckets", "dev", "incremental-rdf-worker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "jmespath-1.1.0-py3-none-any.whl", hash = "sha256:a5663118de4908c91729bea0acadca56526eb2698e83de10cd116ae0f4e97c64"},
     {file = "jmespath-1.1.0.tar.gz", hash = "sha256:472c87d80f36026ae83c6ddd0f1d05d4e510134ed462851fd5f754c8c3cbb88d"},
@@ -2055,7 +2055,7 @@ version = "6.0.2"
 description = "Powerful and Pythonic XML processing library combining libxml2/libxslt with the ElementTree API."
 optional = false
 python-versions = ">=3.8"
-groups = ["main", "api"]
+groups = ["main", "api", "incremental-rdf-worker"]
 files = [
     {file = "lxml-6.0.2-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:e77dd455b9a16bbd2a5036a63ddbd479c19572af81b624e79ef422f929eef388"},
     {file = "lxml-6.0.2-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:5d444858b9f07cefff6455b983aea9a67f7462ba1f6cbe4a21e8bf6791bf2153"},
@@ -2873,7 +2873,7 @@ version = "26.0"
 description = "Core utilities for Python packages"
 optional = false
 python-versions = ">=3.8"
-groups = ["main", "api", "create-topics", "dev"]
+groups = ["main", "api", "create-topics", "dev", "incremental-rdf-worker"]
 files = [
     {file = "packaging-26.0-py3-none-any.whl", hash = "sha256:b36f1fef9334a5588b4166f8bcd26a14e521f2b55e6b9de3aaa80d3ff7a37529"},
     {file = "packaging-26.0.tar.gz", hash = "sha256:00243ae351a257117b6a241061796684b084ed1c516a08c48a3f7e147a9d80b4"},
@@ -3124,7 +3124,7 @@ version = "3.0"
 description = "C parser in Python"
 optional = false
 python-versions = ">=3.10"
-groups = ["main", "api", "create-tables", "dev", "idworker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "create-tables", "dev", "idworker", "incremental-rdf-worker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
 markers = "platform_python_implementation != \"PyPy\" and implementation_name != \"PyPy\""
 files = [
     {file = "pycparser-3.0-py3-none-any.whl", hash = "sha256:b727414169a36b7d524c1c3e31839a521725078d7b2ff038656844266160a992"},
@@ -3137,7 +3137,7 @@ version = "2.12.5"
 description = "Data validation using Python type hints"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "api", "create-buckets", "create-tables", "create-topics", "idworker", "json-worker", "meilisearch-indexer-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "create-buckets", "create-tables", "create-topics", "idworker", "incremental-rdf-worker", "json-worker", "meilisearch-indexer-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "pydantic-2.12.5-py3-none-any.whl", hash = "sha256:e561593fccf61e8a20fc46dfc2dfe075b8be7d0188df33f221ad1f0139180f9d"},
     {file = "pydantic-2.12.5.tar.gz", hash = "sha256:4d351024c75c0f085a9febbb665ce8c0c6ec5d30e903bdb6394b7ede26aebb49"},
@@ -3159,7 +3159,7 @@ version = "2.41.5"
 description = "Core functionality for Pydantic validation and serialization"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "api", "create-buckets", "create-tables", "create-topics", "idworker", "json-worker", "meilisearch-indexer-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "create-buckets", "create-tables", "create-topics", "idworker", "incremental-rdf-worker", "json-worker", "meilisearch-indexer-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "pydantic_core-2.41.5-cp310-cp310-macosx_10_12_x86_64.whl", hash = "sha256:77b63866ca88d804225eaa4af3e664c5faf3568cea95360d21f4725ab6e07146"},
     {file = "pydantic_core-2.41.5-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:dfa8a0c812ac681395907e71e1274819dec685fec28273a28905df579ef137e2"},
@@ -3350,7 +3350,7 @@ version = "3.0.0"
 description = "Python implementation of the JSON-LD API"
 optional = false
 python-versions = "*"
-groups = ["main", "api"]
+groups = ["main", "api", "incremental-rdf-worker"]
 files = [
     {file = "pyld-3.0.0-py3-none-any.whl", hash = "sha256:bfe0f5a476c67d8766d47c445ef2170b868a72654e535dbebc89c8e040b1fe88"},
     {file = "pyld-3.0.0.tar.gz", hash = "sha256:b1913a06054f35a31e4d9916d184852909b2a3c5fea55c341bd00917cf8b22ef"},
@@ -3392,7 +3392,7 @@ version = "1.1.2"
 description = "Pure Python MySQL Driver"
 optional = false
 python-versions = ">=3.8"
-groups = ["main", "api", "create-tables", "idworker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "create-tables", "idworker", "incremental-rdf-worker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "pymysql-1.1.2-py3-none-any.whl", hash = "sha256:e6b1d89711dd51f8f74b1631fe08f039e7d76cf67a42a323d3178f0f25762ed9"},
     {file = "pymysql-1.1.2.tar.gz", hash = "sha256:4961d3e165614ae65014e361811a724e2044ad3ea3739de9903ae7c21f539f03"},
@@ -3408,7 +3408,7 @@ version = "3.3.2"
 description = "pyparsing - Classes and methods to define and execute parsing grammars"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "api", "ttl-worker"]
+groups = ["main", "api", "incremental-rdf-worker", "ttl-worker"]
 files = [
     {file = "pyparsing-3.3.2-py3-none-any.whl", hash = "sha256:850ba148bd908d7e2411587e247a1e4f0327839c40e2e5e6d05a007ecc69911d"},
     {file = "pyparsing-3.3.2.tar.gz", hash = "sha256:c777f4d763f140633dcb6d8a3eda953bf7a214dc4eff598413c070bcdc117cbc"},
@@ -3535,7 +3535,7 @@ version = "2.9.0.post0"
 description = "Extensions to the standard Python datetime module"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
-groups = ["main", "api", "create-buckets", "dev", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "create-buckets", "dev", "incremental-rdf-worker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "python-dateutil-2.9.0.post0.tar.gz", hash = "sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3"},
     {file = "python_dateutil-2.9.0.post0-py2.py3-none-any.whl", hash = "sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427"},
@@ -3711,7 +3711,7 @@ version = "7.6.0"
 description = "RDFLib is a Python library for working with RDF, a simple yet powerful language for representing information."
 optional = false
 python-versions = ">=3.8.1"
-groups = ["main", "api", "ttl-worker"]
+groups = ["main", "api", "incremental-rdf-worker", "ttl-worker"]
 files = [
     {file = "rdflib-7.6.0-py3-none-any.whl", hash = "sha256:30c0a3ebf4c0e09215f066be7246794b6492e054e782d7ac2a34c9f70a15e0dd"},
     {file = "rdflib-7.6.0.tar.gz", hash = "sha256:6c831288d5e4a5a7ece85d0ccde9877d512a3d0f02d7c06455d00d6d0ea379df"},
@@ -3751,7 +3751,7 @@ version = "2.33.1"
 description = "Python HTTP for Humans."
 optional = false
 python-versions = ">=3.10"
-groups = ["main", "api", "dev", "meilisearch-indexer-worker", "ttl-worker"]
+groups = ["main", "api", "dev", "incremental-rdf-worker", "meilisearch-indexer-worker", "ttl-worker"]
 files = [
     {file = "requests-2.33.1-py3-none-any.whl", hash = "sha256:4e6d1ef462f3626a1f0a0a9c42dd93c63bad33f9f1c1937509b8c5c8718ab56a"},
     {file = "requests-2.33.1.tar.gz", hash = "sha256:18817f8c57c6263968bc123d237e3b8b08ac046f5456bd1e307ee8f4250d3517"},
@@ -4000,7 +4000,7 @@ version = "0.16.0"
 description = "An Amazon S3 Transfer Manager"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "api", "create-buckets", "dev", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "create-buckets", "dev", "incremental-rdf-worker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "s3transfer-0.16.0-py3-none-any.whl", hash = "sha256:18e25d66fed509e3868dc1572b3f427ff947dd2c56f844a5bf09481ad3f3b2fe"},
     {file = "s3transfer-0.16.0.tar.gz", hash = "sha256:8e990f13268025792229cd52fa10cb7163744bf56e719e0b9cb925ab79abf920"},
@@ -4039,7 +4039,7 @@ version = "1.17.0"
 description = "Python 2 and 3 compatibility utilities"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
-groups = ["main", "api", "create-buckets", "dev", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "create-buckets", "dev", "incremental-rdf-worker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274"},
     {file = "six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81"},
@@ -4051,7 +4051,7 @@ version = "0.50.0"
 description = "The little ASGI library that shines."
 optional = false
 python-versions = ">=3.10"
-groups = ["main", "api", "idworker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "idworker", "incremental-rdf-worker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "starlette-0.50.0-py3-none-any.whl", hash = "sha256:9e5391843ec9b6e472eed1365a78c8098cfceb7a74bfd4d6b1c0c0095efb3bca"},
     {file = "starlette-0.50.0.tar.gz", hash = "sha256:a2a17b22203254bcbc2e1f926d2d55f3f9497f769416b3190768befe598fa3ca"},
@@ -4590,7 +4590,7 @@ version = "4.15.0"
 description = "Backported and Experimental Type Hints for Python 3.9+"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "api", "create-buckets", "create-tables", "create-topics", "dev", "idworker", "json-worker", "meilisearch-indexer-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "create-buckets", "create-tables", "create-topics", "dev", "idworker", "incremental-rdf-worker", "json-worker", "meilisearch-indexer-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "typing_extensions-4.15.0-py3-none-any.whl", hash = "sha256:f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548"},
     {file = "typing_extensions-4.15.0.tar.gz", hash = "sha256:0cea48d173cc12fa28ecabc3b837ea3cf6f38c6d1136f85cbaaf598984861466"},
@@ -4602,7 +4602,7 @@ version = "0.4.2"
 description = "Runtime typing introspection tools"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "api", "create-buckets", "create-tables", "create-topics", "idworker", "json-worker", "meilisearch-indexer-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "create-buckets", "create-tables", "create-topics", "idworker", "incremental-rdf-worker", "json-worker", "meilisearch-indexer-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "typing_inspection-0.4.2-py3-none-any.whl", hash = "sha256:4ed1cacbdc298c220f1bd249ed5287caa16f34d44ef4e9c3d0cbad5b521545e7"},
     {file = "typing_inspection-0.4.2.tar.gz", hash = "sha256:ba561c48a67c5958007083d386c3295464928b01faa735ab8547c5692e87f464"},
@@ -4705,7 +4705,7 @@ version = "2.6.3"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "api", "create-buckets", "dev", "json-worker", "meilisearch-indexer-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "create-buckets", "dev", "incremental-rdf-worker", "json-worker", "meilisearch-indexer-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "urllib3-2.6.3-py3-none-any.whl", hash = "sha256:bf272323e553dfb2e87d9bfd225ca7b0f467b919d7bbd355436d3fd37cb0acd4"},
     {file = "urllib3-2.6.3.tar.gz", hash = "sha256:1b62b6884944a57dbe321509ab94fd4d3b307075e0c2eae991ac71ee15ad38ed"},
@@ -4723,7 +4723,7 @@ version = "0.40.0"
 description = "The lightning-fast ASGI server."
 optional = false
 python-versions = ">=3.10"
-groups = ["main", "api", "idworker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "idworker", "incremental-rdf-worker", "json-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "uvicorn-0.40.0-py3-none-any.whl", hash = "sha256:c6c8f55bc8bf13eb6fa9ff87ad62308bbbc33d0b67f84293151efe87e0d5f2ee"},
     {file = "uvicorn-0.40.0.tar.gz", hash = "sha256:839676675e87e73694518b5574fd0f24c9d97b46bea16df7b8c05ea1a51071ea"},
@@ -5096,4 +5096,4 @@ pyyaml = ">=6.0.2"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13,<4.0"
-content-hash = "8380877f14ca98e858fa7420f2c5ad13f22786715f7bad5a0a83158a9b97295e"
+content-hash = "f40f92d122c499f6104249aee9054b00754e659897da66eb5eaea40a1a9892fd"
