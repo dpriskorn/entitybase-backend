@@ -222,18 +222,8 @@ class ElasticsearchIndexerWorker(Worker):
             return None
 
         try:
-            from models.infrastructure.s3.entity_storage import EntityStorage
-
-            storage = EntityStorage(s3_client=self.s3_client)
-            entity_data = await storage.get_entity(entity_id, revision_id)
-
-            if entity_data and entity_data.entity_data:
-                result: dict[str, Any] = entity_data.entity_data.revision.model_dump(
-                    mode="json"
-                )
-                return result
-
-            return None
+            s3_revision = self.s3_client.read_revision(entity_id, revision_id)
+            return s3_revision.revision
 
         except Exception as e:
             logger.error(f"Error fetching entity {entity_id} from S3: {e}")
