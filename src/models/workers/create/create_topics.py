@@ -54,6 +54,7 @@ class CreateTopics(BaseModel):
         self.required_topics = [
             os.getenv("KAFKA_ENTITY_CHANGE_TOPIC", "entity_change"),
             os.getenv("KAFKA_ENTITY_DIFF_TOPIC", "entity_diff"),
+            os.getenv("KAFKA_INCREMENTAL_RDF_TOPIC", "incremental_rdf_diff"),
         ]
 
     async def ensure_topics_exist(self) -> Dict[str, str]:

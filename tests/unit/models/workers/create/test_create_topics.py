@@ -17,11 +17,12 @@ class TestCreateTopics:
                     "KAFKA_BOOTSTRAP_SERVERS": "redpanda:9092",
                     "KAFKA_ENTITY_CHANGE_TOPIC": "entity_change",
                     "KAFKA_ENTITY_DIFF_TOPIC": "entity_diff",
+                    "KAFKA_INCREMENTAL_RDF_TOPIC": "incremental_rdf_diff",
                 }.get(k, d)
 
                 topics = CreateTopics()
                 assert topics.kafka_bootstrap_servers == "redpanda:9092"
-                assert len(topics.required_topics) == 2
+                assert len(topics.required_topics) == 3
 
     def test_initialization_with_env_vars(self):
         """Test CreateTopics initialization with environment variables."""
@@ -30,6 +31,7 @@ class TestCreateTopics:
                 "KAFKA_BOOTSTRAP_SERVERS": "custom:9092",
                 "KAFKA_ENTITY_CHANGE_TOPIC": "custom.entity_change",
                 "KAFKA_ENTITY_DIFF_TOPIC": "custom.entity_diff",
+                "KAFKA_INCREMENTAL_RDF_TOPIC": "custom.incremental_rdf_diff",
             }.get(k, d)
 
             topics = CreateTopics()
@@ -54,7 +56,7 @@ class TestCreateTopics:
             mock_admin.start = AsyncMock()
             mock_admin.close = AsyncMock()
             mock_admin.list_topics = AsyncMock(
-                return_value=["entitybase.entity_change", "entitybase.entity_diff"]
+                return_value=["entitybase.entity_change", "entitybase.entity_diff", "entitybase.incremental_rdf_diff"]
             )
             mock_admin_class.return_value = mock_admin
 
@@ -67,6 +69,8 @@ class TestCreateTopics:
             assert results["entitybase.entity_change"] == "exists"
             assert "entitybase.entity_diff" in results
             assert results["entitybase.entity_diff"] == "exists"
+            assert "entitybase.incremental_rdf_diff" in results
+            assert results["entitybase.incremental_rdf_diff"] == "exists"
 
     @pytest.mark.asyncio
     async def test_ensure_topics_exist_create_new(self):
@@ -88,6 +92,10 @@ class TestCreateTopics:
 
             assert "entitybase.entity_change" in results
             assert results["entitybase.entity_change"] == "created"
+            assert "entitybase.entity_diff" in results
+            assert results["entitybase.entity_diff"] == "created"
+            assert "entitybase.incremental_rdf_diff" in results
+            assert results["entitybase.incremental_rdf_diff"] == "created"
             mock_admin.create_topics.assert_called_once()
 
     @pytest.mark.asyncio
@@ -112,6 +120,7 @@ class TestCreateTopics:
 
             assert results["entitybase.entity_change"] == "exists"
             assert results["entitybase.entity_diff"] == "created"
+            assert results["entitybase.incremental_rdf_diff"] == "created"
             mock_admin.create_topics.assert_called_once()
 
     @pytest.mark.asyncio
@@ -135,7 +144,7 @@ class TestCreateTopics:
             mock_admin.start = AsyncMock()
             mock_admin.close = AsyncMock()
             mock_admin.list_topics = AsyncMock(
-                return_value=["entitybase.entity_change", "entitybase.entity_diff"]
+                return_value=["entitybase.entity_change", "entitybase.entity_diff", "entitybase.incremental_rdf_diff"]
             )
             mock_admin_class.return_value = mock_admin
 
