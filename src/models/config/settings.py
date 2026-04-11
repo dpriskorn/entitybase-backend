@@ -67,6 +67,7 @@ class Settings(BaseModel):
     kafka_entitychange_json_topic: str = ""
     kafka_entity_diff_topic: str = ""
     kafka_userchange_json_topic: str = ""
+    kafka_incremental_rdf_topic: str = ""
     streaming_entity_change_version: str = "1.0.0"
     streaming_endorsechange_version: str = "1.0.0"
     streaming_newthank_version: str = "1.0.0"
@@ -222,6 +223,9 @@ class Settings(BaseModel):
         )
         self.kafka_userchange_json_topic = os.getenv(
             "KAFKA_USERCHANGE_JSON_TOPIC", self.kafka_userchange_json_topic
+        )
+        self.kafka_incremental_rdf_topic = os.getenv(
+            "KAFKA_INCREMENTAL_RDF_TOPIC", self.kafka_incremental_rdf_topic
         )
         self.streaming_entity_change_version = os.getenv(
             "STREAMING_ENTITY_CHANGE_VERSION", self.streaming_entity_change_version
