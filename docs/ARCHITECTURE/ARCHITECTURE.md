@@ -214,7 +214,7 @@ Everything else in the system derives from this rule.
 #### Entity Diff Worker
 - **File**: `src/models/workers/entity_diff/entity_diff_worker.py`
 - **Purpose**: Computes RDF diffs between entity revisions
-- **Output**: Streams to `wikibase.entity_diff` Kafka topic
+- **Output**: Streams to `entitybase.entity_diff` Kafka topic
 
 #### Backlink Statistics Worker
 - **File**: `src/models/workers/backlink_statistics/backlink_statistics_worker.py`
@@ -228,7 +228,7 @@ Everything else in the system derives from this rule.
 
 #### General Stats Worker
 - **File**: `src/models/workers/general_stats/general_stats_worker.py`
-- **Purpose**: Computes daily general wiki statistics
+- **Purpose**: Computes daily general entity statistics
 - **Schedule**: Daily at 2 AM (`0 2 * * *`)
 
 #### Watchlist Consumer Worker
@@ -376,7 +376,7 @@ Revision Storage
 
 #### Statistics
 - **User Stats**: Daily user activity statistics
-- **General Stats**: Daily wiki-wide statistics
+- **General Stats**: Daily system-wide statistics
 - **Backlink Stats**: Periodic backlink counts
 
 **Documentation**: See `STATISTICS.md` for statistics architecture.

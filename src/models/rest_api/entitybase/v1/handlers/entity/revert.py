@@ -32,7 +32,30 @@ class EntityRevertHandler(Handler):
         request: EntityRevertRequest,
         edit_headers: EditHeaders,
     ) -> EntityRevertResponse:
-        """Revert an entity to a specified revision."""
+        """Revert an entity to a specified revision.
+
+        Moves the database pointer (head revision) to an earlier revision hash
+        stored in S3. Does NOT copy data - uses internal deduplicated revision
+        storage. The target revision hash becomes the new head.
+
+        Args:
+            entity_id: Entity ID to revert
+            request: EntityRevertRequest with target revision ID
+            edit_headers: User ID and edit summary
+
+        Returns:
+            EntityRevertResponse with reverted entity data
+
+        Raises:
+            HTTPException 404: Entity or target revision not found
+            HTTPException 409: Base revision conflict (stale revision provided)
+
+        Notes:
+            - Looks up revision hash from target revision ID in S3
+            - Updates head revision in database to point to that S3 hash
+            - Emits change events for downstream consumers
+            - Uses base revision ID from edit_headers for conflict detection
+        """
         logger.debug(
             f"Reverting entity {entity_id} to revision {request.to_revision_id}"
         )

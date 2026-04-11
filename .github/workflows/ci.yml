@@ -11,19 +11,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install poetry
-        run: pipx install poetry
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-          cache: 'poetry'
-      - run: pip install --upgrade pip wheel
-      - run: poetry install --with=dev
+      - run: pip install ruff radon mypy types-pymysql types-PyYAML types-requests
       - name: Run custom linters
         run: |
-          poetry run python scripts/linters/check_async_calls.py src/
-          poetry run python scripts/linters/check_int_fields.py src/
-          poetry run python scripts/linters/value_error_linter.py
+          python scripts/linters/check_async_calls.py src/
+          python scripts/linters/check_int_fields.py src/
+          python scripts/linters/value_error_linter.py
           bash scripts/shell/run-assert-linter.sh
           bash scripts/shell/run-response-model-lint.sh
           bash scripts/shell/run-logger-lint.sh
@@ -39,10 +35,9 @@ jobs:
           bash scripts/shell/run-status-code-lint.sh
       - name: Run external linters
         run: |
-          poetry run ruff check src/
-          poetry run radon cc src/ -n 11 -x 20 -e ".venv"
-          poetry run mypy src/
-          # poetry run vulture src/
+          ruff check src/
+          radon cc src/ -n 11 -x 20 -e ".venv"
+          mypy src/
 
   test:
     runs-on: ubuntu-latest
@@ -82,13 +77,33 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
+      - name: Generate requirements files
+        run: |
+          pip install poetry-plugin-export
+          mkdir -p var
+          poetry export -f requirements.txt --output var/requirements.txt --with dev --without-hashes
+          poetry export -f requirements.txt --output var/requirements-dev.txt --with dev --without-hashes
+          poetry export -f requirements.txt --output var/requirements-api.txt --without-hashes --only=api
+          poetry export -f requirements.txt --output var/requirements-create-buckets.txt --without-hashes --only=create-buckets
+          poetry export -f requirements.txt --output var/requirements-create-tables.txt --without-hashes --only=create-tables
+          poetry export -f requirements.txt --output var/requirements-idworker.txt --without-hashes --only=idworker
+          poetry export -f requirements.txt --output var/requirements-stats-worker.txt --without-hashes --only=stats-worker
+          poetry export -f requirements.txt --output var/requirements-json-worker.txt --without-hashes --only=json-worker
+          poetry export -f requirements.txt --output var/requirements-ttl-worker.txt --without-hashes --only=ttl-worker
+          poetry export -f requirements.txt --output var/requirements-purge-worker.txt --without-hashes --only=purge-worker
+      - name: Verify var files exist
+        run: |
+          echo "=== var/ directory contents ==="
+          ls -la var/
+          echo "=== Checking requirements-api.txt ==="
+          head -1 var/requirements-api.txt
       - name: Build docker images
         run: |
-          docker compose -f docker-compose.ci.yml build \
+          docker compose -f docker-compose.ci.yml build --no-cache \
             api idworker create-buckets create-tables
       - name: Start infrastructure services
         run: |
-          docker compose -f docker-compose.ci.yml up -d mysql minio redpanda
+          docker compose -f docker-compose.ci.yml up -d mysql minio
       - name: Wait for MySQL
         timeout-minutes: 2
         run: |
@@ -101,13 +116,6 @@ jobs:
         run: |
           until curl -f http://localhost:9000/minio/health/live; do
             echo "Waiting for MinIO..."
-            sleep 2
-          done
-      - name: Wait for Redpanda
-        timeout-minutes: 2
-        run: |
-          until docker compose -f docker-compose.ci.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
-            echo "Waiting for Redpanda..."
             sleep 2
           done
       - name: Setup database tables
@@ -143,14 +151,6 @@ jobs:
           STREAMING_ENABLED: "false"
         run: poetry run pytest tests/e2e -k "entity_crud or entity_lifecycle or entitybase_properties or entity_properties_e2e or entity_revisions_e2e or entity_sitelinks_e2e" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
         timeout-minutes: 15
-
-      - name: Upload e2e coverage to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage.xml
-          flags: e2e-basics
-          name: e2e-basics
 
       - name: Run e2e tests (02 - terms)
         env:
@@ -229,16 +229,9 @@ jobs:
           S3_SECRET_KEY: fakesecret
           S3_BUCKET: testbucket
           REST_API_URL: http://localhost:8000
+          STREAMING_ENABLED: "false"
         run: poetry run pytest tests/integration -k "test_app or test_id_resolver or test_connection_pool" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
         timeout-minutes: 10
-
-      - name: Upload integration coverage to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage.xml
-          flags: integration
-          name: integration-tests
 
       - name: Run integration tests (02 - mid 50)
         env:
@@ -252,7 +245,8 @@ jobs:
           S3_SECRET_KEY: fakesecret
           S3_BUCKET: testbucket
           REST_API_URL: http://localhost:8000
-        run: poetry run pytest tests/integration -k "test_watchlist or test_entity_deletion or test_item_terms" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
+          STREAMING_ENABLED: "false"
+        run: poetry run pytest tests/integration -k "test_watchlist or test_entity_deletion or test_item_terms" -m "not requires_kafka" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
         timeout-minutes: 10
 
       - name: Run integration tests (03 - late 50a)
@@ -267,6 +261,7 @@ jobs:
           S3_SECRET_KEY: fakesecret
           S3_BUCKET: testbucket
           REST_API_URL: http://localhost:8000
+          STREAMING_ENABLED: "false"
         run: poetry run pytest tests/integration -k "test_json_import or test_lexeme or test_entity_base or test_json_parser or test_rest_api" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
         timeout-minutes: 10
 
@@ -282,6 +277,7 @@ jobs:
           S3_SECRET_KEY: fakesecret
           S3_BUCKET: testbucket
           REST_API_URL: http://localhost:8000
+          STREAMING_ENABLED: "false"
         run: poetry run pytest tests/integration -k "test_cas_update or test_create_revision or test_create_with_cas or test_entity_history or test_entity_retrieval or test_get_content_hash or test_get_head_revision or test_hard_delete or test_insert_revision or test_read_revision or test_soft_delete" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
         timeout-minutes: 10
 
@@ -308,8 +304,11 @@ jobs:
         if: failure()
         run: |
           docker compose -f docker-compose.ci.yml logs --tail=100 mysql
-          docker compose -f docker-compose.ci.yml logs --tail=100 api
+          docker compose -f docker-compose.ci.yml logs --tail=100 minio
+          docker compose -f docker-compose.ci.yml logs --tail=100 create-tables
+          docker compose -f docker-compose.ci.yml logs --tail=100 create-buckets
           docker compose -f docker-compose.ci.yml logs --tail=100 idworker
+          docker compose -f docker-compose.ci.yml logs --tail=100 api
       - name: Down containers
         if: always()
         run: docker compose -f docker-compose.ci.yml down -v

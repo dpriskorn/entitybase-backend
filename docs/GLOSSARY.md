@@ -272,4 +272,4 @@ An **entity schema** defines a structure for entities — like a schema for stru
 - [Architecture](ARCHITECTURE/ARCHITECTURE.md) — How it all fits together
 - [Tutorial](TUTORIAL.md) — Hands-on walkthrough
 - [Quick Reference](QUICKREF.md) — Command reference
-- [Features](features/ENDPOINTS.md) — All API endpoints
+- [Features](Features/ENDPOINTS.md) — All API endpoints

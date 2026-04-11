@@ -18,6 +18,7 @@ async def main() -> None:
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
     )
 
     worker = NotificationCleanupWorker()
@@ -37,6 +38,10 @@ class NotificationCleanupWorker(VitessWorker):
 
     max_age_days: int = 30
     max_per_user: int = 500
+
+    def get_enabled_setting(self) -> bool:
+        """Check if the notification cleanup worker is enabled."""
+        return True
 
     @asynccontextmanager
     async def lifespan(self) -> AsyncGenerator[None, None]:
@@ -83,7 +88,8 @@ class NotificationCleanupWorker(VitessWorker):
 
     def _delete_old_notifications(self, cutoff_date: datetime) -> int:
         """Delete notifications older than cutoff date."""
-        assert self.vitess_client is not None
+        if self.vitess_client is None:
+            raise RuntimeError("Vitess client not initialized")
         with self.vitess_client.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 "DELETE FROM user_notifications WHERE event_timestamp < %s",
@@ -96,7 +102,8 @@ class NotificationCleanupWorker(VitessWorker):
         total_deleted = 0
 
         # Get users with excess notifications
-        assert self.vitess_client is not None
+        if self.vitess_client is None:
+            raise RuntimeError("Vitess client not initialized")
         with self.vitess_client.cursor as cursor:
             # Find users with too many notifications
             cursor.execute(

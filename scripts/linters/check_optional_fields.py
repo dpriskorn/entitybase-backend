@@ -8,6 +8,26 @@ import sys
 from pathlib import Path
 
 
+def _is_in_except_import_error_block(lines: list[str], line_no: int) -> bool:
+    """Check if line is within an except ImportError block.
+
+    Looks for 'except ImportError:' and skips assignments within ~5 lines after.
+    """
+    for i in range(max(0, line_no - 6), line_no):
+        if i >= len(lines):
+            break
+        stripped = lines[i].strip()
+        if "except ImportError" in stripped and stripped.endswith(":"):
+            return True
+        if stripped.startswith("except ") and ":" in stripped:
+            if any(x in stripped for x in ["ImportError", "ModuleNotFoundError"]):
+                return True
+        if stripped and not stripped.startswith("#"):
+            if stripped.startswith("def ") or stripped.startswith("class "):
+                return False
+    return False
+
+
 def check_file(file_path: Path) -> list[tuple[str, int, str]]:
     """Check a single Python file for = None."""
     violations = []
@@ -37,6 +57,10 @@ def check_file(file_path: Path) -> list[tuple[str, int, str]]:
                 # Allowlist upper_bound and lower_bound for QuantityValue
                 if "upper_bound" in line or "lower_bound" in line:
                     continue
+                # Skip module-level = None in except ImportError blocks (for optional dependencies)
+                if " = None" in line:
+                    if _is_in_except_import_error_block(lines, line_no - 1):
+                        continue
                 # Look for = None
                 if " = None" in line:
                     violations.append(

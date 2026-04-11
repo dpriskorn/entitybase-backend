@@ -44,6 +44,14 @@ class StreamProducerClient(Client):
 
     async def publish(self, event: Any) -> None:
         """Publish an event to Kafka."""
+        from models.config.settings import settings
+
+        if not self.config.bootstrap_servers or not settings.streaming_enabled:
+            logger.debug(
+                f"Streaming disabled or not configured for topic {self.config.topic}, "
+                "skipping publish"
+            )
+            return
         if not self.producer:
             logger.info(
                 f"Producer not started, starting now for topic {self.config.topic}"

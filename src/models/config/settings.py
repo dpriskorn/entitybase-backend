@@ -57,10 +57,12 @@ class Settings(BaseModel):
 
     # streaming
     _streaming_enabled: bool = False
+    streaming_backend: str = "redpanda"
     kafka_bootstrap_servers: str = ""
     kafka_entitychange_json_topic: str = ""
     kafka_entity_diff_topic: str = ""
     kafka_userchange_json_topic: str = ""
+    kafka_incremental_rdf_topic: str = ""
     streaming_entity_change_version: str = "1.0.0"
     streaming_endorsechange_version: str = "1.0.0"
     streaming_newthank_version: str = "1.0.0"
@@ -81,29 +83,36 @@ class Settings(BaseModel):
     api_description: str = ""
 
     # workers
-    backlink_stats_enabled: bool = True
+    backlink_stats_worker_enabled: bool = True
     backlink_stats_schedule: str = "0 2 * * *"  # Daily at 2 AM
     backlink_stats_top_limit: int = 100
-    user_stats_enabled: bool = True
+    user_stats_worker_enabled: bool = True
     user_stats_schedule: str = "0 2 * * *"  # Daily at 2 AM
-    general_stats_enabled: bool = True
+    general_stats_worker_enabled: bool = True
     general_stats_schedule: str = "0 2 * * *"  # Daily at 2 AM
 
     # JSON dump worker
-    json_dump_enabled: bool = True
+    json_worker_enabled: bool = True
     json_dump_schedule: str = "0 2 * * 0"  # Sunday 2AM UTC
-    s3_dump_bucket: str = "wikibase-dumps"
+    s3_dump_bucket: str = "entitybase-dumps"
     json_dump_batch_size: int = 1000
     json_dump_parallel_workers: int = 50
     json_dump_generate_checksums: bool = True
 
     # TTL dump worker
-    ttl_dump_enabled: bool = True
+    ttl_worker_enabled: bool = True
     ttl_dump_schedule: str = "0 3 * * 0"  # Sunday 3AM UTC (after JSON dump)
     ttl_dump_batch_size: int = 1000
     ttl_dump_parallel_workers: int = 50
     ttl_dump_compression: bool = True
     ttl_dump_generate_checksums: bool = True
+
+    # ID worker
+    id_worker_enabled: bool = True
+
+    # Incremental RDF worker
+    incremental_rdf_enabled: bool = False
+    incremental_rdf_consumer_group: str = "incremental-rdf-worker"
 
     # Elasticsearch worker
     elasticsearch_enabled: bool = False
@@ -115,6 +124,19 @@ class Settings(BaseModel):
     elasticsearch_use_ssl: bool = True
     elasticsearch_verify_certs: bool = True
     elasticsearch_consumer_group: str = "entitybase-elasticsearch-indexer"
+
+    # Meilisearch worker
+    meilisearch_enabled: bool = False
+    meilisearch_host: str = "localhost"
+    meilisearch_port: int = 7700
+    meilisearch_api_key: str = ""
+    meilisearch_index: str = "entitybase"
+    meilisearch_consumer_group: str = "entitybase-meilisearch-indexer"
+
+    # Purge worker
+    purge_worker_enabled: bool = True
+    purge_schedule: str = "0 0 * * *"  # Daily at midnight UTC
+    purge_batch_size: int = 100
 
     def model_post_init(self, context: Any) -> None:
         """Initialize all fields from environment variables.
@@ -177,6 +199,23 @@ class Settings(BaseModel):
 
     def _load_streaming_config(self) -> None:
         """Load streaming configuration from environment variables."""
+        logger.debug("Loading streaming configuration from environment variables")
+        self.streaming_backend = os.getenv("STREAMING_BACKEND", self.streaming_backend)
+        self.kafka_bootstrap_servers = os.getenv(
+            "KAFKA_BOOTSTRAP_SERVERS", self.kafka_bootstrap_servers
+        )
+        self.kafka_entitychange_json_topic = os.getenv(
+            "KAFKA_ENTITYCHANGE_JSON_TOPIC", self.kafka_entitychange_json_topic
+        )
+        self.kafka_entity_diff_topic = os.getenv(
+            "KAFKA_ENTITY_DIFF_TOPIC", self.kafka_entity_diff_topic
+        )
+        self.kafka_userchange_json_topic = os.getenv(
+            "KAFKA_USERCHANGE_JSON_TOPIC", self.kafka_userchange_json_topic
+        )
+        self.kafka_incremental_rdf_topic = os.getenv(
+            "KAFKA_INCREMENTAL_RDF_TOPIC", self.kafka_incremental_rdf_topic
+        )
         self.streaming_entity_change_version = os.getenv(
             "STREAMING_ENTITY_CHANGE_VERSION", self.streaming_entity_change_version
         )
@@ -216,22 +255,41 @@ class Settings(BaseModel):
     def _load_workers_config(self) -> None:
         """Load workers configuration from environment variables."""
         logger.debug("Loading workers configuration from environment variables")
-        self.backlink_stats_enabled = (
-            os.getenv(
-                "BACKLINK_STATS_ENABLED", str(self.backlink_stats_enabled)
-            ).lower()
-            == "true"
+
+        # Stats worker (enables/disables all stats workers at once)
+        stats_worker_enabled = (
+            os.getenv("STATS_WORKER_ENABLED", "false").lower() == "true"
         )
-        self.user_stats_enabled = (
-            os.getenv("USER_STATS_ENABLED", str(self.user_stats_enabled)).lower()
-            == "true"
-        )
-        self.general_stats_enabled = (
-            os.getenv("GENERAL_STATS_ENABLED", str(self.general_stats_enabled)).lower()
-            == "true"
-        )
-        self.json_dump_enabled = (
-            os.getenv("JSON_DUMP_ENABLED", str(self.json_dump_enabled)).lower()
+
+        if os.getenv("STATS_WORKER_ENABLED"):
+            # If STATS_WORKER_ENABLED is explicitly set, use it for all
+            self.backlink_stats_worker_enabled = stats_worker_enabled
+            self.user_stats_worker_enabled = stats_worker_enabled
+            self.general_stats_worker_enabled = stats_worker_enabled
+        else:
+            # Otherwise load individual settings
+            self.backlink_stats_worker_enabled = (
+                os.getenv(
+                    "BACKLINK_STATS_WORKER_ENABLED",
+                    str(self.backlink_stats_worker_enabled),
+                ).lower()
+                == "true"
+            )
+            self.user_stats_worker_enabled = (
+                os.getenv(
+                    "USER_STATS_WORKER_ENABLED", str(self.user_stats_worker_enabled)
+                ).lower()
+                == "true"
+            )
+            self.general_stats_worker_enabled = (
+                os.getenv(
+                    "GENERAL_STATS_WORKER_ENABLED",
+                    str(self.general_stats_worker_enabled),
+                ).lower()
+                == "true"
+            )
+        self.json_worker_enabled = (
+            os.getenv("JSON_WORKER_ENABLED", str(self.json_worker_enabled)).lower()
             == "true"
         )
         self.json_dump_schedule = os.getenv(
@@ -252,8 +310,9 @@ class Settings(BaseModel):
             ).lower()
             == "true"
         )
-        self.ttl_dump_enabled = (
-            os.getenv("TTL_DUMP_ENABLED", str(self.ttl_dump_enabled)).lower() == "true"
+        self.ttl_worker_enabled = (
+            os.getenv("TTL_WORKER_ENABLED", str(self.ttl_worker_enabled)).lower()
+            == "true"
         )
         self.ttl_dump_schedule = os.getenv("TTL_DUMP_SCHEDULE", self.ttl_dump_schedule)
         self.ttl_dump_batch_size = int(
@@ -271,6 +330,21 @@ class Settings(BaseModel):
             os.getenv(
                 "TTL_DUMP_GENERATE_CHECKSUMS", str(self.ttl_dump_generate_checksums)
             ).lower()
+            == "true"
+        )
+        self.id_worker_enabled = (
+            os.getenv("ID_WORKER_ENABLED", str(self.id_worker_enabled)).lower()
+            == "true"
+        )
+        self.incremental_rdf_enabled = (
+            os.getenv("INCREMENTAL_RDF_ENABLED", str(self.incremental_rdf_enabled)).lower()
+            == "true"
+        )
+        self.incremental_rdf_consumer_group = os.getenv(
+            "INCREMENTAL_RDF_CONSUMER_GROUP", self.incremental_rdf_consumer_group
+        )
+        self.purge_worker_enabled = (
+            os.getenv("PURGE_WORKER_ENABLED", str(self.purge_worker_enabled)).lower()
             == "true"
         )
         self.elasticsearch_enabled = (
@@ -305,9 +379,31 @@ class Settings(BaseModel):
         self.elasticsearch_consumer_group = os.getenv(
             "ELASTICSEARCH_CONSUMER_GROUP", self.elasticsearch_consumer_group
         )
+        self.meilisearch_enabled = (
+            os.getenv("MEILISEARCH_ENABLED", str(self.meilisearch_enabled)).lower()
+            == "true"
+        )
+        self.meilisearch_host = os.getenv("MEILISEARCH_HOST", self.meilisearch_host)
+        self.meilisearch_port = int(
+            os.getenv("MEILISEARCH_PORT", str(self.meilisearch_port))
+        )
+        self.meilisearch_api_key = os.getenv(
+            "MEILISEARCH_API_KEY", self.meilisearch_api_key
+        )
+        self.meilisearch_index = os.getenv("MEILISEARCH_INDEX", self.meilisearch_index)
+        self.meilisearch_consumer_group = os.getenv(
+            "MEILISEARCH_CONSUMER_GROUP", self.meilisearch_consumer_group
+        )
+        self.purge_worker_enabled = (
+            os.getenv("PURGE_ENABLED", str(self.purge_worker_enabled)).lower() == "true"
+        )
+        self.purge_schedule = os.getenv("PURGE_SCHEDULE", self.purge_schedule)
+        self.purge_batch_size = int(
+            os.getenv("PURGE_BATCH_SIZE", str(self.purge_batch_size))
+        )
         logger.debug(
-            f"Workers config loaded: backlink_stats_enabled={self.backlink_stats_enabled}, "
-            f"user_stats_enabled={self.user_stats_enabled}, json_dump_enabled={self.json_dump_enabled}"
+            f"Workers config loaded: backlink_stats_worker_enabled={self.backlink_stats_worker_enabled}, "
+            f"user_stats_worker_enabled={self.user_stats_worker_enabled}, json_worker_enabled={self.json_worker_enabled}"
         )
 
     def get_log_level(self) -> int:
@@ -383,6 +479,18 @@ class Settings(BaseModel):
             if isinstance(self.kafka_bootstrap_servers, list)
             else [self.kafka_bootstrap_servers],
             topic=self.kafka_entity_diff_topic,
+        )
+
+    @property
+    def get_incremental_rdf_stream_config(self) -> "StreamConfig":
+        """Convert settings to Streaming configuration object for incremental RDF."""
+        from models.data.config.stream import StreamConfig
+
+        return StreamConfig(
+            bootstrap_servers=self.kafka_bootstrap_servers
+            if isinstance(self.kafka_bootstrap_servers, list)
+            else [self.kafka_bootstrap_servers],
+            topic=self.kafka_incremental_rdf_topic,
         )
 
     @property

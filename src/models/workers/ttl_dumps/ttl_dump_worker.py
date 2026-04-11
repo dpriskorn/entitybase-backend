@@ -61,6 +61,8 @@ logger = logging.getLogger(__name__)
 
 
 class TtlDumpWorker(Worker):
+    """Periodically generates RDF TTL dumps of all entities."""
+
     vitess_client: Any = None
     s3_client: Any = None
     converter: Any = None
@@ -103,7 +105,7 @@ class TtlDumpWorker(Worker):
         logger.info("Shutting down TTL Dump Worker")
 
     async def start(self) -> None:
-        if not settings.ttl_dump_enabled:
+        if not settings.ttl_worker_enabled:
             logger.info("TTL Dump Worker disabled")
             return
 
@@ -479,7 +481,34 @@ async def run_worker(worker: TtlDumpWorker) -> None:
 async def run_server(app: Any) -> None:
     if uvicorn is None:
         raise RuntimeError("uvicorn not installed, cannot run server")
-    config = uvicorn.Config(app, host="0.0.0.0", port=8003, loop="asyncio")  # type: ignore
+    log_level = logging.getLevelName(settings.get_log_level())
+    logging_config = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "default": {
+                "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+                "datefmt": "%Y-%m-%d %H:%M:%S",
+            },
+        },
+        "handlers": {
+            "default": {
+                "class": "logging.StreamHandler",
+                "formatter": "default",
+            },
+        },
+        "root": {
+            "handlers": ["default"],
+            "level": log_level,
+        },
+    }
+    config = uvicorn.Config(  # type: ignore
+        app,
+        host="0.0.0.0",
+        port=8003,
+        loop="asyncio",
+        log_config=logging_config,
+    )
     server = uvicorn.Server(config)  # type: ignore
     await server.serve()
 
@@ -488,6 +517,7 @@ async def main() -> None:
     logging.basicConfig(
         level=settings.get_log_level(),
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
     )
 
     worker = TtlDumpWorker()

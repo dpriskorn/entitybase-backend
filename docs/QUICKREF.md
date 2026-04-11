@@ -192,7 +192,7 @@ curl "http://localhost:8000/v1/entitybase/rdf/entities.ttl"
 | `revisions` | Revision snapshots |
 | `sitelinks` | Site links |
 | `snaks` | Snak data |
-| `wikibase-dumps` | Entity exports |
+| `entitybase-dumps` | Entity exports |
 
 ---
 
@@ -231,4 +231,4 @@ curl http://localhost:8000/v1/entitybase/entities/items/Q1.json
 - [Getting Started](GETTING_STARTED.md) — Initial setup
 - [Glossary](GLOSSARY.md) — Domain terms
 - [Architecture](ARCHITECTURE/ARCHITECTURE.md) — Deep dive
-- [API Endpoints](features/ENDPOINTS.md) — All endpoints
+- [API Endpoints](Features/ENDPOINTS.md) — All endpoints

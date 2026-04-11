@@ -29,7 +29,7 @@ A revision is a complete, immutable snapshot of an entity.
 
 Example:
 
-s3://wikibase-revisions/Q123/r0000000042.json
+s3://entitybase-revisions/Q123/r0000000042.json
 
 Snapshot properties:
 - Full canonical JSON

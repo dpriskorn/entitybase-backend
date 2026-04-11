@@ -7,6 +7,7 @@ from contextlib import asynccontextmanager
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
 from jsonschema import ValidationError  # type: ignore[import-untyped]
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -20,6 +21,37 @@ from models.rest_api.entitybase.v1.endpoints import v1_router
 from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.entitybase.v1.routes import include_routes
 from models.rest_api.utils import raise_validation_error
+
+import logging.config
+
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
+API_PORT = int(os.environ.get("API_PORT", 8080))
+API_WORKERS = int(os.environ.get("API_WORKERS", 1))
+
+LOGGING_CONFIG = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "standard": {"format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s"},
+    },
+    "handlers": {
+        "default": {
+            "level": "INFO",
+            "formatter": "standard",
+            "class": "logging.StreamHandler",
+            "stream": "ext://sys.stdout",
+        },
+    },
+    "loggers": {
+        # ROOT logger
+        "": {"level": LOG_LEVEL, "handlers": ["default"], "propagate": False},
+        "uvicorn.error": {"level": "DEBUG", "handlers": ["default"]},
+        "uvicorn.access": {"level": "DEBUG", "handlers": ["default"]},
+    },
+}
+
+# We let uvicorn handle all logging
+# logging.config.dictConfig(LOGGING_CONFIG)
 
 aws_loggers = [
     "botocore",
@@ -102,7 +134,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
 async def _initialize_state_handler() -> StateHandler:
     """Initialize the state handler."""
     state_handler = StateHandler(settings=settings)
-    state_handler.start()
+    await state_handler.start()
     return state_handler
 
 
@@ -122,8 +154,11 @@ async def _create_database_tables(state_handler: StateHandler) -> None:
 
 async def _initialize_app_state(app_: FastAPI, state_handler: StateHandler) -> None:
     """Initialize app state and log success."""
+    from datetime import datetime, timezone
+
     logger.info("Clients, validator, and enumeration service initialized successfully")
     app_.state.state_handler = state_handler
+    app_.state.start_time = datetime.now(timezone.utc).isoformat()
 
 
 async def _cleanup_app_state(app_: FastAPI) -> None:
@@ -145,6 +180,13 @@ if settings.api_description:
     app_kwargs["description"] = settings.api_description
 
 app = FastAPI(**app_kwargs)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.add_middleware(StartupMiddleware)
 
 
@@ -219,3 +261,15 @@ async def get_openapi() -> dict:
 async def redirect_to_docs() -> RedirectResponse:
     """Redirect to the OpenAPI docs."""
     return RedirectResponse(url="/docs")
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(
+        "models.rest_api.main:app",
+        host="0.0.0.0",
+        port=API_PORT,
+        log_config=LOGGING_CONFIG,
+        workers=API_WORKERS,
+    )

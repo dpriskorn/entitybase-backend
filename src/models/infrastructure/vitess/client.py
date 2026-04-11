@@ -30,7 +30,7 @@ class VitessClient(Client):
     config: VitessConfig
 
     def model_post_init(self, context: Any) -> None:
-        logger.info("=== VitessClient.model_post_init() START ===")
+        logger.debug("=== VitessClient.model_post_init() START ===")
         logger.debug(
             f"Initializing VitessClient with host='{self.config.host}', port={self.config.port}, database='{self.config.database}', user='{self.config.user}', password_length={len(self.config.password)}"
         )
@@ -40,7 +40,7 @@ class VitessClient(Client):
         self.connection_manager.connect()
         logger.debug("Connection established, creating IdResolver...")
         self.id_resolver = IdResolver(vitess_client=self)
-        logger.info("=== VitessClient.model_post_init() END ===")
+        logger.debug("=== VitessClient.model_post_init() END ===")
         # self.create_tables()
 
     @property

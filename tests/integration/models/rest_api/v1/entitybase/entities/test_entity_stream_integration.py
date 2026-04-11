@@ -50,6 +50,7 @@ async def _consume_event(
 
 @pytest.mark.asyncio
 @pytest.mark.integration
+@pytest.mark.requires_kafka
 async def test_entity_creation_publishes_creation_event(api_prefix: str) -> None:
     """Test that creating an entity publishes a CREATION event"""
     from models.rest_api.main import app
@@ -115,6 +116,7 @@ async def test_entity_creation_publishes_creation_event(api_prefix: str) -> None
 
 @pytest.mark.asyncio
 @pytest.mark.integration
+@pytest.mark.requires_kafka
 async def test_entity_update_publishes_edit_event(api_prefix: str) -> None:
     """Test that updating an entity publishes an EDIT event with from_revision_id"""
     from models.rest_api.main import app
@@ -209,6 +211,7 @@ async def test_entity_update_publishes_edit_event(api_prefix: str) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
+@pytest.mark.requires_kafka
 async def test_redirect_creation_publishes_redirect_event(  # noqa: PLR0912
     api_prefix: str,
 ) -> None:
@@ -327,6 +330,7 @@ async def test_redirect_creation_publishes_redirect_event(  # noqa: PLR0912
 
 @pytest.mark.asyncio
 @pytest.mark.integration
+@pytest.mark.requires_kafka
 async def test_redirect_reversion_publishes_unredirect_event(api_prefix: str) -> None:
     """Test that reverting a redirect publishes an UNREDIRECT event"""
     from models.rest_api.main import app
@@ -404,6 +408,7 @@ async def test_redirect_reversion_publishes_unredirect_event(api_prefix: str) ->
 
 @pytest.mark.asyncio
 @pytest.mark.integration
+@pytest.mark.requires_kafka
 async def test_event_schema_validation(api_prefix: str) -> None:
     """Test that all published events have the correct schema"""
     from models.rest_api.main import app
@@ -470,6 +475,7 @@ async def test_event_schema_validation(api_prefix: str) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
+@pytest.mark.requires_kafka
 async def test_multiple_entity_operations_publish_multiple_events(
     api_prefix: str,
 ) -> None:
@@ -594,6 +600,7 @@ async def test_multiple_entity_operations_publish_multiple_events(
 
 @pytest.mark.asyncio
 @pytest.mark.integration
+@pytest.mark.requires_kafka
 async def test_entity_update_deduplication_no_duplicate_event(api_prefix: str) -> None:
     """Test that updating an entity with identical content doesn't publish duplicate events"""
     from models.rest_api.main import app
@@ -711,6 +718,7 @@ async def test_entity_update_deduplication_no_duplicate_event(api_prefix: str) -
 
 @pytest.mark.asyncio
 @pytest.mark.integration
+@pytest.mark.requires_kafka
 async def test_edit_publishes_creation_event(api_prefix: str) -> None:
     """Test that edits publish creation events"""
     from models.rest_api.main import app

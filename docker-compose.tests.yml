@@ -76,7 +76,7 @@ services:
     depends_on:
       minio:
         condition: service_healthy
-    command: python -m models.workers.dev buckets setup
+    command: python -m models.workers.create buckets setup
     mem_limit: 512m
     cpus: 0.5
 
@@ -88,7 +88,7 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-    command: sh -c "sleep 20 && python -m models.workers.dev tables setup"
+    command: sh -c "sleep 20 && python -m models.workers.create tables setup"
     environment:
       VITESS_HOST: mysql
       VITESS_PORT: 3306
@@ -106,11 +106,11 @@ services:
     depends_on:
       redpanda:
         condition: service_healthy
-    command: python -m models.workers.dev topics setup
+    command: python -m models.workers.create topics setup
     environment:
       KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
-      KAFKA_ENTITY_CHANGE_TOPIC: entitybase.entity_change
-      KAFKA_ENTITY_DIFF_TOPIC: entitybase.entity_diff
+      KAFKA_ENTITY_CHANGE_TOPIC: ${KAFKA_ENTITY_CHANGE_TOPIC:-entity_change}
+      KAFKA_ENTITY_DIFF_TOPIC: ${KAFKA_ENTITY_DIFF_TOPIC:-entity_diff}
     mem_limit: 512m
     cpus: 0.5
 

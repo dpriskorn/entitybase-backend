@@ -145,7 +145,7 @@ This can reduce storage by 50%+ for typical Wikibase datasets!
 - [⚙️ Setup](SETUP.md) — Environment setup
 - [📁 Project Structure](PROJECT_STRUCTURE.md) — Codebase overview
 - [🏗️ Architecture](ARCHITECTURE/ARCHITECTURE.md) — Deep dive into system design
-- [✨ Features](features/ENDPOINTS.md) — API endpoints, statement deduplication, bulk operations
+- [✨ Features](Features/ENDPOINTS.md) — API endpoints, statement deduplication, bulk operations
 - [🐢 Wikidata](WIKIDATA/README.md) — Wikidata integration
 - [📊 Diagrams](DIAGRAMS/index.md) — Visual architecture
 - [🔍 Glossary](GLOSSARY.md) — Domain terms explained

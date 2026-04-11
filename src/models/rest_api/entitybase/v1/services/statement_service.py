@@ -6,7 +6,7 @@ import traceback
 from datetime import datetime, timezone
 from typing import Any, cast
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from models.data.common import OperationResult
 from models.config.settings import settings
@@ -37,15 +37,21 @@ class StatementProcessingContext(BaseModel):
 
     model_config = {"extra": "forbid"}
 
-    statement_hash: int
-    statement_data: dict[str, Any]
-    validator: JsonSchemaValidator | None
-    schema_version: str
-    idx: int
-    total_statements: int
+    statement_hash: int = Field(..., description="Hash of the statement content")
+    statement_data: dict[str, Any] = Field(..., description="Statement data dictionary")
+    validator: JsonSchemaValidator | None = Field(
+        default=None, description="JSON schema validator instance"
+    )
+    schema_version: str = Field(..., description="Schema version for the statement")
+    idx: int = Field(..., description="Index of this statement in the list")
+    total_statements: int = Field(
+        ..., description="Total number of statements being processed"
+    )
 
 
 class StatementService(Service):
+    """Service for processing and hashing entity statements."""
+
     @staticmethod
     def hash_entity_statements(
         entity_data: PreparedRequestData,
@@ -337,10 +343,18 @@ class StatementService(Service):
 
     @staticmethod
     def _process_snak_item(item: Any, snak_handler: SnakHandler) -> ProcessedSnakValue:
-        """Process a single snak item.
+        """Process a single snak item for storage.
 
-        Returns ProcessedSnakValue with snak hash if item is a dict with "property",
-        otherwise returns original item wrapped in ProcessedSnakValue.
+        If the item is a snak dict (has "property" key), stores it in S3
+        and returns the content hash. If it's already a hash string,
+        passes it through unchanged.
+
+        Args:
+            item: Either a snak dict with property, or an existing hash string
+            snak_handler: SnakHandler for S3 storage
+
+        Returns:
+            ProcessedSnakValue with hash for new snaks, or original hash otherwise
         """
         if isinstance(item, dict) and "property" in item:
             snak_request = SnakRequest(

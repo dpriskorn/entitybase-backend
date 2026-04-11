@@ -7,6 +7,21 @@ import pytest
 sys.path.insert(0, "src")
 
 
+def pytest_configure(config):
+    """Configure custom markers."""
+    config.addinivalue_line(
+        "markers", "requires_kafka: tests that require Kafka/Redpanda to be running"
+    )
+
+
+def pytest_collection_modifyitems(config, items):
+    """Skip tests marked with requires_kafka when Kafka is not available."""
+    skip_marker = pytest.mark.skip(reason="Kafka/Redpanda not available")
+    for item in items:
+        if "requires_kafka" in item.keywords:
+            item.add_marker(skip_marker)
+
+
 @pytest.fixture
 def api_prefix():
     """Return the API prefix from settings.

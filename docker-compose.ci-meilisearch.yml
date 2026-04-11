@@ -1,0 +1,231 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_DATABASE: entitybase
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysql", "-uroot", "-e", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    mem_limit: 512m
+    cpus: 0.5
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=fakekey
+      - MINIO_ROOT_PASSWORD=fakesecret
+      - MINIO_DEFAULT_BUCKETS=testbucket
+    volumes:
+      - /data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    mem_limit: 512m
+    cpus: 0.5
+
+  redpanda:
+    image: redpanda:redpanda
+    container_name: redpanda
+    command:
+      - redpanda
+      - start
+      - --kafka-addr PLAINTEXT://0.0.0.0:9092
+      - --advertise-kafka-addr PLAINTEXT://redpanda:9092
+    ports:
+      - "9092:9092"
+      - "9644:9644"
+    healthcheck:
+      test: ["CMD-SHELL", "rpk cluster health && rpk topic list"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    mem_limit: 256m
+    cpus: 0.25
+
+  meilisearch:
+    image: getmeili/meilisearch:latest
+    container_name: meilisearch
+    environment:
+      MEILI_ENV: development
+      MEILI_MASTER_KEY: ""
+    ports:
+      - "7700:7700"
+    volumes:
+      - meilisearch-data:/meili_data
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:7700/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    mem_limit: 512m
+    cpus: 0.5
+
+  create-buckets:
+    container_name: create-buckets
+    build:
+      context: .
+      dockerfile: docker/containers/Dockerfile.api
+    environment:
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: fakekey
+      MINIO_SECRET_KEY: fakesecret
+      CI: "true"
+    depends_on:
+      minio:
+        condition: service_healthy
+    command: python -m models.workers.create buckets setup
+    mem_limit: 512m
+    cpus: 0.5
+
+  create-tables:
+    build:
+      context: .
+      dockerfile: docker/containers/Dockerfile.api
+    container_name: create-tables
+    depends_on:
+      mysql:
+        condition: service_healthy
+    command: sh -c "sleep 20 && python -m models.workers.create tables setup"
+    environment:
+      VITESS_HOST: mysql
+      VITESS_PORT: 3306
+      VITESS_DATABASE: entitybase
+      VITESS_USER: root
+      VITESS_PASSWORD: ""
+      CI: "true"
+    mem_limit: 512m
+    cpus: 0.5
+
+  create-topics:
+    build:
+      context: .
+      dockerfile: docker/containers/Dockerfile.api
+    container_name: create-topics
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      CI: "true"
+    command: python -m models.workers.create topics setup
+    mem_limit: 256m
+    cpus: 0.25
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/containers/Dockerfile.api
+    container_name: api
+    ports:
+      - "8000:8000"
+    depends_on:
+      minio:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+      create-buckets:
+        condition: service_completed_successfully
+      create-tables:
+        condition: service_completed_successfully
+      create-topics:
+        condition: service_completed_successfully
+    environment:
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY: fakekey
+      S3_SECRET_KEY: fakesecret
+      S3_BUCKET: testbucket
+      VITESS_HOST: mysql
+      VITESS_PORT: 3306
+      VITESS_DATABASE: entitybase
+      VITESS_USER: root
+      VITESS_PASSWORD: ""
+
+      ENTITY_JSON_VERSION: "2.0.0"
+      S3_REVISION_VERSION: "3.0.0"
+      S3_STATEMENT_VERSION: "1.0.0"
+      S3_QUALIFIER_VERSION: "1.0.0"
+      S3_REFERENCE_VERSION: "1.0.0"
+      S3_SNAK_VERSION: "1.0.0"
+      S3_SITELINK_VERSION: "1.0.0"
+      STREAMING_ENTITYCHANGE_VERSION: "1.0.0"
+      STREAMING_ENDORSECHANGE_VERSION: "1.0.0"
+      STREAMING_NEWTHANK_VERSION: "1.0.0"
+      STREAMING_ENTITY_CHANGE_VERSION: "1.0.0"
+      STREAMING_ENTITY_DIFF_VERSION: "2.0.0"
+
+      STREAMING_ENABLED: "true"
+      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      KAFKA_ENTITYCHANGE_JSON_TOPIC: entity_change
+      KAFKA_ENTITY_DIFF_TOPIC: entity_diff
+      LOG_LEVEL: "DEBUG"
+      ENVIRONMENT: "dev"
+      CI: "true"
+    command: uvicorn models.rest_api.main:app --host 0.0.0.0 --port 8000
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8000/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    mem_limit: 1g
+
+  meilisearch-indexer-worker:
+    build:
+      context: .
+      dockerfile: docker/containers/Dockerfile.api
+    container_name: meilisearch-indexer-worker
+    ports:
+      - "8007:8007"
+    environment:
+      WORKER_ID: meilisearch_indexer_worker_1
+      VITESS_HOST: mysql
+      VITESS_PORT: 3306
+      VITESS_DATABASE: entitybase
+      VITESS_USER: root
+      VITESS_PASSWORD: ""
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY: fakekey
+      S3_SECRET_KEY: fakesecret
+      MEILISEARCH_HOST: meilisearch
+      MEILISEARCH_PORT: 7700
+      MEILISEARCH_API_KEY: ""
+      MEILISEARCH_INDEX: entitybase
+      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      KAFKA_ENTITYCHANGE_JSON_TOPIC: entity_change
+      MEILISEARCH_CONSUMER_GROUP: entitybase-meilisearch-indexer
+      LOG_LEVEL: "INFO"
+      CI: "true"
+    depends_on:
+      api:
+        condition: service_healthy
+      meilisearch:
+        condition: service_healthy
+      create-topics:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8007/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    mem_limit: 512m
+    cpus: 0.5
+    command: ["python", "-m", "models.workers.meilisearch_indexer.meilisearch_indexer_worker"]
+
+volumes:
+  meilisearch-data:

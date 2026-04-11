@@ -11,9 +11,24 @@ from botocore.exceptions import ClientError
 
 sys.path.insert(0, "src")
 
-os.environ["STREAMING_ENABLED"] = "false"
-if "KAFKA_BOOTSTRAP_SERVERS" not in os.environ:
+# In CI, always disable streaming regardless of what test.env loaded
+if os.getenv("CI"):
+    os.environ["STREAMING_ENABLED"] = "false"
+
+if "STREAMING_ENABLED" not in os.environ:
+    # Default to disabled - only enable if Kafka is available and not in CI
+    streaming_enabled = "false"
+    kafka_host = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "")
+    # Only enable streaming if Kafka is configured and not in CI
+    if kafka_host and not os.getenv("CI"):
+        streaming_enabled = "true"
+    os.environ["STREAMING_ENABLED"] = streaming_enabled
+
+# Only set default Kafka host if NOT in CI (CI doesn't have Kafka)
+if "KAFKA_BOOTSTRAP_SERVERS" not in os.environ and not os.getenv("CI"):
     os.environ["KAFKA_BOOTSTRAP_SERVERS"] = "redpanda:9092"
+if "KAFKA_ENTITYCHANGE_JSON_TOPIC" not in os.environ:
+    os.environ["KAFKA_ENTITYCHANGE_JSON_TOPIC"] = "entitybase.entity_change"
 
 # noinspection PyPep8
 from models.config.settings import settings
@@ -438,7 +453,7 @@ def s3_client(s3_config, vitess_client):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def initialized_app(vitess_client, s3_client, create_s3_buckets):
+async def initialized_app(vitess_client, s3_client, create_s3_buckets):
     """Initialize the FastAPI app with state_handler for integration tests.
 
     This fixture ensures that app.state.state_handler is properly initialized
@@ -471,6 +486,7 @@ def initialized_app(vitess_client, s3_client, create_s3_buckets):
 
     logger.debug("Disconnecting StateHandler...")
     if state_handler:
+        await state_handler.async_shutdown()
         state_handler.disconnect()
         logger.debug("StateHandler disconnected in initialized_app fixture")
     logger.debug(

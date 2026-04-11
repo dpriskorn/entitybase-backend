@@ -44,6 +44,7 @@ from models.data.rest_api.v1.entitybase.response import TurtleResponse
 from models.data.rest_api.v1.entitybase.response import BacklinksResponse
 from models.data.rest_api.v1.entitybase.response.entity_data import (
     ElasticsearchDocumentResponse,
+    MeilisearchDocumentResponse,
 )
 from models.data.rest_api.v1.entitybase.response.sitelinks import AllSitelinksResponse
 from models.rest_api.entitybase.v1.handlers.entity.delete import EntityDeleteHandler
@@ -58,6 +59,7 @@ from models.rest_api.entitybase.v1.services.entity_statement_service import (
 )
 from models.rest_api.utils import raise_validation_error, validate_state_clients
 from models.services.elasticsearch import transform_to_elasticsearch
+from models.services.meilisearch import transform_to_meilisearch
 from models.rest_api.entitybase.v1.endpoints.base import (
     get_entity_read_handler,
     get_entity_delete_handler,
@@ -199,9 +201,7 @@ async def delete_entity(  # type: ignore[no-any-return]
     entity_id: str,
     req: Request,
     headers: EditHeadersType,
-    request: EntityDeleteRequest = Body(
-        default_factory=lambda: EntityDeleteRequest(delete_type="soft")
-    ),
+    request: EntityDeleteRequest = Body(default_factory=EntityDeleteRequest),
 ) -> EntityDeleteResponse:
     """Delete an entity."""
     state = req.app.state.state_handler
@@ -218,7 +218,7 @@ async def lock_entity(
     entity_id: str,
     req: Request,
     headers: EditHeadersType,
-    request: EntityStatusRequest = Body(default_factory=lambda: EntityStatusRequest()),
+    request: EntityStatusRequest = Body(default_factory=EntityStatusRequest),
 ) -> EntityStatusResponse:
     """Lock an entity from edits."""
     state = req.app.state.state_handler
@@ -232,7 +232,7 @@ async def unlock_entity(
     entity_id: str,
     req: Request,
     headers: EditHeadersType,
-    request: EntityStatusRequest = Body(default_factory=lambda: EntityStatusRequest()),
+    request: EntityStatusRequest = Body(default_factory=EntityStatusRequest),
 ) -> EntityStatusResponse:
     """Remove lock from an entity."""
     state = req.app.state.state_handler
@@ -246,7 +246,7 @@ async def archive_entity(
     entity_id: str,
     req: Request,
     headers: EditHeadersType,
-    request: EntityStatusRequest = Body(default_factory=lambda: EntityStatusRequest()),
+    request: EntityStatusRequest = Body(default_factory=EntityStatusRequest),
 ) -> EntityStatusResponse:
     """Archive an entity."""
     state = req.app.state.state_handler
@@ -260,7 +260,7 @@ async def unarchive_entity(
     entity_id: str,
     req: Request,
     headers: EditHeadersType,
-    request: EntityStatusRequest = Body(default_factory=lambda: EntityStatusRequest()),
+    request: EntityStatusRequest = Body(default_factory=EntityStatusRequest),
 ) -> EntityStatusResponse:
     """Unarchive an entity."""
     state = req.app.state.state_handler
@@ -273,7 +273,7 @@ async def unarchive_entity(
 async def semi_protect_entity(
     entity_id: str,
     req: Request,
-    request: EntityStatusRequest = Body(default_factory=lambda: EntityStatusRequest()),
+    request: EntityStatusRequest = Body(default_factory=EntityStatusRequest),
 ) -> EntityStatusResponse:
     """Semi-protect an entity."""
     state = req.app.state.state_handler
@@ -288,7 +288,7 @@ async def semi_protect_entity(
 async def unsemi_protect_entity(
     entity_id: str,
     req: Request,
-    request: EntityStatusRequest = Body(default_factory=lambda: EntityStatusRequest()),
+    request: EntityStatusRequest = Body(default_factory=EntityStatusRequest),
 ) -> EntityStatusResponse:
     """Remove semi-protection from an entity."""
     state = req.app.state.state_handler
@@ -303,7 +303,7 @@ async def unsemi_protect_entity(
 async def mass_edit_protect_entity(
     entity_id: str,
     req: Request,
-    request: EntityStatusRequest = Body(default_factory=lambda: EntityStatusRequest()),
+    request: EntityStatusRequest = Body(default_factory=EntityStatusRequest),
 ) -> EntityStatusResponse:
     """Add mass edit protection to an entity."""
     state = req.app.state.state_handler
@@ -318,7 +318,7 @@ async def mass_edit_protect_entity(
 async def mass_edit_unprotect_entity(
     entity_id: str,
     req: Request,
-    request: EntityStatusRequest = Body(default_factory=lambda: EntityStatusRequest()),
+    request: EntityStatusRequest = Body(default_factory=EntityStatusRequest),
 ) -> EntityStatusResponse:
     """Remove mass edit protection from an entity."""
     state = req.app.state.state_handler
@@ -421,9 +421,7 @@ async def remove_entity_statement(
     statement_hash: str,
     req: Request,
     headers: EditHeadersType,
-    request: RemoveStatementRequest = Body(
-        default_factory=lambda: RemoveStatementRequest()
-    ),
+    request: RemoveStatementRequest = Body(default_factory=RemoveStatementRequest),
 ) -> OperationResult[RevisionIdResult]:
     """Remove a statement by hash from an entity."""
     state = req.app.state.state_handler
@@ -646,20 +644,49 @@ async def get_entity_backlinks(
     return await handler.get(entity_id, limit, offset)
 
 
-@router.post(
-    "/entities/elasticsearch/preview",
+@router.get(
+    "/entities/{entity_id}/elasticsearch",
     response_model=ElasticsearchDocumentResponse,
 )
-async def preview_elasticsearch_document(
-    entity_json: dict[str, Any] = Body(
-        ..., description="Entity JSON in Wikibase format"
-    ),
+async def get_elasticsearch_document(
+    entity_id: str,
+    req: Request,
 ) -> ElasticsearchDocumentResponse:
-    """Preview how an entity would be transformed for Elasticsearch.
+    """Get entity transformed for Elasticsearch.
 
-    Accepts entity JSON in Wikibase API format and returns the transformed
-    Elasticsearch document for review before indexing.
+    Fetches the entity from the database and returns the transformed
+    Elasticsearch document.
     """
-    logger.debug("preview_elasticsearch_document called")
+    logger.debug(f"get_elasticsearch_document called with entity_id: {entity_id}")
+    state = req.app.state.state_handler
+    handler = EntityReadHandler(state=state)
+    entity_response = handler.get_entity(entity_id)
+
+    entity_json = {"entities": {entity_id: entity_response.entity_data.revision}}
+
     document = transform_to_elasticsearch(entity_json)
     return ElasticsearchDocumentResponse(document=document)
+
+
+@router.get(
+    "/entities/{entity_id}/meilisearch",
+    response_model=MeilisearchDocumentResponse,
+)
+async def get_meilisearch_document(
+    entity_id: str,
+    req: Request,
+) -> MeilisearchDocumentResponse:
+    """Get entity transformed for Meilisearch.
+
+    Fetches the entity from the database and returns the transformed
+    Meilisearch document.
+    """
+    logger.debug(f"get_meilisearch_document called with entity_id: {entity_id}")
+    state = req.app.state.state_handler
+    handler = EntityReadHandler(state=state)
+    entity_response = handler.get_entity(entity_id)
+
+    entity_json = {"entities": {entity_id: entity_response.entity_data.revision}}
+
+    document = transform_to_meilisearch(entity_json)
+    return MeilisearchDocumentResponse(document=document)

@@ -1,0 +1,13 @@
+FROM python:3.13-alpine
+
+WORKDIR /app
+
+COPY var/requirements-create-buckets.txt ./
+RUN pip install --no-cache-dir -r requirements-create-buckets.txt
+COPY pyproject.toml /app/
+COPY src/ ./
+COPY scripts/ ./scripts/
+
+ENV PYTHONPATH=/app
+
+CMD ["python", "-m", "models.workers.create", "buckets", "setup"]

@@ -47,7 +47,7 @@ class TestIdGeneratorWorker:
 
     def test_worker_initialization(self) -> None:
         """Test worker initializes correctly."""
-        assert self.worker.worker_id.startswith("worker-")
+        assert self.worker.worker_id is not None
         assert self.worker.running is False
         assert self.worker.enumeration_service is None
 

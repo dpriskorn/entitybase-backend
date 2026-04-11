@@ -131,7 +131,7 @@ Topic names are configurable via environment variables.
 | `INCREMENTAL_RDF_ENABLED` | `false` | Enable or disable the worker |
 | `INCREMENTAL_RDF_CONSUMER_GROUP` | `incremental-rdf-worker` | Kafka consumer group ID |
 | `KAFKA_INCREMENTAL_RDF_TOPIC` | `incremental_rdf_diff` | Output Kafka topic for RDF changes |
-| `KAFKA_ENTITY_CHANGE_TOPIC` | `entitybase.entity_change` | Input Kafka topic for entity changes |
+| `KAFKA_ENTITY_CHANGE_TOPIC` | `entity_change` | Input Kafka topic for entity changes |
 | `KAFKA_BOOTSTRAP_SERVERS` | - | Comma-separated list of Kafka broker addresses |
 | `S3_ENDPOINT` | - | S3 endpoint URL (e.g., http://localhost:9000) |
 | `S3_ACCESS_KEY` | - | S3 access key |

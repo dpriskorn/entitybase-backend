@@ -14,9 +14,11 @@ class OperationResult(BaseModel, Generic[T]):
 
     model_config = {"extra": "forbid"}
 
-    success: bool
-    error: str = Field(default="")
-    data: Optional[T] = Field(default=None)
+    success: bool = Field(..., description="Whether the operation succeeded")
+    error: str = Field(default="", description="Error message if operation failed")
+    data: Optional[T] = Field(
+        default=None, description="Result data if operation succeeded"
+    )
 
     def get_data(self) -> T:
         """Return data, assuming success has been checked.

@@ -1,0 +1,20 @@
+# Use Python 3.13 slim image for better binary compatibility
+FROM python:3.13-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends gcc libffi-dev openssl libssl-dev && rm -rf /var/lib/apt/lists/*
+
+ARG REQUIREMENTS_HASH=initial
+RUN echo "Building with requirements hash: $REQUIREMENTS_HASH"
+
+WORKDIR /app
+
+COPY ./var/requirements-incremental-rdf-worker.txt ./
+
+RUN pip install --no-cache-dir -r requirements-incremental-rdf-worker.txt
+
+COPY pyproject.toml /app/pyproject.toml
+COPY src/ ./ 
+
+ENV PYTHONPATH=/app
+
+CMD ["python", "-m", "models.workers.incremental_rdf"]

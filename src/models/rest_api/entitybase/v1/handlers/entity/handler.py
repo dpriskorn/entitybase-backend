@@ -73,7 +73,10 @@ class EntityHandler(Handler):
         self,
         ctx: ProcessEntityRevisionContext,
     ) -> EntityResponse:
-        """New simplified entity revision processing using services."""
+        """Process entity revision using new simplified flow with services.
+
+        Creates a RevisionContext, then calls _create_revision_new to execute
+        the full revision creation flow including database, S3 storage, and event publishing."""
         logger.debug(f"Starting entity revision processing for {ctx.entity_id}")
 
         rev_ctx = RevisionContext(
@@ -88,6 +91,7 @@ class EntityHandler(Handler):
             s3_client=self.state.s3_client,
             stream_producer=self.state.entity_change_stream_producer,
             validator=ctx.validator,
+            edit_headers=ctx.edit_headers,
         )
 
         # 1. Validate request
@@ -149,7 +153,16 @@ class EntityHandler(Handler):
     async def _create_revision_new(
         self, ctx: RevisionContext, hash_result: StatementHashResult
     ) -> RevisionResult:
-        """Create revision using simplified logic."""
+        """Create new revision with simplified flow.
+
+        Steps:
+        1. Get current head revision from database
+        2. Calculate new revision ID
+        3. Hash terms (labels, descriptions, aliases)
+        4. Hash sitelinks
+        5. Store revision data in S3
+        6. Create database records
+        7. Return revision result"""
         logger.info(f"_create_revision_new START: entity_id={ctx.entity_id}")
         try:
             # Get current head revision
@@ -222,12 +235,16 @@ class EntityHandler(Handler):
             return RevisionResult(success=False, error=str(e))
 
     async def _hash_terms_new(self, ctx: RevisionContext) -> HashMaps:
-        """Hash entity terms (labels, descriptions, aliases)."""
+        """Hash entity terms (labels, descriptions, aliases) using EntityHashingService.
+
+        Returns HashMaps containing hashes for all term types grouped by language."""
         hashing_service = EntityHashingService(state=self.state)
         return await hashing_service.hash_terms(ctx.request_data)
 
     async def _hash_sitelinks_new(self, ctx: RevisionContext) -> SitelinkHashes:
-        """Hash entity sitelinks."""
+        """Hash entity sitelinks using EntityHashingService.
+
+        Returns SitelinkHashes containing hashes for all sitelinks grouped by site."""
         hashing_service = EntityHashingService(state=self.state)
         return await hashing_service.hash_sitelinks(ctx.request_data)
 
@@ -338,7 +355,10 @@ class EntityHandler(Handler):
 
     @staticmethod
     async def _publish_events_new(ctx: RevisionContext, result: RevisionResult) -> None:
-        """Publish revision events."""
+        """Publish revision events to Kafka for downstream consumers.
+
+        Publishes an EntityChangeEvent with entity ID, revision ID, change type,
+        and metadata to the entity_change stream topic."""
         if not settings.streaming_enabled:
             logger.debug("Streaming disabled, skipping event publish")
             return
@@ -428,7 +448,28 @@ class EntityHandler(Handler):
         request_data: PreparedRequestData,
         validator: Any | None,
     ) -> StatementHashResult:
-        """Process and store statements for the entity."""
+        """Process and store statements for the entity.
+
+        Hashes all statements in the entity data, stores them in S3 with
+        content-addressable storage (deduplication), and updates reference
+        counts. Returns statement hashes and property counts.
+
+        Args:
+            entity_id: Entity ID being processed
+            request_data: PreparedRequestData with entity statement data
+            validator: Optional JSON schema validator
+
+        Returns:
+            StatementHashResult with hashes, properties, and counts
+
+        Raises:
+            HTTPException 500: If statement hashing fails
+
+        Notes:
+            - Uses rapidhash for content-addressable storage
+            - Increments reference counts for new statements
+            - Decrements counts for statements no longer present
+        """
         logger.debug("Starting statement hashing process")
         logger.info(f"Entity {entity_id}: Starting statement hashing")
         ss = StatementService(state=self.state)

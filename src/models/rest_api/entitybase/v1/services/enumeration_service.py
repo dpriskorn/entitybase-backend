@@ -13,7 +13,12 @@ logger = logging.getLogger(__name__)
 
 
 class EnumerationService(BaseModel):
-    """Service for managing entity ID enumeration across different entity types."""
+    """Service for managing entity ID enumeration across different entity types.
+
+    Handles ID allocation by communicating with the ID worker to reserve
+    ID ranges. Each entity type (item, property, lexeme) has separate
+    minimum ID values to prevent conflicts with existing Wikidata entities.
+    """
 
     worker_id: str
     vitess_client: Any
@@ -40,7 +45,24 @@ class EnumerationService(BaseModel):
             logger.warning(f"Failed to initialize ID ranges from database: {e}")
 
     def get_next_entity_id(self, entity_type: str) -> str:
-        """Get the next available entity ID for the given entity type."""
+        """Get next available entity ID for the given type.
+
+        Allocates IDs from a reserved range. If the current range is exhausted
+        (80% used), requests a new range from the ID worker.
+
+        Args:
+            entity_type: Entity type (item, property, lexeme, entityschema)
+
+        Returns:
+            Entity ID string (e.g., Q42, P31)
+
+        Raises:
+            HTTPException 400: If entity_type is invalid
+
+        Notes:
+            - Minimum IDs prevent conflicts with Wikidata (Q: 300M+, P: 100M+, etc.)
+            - Uses IdRangeManager for local ID generation
+        """
         # Map entity types to single-character codes
         type_mapping = {
             "item": "Q",

@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+import requests
 from pydantic import BaseModel, ConfigDict, Field
 
 from models.rest_api.utils import raise_validation_error
@@ -50,16 +51,73 @@ class StateHandler(BaseModel):
         default=None, exclude=True
     )
 
-    def start(self) -> None:
+    def _is_streaming_backend_healthy(self) -> bool:
+        """Check if the configured streaming backend is healthy."""
+        backend = self.settings.streaming_backend.lower()
+        if backend == "redpanda":
+            try:
+                response = requests.get("http://redpanda-health:8080", timeout=5)
+                is_healthy = response.status_code == 200
+                logger.debug(
+                    f"Redpanda health check: status={response.status_code}, healthy={is_healthy}"
+                )
+                return is_healthy
+            except Exception:
+                logger.error("Redpanda health check failed, skipping producer start")
+                return False
+        logger.warning(f"Unknown streaming backend: {backend}")
+        return False
+
+    async def start(self) -> None:
+        """Start the state handler and initialize all clients."""
         logger.info("=== StateHandler.start() START ===")
         logger.info("Initializing clients...")
         logger.debug(f"S3 config: {self.settings.get_s3_config}")
         logger.debug(f"Vitess config: {self.settings.get_vitess_config}")
         logger.debug(
-            f"Kafka config: brokers={self.settings.kafka_bootstrap_servers}, topic={self.settings.kafka_entitychange_json_topic}"
+            f"Kafka config: brokers={self.settings.kafka_bootstrap_servers}, "
+            f"topic={self.settings.kafka_entitychange_json_topic}, "
+            f"backend={self.settings.streaming_backend}"
         )
+
         if not self.settings.streaming_enabled:
-            logger.info("Streaming is disabled")
+            logger.info("Streaming is disabled, skipping producer start")
+        else:
+            logger.info("Streaming is enabled")
+            if self._is_streaming_backend_healthy():
+                logger.info(
+                    f"Streaming backend ({self.settings.streaming_backend}) is healthy, starting producers"
+                )
+
+                # Start entity change producer
+                if self.entity_change_stream_producer:
+                    await self.entity_change_stream_producer.start()
+                    logger.info(
+                        f"Started entity change producer for topic "
+                        f"{self.settings.kafka_entitychange_json_topic}"
+                    )
+
+                # Start entity diff producer
+                if self.entitydiff_stream_producer:
+                    await self.entitydiff_stream_producer.start()
+                    logger.info(
+                        f"Started entity diff producer for topic "
+                        f"{self.settings.kafka_entity_diff_topic}"
+                    )
+
+                # Start user change producer
+                if self.user_change_stream_producer:
+                    await self.user_change_stream_producer.start()
+                    logger.info(
+                        f"Started user change producer for topic "
+                        f"{self.settings.kafka_userchange_json_topic}"
+                    )
+            else:
+                logger.warning(
+                    f"Streaming backend ({self.settings.streaming_backend}) is unhealthy, "
+                    f"skipping producer start"
+                )
+
         logger.debug("Calling health_check()...")
         self.health_check()
         logger.info("=== StateHandler.start() END ===")

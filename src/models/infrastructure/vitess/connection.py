@@ -38,7 +38,7 @@ class VitessConnectionManager(BaseModel):
 
     def _create_new_connection(self) -> Connection:
         """Create a new database connection."""
-        logger.info(
+        logger.debug(
             f"Attempting database connection to {self.config.host}:{self.config.port}..."
         )
         logger.debug(
@@ -54,7 +54,7 @@ class VitessConnectionManager(BaseModel):
                 database=self.config.database,
                 autocommit=True,
             )
-            logger.info(
+            logger.debug(
                 f"Successfully connected to database at {self.config.host}:{self.config.port}"
             )
             return connection
@@ -218,11 +218,11 @@ class VitessConnectionManager(BaseModel):
 
     def connect(self) -> Connection:
         """Establish a connection from pool and store it."""
-        logger.info("=== connect() START ===")
+        logger.debug("=== connect() START ===")
         logger.info("Acquiring connection from pool and storing in connection field")
         self.connection = self.acquire()
         logger.info(f"Connection acquired and stored: {self.connection is not None}")
-        logger.info("=== connect() END ===")
+        logger.debug("=== connect() END ===")
         return self.connection
 
     def disconnect(self) -> None:

@@ -1,6 +1,6 @@
 src/models/infrastructure/vitess/repositories/user.py:374
 src/models/infrastructure/vitess/repositories/user.py:375
-src/models/workers/json_dumps/json_dump_worker.py:316
+src/models/workers/json_dumps/json_dump_worker.py:318
 src/models/infrastructure/s3/base_storage.py:89
 src/models/infrastructure/vitess/storage/base.py:39
 src/models/infrastructure/vitess/storage/base.py:122

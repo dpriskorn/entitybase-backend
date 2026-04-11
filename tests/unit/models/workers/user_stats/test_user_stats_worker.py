@@ -3,6 +3,8 @@
 import pytest
 from unittest.mock import MagicMock, AsyncMock, patch
 
+from models.config.settings import settings
+from models.data.rest_api.v1.entitybase.response import UserStatsData
 from models.workers.user_stats.user_stats_worker import (
     UserStatsWorker,
 )
@@ -13,21 +15,13 @@ class TestUserStatsWorker:
 
     def test_get_enabled_setting(self):
         """Test getting enabled setting."""
-        with patch(
-            "models.workers.user_stats.user_stats_worker.settings"
-        ) as mock_settings:
-            mock_settings.user_stats_enabled = True
-            worker = UserStatsWorker(vitess_client=MagicMock())
-            assert worker.get_enabled_setting() is True
+        worker = UserStatsWorker(vitess_client=MagicMock())
+        assert worker.get_enabled_setting() == settings.user_stats_worker_enabled
 
     def test_get_schedule_setting(self):
         """Test getting schedule setting."""
-        with patch(
-            "models.workers.user_stats.user_stats_worker.settings"
-        ) as mock_settings:
-            mock_settings.user_stats_schedule = "daily"
-            worker = UserStatsWorker(vitess_client=MagicMock())
-            assert worker.get_schedule_setting() == "daily"
+        worker = UserStatsWorker(vitess_client=MagicMock())
+        assert worker.get_schedule_setting() == settings.user_stats_schedule
 
     @pytest.mark.asyncio
     async def test_run_daily_computation_success(self):
@@ -93,3 +87,23 @@ class TestUserStatsWorker:
                 await worker.run_daily_computation()
 
             mock_logger.error.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_store_statistics_with_vitess_client(self):
+        """Test storing statistics with vitess client."""
+        mock_vitess_client = MagicMock()
+        mock_vitess_client.user_repository = MagicMock()
+
+        worker = UserStatsWorker(vitess_client=mock_vitess_client)
+
+        stats = UserStatsData(
+            total_users=100,
+            active_users=50,
+        )
+
+        with patch("models.workers.user_stats.user_stats_worker.date") as mock_date:
+            mock_date.today.return_value.isoformat.return_value = "2024-01-01"
+
+            await worker._store_statistics(stats)
+
+            mock_vitess_client.user_repository.insert_user_statistics.assert_called_once()

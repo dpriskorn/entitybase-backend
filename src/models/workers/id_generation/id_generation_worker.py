@@ -9,7 +9,6 @@ from typing import Any
 import uvicorn
 from fastapi import FastAPI
 
-
 from models.data.rest_api.v1.entitybase.response import WorkerHealthCheckResponse
 from models.data.rest_api.v1.entitybase.response.id_response import IdResponse
 from models.rest_api.entitybase.v1.services.enumeration_service import (
@@ -21,18 +20,13 @@ logger = logging.getLogger(__name__)
 
 
 class IdGeneratorWorker(VitessWorker):
-    """Asynchronous worker service for generating Wikibase entity IDs using range-based allocation.
-
-    This worker reserves blocks (ranges) of IDs from the database to minimize contention
-    during high-volume entity creation. It monitors range status, handles graceful shutdown,
-    and provides health checks for monitoring.
-
-    The worker initializes Vitess and Enumeration services, then runs a continuous loop
-    checking ID range availability. IDs are allocated from pre-reserved ranges to ensure
-    efficient, low-latency ID generation.
-    """
+    """Generates Wikibase entity IDs using range-based allocation."""
 
     enumeration_service: Any = None
+
+    def get_enabled_setting(self) -> bool:
+        """Check if the ID generation worker is enabled."""
+        return True
 
     def model_post_init(self, context: Any) -> None:
         # Setup signal handlers for graceful shutdown
@@ -177,7 +171,34 @@ async def run_worker(worker: IdGeneratorWorker) -> None:
 
 async def run_server(app: FastAPI) -> None:
     """Run the FastAPI server."""
-    config = uvicorn.Config(app, host="0.0.0.0", port=8001, loop="asyncio")
+    log_level = os.getenv("LOG_LEVEL", "INFO").upper()
+    logging_config = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "default": {
+                "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+                "datefmt": "%Y-%m-%d %H:%M:%S",
+            },
+        },
+        "handlers": {
+            "default": {
+                "class": "logging.StreamHandler",
+                "formatter": "default",
+            },
+        },
+        "root": {
+            "handlers": ["default"],
+            "level": log_level,
+        },
+    }
+    config = uvicorn.Config(
+        app,
+        host="0.0.0.0",
+        port=8001,
+        loop="asyncio",
+        log_config=logging_config,
+    )
     server = uvicorn.Server(config)
     await server.serve()
 
@@ -198,6 +219,7 @@ async def main() -> None:
     logging.basicConfig(
         level=getattr(logging, log_level.upper(), logging.INFO),
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
     )
 
     # Create worker

@@ -56,18 +56,34 @@ nav:
               - Statement Processing: DIAGRAMS/WRITE-PATHS/STATEMENT-PROCESSING-PATHS.md
               - Lexeme Update: DIAGRAMS/WRITE-PATHS/LEXEME-UPDATE-PROCESS.md
   - 📚 API Reference:
-      - API Reference: docs/API.md
+      - API: docs/API/README.md
+      - Items: docs/API/ITEMS.md
+      - Properties: docs/API/PROPERTIES.md
+      - Lexemes: docs/API/LEXEMES.md
+      - Entities: docs/API/ENTITIES.md
+      - Statements: docs/API/STATEMENTS.md
+      - Statistics: docs/API/STATISTICS.md
+      - Watchlist: docs/API/WATCHLIST.md
+      - Import: docs/API/IMPORT.md
+      - Redirects: docs/API/REDIRECTS.md
+      - List: docs/API/LIST.md
+      - Health: docs/API/HEALTH.md
+      - Version: docs/API/VERSION.md
+      - Settings: docs/API/SETTINGS.md
+      - Interactions: docs/API/INTERACTIONS.md
+      - Users: docs/API/USERS.md
+      - Data Models: docs/API/DATA_MODELS.md
       - OpenAPI Spec: docs/openapi.json
   - ✨ Features:
-      - features/ENDPOINTS.md
-      - features/IMMUTABLE-REVISIONS.md
-      - features/LEXEME-SUPPORT.md
-      - features/STATEMENT-DEDUPLICATION.md
-      - features/RDF-EXPORT.md
-      - features/ENTITY-PROTECTION.md
-      - features/HORIZONTAL-SCALING.md
-      - features/THANKS.md
-      - features/ENDORSEMENTS.md
+      - Features/ENDPOINTS.md
+      - Features/IMMUTABLE-REVISIONS.md
+      - Features/LEXEME-SUPPORT.md
+      - Features/STATEMENT-DEDUPLICATION.md
+      - Features/RDF-EXPORT.md
+      - Features/ENTITY-PROTECTION.md
+      - Features/HORIZONTAL-SCALING.md
+      - Features/THANKS.md
+      - Features/ENDORSEMENTS.md
   - 📈 Scaling:
       - Vitess cost: ECONOMIC-ESTIMATIONS/VITESS-COST-ESTIMATION.md
       - Hash Collisions: RISK/HASH-COLLISION.md

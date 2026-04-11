@@ -422,6 +422,7 @@ which python  # Must point to .venv/bin/python
 - Never use `sudo pip install` or install to system Python
 - If you see "permission denied" errors, you're not using the venv
 - Run `which python` to verify you're using the venv
+- **Never install Poetry in the venv** - use Poetry installed system-wide or from your IDE
 
 #### Docker Development
 ```bash
@@ -431,6 +432,26 @@ which python  # Must point to .venv/bin/python
 # Clean rebuild (removes volumes)
 ./run-docker-build-tests.sh  # With volume pruning
 ```
+
+#### Exporting Worker Requirements
+When building Docker images for workers, generate requirements files first:
+```bash
+# Export all worker requirements (runs from project root)
+./scripts/shell/export-requirements.sh
+```
+
+**IMPORTANT**: Requirements files are **generated automatically** by the export script. Do NOT edit them directly - they will be overwritten on the next run. If you need to modify dependencies, edit `pyproject.toml` or the export script instead.
+
+Files are generated in `var/` directory:
+- `var/requirements.txt` - main dependencies
+- `var/requirements-dev.txt` - with dev group
+- `var/requirements-idworker.txt`
+- `var/requirements-stats-worker.txt`
+- `var/requirements-json-worker.txt`
+- `var/requirements-ttl-worker.txt`
+- `var/requirements-purge-worker.txt`
+
+The worker-specific files are used in their respective Dockerfiles for smaller images.
 
 #### Local Development
 ```bash

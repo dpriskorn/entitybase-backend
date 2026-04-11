@@ -223,3 +223,13 @@ pyenv local 3.14.0
 # Verify python command works
 python --version
 ```
+
+## Docker Images
+
+This project uses `python:3.13-slim` for Docker images. The slim variant is preferred because:
+
+- **aiokafka dependency**: The `aiokafka` package requires C bindings (librdkafka) which need compilation during pip install. The slim image includes `gcc` and required dev libraries, while alpine would require additional system packages (gcc, musl-dev, zlib-dev) and may still fail due to missing wheels.
+
+- **Size trade-off**: While alpine is smaller (~45MB vs ~150MB), the complexity of installing build tools and potential build failures outweigh the size savings for this project.
+
+- **Compatibility**: The slim image uses glibc like most Python wheels on PyPI, ensuring maximum compatibility with pre-built wheels.

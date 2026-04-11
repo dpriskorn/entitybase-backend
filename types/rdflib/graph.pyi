@@ -1,6 +1,6 @@
 import pathlib
 import rdflib.query
-import rdflib.query as query
+from rdflib import query
 import types
 from _typeshed import Incomplete
 from rdflib._type_checking import _NamespaceSetString

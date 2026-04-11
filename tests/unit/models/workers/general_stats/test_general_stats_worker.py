@@ -3,6 +3,14 @@
 import pytest
 from unittest.mock import MagicMock, AsyncMock, patch
 
+from models.config.settings import settings
+from models.data.rest_api.v1.entitybase.response.terms import (
+    TermsByType,
+    TermsPerLanguage,
+)
+from models.rest_api.entitybase.v1.services.general_stats_service import (
+    GeneralStatsData,
+)
 from models.workers.general_stats.general_stats_worker import (
     GeneralStatsWorker,
 )
@@ -13,21 +21,13 @@ class TestGeneralStatsWorker:
 
     def test_get_enabled_setting(self):
         """Test getting enabled setting."""
-        with patch(
-            "models.workers.general_stats.general_stats_worker.settings"
-        ) as mock_settings:
-            mock_settings.general_stats_enabled = True
-            worker = GeneralStatsWorker(vitess_client=MagicMock())
-            assert worker.get_enabled_setting() is True
+        worker = GeneralStatsWorker(vitess_client=MagicMock())
+        assert worker.get_enabled_setting() == settings.general_stats_worker_enabled
 
     def test_get_schedule_setting(self):
         """Test getting schedule setting."""
-        with patch(
-            "models.workers.general_stats.general_stats_worker.settings"
-        ) as mock_settings:
-            mock_settings.general_stats_schedule = "daily"
-            worker = GeneralStatsWorker(vitess_client=MagicMock())
-            assert worker.get_schedule_setting() == "daily"
+        worker = GeneralStatsWorker(vitess_client=MagicMock())
+        assert worker.get_schedule_setting() == settings.general_stats_schedule
 
     @pytest.mark.asyncio
     async def test_run_daily_computation_success(self):
@@ -106,3 +106,33 @@ class TestGeneralStatsWorker:
                 await worker.run_daily_computation()
 
             mock_logger.error.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_store_statistics_with_vitess_client(self):
+        """Test storing statistics with vitess client."""
+        mock_vitess_client = MagicMock()
+        mock_vitess_client.user_repository = MagicMock()
+
+        worker = GeneralStatsWorker(vitess_client=mock_vitess_client)
+
+        stats = GeneralStatsData(
+            total_statements=1000,
+            total_qualifiers=500,
+            total_references=300,
+            total_items=100,
+            total_lexemes=50,
+            total_properties=25,
+            total_sitelinks=200,
+            total_terms=5000,
+            terms_per_language=TermsPerLanguage(terms={"en": 1000}),
+            terms_by_type=TermsByType(counts={"label": 5000}),
+        )
+
+        with patch(
+            "models.workers.general_stats.general_stats_worker.date"
+        ) as mock_date:
+            mock_date.today.return_value.isoformat.return_value = "2024-01-01"
+
+            await worker._store_statistics(stats)
+
+            mock_vitess_client.user_repository.insert_general_statistics.assert_called_once()

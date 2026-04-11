@@ -270,7 +270,7 @@ Now that you've got the basics, explore:
 - [⚡ Quick Reference](QUICKREF.md) — Common commands at a glance
 - [🔍 Glossary](GLOSSARY.md) — Learn the domain terms
 - [🏗️ Architecture](ARCHITECTURE/ARCHITECTURE.md) — Deep dive into how it works
-- [✨ Features](features/ENDPOINTS.md) — All the API endpoints
+- [✨ Features](Features/ENDPOINTS.md) — All the API endpoints
 
 ---
 

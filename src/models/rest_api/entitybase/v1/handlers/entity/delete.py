@@ -25,7 +25,20 @@ class EntityDeleteHandler(Handler):
         request: EntityDeleteRequest,
         edit_headers: EditHeaders,
     ) -> EntityDeleteResponse:
-        """Delete entity (soft or hard delete)."""
+        """Delete entity (soft or hard delete).
+
+        Performs soft or hard delete of an entity. Soft delete marks the
+        entity as deleted in state without removing data. Hard delete
+        removes the entity entirely from the database.
+
+        Args:
+            entity_id: Entity ID to delete
+            request: EntityDeleteRequest containing delete_type
+            edit_headers: User ID and edit summary
+
+        Returns:
+            EntityDeleteResponse with deleted entity ID and revision ID
+        """
         delete_service = DeleteService(state=self.state)
         logger.debug(f"Initializing delete for entity {entity_id}")
 

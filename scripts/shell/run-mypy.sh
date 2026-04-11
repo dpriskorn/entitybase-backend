@@ -2,7 +2,7 @@
 cd "$(dirname "$0")/../.."
 set -euo pipefail
 
-poetry run mypy \
+mypy \
   --cache-dir .mypy_cache \
   --sqlite-cache \
   --explicit-package-bases \

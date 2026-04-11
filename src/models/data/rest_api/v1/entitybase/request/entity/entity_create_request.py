@@ -1,3 +1,5 @@
+"""Entity creation request models."""
+
 from pydantic import Field
 
 from models.data.infrastructure.s3.enums import EditType

@@ -25,9 +25,11 @@ logger = logging.getLogger(__name__)
 
 
 class BacklinkStatisticsWorker(BaseStatsWorker):
+    """Computes and stores backlink statistics for entities."""
+
     def get_enabled_setting(self) -> bool:
         """Check if backlink stats are enabled."""
-        return settings.backlink_stats_enabled
+        return settings.backlink_stats_worker_enabled
 
     def get_schedule_setting(self) -> str:
         """Get the schedule for backlink stats."""
@@ -86,7 +88,34 @@ async def run_worker(worker: BacklinkStatisticsWorker) -> None:
 async def run_server(app: FastAPI) -> None:
     if uvicorn is None:
         raise RuntimeError("uvicorn not installed, cannot run server")
-    config = uvicorn.Config(app, host="0.0.0.0", port=8004, loop="asyncio")
+    log_level = logging.getLevelName(settings.get_log_level())
+    logging_config = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "default": {
+                "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+                "datefmt": "%Y-%m-%d %H:%M:%S",
+            },
+        },
+        "handlers": {
+            "default": {
+                "class": "logging.StreamHandler",
+                "formatter": "default",
+            },
+        },
+        "root": {
+            "handlers": ["default"],
+            "level": log_level,
+        },
+    }
+    config = uvicorn.Config(
+        app,
+        host="0.0.0.0",
+        port=8004,
+        loop="asyncio",
+        log_config=logging_config,
+    )
     server = uvicorn.Server(config)
     await server.serve()
 
@@ -95,20 +124,42 @@ async def main() -> None:
     logging.basicConfig(
         level=settings.get_log_level(),
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-    worker = BacklinkStatisticsWorker()
+    logger.info("Starting backlink statistics worker main()")
+    print("DEBUG: Starting backlink statistics worker main()")
 
-    if FastAPI is None:
-        logger.warning(
-            "FastAPI/uvicorn not installed, running worker without HTTP server"
-        )
-        await worker.start()
-    else:
-        app = FastAPI(response_model_by_alias=True)
+    try:
+        worker = BacklinkStatisticsWorker()
+        logger.info(f"Worker created, running={worker.running}")
+        print(f"DEBUG: Worker created, running={worker.running}")
 
-        @app.get("/health")
-        async def health() -> WorkerHealthCheckResponse:
-            return await worker.health_check()
+        if FastAPI is None:
+            logger.warning(
+                "FastAPI/uvicorn not installed, running worker without HTTP server"
+            )
+            await worker.start()
+        else:
+            app = FastAPI(response_model_by_alias=True)
+            logger.info("FastAPI app created")
+            print("DEBUG: FastAPI app created")
 
-        await asyncio.gather(run_worker(worker), run_server(app))
+            @app.get("/health")
+            async def health() -> WorkerHealthCheckResponse:
+                return await worker.health_check()
+
+            logger.info("Starting asyncio.gather() for worker and server")
+            print("DEBUG: Starting asyncio.gather() for worker and server")
+
+            try:
+                await asyncio.gather(run_worker(worker), run_server(app))
+            except Exception as e:
+                logger.error(f"Error in asyncio.gather: {e}")
+                print(f"ERROR in asyncio.gather: {e}")
+                raise
+
+    except Exception as e:
+        logger.error(f"Fatal error in main(): {e}")
+        print(f"FATAL ERROR in main(): {e}")
+        raise

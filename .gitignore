@@ -33,6 +33,7 @@ test_data/properties/*.json
 /coverage.txt
 /coverage_below_threshold.txt
 /.opencode/plans/
+/.opencode/package-lock.json
 /unit.log
 /output.log
 /integration.log
@@ -41,3 +42,10 @@ test_data/properties/*.json
 /.cache/
 /draft/
 e2e.env
+
+# Generated requirements
+/var/
+requirements*.txt
+!docker/containers/requirements-purge-worker.txt
+!.gitkeep
+.python-version
