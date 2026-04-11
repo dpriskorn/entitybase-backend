@@ -109,6 +109,10 @@ class Settings(BaseModel):
     # ID worker
     id_worker_enabled: bool = True
 
+    # Incremental RDF worker
+    incremental_rdf_enabled: bool = False
+    incremental_rdf_consumer_group: str = "incremental-rdf-worker"
+
     # Elasticsearch worker
     elasticsearch_enabled: bool = False
     elasticsearch_host: str = "localhost"
@@ -328,6 +332,13 @@ class Settings(BaseModel):
             os.getenv("ID_WORKER_ENABLED", str(self.id_worker_enabled)).lower()
             == "true"
         )
+        self.incremental_rdf_enabled = (
+            os.getenv("INCREMENTAL_RDF_ENABLED", str(self.incremental_rdf_enabled)).lower()
+            == "true"
+        )
+        self.incremental_rdf_consumer_group = os.getenv(
+            "INCREMENTAL_RDF_CONSUMER_GROUP", self.incremental_rdf_consumer_group
+        )
         self.purge_worker_enabled = (
             os.getenv("PURGE_WORKER_ENABLED", str(self.purge_worker_enabled)).lower()
             == "true"
@@ -464,6 +475,18 @@ class Settings(BaseModel):
             if isinstance(self.kafka_bootstrap_servers, list)
             else [self.kafka_bootstrap_servers],
             topic=self.kafka_entity_diff_topic,
+        )
+
+    @property
+    def get_incremental_rdf_stream_config(self) -> "StreamConfig":
+        """Convert settings to Streaming configuration object for incremental RDF."""
+        from models.data.config.stream import StreamConfig
+
+        return StreamConfig(
+            bootstrap_servers=self.kafka_bootstrap_servers
+            if isinstance(self.kafka_bootstrap_servers, list)
+            else [self.kafka_bootstrap_servers],
+            topic=self.kafka_incremental_rdf_topic,
         )
 
     @property
