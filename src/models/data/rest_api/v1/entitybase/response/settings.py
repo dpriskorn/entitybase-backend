@@ -29,6 +29,7 @@ class SettingsResponse(BaseModel):
     kafka_bootstrap_servers: str
     kafka_entitychange_json_topic: str
     kafka_entity_diff_topic: str
+    kafka_incremental_rdf_topic: str
     streaming_entity_change_version: str
     streaming_endorsechange_version: str
     streaming_newthank_version: str
