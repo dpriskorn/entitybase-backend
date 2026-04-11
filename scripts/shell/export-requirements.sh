@@ -83,5 +83,11 @@ if [ "$PURGE_WORKER_ENABLED" = "true" ]; then
     add_warning var/requirements-purge-worker.txt
 fi
 
+if [ "$INCREMENTAL_RDF_ENABLED" = "true" ]; then
+    step "incremental-rdf-worker" "Exporting incremental-rdf-worker requirements"
+    $POETRY export --format requirements.txt --output var/requirements-incremental-rdf-worker.txt --without-hashes --only=incremental-rdf-worker
+    add_warning var/requirements-incremental-rdf-worker.txt
+fi
+
 echo ""
 echo "✓ Requirements files updated successfully in var/"

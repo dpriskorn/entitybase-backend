@@ -84,6 +84,18 @@ purge-worker = [
     "pymysql",
     "uvicorn",
 ]
+incremental-rdf-worker = [
+    "aiokafka",
+    "boto3",
+    "cryptography",
+    "fastapi",
+    "pydantic",
+    "pyld",
+    "pymysql",
+    "rdflib",
+    "requests",
+    "uvicorn",
+]
 api = [
     "aiohttp",
     "aiokafka",
