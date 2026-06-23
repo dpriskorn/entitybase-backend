@@ -12,7 +12,7 @@ requires-python = ">=3.13,<4.0"
 dependencies = [
     "pydantic (>=2.12.5,<3.0.0)",
     "fastapi (>=0.127.1,<0.128.0)",
-    "pydantic-settings (>=2.12.0,<3.0.0)",
+    "pydantic-settings (>=2.14.2,<3.0.0)",
     "boto3 (>=1.42.17,<2.0.0)",
     "opensearch-py (>=3.0.0,<4.0.0)",
     "pymysql (>=1.1.2,<2.0.0)",
