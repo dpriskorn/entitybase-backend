@@ -42,6 +42,10 @@ class UniqueIdGenerator(BaseModel):
         return self._counter
 
     def generate_unique_id(self) -> int:
-        """Generate a unique 64-bit ID."""
+        """Generate a unique 63-bit ID compatible with both SQLite and MySQL.
+
+        SQLite INTEGER is signed 64-bit (max 2^63-1), so we mask to 63 bits.
+        MySQL BIGINT UNSIGNED supports up to 2^64-1, but 63 bits is sufficient.
+        """
         self._counter += 1
-        return (uuid.uuid4().int + self._counter) & ((1 << 64) - 1)
+        return (uuid.uuid4().int + self._counter) & ((1 << 63) - 1)

@@ -110,10 +110,7 @@ async def _create_database_tables(state_handler: StateHandler) -> None:
     """Create database tables on startup."""
     try:
         logger.debug("Creating database tables...")
-        from models.infrastructure.vitess.repositories.schema import SchemaRepository
-
-        schema_repository = SchemaRepository(vitess_client=state_handler.vitess_client)
-        schema_repository.create_tables()
+        state_handler.vitess_client.create_tables()
         logger.info("Database tables created/verified")
     except Exception as e:
         logger.warning(f"Could not create database tables on startup: {e}")

@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from models.rest_api.utils import raise_validation_error
 from models.config.settings import Settings
 from models.data.config.s3 import S3Config
+from models.data.config.sqlite import SqliteConfig
 from models.data.config.stream import StreamConfig
 from models.data.config.vitess import VitessConfig
 from models.infrastructure.s3.client import MyS3Client
@@ -112,18 +113,31 @@ class StateHandler(BaseModel):
 
     @property
     def vitess_client(self) -> "VitessClient":
-        """Get or create a cached VitessClient."""
-        if self.cached_vitess_client is None:
-            logger.debug(
-                "=== vitess_client property: Creating new VitessClient instance ==="
-            )
-            from models.infrastructure.vitess.client import VitessClient
+        """Get or create a cached database client.
 
-            if self.vitess_config is None:
-                raise_validation_error(message="No vitess config provided")
-            logger.debug("Instantiating VitessClient...")
-            self.cached_vitess_client = VitessClient(config=self.vitess_config)
-            logger.debug("=== vitess_client property: VitessClient created ===")
+        Returns a SqliteClient or VitessClient depending on DB_TYPE setting.
+        """
+        if self.cached_vitess_client is None:
+            if self.settings.db_type == "sqlite":
+                logger.debug(
+                    "=== vitess_client property: Creating new SqliteClient instance ==="
+                )
+                from models.infrastructure.sqlite.client import SqliteClient
+
+                self.cached_vitess_client = SqliteClient(
+                    config=self.settings.get_db_config
+                )
+            else:
+                logger.debug(
+                    "=== vitess_client property: Creating new VitessClient instance ==="
+                )
+                from models.infrastructure.vitess.client import VitessClient
+
+                if self.vitess_config is None:
+                    raise_validation_error(message="No vitess config provided")
+                logger.debug("Instantiating VitessClient...")
+                self.cached_vitess_client = VitessClient(config=self.vitess_config)
+            logger.debug("=== vitess_client property: Database client created ===")
         return self.cached_vitess_client
 
     @property

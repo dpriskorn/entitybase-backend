@@ -12,6 +12,7 @@ from models.config.version import ENTITYBASE_VERSION
 
 if TYPE_CHECKING:
     from models.data.config.s3 import S3Config
+    from models.data.config.sqlite import SqliteConfig
     from models.data.config.vitess import VitessConfig
 
 logger = logging.getLogger(__name__)
@@ -37,6 +38,10 @@ class Settings(BaseModel):
     s3_reference_version: str = "1.0.0"
     s3_statement_version: str = "1.0.0"
     s3_schema_revision_version: str = "4.0.0"
+
+    # database type (sqlite or vitess)
+    db_type: str = "sqlite"
+    datadir: str = "data"
 
     # vitess
     vitess_host: str = ""
@@ -123,6 +128,7 @@ class Settings(BaseModel):
         from environment variables, overriding any default values.
         """
         self._load_s3_config()
+        self._load_database_config()
         self._load_vitess_config()
         self._load_entity_config()
         self._load_streaming_config()
@@ -157,6 +163,11 @@ class Settings(BaseModel):
         self.s3_schema_revision_version = os.getenv(
             "S3_REVISION_VERSION", self.s3_schema_revision_version
         )
+
+    def _load_database_config(self) -> None:
+        """Load database type and data directory from environment variables."""
+        self.db_type = os.getenv("DB_TYPE", self.db_type)
+        self.datadir = os.getenv("DATADIR", self.datadir)
 
     def _load_vitess_config(self) -> None:
         """Load Vitess configuration from environment variables."""
@@ -360,6 +371,21 @@ class Settings(BaseModel):
             max_overflow=self.vitess_max_overflow,
             pool_timeout=self.vitess_pool_timeout,
         )
+
+    @property
+    def get_db_config(self) -> "SqliteConfig | VitessConfig":
+        """Convert settings to database configuration object.
+
+        Returns:
+            SqliteConfig or VitessConfig depending on db_type setting.
+        """
+        if self.db_type == "sqlite":
+            from models.data.config.sqlite import SqliteConfig
+
+            return SqliteConfig(
+                datadir=Path(self.datadir),
+            )
+        return self.get_vitess_config
 
     @property
     def get_entity_change_stream_config(self) -> "StreamConfig":
