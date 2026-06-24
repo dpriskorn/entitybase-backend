@@ -5,9 +5,9 @@ set -e
 export PATH="$PWD/.venv/bin:$PATH"
 
 # == custom internal linters ==
-python scripts/linters/check_async_calls.py src/
+poetry run python scripts/linters/check_async_calls.py src/
 ./scripts/shell/run-int-lint.sh
-python scripts/linters/value_error_linter.py
+poetry run python scripts/linters/value_error_linter.py
 ./scripts/shell/run-assert-linter.sh
 ./scripts/shell/run-response-model-lint.sh
 ./scripts/shell/run-logger-lint.sh

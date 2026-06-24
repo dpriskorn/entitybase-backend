@@ -16,7 +16,7 @@ echo "Running E2E tests (ASGITransport - no API server required)"
 
 # stop first failure
 #pytest -p no:xdist -m integration --exitfirst --capture=no --strict-markers
-pytest tests/e2e --capture=no --strict-markers --log-cli-level=DEBUG --log-cli-format="%(asctime)s - %(name)s - %(levelname)s - %(message)s" --durations=10
+poetry run pytest tests/e2e --capture=no --strict-markers --log-cli-level=DEBUG --log-cli-format="%(asctime)s - %(name)s - %(levelname)s - %(message)s" --durations=10
 
 # verbose
 #pytest -m integration -v --strict-markers

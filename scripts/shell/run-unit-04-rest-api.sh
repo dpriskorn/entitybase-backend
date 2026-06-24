@@ -9,4 +9,4 @@ source .venv/bin/activate
 export PYTHONPATH=src
 
 echo "Running unit tests (rest_api)"
-pytest tests/unit/models/rest_api -n auto
+poetry run pytest tests/unit/models/rest_api -n auto

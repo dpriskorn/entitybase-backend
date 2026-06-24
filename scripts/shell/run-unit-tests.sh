@@ -6,4 +6,4 @@ find . -name "*.pyc" -delete 2>/dev/null || true
 
 source .venv/bin/activate
 export PYTHONPATH=src
-pytest tests/unit/ -n auto
+poetry run pytest tests/unit/ -n auto

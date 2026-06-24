@@ -8,7 +8,7 @@ echo "# Test Counts"
 source .venv/bin/activate
 
 # Count overall tests using pytest (excludes disabled)
-OVERALL=$(pytest --collect-only -q tests/unit tests/integration tests/e2e 2>/dev/null | grep -oP '\d+(?= tests collected)' || echo "0")
+OVERALL=$(poetry run pytest --collect-only -q tests/unit tests/integration tests/e2e 2>/dev/null | grep -oP '\d+(?= tests collected)' || echo "0")
 
 # Count test functions by type
 UNIT_COUNT=$(grep -r "^def test_" tests/unit/ --include="*.py" | wc -l)

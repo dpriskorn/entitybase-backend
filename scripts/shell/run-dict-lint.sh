@@ -4,6 +4,6 @@ set -Eeuo pipefail
 
 echo "Checking for functions returning -> dict..."
 
-python scripts/linters/check_dict_returns.py src/
+poetry run python scripts/linters/check_dict_returns.py src/
 
 echo "Dict return linting passed!"

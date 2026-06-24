@@ -18,7 +18,7 @@ echo "Running all tests"
 
 # stop first failure
 #pytest -p no:xdist -m integration --exitfirst --capture=no --strict-markers
-pytest tests/ --capture=no --strict-markers --log-cli-level=DEBUG --log-cli-format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+poetry run pytest tests/ --capture=no --strict-markers --log-cli-level=DEBUG --log-cli-format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
 # verbose
 #pytest -m integration -v --strict-markers

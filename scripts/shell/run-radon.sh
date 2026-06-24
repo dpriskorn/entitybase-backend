@@ -4,7 +4,7 @@ cd "$(dirname "$0")/../.."
 COMPLEXITY_THRESHOLD=20
 
 echo "=== Radon Complexity Check (threshold $COMPLEXITY_THRESHOLD) ==="
-OUTPUT=$(radon cc -a -s src/ 2>&1)
+OUTPUT=$(poetry run radon cc -a -s src/ 2>&1)
 
 # Filter output to show only items with complexity >= 3
 FILTERED_OUTPUT=$(echo "$OUTPUT" | grep -E "\( [3-9]|\(1[0-9]|\(2[0-9]+\)" || true)
@@ -28,4 +28,4 @@ fi
 
 echo ""
 echo "=== Duplicate Method Check ==="
-python scripts/run-radon.py
+poetry run python scripts/run-radon.py

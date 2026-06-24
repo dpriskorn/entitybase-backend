@@ -9,4 +9,4 @@ source .venv/bin/activate
 export PYTHONPATH=src
 
 echo "Running unit tests (config, data, services, validation, json_parser)"
-pytest tests/unit/models/config tests/unit/models/data tests/unit/models/services tests/unit/models/validation tests/unit/models/json_parser -n auto
+poetry run pytest tests/unit/models/config tests/unit/models/data tests/unit/models/services tests/unit/models/validation tests/unit/models/json_parser -n auto

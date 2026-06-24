@@ -12,4 +12,4 @@ source test.env
 
 echo "Running single test using a single worker"
 env | grep VITESS
-pytest --log-cli-level=DEBUG --log-cli-format="%(asctime)s - %(name)s - %(levelname)s - %(message)s" $1
+poetry run pytest --log-cli-level=DEBUG --log-cli-format="%(asctime)s - %(name)s - %(levelname)s - %(message)s" $1

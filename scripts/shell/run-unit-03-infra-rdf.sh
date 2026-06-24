@@ -9,4 +9,4 @@ source .venv/bin/activate
 export PYTHONPATH=src
 
 echo "Running unit tests (infrastructure, rdf_builder)"
-pytest tests/unit/models/infrastructure tests/unit/models/rdf_builder -n auto
+poetry run pytest tests/unit/models/infrastructure tests/unit/models/rdf_builder -n auto

@@ -9,4 +9,4 @@ source .venv/bin/activate
 export PYTHONPATH=src
 
 echo "Running unit tests (internal_representation, workers)"
-pytest tests/unit/models/internal_representation tests/unit/models/workers -n auto
+poetry run pytest tests/unit/models/internal_representation tests/unit/models/workers -n auto
