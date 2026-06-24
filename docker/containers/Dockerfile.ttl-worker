@@ -1,5 +1,5 @@
 # Use Python 3.13 slim image for smaller size
-FROM python:3.13-slim
+FROM python:3.13-slim AS builder
 
 ARG REQUIREMENTS_HASH=initial
 RUN echo "Building with requirements hash: $REQUIREMENTS_HASH"
@@ -11,12 +11,26 @@ WORKDIR /app
 COPY requirements-ttl-worker.txt ./
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y wget git && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements-ttl-worker.txt
 
 COPY pyproject.toml /app/pyproject.toml
+
+FROM python:3.13-slim
+
+ARG REQUIREMENTS_HASH=initial
+RUN echo "Building with requirements hash: $REQUIREMENTS_HASH"
+
+# Set working directory
+WORKDIR /app
+
+# Install runtime system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends wget && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy application code
 COPY src/ ./
