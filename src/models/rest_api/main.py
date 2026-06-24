@@ -140,10 +140,11 @@ async def _initialize_state_handler() -> StateHandler:
 
 async def _create_database_tables(state_handler: StateHandler) -> None:
     """Create database tables on startup."""
+    db_type = state_handler.settings.db_type
     try:
-        logger.debug("Creating database tables...")
+        logger.info(f"Creating database tables (db_type={db_type})...")
         state_handler.vitess_client.create_tables()
-        logger.info("Database tables created/verified")
+        logger.info(f"Database tables created/verified successfully (db_type={db_type})")
     except Exception as e:
         logger.warning(f"Could not create database tables on startup: {e}")
         logger.info("Tables will be created when first accessed or in tests")
