@@ -2,7 +2,7 @@ FROM python:3.13-slim AS builder
 WORKDIR /app
 COPY pyproject.toml poetry.lock ./
 RUN pip install --no-cache-dir poetry \
-    && poetry install --no-root --no-interaction
+    && POETRY_VIRTUALENVS_CREATE=false poetry install --no-root --no-interaction --only json-worker
 
 FROM python:3.13-slim
 WORKDIR /app
