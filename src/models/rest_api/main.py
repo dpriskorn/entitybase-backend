@@ -119,6 +119,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan manager for startup and shutdown tasks."""
     try:
         state_handler = await _initialize_state_handler()
+        await _create_s3_buckets(state_handler)
         await _create_database_tables(state_handler)
         await _initialize_app_state(app_, state_handler)
         yield
@@ -148,6 +149,51 @@ async def _create_database_tables(state_handler: StateHandler) -> None:
     except Exception as e:
         logger.warning(f"Could not create database tables on startup: {e}")
         logger.info("Tables will be created when first accessed or in tests")
+
+
+async def _create_s3_buckets(state_handler: StateHandler) -> None:
+    """Create S3 buckets on startup if they don't exist."""
+    import boto3
+    from botocore.exceptions import ClientError
+
+    s3_config = state_handler.s3_config
+    if s3_config is None:
+        logger.warning("S3 config not available, skipping bucket creation")
+        return
+
+    required_buckets = [
+        state_handler.settings.s3_revisions_bucket,
+        state_handler.settings.s3_dump_bucket,
+    ]
+
+    try:
+        logger.info(f"Creating S3 buckets if they don't exist...")
+        client = boto3.client(
+            "s3",
+            endpoint_url=s3_config.endpoint_url,
+            aws_access_key_id=s3_config.access_key,
+            aws_secret_access_key=s3_config.secret_key,
+        )
+
+        for bucket in required_buckets:
+            try:
+                client.head_bucket(Bucket=bucket)
+                logger.info(f"S3 bucket already exists: {bucket}")
+            except ClientError as e:
+                error_code = e.response["Error"]["Code"]
+                if error_code in {"404", "NoSuchBucket"}:
+                    try:
+                        client.create_bucket(Bucket=bucket)
+                        logger.info(f"Created S3 bucket: {bucket}")
+                    except Exception as create_error:
+                        logger.error(f"Failed to create bucket {bucket}: {create_error}")
+                else:
+                    logger.error(f"Error checking bucket {bucket}: {error_code}")
+
+        logger.info("S3 bucket setup completed")
+    except Exception as e:
+        logger.warning(f"Could not create S3 buckets on startup: {e}")
+        logger.info("Buckets will be created when first accessed")
 
 
 async def _initialize_app_state(app_: FastAPI, state_handler: StateHandler) -> None:
