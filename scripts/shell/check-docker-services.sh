@@ -139,7 +139,7 @@ fi
 
 # Check all services
 check_running_service "mysql" || overall_status=1
-check_running_service "minio" || overall_status=1
+check_running_service "rustfs" || overall_status=1
 check_running_service "redpanda" || overall_status=1
 check_running_service "idworker" || overall_status=1
 check_running_service "json-dump-worker" || overall_status=1

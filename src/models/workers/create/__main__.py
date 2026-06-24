@@ -32,31 +32,31 @@ def main() -> int:
     )
     parser.add_argument(
         "--endpoint",
-        default=os.getenv("MINIO_ENDPOINT", "http://localhost:9000"),
-        help="MinIO endpoint URL",
+        default=os.getenv("RUSTFS_ENDPOINT", "http://localhost:9000"),
+        help="S3 endpoint URL",
     )
     parser.add_argument(
         "--access-key",
-        default=os.getenv("MINIO_ACCESS_KEY", "minioadmin"),
-        help="MinIO access key",
+        default=os.getenv("RUSTFS_ACCESS_KEY", "minioadmin"),
+        help="S3 access key",
     )
     parser.add_argument(
         "--secret-key",
-        default=os.getenv("MINIO_SECRET_KEY", "minioadmin"),
-        help="MinIO secret key",
+        default=os.getenv("RUSTFS_SECRET_KEY", "minioadmin"),
+        help="S3 secret key",
     )
 
     subparsers = parser.add_subparsers(dest="component", help="Component to manage")
 
     # Buckets component
-    buckets_parser = subparsers.add_parser("buckets", help="Manage MinIO buckets")
+    buckets_parser = subparsers.add_parser("buckets", help="Manage S3 buckets")
     buckets_subparsers = buckets_parser.add_subparsers(
         dest="operation", help="Bucket operations"
     )
 
     # Bucket operations
     buckets_setup_parser = buckets_subparsers.add_parser(
-        "setup", help="Create and setup MinIO buckets"
+        "setup", help="Create and setup S3 buckets"
     )
     buckets_setup_parser.set_defaults(func=run_buckets_setup)
 
@@ -123,9 +123,9 @@ async def run_buckets_setup(args: argparse.Namespace) -> bool:
     from models.workers.create.create_buckets import CreateBuckets
 
     create_buckets = CreateBuckets(
-        minio_endpoint=args.endpoint,
-        minio_access_key=args.access_key,
-        minio_secret_key=args.secret_key,
+        rustfs_endpoint=args.endpoint,
+        rustfs_access_key=args.access_key,
+        rustfs_secret_key=args.secret_key,
     )
     results = await create_buckets.run_setup()
     print(f"Buckets setup completed: {results['setup_status']}")
@@ -137,9 +137,9 @@ async def run_buckets_health(args: argparse.Namespace) -> bool:
     from models.workers.create.create_buckets import CreateBuckets
 
     create_buckets = CreateBuckets(
-        minio_endpoint=args.endpoint,
-        minio_access_key=args.access_key,
-        minio_secret_key=args.secret_key,
+        rustfs_endpoint=args.endpoint,
+        rustfs_access_key=args.access_key,
+        rustfs_secret_key=args.secret_key,
     )
     health_status = await create_buckets.bucket_health_check()
     print(f"Bucket health status: {health_status['overall_status']}")

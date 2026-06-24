@@ -64,7 +64,7 @@ All settings can be overridden using environment variables with the same name.
 ### `s3_endpoint`
 
 - **Type**: `str`
-- **Default**: `'http://minio:9000'`
+- **Default**: `'http://rustfs:9000'`
 - **Description**: s3
 
 ### `s3_access_key`
@@ -482,6 +482,6 @@ Key settings for Docker deployment:
 
 - `VITESS_HOST`: Vitess database host (default: vitess)
 - `VITESS_PORT`: Vitess database port (default: 15309)
-- `S3_ENDPOINT`: S3-compatible storage endpoint (default: http://minio:9000)
+- `S3_ENDPOINT`: S3-compatible storage endpoint (default: http://rustfs:9000)
 - `KAFKA_BROKERS`: Kafka broker addresses for change streaming
 

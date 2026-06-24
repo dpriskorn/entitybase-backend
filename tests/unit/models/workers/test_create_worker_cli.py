@@ -1,4 +1,4 @@
-"""Tests for the DevWorker CLI interface."""
+"""Tests for the CreateWorker CLI interface."""
 
 import pytest
 
@@ -8,8 +8,8 @@ from models.workers.create.__main__ import main
 pytestmark = pytest.mark.unit
 
 
-class TestDevWorkerCLI:
-    """Test cases for DevWorker CLI commands."""
+class TestCreateWorkerCLI:
+    """Test cases for CreateWorker CLI commands."""
 
     @patch("models.workers.create.__main__.run_buckets_setup")
     @patch("sys.argv", ["devworker", "buckets", "setup"])

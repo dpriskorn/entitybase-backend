@@ -1,15 +1,16 @@
-FROM python:3.13-slim
-
-RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
-
+FROM python:3.13-slim AS builder
 WORKDIR /app
+COPY pyproject.toml poetry.lock ./
+RUN pip install --no-cache-dir poetry \
+    && poetry install --no-root --no-interaction
 
-COPY ../../var/requirements-create-topics.txt ./
-RUN pip install --no-cache-dir -r requirements-create-topics.txt
+FROM python:3.13-slim
+WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends wget && rm -rf /var/lib/apt/lists/*
+COPY --from=builder /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
 COPY pyproject.toml /app/
 COPY src/ ./
 COPY scripts/ ./scripts/
-
 ENV PYTHONPATH=/app
-
 CMD ["python", "-m", "models.workers.create", "topics", "setup"]

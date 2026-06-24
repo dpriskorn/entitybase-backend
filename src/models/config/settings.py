@@ -24,7 +24,7 @@ class Settings(BaseModel):
     model_config = {"extra": "ignore"}
 
     # s3
-    s3_endpoint: str = "http://minio:9000"
+    s3_endpoint: str = "http://rustfs:9000"
     s3_access_key: str = "fakekey"
     s3_secret_key: str = "fakesecret"
 

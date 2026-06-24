@@ -11,7 +11,7 @@ Usage:
 Environment Variables:
     VITESS_HOST, VITESS_PORT, VITESS_DATABASE, VITESS_USER, VITESS_PASSWORD:
     Database connection parameters.
-    MINIO_ENDPOINT, MINIO_ACCESS_KEY, MINIO_SECRET_KEY: S3 connection parameters.
+    RUSTFS_ENDPOINT, RUSTFS_ACCESS_KEY, RUSTFS_SECRET_KEY: S3 connection parameters.
 """
 
 import asyncio
@@ -190,9 +190,9 @@ async def main() -> None:
 
         # Initialize S3 client
         s3_config = S3Config(
-            endpoint=os.getenv("MINIO_ENDPOINT", "http://minio:9000"),
-            access_key=os.getenv("MINIO_ACCESS_KEY", "minioadmin"),
-            secret_key=os.getenv("MINIO_SECRET_KEY", "minioadmin"),
+            endpoint=os.getenv("RUSTFS_ENDPOINT", "http://rustfs:9000"),
+            access_key=os.getenv("RUSTFS_ACCESS_KEY", "minioadmin"),
+            secret_key=os.getenv("RUSTFS_SECRET_KEY", "minioadmin"),
             region="us-east-1",
         )
         s3_client = MyS3Client(config=s3_config)

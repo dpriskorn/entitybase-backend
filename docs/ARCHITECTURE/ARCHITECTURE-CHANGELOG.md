@@ -77,10 +77,9 @@ Added dedicated purge worker and optimized Docker image sizes by using `--only` 
    - Added `purge-worker` group for purge worker dependencies
    - Worker groups now use `--only` flag instead of `--with` to exclude main dependencies
 
-3. **Export Script** (`scripts/shell/export-requirements.sh`):
-   - Changed to use `--only` flag for worker requirements
-   - Added warning comment to generated files
-   - Removed duplicate requirements-purge-worker.txt (moved to docker/containers/)
+3. **Export Script Removed** (`scripts/shell/export-requirements.sh`):
+   - Removed entirely; Dockerfiles now use `poetry install` directly in multi-stage builds
+   - No more pre-generated requirements files needed
 
 4. **Dockerfiles**:
    - `Dockerfile.api` now uses `requirements-api.txt` instead of `requirements.txt`
@@ -858,7 +857,7 @@ Implemented two separate workers for generating weekly dumps of all entities in 
   - Container name: json-dump-worker
   - Port: 8002
   - Environment: all JSON dump configuration variables
-  - Dependencies: create-tables, create-buckets, minio
+  - Dependencies: create-tables, create-buckets, rustfs
   - Health check: `/health` endpoint
   - Command: runs json_dump_worker module
   - Resources: 1GB memory, 0.5 CPU
@@ -867,7 +866,7 @@ Implemented two separate workers for generating weekly dumps of all entities in 
   - Container name: ttl-dump-worker
   - Port: 8003
   - Environment: all TTL dump configuration variables plus PROPERTY_REGISTRY_PATH
-  - Dependencies: create-tables, create-buckets, minio
+  - Dependencies: create-tables, create-buckets, rustfs
   - Health check: `/health` endpoint
   - Command: runs ttl_dump_worker module
   - Resources: 1GB memory, 0.5 CPU

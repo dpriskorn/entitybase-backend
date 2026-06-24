@@ -102,7 +102,7 @@ If pytest is not found, install it via `pip install pytest` or activate your vir
 
 ### Integration Tests
 
-Integration tests need docker to be able to access minio and mysql.
+Integration tests need docker to be able to access rustfs and mysql.
 The database is reset between tests, providing a clean state for each test run.
 
    ```bash
@@ -111,7 +111,7 @@ The database is reset between tests, providing a clean state for each test run.
 
 ### End-to-end (E2E) Tests
 
-E2E tests need docker to be able to access minio and mysql.
+E2E tests need docker to be able to access rustfs and mysql.
 The database is reset between tests, providing a clean state for each test run.
 
    ```bash

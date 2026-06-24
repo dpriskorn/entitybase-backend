@@ -93,7 +93,7 @@ def categorize_settings(
 
         if any(keyword in name_lower for keyword in ["vitess", "mysql", "database"]):
             categories["Database"].append((setting_name, setting_info))
-        elif any(keyword in name_lower for keyword in ["s3", "minio", "bucket"]):
+        elif any(keyword in name_lower for keyword in ["s3", "rustfs", "bucket"]):
             categories["Storage"].append((setting_name, setting_info))
         elif any(
             keyword in name_lower for keyword in ["api", "endpoint", "port", "host"]
@@ -153,7 +153,7 @@ def generate_markdown(
     lines.append("- `VITESS_HOST`: Vitess database host (default: vitess)")
     lines.append("- `VITESS_PORT`: Vitess database port (default: 15309)")
     lines.append(
-        "- `S3_ENDPOINT`: S3-compatible storage endpoint (default: http://minio:9000)"
+        "- `S3_ENDPOINT`: S3-compatible storage endpoint (default: http://rustfs:9000)"
     )
     lines.append("- `KAFKA_BROKERS`: Kafka broker addresses for change streaming")
     lines.append("")

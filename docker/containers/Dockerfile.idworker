@@ -1,28 +1,22 @@
-# Use Python 3.13 alpine image for smaller size
-FROM python:3.13-alpine
-
-ARG REQUIREMENTS_HASH=initial
-RUN echo "Building with requirements hash: $REQUIREMENTS_HASH"
-
-# Install wget for healthcheck
-RUN apk add --no-cache wget
-
+FROM python:3.13-alpine AS builder
 WORKDIR /app
+RUN apk add --no-cache gcc musl-dev libffi-dev openssl-dev
+COPY pyproject.toml poetry.lock ./
+RUN pip install --no-cache-dir poetry \
+    && poetry install --no-root --no-interaction
 
-COPY ./var/requirements-idworker.txt ./
-
-RUN pip install --no-cache-dir -r requirements-idworker.txt
-
+FROM python:3.13-alpine
+WORKDIR /app
+RUN apk add --no-cache wget
+COPY --from=builder /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
 COPY pyproject.toml /app/pyproject.toml
-COPY src/ ./ 
-
+COPY src/ ./
 ENV PYTHONPATH=/app
 ENV WORKER_ID=id-worker
 ENV VITESS_HOST=vitess
 ENV VITESS_PORT=15309
 ENV VITESS_DATABASE=page
 ENV VITESS_USER=root
-
 EXPOSE 8001
-
 CMD ["python", "-m", "models.workers.id_generation.id_generation_worker"]

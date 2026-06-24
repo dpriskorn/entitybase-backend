@@ -1,4 +1,4 @@
-"""Create worker for MinIO bucket setup and management."""
+"""Create worker for S3 bucket setup and management."""
 
 import logging
 import os
@@ -34,13 +34,13 @@ sys.path.insert(0, src_path)
 
 
 class CreateBuckets(BaseModel):
-    """Create worker for MinIO bucket management and setup tasks."""
+    """Create worker for S3 bucket management and setup tasks."""
 
     model_config = {"frozen": False}
 
-    minio_endpoint: str = os.getenv("MINIO_ENDPOINT", "http://localhost:9000")
-    minio_access_key: str = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
-    minio_secret_key: str = os.getenv("MINIO_SECRET_KEY", "minioadmin")
+    rustfs_endpoint: str = os.getenv("RUSTFS_ENDPOINT", "http://localhost:9000")
+    rustfs_access_key: str = os.getenv("RUSTFS_ACCESS_KEY", "minioadmin")
+    rustfs_secret_key: str = os.getenv("RUSTFS_SECRET_KEY", "minioadmin")
     required_buckets: List[str] = []
     s3_client: Any = Field(default=None, exclude=True)
 
@@ -56,14 +56,14 @@ class CreateBuckets(BaseModel):
     def _create_s3_client(self) -> Any:
         """Create S3 client with shared credentials for all buckets."""
         logger.info(
-            f"Creating S3 client with endpoint={self.minio_endpoint}, "
-            f"access_key={self.minio_access_key[:4]}..."
+            f"Creating S3 client with endpoint={self.rustfs_endpoint}, "
+            f"access_key={self.rustfs_access_key[:4]}..."
         )
         return _boto3.client(
             "s3",
-            endpoint_url=self.minio_endpoint,
-            aws_access_key_id=self.minio_access_key,
-            aws_secret_access_key=self.minio_secret_key,
+            endpoint_url=self.rustfs_endpoint,
+            aws_access_key_id=self.rustfs_access_key,
+            aws_secret_access_key=self.rustfs_secret_key,
         )
 
     def get_s3_client(self) -> Any:

@@ -18,9 +18,9 @@ class TestCreateBuckets:
             "models.workers.create.create_buckets.CreateBuckets.model_post_init"
         ):
             worker = CreateBuckets()
-            assert worker.minio_endpoint == "http://localhost:9000"
-            assert worker.minio_access_key == "minioadmin"
-            assert worker.minio_secret_key == "minioadmin"
+            assert worker.rustfs_endpoint == "http://localhost:9000"
+            assert worker.rustfs_access_key == "minioadmin"
+            assert worker.rustfs_secret_key == "minioadmin"
 
     def test_initialization_custom(self):
         """Test CreateBuckets initialization with custom values."""
@@ -28,13 +28,13 @@ class TestCreateBuckets:
             "models.workers.create.create_buckets.CreateBuckets.model_post_init"
         ):
             worker = CreateBuckets(
-                minio_endpoint="http://custom:9000",
-                minio_access_key="custom_key",
-                minio_secret_key="custom_secret",
+                rustfs_endpoint="http://custom:9000",
+                rustfs_access_key="custom_key",
+                rustfs_secret_key="custom_secret",
             )
-            assert worker.minio_endpoint == "http://custom:9000"
-            assert worker.minio_access_key == "custom_key"
-            assert worker.minio_secret_key == "custom_secret"
+            assert worker.rustfs_endpoint == "http://custom:9000"
+            assert worker.rustfs_access_key == "custom_key"
+            assert worker.rustfs_secret_key == "custom_secret"
 
     def test_required_buckets_attribute(self):
         """Test required_buckets attribute exists."""
@@ -56,9 +56,9 @@ class TestCreateBuckets:
             worker.required_buckets = ["test"]
 
             dumped = worker.model_dump()
-            assert "minio_endpoint" in dumped
-            assert "minio_access_key" in dumped
-            assert "minio_secret_key" in dumped
+            assert "rustfs_endpoint" in dumped
+            assert "rustfs_access_key" in dumped
+            assert "rustfs_secret_key" in dumped
 
     @pytest.mark.asyncio
     async def test_ensure_buckets_exist_bucket_exists(self):
@@ -342,9 +342,9 @@ class TestCreateBuckets:
             "models.workers.create.create_buckets.CreateBuckets.model_post_init"
         ):
             worker = CreateBuckets(
-                minio_endpoint="http://custom:9000",
-                minio_access_key="mykey",
-                minio_secret_key="mysecret",
+                rustfs_endpoint="http://custom:9000",
+                rustfs_access_key="mykey",
+                rustfs_secret_key="mysecret",
             )
             worker.required_buckets = []
 

@@ -1,46 +1,15 @@
-# Use Python 3.13 slim image for smaller size
 FROM python:3.13-slim AS builder
-
-ARG REQUIREMENTS_HASH=initial
-RUN echo "Building with requirements hash: $REQUIREMENTS_HASH"
-
-# Set working directory
 WORKDIR /app
-
-# Copy requirements first for better caching
-COPY ./var/requirements*.txt ./
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
-
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY pyproject.toml /app/pyproject.toml
+COPY pyproject.toml poetry.lock ./
+RUN pip install --no-cache-dir poetry \
+    && poetry install --no-root --no-interaction
 
 FROM python:3.13-slim
-
-ARG REQUIREMENTS_HASH=initial
-RUN echo "Building with requirements hash: $REQUIREMENTS_HASH"
-
-# Set working directory
 WORKDIR /app
-
-# Install runtime system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
-
 COPY --from=builder /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
-
-# Copy application code
+COPY pyproject.toml /app/pyproject.toml
 COPY src/ ./
-
-# Set environment variables
 ENV PYTHONPATH=/app
-
-# Expose health check port (different ports for each worker)
-# JSON dump worker uses 8002
-# TTL dump worker uses 8003
-
-# Run the worker (will be overridden by docker-compose CMD)
 CMD ["python", "-m", "models.workers.json_dumps.json_dump_worker"]

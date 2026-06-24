@@ -433,25 +433,14 @@ which python  # Must point to .venv/bin/python
 ./run-docker-build-tests.sh  # With volume pruning
 ```
 
-#### Exporting Worker Requirements
-When building Docker images for workers, generate requirements files first:
+#### Building Docker Images
+Docker images use multi-stage builds with `poetry install` directly in the builder stage.
+No pre-generated requirements files are needed — `poetry.lock` handles dependency locking.
+
+Build with:
 ```bash
-# Export all worker requirements (runs from project root)
-./scripts/shell/export-requirements.sh
+docker compose --file docker-compose.tests.yml build
 ```
-
-**IMPORTANT**: Requirements files are **generated automatically** by the export script. Do NOT edit them directly - they will be overwritten on the next run. If you need to modify dependencies, edit `pyproject.toml` or the export script instead.
-
-Files are generated in `var/` directory:
-- `var/requirements.txt` - main dependencies
-- `var/requirements-dev.txt` - with dev group
-- `var/requirements-idworker.txt`
-- `var/requirements-stats-worker.txt`
-- `var/requirements-json-worker.txt`
-- `var/requirements-ttl-worker.txt`
-- `var/requirements-purge-worker.txt`
-
-The worker-specific files are used in their respective Dockerfiles for smaller images.
 
 #### Local Development
 ```bash
