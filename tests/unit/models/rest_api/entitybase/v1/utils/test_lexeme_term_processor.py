@@ -1,212 +1,414 @@
-"""Unit tests for lexeme term processor."""
+"""Unit tests for lexeme_term_processor."""
 
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 from models.rest_api.entitybase.v1.utils.lexeme_term_processor import (
     LexemeTermProcessorConfig,
-    process_lexeme_terms,
-    _process_term_data,
     TermProcessingConfig,
+    process_lexeme_terms,
+    _process_lexeme_lemmas,
+    _process_term_data,
 )
 
 
+class TestTermProcessingConfig:
+    """Unit tests for TermProcessingConfig."""
+
+    def test_term_processing_config_creation(self):
+        """Test creating TermProcessingConfig with all fields."""
+        config = TermProcessingConfig(
+            data_key="value",
+            hash_key="lemma_hashes",
+            storage_method="store_lemma",
+            term_type="lemma",
+        )
+        assert config.data_key == "value"
+        assert config.hash_key == "lemma_hashes"
+        assert config.storage_method == "store_lemma"
+        assert config.term_type == "lemma"
+
+    def test_term_processing_config_extra_forbidden(self):
+        """Test that extra fields are forbidden."""
+        with pytest.raises(ValueError):
+            TermProcessingConfig(
+                data_key="value",
+                hash_key="lemma_hashes",
+                storage_method="store_lemma",
+                term_type="lemma",
+                extra_field="not allowed",
+            )
+
+
+class TestLexemeTermProcessorConfig:
+    """Unit tests for LexemeTermProcessorConfig."""
+
+    def test_lexeme_term_processor_config_minimal(self):
+        """Test creating config with only required fields."""
+        s3_client = MagicMock()
+        config = LexemeTermProcessorConfig(s3_client=s3_client)
+        assert config.s3_client == s3_client
+        assert config.lemmas is None
+        assert config.on_form_stored is None
+        assert config.on_gloss_stored is None
+        assert config.on_lemma_stored is None
+
+    def test_lexeme_term_processor_config_full(self):
+        """Test creating config with all fields including callbacks."""
+        s3_client = MagicMock()
+        on_form_stored = MagicMock()
+        on_gloss_stored = MagicMock()
+        on_lemma_stored = MagicMock()
+        lemmas = {"en": {"value": "test"}}
+
+        config = LexemeTermProcessorConfig(
+            s3_client=s3_client,
+            lemmas=lemmas,
+            on_form_stored=on_form_stored,
+            on_gloss_stored=on_gloss_stored,
+            on_lemma_stored=on_lemma_stored,
+        )
+
+        assert config.s3_client == s3_client
+        assert config.lemmas == lemmas
+        assert config.on_form_stored == on_form_stored
+        assert config.on_gloss_stored == on_gloss_stored
+        assert config.on_lemma_stored == on_lemma_stored
+
+
 class TestProcessLexemeTerms:
-    """Unit tests for lexeme term processing."""
+    """Unit tests for process_lexeme_terms function."""
 
-    def test_process_lexeme_terms_no_data(self) -> None:
-        """Test processing with no forms or senses."""
-        mock_s3 = MagicMock()
+    def test_process_lexeme_terms_empty_all(self):
+        """Test processing with empty forms, senses, and no lemmas."""
+        s3_client = MagicMock()
+        config = LexemeTermProcessorConfig(s3_client=s3_client)
 
-        config = LexemeTermProcessorConfig(s3_client=mock_s3)
-        process_lexeme_terms([], [], config)
+        with patch(
+            "models.rest_api.entitybase.v1.utils.lexeme_term_processor.logger"
+        ) as mock_logger:
+            process_lexeme_terms([], [], config)
 
-        mock_s3.store_form_representation.assert_not_called()
-        mock_s3.store_sense_gloss.assert_not_called()
+            mock_logger.debug.assert_any_call(
+                f"Processing lexeme terms: 0 forms, 0 senses, 0 lemmas"
+            )
+            mock_logger.debug.assert_any_call("No forms, senses, or lemmas to process")
 
-    def test_process_lexeme_terms_with_forms(self) -> None:
-        """Test processing lexeme forms."""
-        mock_s3 = MagicMock()
-        mock_s3.store_form_representation = MagicMock()
+    def test_process_lexeme_terms_with_forms(self):
+        """Test processing with forms only (also calls _process_term_data for empty senses)."""
+        s3_client = MagicMock()
+        config = LexemeTermProcessorConfig(s3_client=s3_client)
 
         forms = [
-            {
-                "id": "L123-F1",
-                "representations": {"en": {"value": "cats"}},
-            }
+            {"representations": {"en": {"value": "test"}}}
         ]
 
-        config = LexemeTermProcessorConfig(s3_client=mock_s3)
-        process_lexeme_terms(forms, [], config)
+        with patch(
+            "models.rest_api.entitybase.v1.utils.lexeme_term_processor._process_term_data"
+        ) as mock_process_data, patch(
+            "models.rest_api.entitybase.v1.utils.lexeme_term_processor.logger"
+        ):
+            mock_process_data.return_value = None
 
-        mock_s3.store_form_representation.assert_called_once()
+            process_lexeme_terms(forms, [], config)
 
-    def test_process_lexeme_terms_with_senses(self) -> None:
-        """Test processing lexeme senses."""
-        mock_s3 = MagicMock()
-        mock_s3.store_sense_gloss = MagicMock()
+            assert mock_process_data.call_count == 2
+
+    def test_process_lexeme_terms_with_senses(self):
+        """Test processing with senses only (also calls _process_term_data for empty forms)."""
+        s3_client = MagicMock()
+        config = LexemeTermProcessorConfig(s3_client=s3_client)
 
         senses = [
-            {
-                "id": "L123-S1",
-                "glosses": {"en": {"value": "feline animal"}},
-            }
+            {"glosses": {"en": {"value": "test gloss"}}}
         ]
 
-        config = LexemeTermProcessorConfig(s3_client=mock_s3)
-        process_lexeme_terms([], senses, config)
+        with patch(
+            "models.rest_api.entitybase.v1.utils.lexeme_term_processor._process_term_data"
+        ) as mock_process_data, patch(
+            "models.rest_api.entitybase.v1.utils.lexeme_term_processor.logger"
+        ):
+            mock_process_data.return_value = None
 
-        mock_s3.store_sense_gloss.assert_called_once()
+            process_lexeme_terms([], senses, config)
 
-    def test_process_lexeme_terms_calls_callbacks(self) -> None:
-        """Test that callbacks are invoked for each stored hash."""
-        mock_s3 = MagicMock()
-        mock_s3.store_form_representation = MagicMock()
-        mock_s3.store_sense_gloss = MagicMock()
+            assert mock_process_data.call_count == 2
 
-        form_callback_calls = []
-        gloss_callback_calls = []
+    def test_process_lexeme_terms_with_lemmas(self):
+        """Test processing with lemmas."""
+        s3_client = MagicMock()
+        lemmas = {"en": {"value": "test lemma"}}
+        config = LexemeTermProcessorConfig(s3_client=s3_client, lemmas=lemmas)
 
-        forms = [{"id": "L123-F1", "representations": {"en": {"value": "cats"}}}]
-        senses = [{"id": "L123-S1", "glosses": {"en": {"value": "animal"}}}]
+        with patch(
+            "models.rest_api.entitybase.v1.utils.lexeme_term_processor._process_lexeme_lemmas"
+        ) as mock_process_lemmas, patch(
+            "models.rest_api.entitybase.v1.utils.lexeme_term_processor._process_term_data"
+        ) as mock_process_data, patch(
+            "models.rest_api.entitybase.v1.utils.lexeme_term_processor.logger"
+        ):
+            mock_process_lemmas.return_value = None
+            mock_process_data.return_value = None
 
-        def form_callback(hash_val):
-            form_callback_calls.append(hash_val)
+            process_lexeme_terms([], [], config)
 
-        def gloss_callback(hash_val):
-            gloss_callback_calls.append(hash_val)
+            mock_process_lemmas.assert_called_once()
 
-        config = LexemeTermProcessorConfig(
-            s3_client=mock_s3,
-            on_form_stored=form_callback,
-            on_gloss_stored=gloss_callback,
-        )
-        process_lexeme_terms(forms, senses, config)
 
-        assert len(form_callback_calls) == 1
-        assert len(gloss_callback_calls) == 1
+class TestProcessLexemeLemmas:
+    """Unit tests for _process_lexeme_lemmas function."""
 
-    def test_process_lexeme_terms_handles_s3_errors(self) -> None:
-        """Test that S3 storage errors are logged but don't halt processing."""
-        mock_s3 = MagicMock()
-        mock_s3.store_form_representation.side_effect = Exception("S3 error")
-        mock_s3.store_sense_gloss.side_effect = Exception("S3 error")
-
-        forms = [{"id": "L123-F1", "representations": {"en": {"value": "cats"}}}]
-        senses = [{"id": "L123-S1", "glosses": {"en": {"value": "animal"}}}]
-
-        config = LexemeTermProcessorConfig(s3_client=mock_s3)
-        # Should not raise exception
-        process_lexeme_terms(forms, senses, config)
-
-        assert True  # No exception raised
-
-    def test_process_term_data_success(self) -> None:
-        """Test processing term data successfully."""
-        mock_s3 = MagicMock()
-        mock_s3.store_form_representation = MagicMock()
-
-        terms = [
-            {"representations": {"en": {"value": "cats"}, "de": {"value": "Katzen"}}}
-        ]
-
+    def test_process_lexeme_lemmas_basic(self):
+        """Test basic lemma processing."""
+        s3_client = MagicMock()
         config = TermProcessingConfig(
-            data_key="representations",
-            hash_key="representation_hashes",
-            storage_method="store_form_representation",
-            term_type="form representation",
+            data_key="value",
+            hash_key="lemma_hashes",
+            storage_method="store_lemma",
+            term_type="lemma",
         )
+        lemmas = {"en": {"value": "test lemma"}}
 
-        _process_term_data(terms, mock_s3, config)
+        with patch(
+            "models.rest_api.entitybase.v1.utils.lexeme_term_processor.MetadataExtractor"
+        ) as mock_extractor_class:
+            mock_extractor = MagicMock()
+            mock_extractor.hash_string.return_value = 12345
+            mock_extractor_class.return_value = mock_extractor
 
-        assert mock_s3.store_form_representation.call_count == 2
+            _process_lexeme_lemmas(lemmas, s3_client, config, None)
 
-    def test_process_term_data_missing_data_key(self) -> None:
-        """Test processing term data when data key is missing."""
-        mock_s3 = MagicMock()
+            assert "lemma_hashes" in lemmas
+            assert "en" in lemmas["lemma_hashes"]
+            assert lemmas["lemma_hashes"]["en"] == 12345
+            s3_client.store_lemma.assert_called_once_with("test lemma", 12345)
 
-        terms = [
-            {"id": "L123-F1"}  # Missing representations
-        ]
-
+    def test_process_lexeme_lemmas_with_callback(self):
+        """Test lemma processing with callback."""
+        s3_client = MagicMock()
         config = TermProcessingConfig(
-            data_key="representations",
-            hash_key="representation_hashes",
-            storage_method="store_form_representation",
-            term_type="form representation",
+            data_key="value",
+            hash_key="lemma_hashes",
+            storage_method="store_lemma",
+            term_type="lemma",
         )
+        lemmas = {"en": {"value": "test lemma"}}
+        callback = MagicMock()
 
-        _process_term_data(terms, mock_s3, config)
+        with patch(
+            "models.rest_api.entitybase.v1.utils.lexeme_term_processor.MetadataExtractor"
+        ) as mock_extractor_class:
+            mock_extractor = MagicMock()
+            mock_extractor.hash_string.return_value = 12345
+            mock_extractor_class.return_value = mock_extractor
 
-        mock_s3.store_form_representation.assert_not_called()
+            _process_lexeme_lemmas(lemmas, s3_client, config, callback)
 
-    def test_process_term_data_missing_value(self) -> None:
-        """Test processing term data when value is missing."""
-        mock_s3 = MagicMock()
+            callback.assert_called_once_with(12345)
 
-        terms = [
-            {"representations": {"en": {}}}  # Missing value
-        ]
-
+    def test_process_lexeme_lemmas_skips_existing_hash_key(self):
+        """Test that lemma processing skips lemma_hashes key itself."""
+        s3_client = MagicMock()
         config = TermProcessingConfig(
-            data_key="representations",
-            hash_key="representation_hashes",
-            storage_method="store_form_representation",
-            term_type="form representation",
+            data_key="value",
+            hash_key="lemma_hashes",
+            storage_method="store_lemma",
+            term_type="lemma",
         )
-
-        _process_term_data(terms, mock_s3, config)
-
-        mock_s3.store_form_representation.assert_not_called()
-
-    def test_process_term_data_initializes_hash_key(self) -> None:
-        """Test that hash_key dict is initialized if missing."""
-        mock_s3 = MagicMock()
-        mock_s3.store_form_representation = MagicMock()
-
-        terms = [{"representations": {"en": {"value": "cats"}}}]
-
-        config = TermProcessingConfig(
-            data_key="representations",
-            hash_key="representation_hashes",
-            storage_method="store_form_representation",
-            term_type="form representation",
-        )
-
-        _process_term_data(terms, mock_s3, config)
-
-        # Check that hash_key was added to term
-        assert "representation_hashes" in terms[0]
-
-    def test_process_lexeme_terms_with_lemmas(self) -> None:
-        """Test processing lexeme lemmas."""
-        mock_s3 = MagicMock()
-        mock_s3.store_lemma = MagicMock()
-
         lemmas = {
-            "en": {"language": "en", "value": "answer"},
-            "de": {"language": "de", "value": "Antwort"},
+            "en": {"value": "test lemma"},
+            "lemma_hashes": {"already": 999},
         }
 
-        config = LexemeTermProcessorConfig(s3_client=mock_s3, lemmas=lemmas)
-        process_lexeme_terms([], [], config)
+        with patch(
+            "models.rest_api.entitybase.v1.utils.lexeme_term_processor.MetadataExtractor"
+        ) as mock_extractor_class:
+            mock_extractor = MagicMock()
+            mock_extractor.hash_string.return_value = 12345
+            mock_extractor_class.return_value = mock_extractor
 
-        assert mock_s3.store_lemma.call_count == 2
+            _process_lexeme_lemmas(lemmas, s3_client, config, None)
 
-    def test_process_lexeme_terms_lemma_callback(self) -> None:
-        """Test that lemma callback is invoked for each stored hash."""
-        mock_s3 = MagicMock()
-        mock_s3.store_lemma = MagicMock()
+            assert lemmas["lemma_hashes"]["en"] == 12345
+            assert lemmas["lemma_hashes"]["already"] == 999
 
-        lemma_callback_calls = []
-
-        lemmas = {"en": {"language": "en", "value": "answer"}}
-
-        def lemma_callback(hash_val):
-            lemma_callback_calls.append(hash_val)
-
-        config = LexemeTermProcessorConfig(
-            s3_client=mock_s3, lemmas=lemmas, on_lemma_stored=lemma_callback
+    def test_process_lexeme_lemmas_skips_missing_value(self):
+        """Test that lemma processing skips entries without value key."""
+        s3_client = MagicMock()
+        config = TermProcessingConfig(
+            data_key="value",
+            hash_key="lemma_hashes",
+            storage_method="store_lemma",
+            term_type="lemma",
         )
-        process_lexeme_terms([], [], config)
+        lemmas = {"en": {"language": "en"}}
 
-        assert len(lemma_callback_calls) == 1
+        with patch(
+            "models.rest_api.entitybase.v1.utils.lexeme_term_processor.MetadataExtractor"
+        ) as mock_extractor_class:
+            mock_extractor = MagicMock()
+            mock_extractor_class.return_value = mock_extractor
+
+            _process_lexeme_lemmas(lemmas, s3_client, config, None)
+
+            assert "en" not in lemmas.get("lemma_hashes", {})
+
+    def test_process_lexeme_lemmas_handles_storage_exception(self):
+        """Test that lemma processing handles S3 storage exceptions gracefully."""
+        s3_client = MagicMock()
+        s3_client.store_lemma.side_effect = Exception("S3 Error")
+
+        config = TermProcessingConfig(
+            data_key="value",
+            hash_key="lemma_hashes",
+            storage_method="store_lemma",
+            term_type="lemma",
+        )
+        lemmas = {"en": {"value": "test lemma"}}
+
+        with patch(
+            "models.rest_api.entitybase.v1.utils.lexeme_term_processor.MetadataExtractor"
+        ) as mock_extractor_class, patch(
+            "models.rest_api.entitybase.v1.utils.lexeme_term_processor.logger"
+        ) as mock_logger:
+            mock_extractor = MagicMock()
+            mock_extractor.hash_string.return_value = 12345
+            mock_extractor_class.return_value = mock_extractor
+
+            _process_lexeme_lemmas(lemmas, s3_client, config, None)
+
+            mock_logger.warning.assert_called()
+            call_args = mock_logger.warning.call_args[0][0]
+            assert "Failed to store lemma" in call_args
+
+
+class TestProcessTermData:
+    """Unit tests for _process_term_data function."""
+
+    def test_process_term_data_basic(self):
+        """Test basic term data processing."""
+        s3_client = MagicMock()
+        config = TermProcessingConfig(
+            data_key="representations",
+            hash_key="representation_hashes",
+            storage_method="store_form_representation",
+            term_type="form representation",
+        )
+        terms = [
+            {"representations": {"en": {"value": "test form"}}}
+        ]
+
+        with patch(
+            "models.rest_api.entitybase.v1.utils.lexeme_term_processor.MetadataExtractor"
+        ) as mock_extractor_class:
+            mock_extractor = MagicMock()
+            mock_extractor.hash_string.return_value = 12345
+            mock_extractor_class.return_value = mock_extractor
+
+            _process_term_data(terms, s3_client, config, None)
+
+            assert "representation_hashes" in terms[0]
+            assert "en" in terms[0]["representation_hashes"]
+            s3_client.store_form_representation.assert_called_once_with("test form", 12345)
+
+    def test_process_term_data_with_callback(self):
+        """Test term data processing with callback."""
+        s3_client = MagicMock()
+        config = TermProcessingConfig(
+            data_key="glosses",
+            hash_key="gloss_hashes",
+            storage_method="store_sense_gloss",
+            term_type="sense gloss",
+        )
+        terms = [
+            {"glosses": {"en": {"value": "test gloss"}}}
+        ]
+        callback = MagicMock()
+
+        with patch(
+            "models.rest_api.entitybase.v1.utils.lexeme_term_processor.MetadataExtractor"
+        ) as mock_extractor_class:
+            mock_extractor = MagicMock()
+            mock_extractor.hash_string.return_value = 12345
+            mock_extractor_class.return_value = mock_extractor
+
+            _process_term_data(terms, s3_client, config, callback)
+
+            callback.assert_called_once_with(12345)
+
+    def test_process_term_data_skips_missing_data_key(self):
+        """Test that term data processing skips entries without data key."""
+        s3_client = MagicMock()
+        config = TermProcessingConfig(
+            data_key="representations",
+            hash_key="representation_hashes",
+            storage_method="store_form_representation",
+            term_type="form representation",
+        )
+        terms = [
+            {"other_key": "value"}
+        ]
+
+        with patch(
+            "models.rest_api.entitybase.v1.utils.lexeme_term_processor.MetadataExtractor"
+        ) as mock_extractor_class:
+            mock_extractor = MagicMock()
+            mock_extractor_class.return_value = mock_extractor
+
+            _process_term_data(terms, s3_client, config, None)
+
+            assert "representation_hashes" not in terms[0]
+
+    def test_process_term_data_skips_missing_value_in_lang(self):
+        """Test that term data processing skips language entries without value."""
+        s3_client = MagicMock()
+        config = TermProcessingConfig(
+            data_key="representations",
+            hash_key="representation_hashes",
+            storage_method="store_form_representation",
+            term_type="form representation",
+        )
+        terms = [
+            {"representations": {"en": {"language": "en"}}}
+        ]
+
+        with patch(
+            "models.rest_api.entitybase.v1.utils.lexeme_term_processor.MetadataExtractor"
+        ) as mock_extractor_class:
+            mock_extractor = MagicMock()
+            mock_extractor_class.return_value = mock_extractor
+
+            _process_term_data(terms, s3_client, config, None)
+
+            assert "en" not in terms[0].get("representation_hashes", {})
+
+    def test_process_term_data_handles_storage_exception(self):
+        """Test that term data processing handles S3 storage exceptions gracefully."""
+        s3_client = MagicMock()
+        s3_client.store_form_representation.side_effect = Exception("S3 Error")
+
+        config = TermProcessingConfig(
+            data_key="representations",
+            hash_key="representation_hashes",
+            storage_method="store_form_representation",
+            term_type="form representation",
+        )
+        terms = [
+            {"representations": {"en": {"value": "test form"}}}
+        ]
+
+        with patch(
+            "models.rest_api.entitybase.v1.utils.lexeme_term_processor.MetadataExtractor"
+        ) as mock_extractor_class, patch(
+            "models.rest_api.entitybase.v1.utils.lexeme_term_processor.logger"
+        ) as mock_logger:
+            mock_extractor = MagicMock()
+            mock_extractor.hash_string.return_value = 12345
+            mock_extractor_class.return_value = mock_extractor
+
+            _process_term_data(terms, s3_client, config, None)
+
+            mock_logger.warning.assert_called()
+            call_args = mock_logger.warning.call_args[0][0]
+            assert "Failed to store form representation" in call_args
