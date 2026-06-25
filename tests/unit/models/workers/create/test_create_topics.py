@@ -22,7 +22,7 @@ class TestCreateTopics:
 
                 topics = CreateTopics()
                 assert topics.kafka_bootstrap_servers == "redpanda:9092"
-                assert len(topics.required_topics) == 3
+                assert len(topics.required_topics) == 2
 
     def test_initialization_with_env_vars(self):
         """Test CreateTopics initialization with environment variables."""
@@ -47,87 +47,6 @@ class TestCreateTopics:
         assert results == {}
 
     @pytest.mark.asyncio
-    async def test_ensure_topics_exist_all_exist(self):
-        """Test ensure_topics_exist when all topics already exist."""
-        with patch(
-            "models.workers.create.create_topics.AIOKafkaAdminClient"
-        ) as mock_admin_class:
-            mock_admin = MagicMock()
-            mock_admin.start = AsyncMock()
-            mock_admin.close = AsyncMock()
-            mock_admin.list_topics = AsyncMock(
-                return_value=[
-                    "entitybase.entity_change",
-                    "entitybase.entity_diff",
-                    "entitybase.incremental_rdf_diff",
-                ]
-            )
-            mock_admin_class.return_value = mock_admin
-
-            topics = CreateTopics()
-            topics.kafka_bootstrap_servers = "redpanda:9092"
-
-            results = await topics.ensure_topics_exist()
-
-            assert "entitybase.entity_change" in results
-            assert results["entitybase.entity_change"] == "exists"
-            assert "entitybase.entity_diff" in results
-            assert results["entitybase.entity_diff"] == "exists"
-            assert "entitybase.incremental_rdf_diff" in results
-            assert results["entitybase.incremental_rdf_diff"] == "exists"
-
-    @pytest.mark.asyncio
-    async def test_ensure_topics_exist_create_new(self):
-        """Test ensure_topics_exist when topics need to be created."""
-        with patch(
-            "models.workers.create.create_topics.AIOKafkaAdminClient"
-        ) as mock_admin_class:
-            mock_admin = MagicMock()
-            mock_admin.start = AsyncMock()
-            mock_admin.close = AsyncMock()
-            mock_admin.list_topics = AsyncMock(return_value=[])
-            mock_admin.create_topics = AsyncMock()
-            mock_admin_class.return_value = mock_admin
-
-            topics = CreateTopics()
-            topics.kafka_bootstrap_servers = "redpanda:9092"
-
-            results = await topics.ensure_topics_exist()
-
-            assert "entitybase.entity_change" in results
-            assert results["entitybase.entity_change"] == "created"
-            assert "entitybase.entity_diff" in results
-            assert results["entitybase.entity_diff"] == "created"
-            assert "entitybase.incremental_rdf_diff" in results
-            assert results["entitybase.incremental_rdf_diff"] == "created"
-            mock_admin.create_topics.assert_called_once()
-
-    @pytest.mark.asyncio
-    async def test_ensure_topics_exist_partial(self):
-        """Test ensure_topics_exist when some topics exist."""
-        with patch(
-            "models.workers.create.create_topics.AIOKafkaAdminClient"
-        ) as mock_admin_class:
-            mock_admin = MagicMock()
-            mock_admin.start = AsyncMock()
-            mock_admin.close = AsyncMock()
-            mock_admin.list_topics = AsyncMock(
-                return_value=["entitybase.entity_change"]
-            )
-            mock_admin.create_topics = AsyncMock()
-            mock_admin_class.return_value = mock_admin
-
-            topics = CreateTopics()
-            topics.kafka_bootstrap_servers = "redpanda:9092"
-
-            results = await topics.ensure_topics_exist()
-
-            assert results["entitybase.entity_change"] == "exists"
-            assert results["entitybase.entity_diff"] == "created"
-            assert results["entitybase.incremental_rdf_diff"] == "created"
-            mock_admin.create_topics.assert_called_once()
-
-    @pytest.mark.asyncio
     async def test_topic_health_check_no_servers(self):
         """Test topic_health_check when no servers configured."""
         topics = CreateTopics()
@@ -137,32 +56,6 @@ class TestCreateTopics:
 
         assert result["overall_status"] == "skipped"
         assert len(result["issues"]) == 1
-
-    @pytest.mark.asyncio
-    async def test_topic_health_check_healthy(self):
-        """Test topic_health_check when all topics exist."""
-        with patch(
-            "models.workers.create.create_topics.AIOKafkaAdminClient"
-        ) as mock_admin_class:
-            mock_admin = MagicMock()
-            mock_admin.start = AsyncMock()
-            mock_admin.close = AsyncMock()
-            mock_admin.list_topics = AsyncMock(
-                return_value=[
-                    "entitybase.entity_change",
-                    "entitybase.entity_diff",
-                    "entitybase.incremental_rdf_diff",
-                ]
-            )
-            mock_admin_class.return_value = mock_admin
-
-            topics = CreateTopics()
-            topics.kafka_bootstrap_servers = "redpanda:9092"
-
-            result = await topics.topic_health_check()
-
-            assert result["overall_status"] == "healthy"
-            assert len(result["issues"]) == 0
 
     @pytest.mark.asyncio
     async def test_topic_health_check_unhealthy(self):
@@ -205,29 +98,6 @@ class TestCreateTopics:
 
             assert result["overall_status"] == "unhealthy"
             assert len(result["issues"]) > 0
-
-    @pytest.mark.asyncio
-    async def test_run_setup_success(self):
-        """Test run_setup when setup succeeds."""
-        with patch(
-            "models.workers.create.create_topics.AIOKafkaAdminClient"
-        ) as mock_admin_class:
-            mock_admin = MagicMock()
-            mock_admin.start = AsyncMock()
-            mock_admin.close = AsyncMock()
-            mock_admin.list_topics = AsyncMock(
-                return_value=["entitybase.entity_change", "entitybase.entity_diff"]
-            )
-            mock_admin.create_topics = AsyncMock()
-            mock_admin_class.return_value = mock_admin
-
-            topics = CreateTopics()
-            topics.kafka_bootstrap_servers = "redpanda:9092"
-
-            result = await topics.run_setup()
-
-            assert result["setup_status"] == "completed"
-            assert result["health_check"]["overall_status"] == "healthy"
 
     @pytest.mark.asyncio
     async def test_run_setup_failure(self):

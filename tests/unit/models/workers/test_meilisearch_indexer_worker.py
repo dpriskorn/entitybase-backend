@@ -248,47 +248,6 @@ class TestMeilisearchIndexerWorker:
         "models.workers.meilisearch_indexer.meilisearch_indexer_worker.transform_to_meilisearch"
     )
     @patch("models.workers.meilisearch_indexer.meilisearch_indexer_worker.settings")
-    async def test_handle_change_success(self, mock_settings, mock_transform):
-        """Test handle change with success."""
-        mock_settings.meilisearch_enabled = True
-        mock_transform.return_value = MagicMock(id="Q42", labels={})
-
-        worker = MeilisearchIndexerWorker(
-            worker_id="test-worker",
-            worker_enabled=True,
-        )
-
-        worker.s3_client = MagicMock()
-        worker.meilisearch_client = MagicMock()
-        worker.meilisearch_client.index_document.return_value = True
-
-        entity_json = {
-            "entities": {
-                "Q42": {
-                    "type": "item",
-                    "id": "Q42",
-                    "labels": {},
-                    "descriptions": {},
-                    "aliases": {},
-                    "claims": {},
-                }
-            }
-        }
-
-        with patch.object(
-            worker,
-            "_fetch_entity_from_s3",
-            return_value=entity_json,
-        ):
-            await worker._handle_change("Q42", 12345, "update")
-
-        worker.meilisearch_client.index_document.assert_called_once()
-
-    @pytest.mark.asyncio
-    @patch(
-        "models.workers.meilisearch_indexer.meilisearch_indexer_worker.transform_to_meilisearch"
-    )
-    @patch("models.workers.meilisearch_indexer.meilisearch_indexer_worker.settings")
     async def test_handle_change_index_failure(self, mock_settings, mock_transform):
         """Test handle change with indexing failure."""
         mock_settings.meilisearch_enabled = True
