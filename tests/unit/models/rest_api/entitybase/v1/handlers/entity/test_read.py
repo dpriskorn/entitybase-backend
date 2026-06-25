@@ -1,6 +1,6 @@
 """Unit tests for read."""
 
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -183,3 +183,117 @@ class TestEntityReadHandler:
 
         with pytest.raises(Exception):  # Should raise validation error with 500
             handler.get_entity_revision("Q42", 12345)
+
+    def test_get_entity_success(self) -> None:
+        """Test successful entity retrieval (happy path)."""
+        mock_state = MagicMock()
+        mock_vitess = MagicMock()
+        mock_s3 = MagicMock()
+        mock_state.vitess_client = mock_vitess
+        mock_state.s3_client = mock_s3
+
+        mock_vitess.entity_exists.return_value = True
+        mock_vitess.get_head.return_value = 42
+
+        from models.data.infrastructure.s3.revision_data import S3RevisionData
+
+        s3_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "id": "Q42",
+                "type": "item",
+                "labels": {"en": {"language": "en", "value": "Test"}},
+                "state": {
+                    "is_semi_protected": False,
+                    "is_locked": False,
+                    "is_archived": False,
+                    "is_dangling": True,
+                    "is_mass_edit_protected": False,
+                    "is_deleted": False,
+                },
+            },
+            hash=123456789,
+            created_at="2023-01-01T12:00:00Z",
+        )
+        mock_s3.read_revision.return_value = s3_revision_data
+
+        handler = EntityReadHandler(state=mock_state)
+        response = handler.get_entity("Q42")
+
+        assert response.id == "Q42"
+        assert response.revision_id == 42
+        assert response.state.is_dangling is True
+        assert response.state.is_deleted is not True
+        mock_vitess.entity_exists.assert_called_once_with("Q42")
+        mock_vitess.get_head.assert_called_once_with("Q42")
+
+    def test_get_entity_deleted_state(self) -> None:
+        """Test entity retrieval when entity is marked as deleted in state."""
+        mock_state = MagicMock()
+        mock_vitess = MagicMock()
+        mock_s3 = MagicMock()
+        mock_state.vitess_client = mock_vitess
+        mock_state.s3_client = mock_s3
+
+        mock_vitess.entity_exists.return_value = True
+        mock_vitess.get_head.return_value = 42
+
+        from models.data.infrastructure.s3.revision_data import S3RevisionData
+
+        s3_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "id": "Q42",
+                "type": "item",
+                "state": {
+                    "is_deleted": True,
+                    "is_semi_protected": False,
+                    "is_locked": False,
+                },
+            },
+            hash=123456789,
+            created_at="2023-01-01T12:00:00Z",
+        )
+        mock_s3.read_revision.return_value = s3_revision_data
+
+        handler = EntityReadHandler(state=mock_state)
+
+        with pytest.raises(Exception):
+            handler.get_entity("Q42")
+
+    def test_get_entity_revision_success(self) -> None:
+        """Test successful entity revision retrieval (happy path)."""
+        mock_state = MagicMock()
+        mock_s3 = MagicMock()
+        mock_state.s3_client = mock_s3
+
+        from models.data.infrastructure.s3.revision_data import S3RevisionData
+
+        s3_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "id": "Q42",
+                "type": "item",
+                "labels": {"en": {"language": "en", "value": "Old Label"}},
+            },
+            hash=999,
+            created_at="2023-01-01T12:00:00Z",
+        )
+        mock_s3.read_revision.return_value = s3_revision_data
+
+        handler = EntityReadHandler(state=mock_state)
+        response = handler.get_entity_revision("Q42", 1)
+
+        assert response.id == "Q42"
+        assert response.revision_id == 1
+        mock_s3.read_revision.assert_called_once_with("Q42", 1)
+
+    def test_get_entity_history_vitess_not_initialized(self) -> None:
+        """Test entity history retrieval when Vitess client is not initialized."""
+        mock_state = MagicMock()
+        mock_state.vitess_client = None
+
+        handler = EntityReadHandler(state=mock_state)
+
+        with pytest.raises(Exception):
+            handler.get_entity_history("Q42")
