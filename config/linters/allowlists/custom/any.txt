@@ -58,3 +58,16 @@ src/models/rest_api/entitybase/v1/endpoints/base.py:52
 src/models/rest_api/entitybase/v1/handlers/endorsements.py:92
 src/models/rest_api/entitybase/v1/handlers/endorsements.py:116
 src/models/rest_api/entitybase/v1/handlers/user.py:123
+src/models/infrastructure/sqlite/client.py:61
+src/models/infrastructure/sqlite/client.py:70
+src/models/infrastructure/sqlite/client.py:79
+src/models/infrastructure/sqlite/client.py:86
+src/models/infrastructure/sqlite/client.py:93
+src/models/infrastructure/sqlite/client.py:102
+src/models/infrastructure/sqlite/client.py:111
+src/models/infrastructure/sqlite/client.py:120
+src/models/infrastructure/sqlite/client.py:129
+src/models/infrastructure/sqlite/client.py:138
+src/models/infrastructure/sqlite/connection.py:44
+src/models/infrastructure/sqlite/connection.py:58
+src/models/infrastructure/sqlite/connection.py:65
