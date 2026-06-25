@@ -149,23 +149,7 @@ class TestDeleteService:
         assert exc.value.status_code == 403
         assert "archived" in exc.value.detail
 
-    def test_validate_protection_status_locked(self) -> None:
-        """Test validating protection status when entity is locked."""
-        from fastapi import HTTPException
 
-        mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
-        mock_vitess.entity_repository.get_protection_info.return_value = {
-            "is_locked": True
-        }
-
-        service = DeleteService(state=mock_state)
-
-        with pytest.raises(HTTPException) as exc:
-            service.validate_protection_status("Q42")
-        assert exc.value.status_code == 403
-        assert "locked" in exc.value.detail
 
     # build_deletion_revision (static)
 

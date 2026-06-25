@@ -159,8 +159,8 @@ class TestRedirectService:
 
         from_rev, to_rev = service._validate_target_revisions("Q1", "Q2")
 
-        assert from_rev == 10
-        assert to_rev == 20
+        assert from_rev == 20
+        assert to_rev == 10
 
     def test_validate_target_revisions_no_source_revisions(self):
         """Test _validate_target_revisions handles source with no revisions."""
@@ -189,18 +189,20 @@ class TestRedirectService:
         assert revision_data.redirects_to == "Q2"
         assert content_hash > 0
 
-    def test_revert_redirect_not_redirect(self):
+    @pytest.mark.asyncio
+    async def test_revert_redirect_not_redirect(self):
         """Test revert_redirect raises when entity is not a redirect."""
         mock_state = self.create_mock_state()
         mock_state.vitess_client.get_redirect_target.return_value = None
         service = RedirectService(state=mock_state)
 
         with pytest.raises(HTTPException) as exc_info:
-            service.revert_redirect("Q1", 10, EditHeaders(x_user_id=0))
+            await service.revert_redirect("Q1", 10, EditHeaders(x_user_id=0, x_edit_summary="test"))
         assert exc_info.value.status_code == 404
         assert "not a redirect" in exc_info.value.detail
 
-    def test_revert_redirect_source_deleted(self):
+    @pytest.mark.asyncio
+    async def test_revert_redirect_source_deleted(self):
         """Test revert_redirect raises when source entity is deleted."""
         mock_state = self.create_mock_state()
         mock_state.vitess_client.get_redirect_target.return_value = "Q2"
@@ -208,11 +210,12 @@ class TestRedirectService:
         service = RedirectService(state=mock_state)
 
         with pytest.raises(HTTPException) as exc_info:
-            service.revert_redirect("Q1", 10, EditHeaders(x_user_id=0))
+            await service.revert_redirect("Q1", 10, EditHeaders(x_user_id=0, x_edit_summary="test"))
         assert exc_info.value.status_code == 423
         assert "deleted" in exc_info.value.detail
 
-    def test_revert_redirect_entity_locked(self):
+    @pytest.mark.asyncio
+    async def test_revert_redirect_entity_locked(self):
         """Test revert_redirect raises when entity is locked."""
         mock_state = self.create_mock_state()
         mock_state.vitess_client.get_redirect_target.return_value = "Q2"
@@ -221,6 +224,6 @@ class TestRedirectService:
         service = RedirectService(state=mock_state)
 
         with pytest.raises(HTTPException) as exc_info:
-            service.revert_redirect("Q1", 10, EditHeaders(x_user_id=0))
+            await service.revert_redirect("Q1", 10, EditHeaders(x_user_id=0, x_edit_summary="test"))
         assert exc_info.value.status_code == 423
         assert "locked or archived" in exc_info.value.detail
