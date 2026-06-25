@@ -149,7 +149,124 @@ class TestDeleteService:
         assert exc.value.status_code == 403
         assert "archived" in exc.value.detail
 
+    def test_validate_protection_status_locked(self) -> None:
+        """Test validating protection status when entity is locked."""
+        from fastapi import HTTPException
 
+        mock_state = MagicMock()
+        mock_vitess = MagicMock()
+        mock_state.vitess_client = mock_vitess
+        mock_vitess.entity_repository.get_protection_info.return_value = MagicMock(
+            is_archived=False
+        )
+
+        service = DeleteService(state=mock_state)
+
+        with pytest.raises(HTTPException) as exc:
+            service.validate_protection_status("Q42")
+        assert exc.value.status_code == 403
+        assert "locked" in exc.value.detail
+
+    def test_validate_protection_status_generic_exception(self) -> None:
+        """Test validate_protection_status catches generic exception."""
+        mock_state = MagicMock()
+        mock_vitess = MagicMock()
+        mock_state.vitess_client = mock_vitess
+        mock_info = MagicMock(is_archived=False)
+        mock_info.get.side_effect = AttributeError("no get method")
+        mock_vitess.entity_repository.get_protection_info.return_value = mock_info
+
+        service = DeleteService(state=mock_state)
+        service.validate_protection_status("Q42")
+
+        assert True  # No exception raised, just logged
+
+    # build_deletion_revision
+    def test_build_deletion_revision_soft_delete(self) -> None:
+        """Test building deletion revision for soft delete."""
+        from models.data.infrastructure.s3.enums import EditType
+        from models.infrastructure.s3.revision.revision_data import RevisionData
+
+        mock_state = MagicMock()
+        service = DeleteService(state=mock_state)
+
+        current_revision = MagicMock()
+        current_revision.revision = {
+            "entity_type": "item",
+            "properties": ["P31"],
+            "property_counts": {},
+            "statements": [],
+            "sitelinks": {},
+            "labels_hashes": {},
+            "descriptions_hashes": {},
+            "aliases_hashes": {},
+            "is_semi_protected": False,
+            "is_locked": False,
+            "is_archived": False,
+            "is_dangling": False,
+            "is_mass_edit_protected": False,
+        }
+
+        request = EntityDeleteRequest(delete_type=DeleteType.SOFT)
+        edit_context = EditContext(user_id=123, edit_summary="Delete test entity")
+
+        result = service.build_deletion_revision(
+            entity_id="Q42",
+            current_revision=current_revision,
+            new_revision_id=5,
+            request=request,
+            edit_context=edit_context,
+        )
+
+        assert isinstance(result, RevisionData)
+        assert result.revision_id == 5
+        assert result.entity_type == "item"
+        assert result.edit.edit_type == EditType.SOFT_DELETE
+        assert result.edit.user_id == 123
+        assert result.edit.edit_summary == "Delete test entity"
+        assert result.state.is_deleted is True
+
+    def test_build_deletion_revision_hard_delete(self) -> None:
+        """Test building deletion revision for hard delete."""
+        from models.data.infrastructure.s3.enums import EditType
+        from models.infrastructure.s3.revision.revision_data import RevisionData
+
+        mock_state = MagicMock()
+        service = DeleteService(state=mock_state)
+
+        current_revision = MagicMock()
+        current_revision.revision = {
+            "entity_type": "property",
+            "properties": [],
+            "property_counts": {},
+            "statements": [123, 456],
+            "sitelinks": {"enwiki": {"title_hash": 12345, "badges": []}},
+            "labels_hashes": {"en": 100},
+            "descriptions_hashes": {"en": 200},
+            "aliases_hashes": {"en": [300]},
+            "is_semi_protected": True,
+            "is_locked": True,
+            "is_archived": False,
+            "is_dangling": False,
+            "is_mass_edit_protected": False,
+        }
+
+        request = EntityDeleteRequest(delete_type=DeleteType.HARD)
+        edit_context = EditContext(user_id=456, edit_summary="Hard delete property")
+
+        result = service.build_deletion_revision(
+            entity_id="P123",
+            current_revision=current_revision,
+            new_revision_id=10,
+            request=request,
+            edit_context=edit_context,
+        )
+
+        assert isinstance(result, RevisionData)
+        assert result.revision_id == 10
+        assert result.entity_type == "property"
+        assert result.edit.edit_type == EditType.HARD_DELETE
+        assert result.state.is_deleted is True
 
     # build_deletion_revision (static)
 
@@ -339,6 +456,102 @@ class TestDeleteService:
             labels_hashes={"en": "12345"},
             descriptions_hashes={},
             aliases_hashes={},
+        )
+
+        mock_terms_repo.decrement_ref_count.assert_called_once_with(12345)
+        mock_terms_repo.delete_term.assert_called_once_with(12345)
+
+    @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
+    def test_decrement_term_references_descriptions_exception(
+        self, mock_terms_repo_class
+    ) -> None:
+        """Test decrementing term references for descriptions handles exception."""
+        mock_state = MagicMock()
+        mock_vitess = MagicMock()
+        mock_state.vitess_client = mock_vitess
+
+        mock_terms_repo = MagicMock()
+        mock_terms_repo_class.return_value = mock_terms_repo
+        mock_terms_repo.decrement_ref_count.side_effect = Exception("DB error")
+
+        service = DeleteService(state=mock_state)
+        service.decrement_term_references(
+            labels_hashes={},
+            descriptions_hashes={"en": "12345"},
+            aliases_hashes={},
+        )
+
+        assert True  # No exception raised
+
+    @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
+    def test_decrement_term_references_aliases_exception(
+        self, mock_terms_repo_class
+    ) -> None:
+        """Test decrementing term references for aliases handles exception."""
+        mock_state = MagicMock()
+        mock_vitess = MagicMock()
+        mock_state.vitess_client = mock_vitess
+
+        mock_terms_repo = MagicMock()
+        mock_terms_repo_class.return_value = mock_terms_repo
+        mock_terms_repo.decrement_ref_count.side_effect = Exception("DB error")
+
+        service = DeleteService(state=mock_state)
+        service.decrement_term_references(
+            labels_hashes={},
+            descriptions_hashes={},
+            aliases_hashes={"en": ["12345"]},
+        )
+
+        assert True  # No exception raised
+
+    @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
+    def test_decrement_term_references_descriptions_deletes_orphaned(
+        self, mock_terms_repo_class
+    ) -> None:
+        """Test that descriptions with ref_count=0 are deleted."""
+        mock_state = MagicMock()
+        mock_vitess = MagicMock()
+        mock_state.vitess_client = mock_vitess
+
+        mock_terms_repo = MagicMock()
+        mock_terms_repo_class.return_value = mock_terms_repo
+        mock_decrement_result = MagicMock()
+        mock_decrement_result.success = True
+        mock_decrement_result.data = 0
+        mock_terms_repo.decrement_ref_count.return_value = mock_decrement_result
+
+        service = DeleteService(state=mock_state)
+        service.decrement_term_references(
+            labels_hashes={},
+            descriptions_hashes={"en": "12345"},
+            aliases_hashes={},
+        )
+
+        mock_terms_repo.decrement_ref_count.assert_called_once_with(12345)
+        mock_terms_repo.delete_term.assert_called_once_with(12345)
+
+    @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
+    def test_decrement_term_references_aliases_deletes_orphaned(
+        self, mock_terms_repo_class
+    ) -> None:
+        """Test that aliases with ref_count=0 are deleted."""
+        mock_state = MagicMock()
+        mock_vitess = MagicMock()
+        mock_state.vitess_client = mock_vitess
+
+        mock_terms_repo = MagicMock()
+        mock_terms_repo_class.return_value = mock_terms_repo
+        mock_decrement_result = MagicMock()
+        mock_decrement_result.success = True
+        mock_decrement_result.data = 0
+        mock_terms_repo.decrement_ref_count.return_value = mock_decrement_result
+
+        service = DeleteService(state=mock_state)
+        service.decrement_term_references(
+            labels_hashes={},
+            descriptions_hashes={},
+            aliases_hashes={"en": ["12345"]},
         )
 
         mock_terms_repo.decrement_ref_count.assert_called_once_with(12345)
