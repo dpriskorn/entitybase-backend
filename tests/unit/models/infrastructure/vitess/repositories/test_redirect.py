@@ -208,3 +208,61 @@ class TestRedirectRepository:
         result = repo.get_incoming_redirects("Q4")
 
         assert result == ["Q1", "Q2", "Q3"]
+
+    def test_set_target_exception(self):
+        """Test set_target when database throws exception."""
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
+        mock_id_resolver = MagicMock()
+        mock_id_resolver.resolve_id.side_effect = [123, 456]
+        mock_cursor.execute.side_effect = Exception("Database error")
+        mock_vitess_client.cursor = mock_cursor
+        mock_vitess_client.id_resolver = mock_id_resolver
+
+        repo = RedirectRepository(vitess_client=mock_vitess_client)
+
+        result = repo.set_target("Q1", "Q2")
+
+        assert result.success is False
+        assert "Database error" in result.error
+
+    def test_create_target_not_found(self):
+        """Test redirect creation when target not found."""
+        mock_vitess_client = MagicMock()
+        mock_id_resolver = MagicMock()
+        mock_id_resolver.resolve_id.side_effect = [123, None]
+        mock_vitess_client.id_resolver = mock_id_resolver
+
+        repo = RedirectRepository(vitess_client=mock_vitess_client)
+
+        with pytest.raises(Exception):
+            repo.create("Q1", "Q999")
+
+    def test_get_target_entity_not_found(self):
+        """Test getting redirect target when entity not found."""
+        mock_vitess_client = MagicMock()
+        mock_id_resolver = MagicMock()
+        mock_id_resolver.resolve_id.return_value = None
+        mock_vitess_client.id_resolver = mock_id_resolver
+
+        repo = RedirectRepository(vitess_client=mock_vitess_client)
+
+        result = repo.get_target("Q999")
+
+        assert result == ""
+
+    def test_set_target_redirect_target_not_found(self):
+        """Test set_target when redirect target entity doesn't exist."""
+        mock_vitess_client = MagicMock()
+        mock_id_resolver = MagicMock()
+        mock_id_resolver.resolve_id.side_effect = [123, None]  # source found, target not found
+        mock_vitess_client.id_resolver = mock_id_resolver
+
+        repo = RedirectRepository(vitess_client=mock_vitess_client)
+
+        result = repo.set_target("Q1", "Q999")
+
+        assert result.success is False
+        assert "not found" in result.error

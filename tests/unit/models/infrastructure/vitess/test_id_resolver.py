@@ -1,5 +1,6 @@
 """Unit tests for id_resolver."""
 
+import pytest
 from unittest.mock import MagicMock, patch
 
 from models.infrastructure.vitess.id_resolver import IdResolver
@@ -91,3 +92,40 @@ class TestIdResolver:
 
             # Should not generate ID or insert
             mock_generator_class.assert_not_called()
+
+    def test_register_entity_new_success(self):
+        """Test registering a new entity successfully."""
+        # Mock the generator that was already created in model_post_init
+        mock_generator = MagicMock()
+        mock_generator.generate_unique_id.return_value = 999
+        self.resolver._unique_id_generator = mock_generator
+
+        mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=None)
+        self.vitess_client.cursor = mock_cursor
+
+        with patch.object(type(self.resolver), "entity_exists", return_value=False):
+            self.resolver.register_entity("Q99")
+
+        mock_generator.generate_unique_id.assert_called_once()
+        mock_cursor.execute.assert_called_once_with(
+            "INSERT INTO entity_id_mapping (entity_id, internal_id) VALUES (%s, %s)",
+            ("Q99", 999),
+        )
+
+    def test_register_entity_database_error(self):
+        """Test registering a new entity with database error."""
+        mock_generator = MagicMock()
+        mock_generator.generate_unique_id.return_value = 999
+        self.resolver._unique_id_generator = mock_generator
+
+        mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=None)
+        mock_cursor.execute.side_effect = Exception("DB insert failed")
+        self.vitess_client.cursor = mock_cursor
+
+        with patch.object(type(self.resolver), "entity_exists", return_value=False):
+            with pytest.raises(Exception, match="DB insert failed"):
+                self.resolver.register_entity("Q99")
