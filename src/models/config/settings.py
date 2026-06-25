@@ -348,7 +348,9 @@ class Settings(BaseModel):
             == "true"
         )
         self.incremental_rdf_enabled = (
-            os.getenv("INCREMENTAL_RDF_ENABLED", str(self.incremental_rdf_enabled)).lower()
+            os.getenv(
+                "INCREMENTAL_RDF_ENABLED", str(self.incremental_rdf_enabled)
+            ).lower()
             == "true"
         )
         self.incremental_rdf_consumer_group = os.getenv(

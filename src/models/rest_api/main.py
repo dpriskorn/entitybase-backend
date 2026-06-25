@@ -25,8 +25,8 @@ from models.rest_api.utils import raise_validation_error
 import logging.config
 
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
-API_PORT = int(os.environ.get("API_PORT", 8080))
-API_WORKERS = int(os.environ.get("API_WORKERS", 1))
+API_PORT = int(os.environ.get("API_PORT", "8080"))
+API_WORKERS = int(os.environ.get("API_WORKERS", "1"))
 
 LOGGING_CONFIG = {
     "version": 1,
@@ -145,7 +145,9 @@ async def _create_database_tables(state_handler: StateHandler) -> None:
     try:
         logger.info(f"Creating database tables (db_type={db_type})...")
         state_handler.vitess_client.create_tables()
-        logger.info(f"Database tables created/verified successfully (db_type={db_type})")
+        logger.info(
+            f"Database tables created/verified successfully (db_type={db_type})"
+        )
     except Exception as e:
         logger.warning(f"Could not create database tables on startup: {e}")
         logger.info("Tables will be created when first accessed or in tests")
@@ -186,7 +188,9 @@ async def _create_s3_buckets(state_handler: StateHandler) -> None:
                         client.create_bucket(Bucket=bucket)
                         logger.info(f"Created S3 bucket: {bucket}")
                     except Exception as create_error:
-                        logger.error(f"Failed to create bucket {bucket}: {create_error}")
+                        logger.error(
+                            f"Failed to create bucket {bucket}: {create_error}"
+                        )
                 else:
                     logger.error(f"Error checking bucket {bucket}: {error_code}")
 

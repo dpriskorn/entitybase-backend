@@ -21,3 +21,4 @@ src/models/rest_api/entitybase/v1/endpoints/lexeme_utils.py:69
 src/models/rest_api/entitybase/v1/endpoints/lexeme_utils.py:141
 src/models/rest_api/entitybase/v1/routes/resolve.py:196
 src/models/rest_api/main.py:296
+src/models/rest_api/main.py:300

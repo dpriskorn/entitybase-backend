@@ -143,6 +143,27 @@ _generate_checksum
 list_entities_by_type
 _validate_user
 _get_kafka_brokers
+# Repository factory methods (duplicated across SQLite and Vitess implementations)
+backlink_repository
+create_redirect
+create_revision
+cursor
+endorsement_repository
+entity_repository
+get_orphaned_statements
+get_redirect_target
+head_repository
+is_entity_archived
+is_entity_deleted
+is_entity_locked
+redirect_repository
+revert_redirect
+revision_repository
+set_redirect_target
+statement_repository
+thanks_repository
+user_repository
+watchlist_repository
 # Intentionally duplicated for Elasticsearch and Meilisearch search backends
 _flatten_claims
 close

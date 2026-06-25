@@ -56,7 +56,11 @@ class TestCreateTopics:
             mock_admin.start = AsyncMock()
             mock_admin.close = AsyncMock()
             mock_admin.list_topics = AsyncMock(
-                return_value=["entitybase.entity_change", "entitybase.entity_diff", "entitybase.incremental_rdf_diff"]
+                return_value=[
+                    "entitybase.entity_change",
+                    "entitybase.entity_diff",
+                    "entitybase.incremental_rdf_diff",
+                ]
             )
             mock_admin_class.return_value = mock_admin
 
@@ -144,7 +148,11 @@ class TestCreateTopics:
             mock_admin.start = AsyncMock()
             mock_admin.close = AsyncMock()
             mock_admin.list_topics = AsyncMock(
-                return_value=["entitybase.entity_change", "entitybase.entity_diff", "entitybase.incremental_rdf_diff"]
+                return_value=[
+                    "entitybase.entity_change",
+                    "entitybase.entity_diff",
+                    "entitybase.incremental_rdf_diff",
+                ]
             )
             mock_admin_class.return_value = mock_admin
 

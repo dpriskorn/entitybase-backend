@@ -273,9 +273,7 @@ class SqliteClient(Client):
         """Revert a redirect by clearing the redirect target."""
         self.set_redirect_target(entity_id=entity_id, redirects_to_entity_id="")
 
-    def get_orphaned_statements(
-        self, older_than_days: int, limit: int
-    ) -> list[int]:
+    def get_orphaned_statements(self, older_than_days: int, limit: int) -> list[int]:
         """Get orphaned statement content hashes."""
         from models.data.common import OperationResult
 
