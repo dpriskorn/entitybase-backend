@@ -36,8 +36,8 @@ class GeneralStatsWorker(BaseStatsWorker):
     async def run_daily_computation(self) -> None:
         """Run daily statistics computation and storage."""
         try:
-            if not self.vitess_client:
-                logger.error("Vitess client not initialized")
+            if not self.db_client:
+                logger.error("Database client not initialized")
                 return
 
             logger.info("Starting daily general statistics computation")
@@ -61,12 +61,12 @@ class GeneralStatsWorker(BaseStatsWorker):
 
     async def _store_statistics(self, stats: GeneralStatsData) -> None:
         """Store computed statistics in database via repository."""
-        if not self.vitess_client:
+        if not self.db_client:
             return
 
         today = date.today().isoformat()
 
-        self.vitess_client.user_repository.insert_general_statistics(
+        self.db_client.user_repository.insert_general_statistics(
             date=today,
             total_statements=stats.total_statements,
             total_qualifiers=stats.total_qualifiers,

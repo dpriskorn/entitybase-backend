@@ -27,7 +27,7 @@ class BaseStatsWorker(VitessWorker, ABC):
     @property
     def state(self) -> SimpleNamespace:
         """Return state object for service compatibility."""
-        return SimpleNamespace(vitess_client=self.vitess_client)
+        return SimpleNamespace(vitess_client=self.db_client)
 
     @abstractmethod
     async def run_daily_computation(self) -> None:

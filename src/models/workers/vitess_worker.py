@@ -6,6 +6,8 @@ from typing import Any
 from pydantic import Field
 
 from models.config.settings import settings
+from models.infrastructure.client import Client
+from models.infrastructure.sqlite.client import SqliteClient
 from models.infrastructure.vitess.client import VitessClient
 from models.workers.worker import Worker
 
@@ -13,11 +15,11 @@ logger = logging.getLogger(__name__)
 
 
 class VitessWorker(Worker, ABC):
-    """Base worker that provides Vitess client connectivity."""
+    """Base worker that provides database client connectivity (SQLite or Vitess)."""
 
-    vitess_client: Any | None = Field(default=None)
+    db_client: Client | None = Field(default=None)
     worker_id: str = Field(
-        default_factory=lambda: os.getenv("WORKER_ID", f"vitess-{os.getpid()}")
+        default_factory=lambda: os.getenv("WORKER_ID", f"db-{os.getpid()}")
     )
     running: bool = Field(default=False)
 
@@ -27,15 +29,18 @@ class VitessWorker(Worker, ABC):
             self.running = True
 
     async def start(self) -> None:
-        """Start the vitess worker."""
+        """Start the database worker."""
         if not self.get_enabled_setting():
             logger.info(f"{self.__class__.__name__} disabled")
             return
 
         logger.info(f"Starting {self.__class__.__name__} {self.worker_id}")
 
-        vitess_config = settings.get_vitess_config
-        self.vitess_client = VitessClient(config=vitess_config)
+        db_config = settings.get_db_config
+        if settings.db_type == "sqlite":
+            self.db_client = SqliteClient(config=db_config)
+        else:
+            self.db_client = VitessClient(config=db_config)
 
         self.running = True
 

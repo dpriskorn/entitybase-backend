@@ -32,8 +32,10 @@ except ImportError:
 
 try:
     from models.infrastructure.vitess.client import VitessClient
+    from models.infrastructure.sqlite.client import SqliteClient
 except ImportError:
     VitessClient = None  # type: ignore
+    SqliteClient = None  # type: ignore
 
 try:
     from models.rdf_builder.property_registry.loader import load_property_registry
@@ -63,7 +65,7 @@ logger = logging.getLogger(__name__)
 class TtlDumpWorker(Worker):
     """Periodically generates RDF TTL dumps of all entities."""
 
-    vitess_client: Any = None
+    db_client: Any = None
     s3_client: Any = None
     converter: Any = None
     running: bool = False
@@ -74,8 +76,8 @@ class TtlDumpWorker(Worker):
         """Initialize clients for the worker lifespan."""
         logger.info("Initializing TTL Dump Worker")
 
-        if VitessClient is None:
-            raise RuntimeError("Vitess client not available")
+        if VitessClient is None and SqliteClient is None:
+            raise RuntimeError("No database client available")
 
         if MyS3Client is None:
             raise RuntimeError("S3 client not available")
@@ -83,8 +85,15 @@ class TtlDumpWorker(Worker):
         if load_property_registry is None:
             raise RuntimeError("Property registry loader not available")
 
-        vitess_config = settings.get_vitess_config
-        self.vitess_client = VitessClient(config=vitess_config)
+        db_config = settings.get_db_config
+        if settings.db_type == "sqlite":
+            if SqliteClient is None:
+                raise RuntimeError("SQLite client not available")
+            self.db_client = SqliteClient(config=db_config)
+        else:
+            if VitessClient is None:
+                raise RuntimeError("Vitess client not available")
+            self.db_client = VitessClient(config=db_config)
 
         s3_config = settings.get_s3_config
         s3_config.bucket = settings.s3_dump_bucket
@@ -96,7 +105,7 @@ class TtlDumpWorker(Worker):
         property_registry = load_property_registry(settings.property_registry_path)
         self.converter = EntityConverter(
             property_registry=property_registry,
-            vitess_client=self.vitess_client,
+            vitess_client=self.db_client,
             enable_deduplication=True,
         )
 
@@ -164,10 +173,10 @@ class TtlDumpWorker(Worker):
             raise
 
     async def _fetch_all_entities(self) -> list[EntityDumpRecord]:
-        if not self.vitess_client:
+        if not self.db_client:
             raise ValueError("Vitess client not initialized")
 
-        with self.vitess_client.cursor as cursor:
+        with self.db_client.cursor as cursor:
             cursor.execute(
                 """SELECT eim.entity_id, eh.internal_id, eh.head_revision_id
                    FROM entity_id_mapping eim
@@ -185,7 +194,7 @@ class TtlDumpWorker(Worker):
     async def _fetch_entities_for_week(
         self, week_start: datetime, week_end: datetime
     ) -> list[EntityDumpRecord]:
-        if not self.vitess_client:
+        if not self.db_client:
             raise ValueError("Vitess client not initialized")
 
         entities = await self._fetch_all_entities()
@@ -196,7 +205,7 @@ class TtlDumpWorker(Worker):
         self, entities: list[EntityDumpRecord], week_start: datetime, week_end: datetime
     ) -> None:
         """Filter entities updated within the given week."""
-        with self.vitess_client.cursor as cursor:
+        with self.db_client.cursor as cursor:
             for i in range(0, len(entities), settings.ttl_dump_batch_size):
                 batch = entities[i : i + settings.ttl_dump_batch_size]
                 await self._update_batch_with_revisions(

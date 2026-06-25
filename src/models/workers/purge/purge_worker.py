@@ -11,7 +11,6 @@ from pydantic import Field
 
 from models.config.settings import settings
 from models.data.rest_api.v1.entitybase.response import WorkerHealthCheckResponse
-from models.infrastructure.vitess.client import VitessClient
 from models.workers.vitess_worker import VitessWorker
 from models.workers.utils import calculate_seconds_until_next_run
 
@@ -69,12 +68,11 @@ class PurgeWorker(VitessWorker):
 
         logger.info(f"Starting {self.__class__.__name__} {self.worker_id}")
 
-        vitess_config = settings.get_vitess_config
-        self.vitess_client = VitessClient(config=vitess_config)
+        await super().start()
+        if not self.running:
+            return
 
         self._init_s3_client()
-
-        self.running = True
 
         while self.running:
             try:
@@ -174,11 +172,11 @@ class PurgeWorker(VitessWorker):
         logger.info("Truncating database tables")
         truncated = 0
 
-        if not self.vitess_client:
-            logger.error("Vitess client not initialized")
+        if not self.db_client:
+            logger.error("Database client not initialized")
             return 0
 
-        with self.vitess_client.cursor as cursor:
+        with self.db_client.cursor as cursor:
             for table in DB_TABLES:
                 try:
                     cursor.execute(f"TRUNCATE TABLE {table}")
