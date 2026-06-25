@@ -5,7 +5,9 @@ from unittest.mock import MagicMock
 import pytest
 
 from models.data.rest_api.v1.entitybase.response import StatementHashResult
-from models.rest_api.entitybase.v1.handlers.entity.entity_transaction import EntityTransaction
+from models.rest_api.entitybase.v1.handlers.entity.entity_transaction import (
+    EntityTransaction,
+)
 
 
 class ConcreteEntityTransaction(EntityTransaction):
@@ -41,28 +43,44 @@ class TestEntityTransactionMethods:
     def tx(self, mock_state: MagicMock) -> ConcreteEntityTransaction:
         return ConcreteEntityTransaction(state=mock_state, entity_id="")
 
-    def test_register_entity(self, tx: ConcreteEntityTransaction, mock_state: MagicMock) -> None:
+    def test_register_entity(
+        self, tx: ConcreteEntityTransaction, mock_state: MagicMock
+    ) -> None:
         tx.register_entity("Q42")
 
         assert tx.entity_id == "Q42"
-        mock_state.vitess_client.entity_repository.create_entity.assert_called_once_with("Q42")
+        mock_state.vitess_client.entity_repository.create_entity.assert_called_once_with(
+            "Q42"
+        )
         assert len(tx.operations) == 1
 
-    def test_rollback_entity_registration(self, tx: ConcreteEntityTransaction, mock_state: MagicMock) -> None:
+    def test_rollback_entity_registration(
+        self, tx: ConcreteEntityTransaction, mock_state: MagicMock
+    ) -> None:
         tx.entity_id = "Q42"
         tx._rollback_entity_registration()
 
-        mock_state.vitess_client.entity_repository.delete_entity.assert_called_once_with("Q42")
+        mock_state.vitess_client.entity_repository.delete_entity.assert_called_once_with(
+            "Q42"
+        )
 
-    def test_rollback_revision(self, tx: ConcreteEntityTransaction, mock_state: MagicMock) -> None:
+    def test_rollback_revision(
+        self, tx: ConcreteEntityTransaction, mock_state: MagicMock
+    ) -> None:
         tx._rollback_revision("Q42", 5)
 
-        mock_state.vitess_client.entity_repository.delete.assert_called_once_with("Q42", 5)
+        mock_state.vitess_client.entity_repository.delete.assert_called_once_with(
+            "Q42", 5
+        )
 
     @pytest.mark.asyncio
-    async def test_publish_event_with_changed_at(self, tx: ConcreteEntityTransaction) -> None:
+    async def test_publish_event_with_changed_at(
+        self, tx: ConcreteEntityTransaction
+    ) -> None:
         from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
-        from models.data.rest_api.v1.entitybase.request.entity.context import EventPublishContext
+        from models.data.rest_api.v1.entitybase.request.entity.context import (
+            EventPublishContext,
+        )
 
         event_ctx = EventPublishContext(
             entity_id="Q42",
@@ -76,9 +94,13 @@ class TestEntityTransactionMethods:
         await tx.publish_event(event_ctx, edit_ctx)
 
     @pytest.mark.asyncio
-    async def test_publish_event_without_changed_at(self, tx: ConcreteEntityTransaction) -> None:
+    async def test_publish_event_without_changed_at(
+        self, tx: ConcreteEntityTransaction
+    ) -> None:
         from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
-        from models.data.rest_api.v1.entitybase.request.entity.context import EventPublishContext
+        from models.data.rest_api.v1.entitybase.request.entity.context import (
+            EventPublishContext,
+        )
 
         event_ctx = EventPublishContext(
             entity_id="Q42",
