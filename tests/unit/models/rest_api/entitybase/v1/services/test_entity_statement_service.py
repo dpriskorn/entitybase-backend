@@ -51,6 +51,29 @@ class TestEntityStatementService:
 
         mock_cursor.execute.assert_called()
 
+    def test_decrement_statement_ref_count_failure(self) -> None:
+        """Test that _decrement_statement_ref_count raises on failure."""
+        from fastapi import HTTPException
+        from models.data.common import OperationResult
+
+        mock_state = MagicMock()
+        mock_repo = MagicMock()
+        mock_repo.decrement_ref_count.return_value = OperationResult(
+            success=False, error="DB error"
+        )
+
+        with patch(
+            "models.rest_api.entitybase.v1.services.entity_statement_service.StatementRepository",
+            return_value=mock_repo,
+        ):
+            service = EntityStatementService(state=mock_state)
+
+            with pytest.raises(HTTPException) as exc_info:
+                service._decrement_statement_ref_count("12345")
+
+            assert exc_info.value.status_code == 500
+            assert "DB error" in str(exc_info.value.detail)
+
     # patch_statement tests
 
     @pytest.mark.asyncio
@@ -94,6 +117,21 @@ class TestEntityStatementService:
         assert len(current_data["claims"]["P31"]) == 2
         assert {"new": "data"} in current_data["claims"]["P31"]
 
+    def test_merge_claims_no_claims_key(self) -> None:
+        """Test merging claims when no claims key exists."""
+        current_data = {}
+        EntityStatementService._merge_claims(current_data, "P31", [{"test": "data"}])
+
+        assert "claims" in current_data
+        assert current_data["claims"]["P31"] == [{"test": "data"}]
+
+    def test_merge_claims_empty_claims_dict(self) -> None:
+        """Test merging claims when claims dict is empty."""
+        current_data = {"claims": {}}
+        EntityStatementService._merge_claims(current_data, "P31", [{"test": "data"}])
+
+        assert current_data["claims"]["P31"] == [{"test": "data"}]
+
     # _PropertyCountHelper tests
 
     def test_recalculate_property_counts_removes_property(self) -> None:
@@ -108,6 +146,21 @@ class TestEntityStatementService:
 
         assert "P31" not in result.properties
         assert "P31" not in result.property_counts.root
+
+    def test_recalculate_property_counts_keeps_property_when_count_above_zero(
+        self,
+    ) -> None:
+        """Test recalculating keeps property when count is still above 0."""
+        mock_revision = MagicMock()
+        mock_revision.properties = ["P31", "P279"]
+        mock_property_counts = MagicMock()
+        mock_property_counts.root = {"P31": 2, "P279": 3}
+        mock_revision.property_counts = mock_property_counts
+
+        result = _PropertyCountHelper.recalculate_property_counts(mock_revision, 0)
+
+        assert "P31" in result.properties
+        assert result.property_counts.root["P31"] == 1
 
     # _find_and_replace_statement (static)
     def test_find_and_replace_statement_found(self) -> None:
