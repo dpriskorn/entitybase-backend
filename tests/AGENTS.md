@@ -19,9 +19,10 @@ Test Patterns:
 - E2E tests: Use ASGITransport with FastAPI app for end-to-end workflow testing
 2. Test Coverage Analysis
 Current Coverage Threshold:
-- Target: 50% minimum coverage
+- Target: 80% minimum coverage (line and branch)
 - Reports generated in XML and HTML formats
 - Coverage reports generated for src/ directory only
+- Branch coverage enabled: all if/else, try/except, and ternary branches must be covered
 Coverage Areas:
 - Well covered: JSON parsers (value parsers, entity parsers, statement parsers)
 - Moderately covered: Internal representation models, RDF builders

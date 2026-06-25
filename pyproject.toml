@@ -163,7 +163,7 @@ dev = [
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
-addopts = "--tb=short"
+addopts = "--tb=short --cov=src --cov-branch --cov-fail-under=80 --cov-report=term-missing:skip-covered"
 testpaths = ["tests"]
 log_cli = true
 log_cli_level = "DEBUG"

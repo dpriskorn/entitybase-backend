@@ -2,7 +2,7 @@
 cd "$(dirname "$0")/../.."
 set -e
 
-THRESHOLD=30
+THRESHOLD=80
 
 source test.env
 
