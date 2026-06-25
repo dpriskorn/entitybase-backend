@@ -4,7 +4,9 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from models.rest_api.entitybase.v1.services.rdf_service import serialize_entity_to_turtle
+from models.rest_api.entitybase.v1.services.rdf_service import (
+    serialize_entity_to_turtle,
+)
 
 
 class TestRdfService:
@@ -18,23 +20,30 @@ class TestRdfService:
             "labels": {"en": {"language": "en", "value": "Test Item"}},
         }
 
-        with patch(
-            "models.rest_api.entitybase.v1.services.rdf_service.parse_entity"
-        ) as mock_parse, patch(
-            "models.rdf_builder.converter.EntityConverter"
-        ) as mock_converter_class:
+        with (
+            patch(
+                "models.rest_api.entitybase.v1.services.rdf_service.parse_entity"
+            ) as mock_parse,
+            patch(
+                "models.rdf_builder.converter.EntityConverter"
+            ) as mock_converter_class,
+        ):
             mock_entity = MagicMock()
             mock_parse.return_value = mock_entity
 
             mock_converter_instance = MagicMock()
-            mock_converter_instance.convert_to_string.return_value = "@prefix wd: <http://wikidata.org/entity/> ."
+            mock_converter_instance.convert_to_string.return_value = (
+                "@prefix wd: <http://wikidata.org/entity/> ."
+            )
             mock_converter_class.return_value = mock_converter_instance
 
             result = serialize_entity_to_turtle(entity_data)
 
             mock_parse.assert_called_once_with(entity_data)
             mock_converter_class.assert_called_once()
-            mock_converter_instance.convert_to_string.assert_called_once_with(mock_entity)
+            mock_converter_instance.convert_to_string.assert_called_once_with(
+                mock_entity
+            )
             assert isinstance(result, str)
 
     def test_serialize_entity_to_turtle_with_property_registry(self):
@@ -47,19 +56,26 @@ class TestRdfService:
 
         mock_registry = MagicMock()
 
-        with patch(
-            "models.rest_api.entitybase.v1.services.rdf_service.parse_entity"
-        ) as mock_parse, patch(
-            "models.rdf_builder.converter.EntityConverter"
-        ) as mock_converter_class:
+        with (
+            patch(
+                "models.rest_api.entitybase.v1.services.rdf_service.parse_entity"
+            ) as mock_parse,
+            patch(
+                "models.rdf_builder.converter.EntityConverter"
+            ) as mock_converter_class,
+        ):
             mock_entity = MagicMock()
             mock_parse.return_value = mock_entity
 
             mock_converter_instance = MagicMock()
-            mock_converter_instance.convert_to_string.return_value = "@prefix wp: <http://wikidata.org/prop/> ."
+            mock_converter_instance.convert_to_string.return_value = (
+                "@prefix wp: <http://wikidata.org/prop/> ."
+            )
             mock_converter_class.return_value = mock_converter_instance
 
-            result = serialize_entity_to_turtle(entity_data, property_registry=mock_registry)
+            result = serialize_entity_to_turtle(
+                entity_data, property_registry=mock_registry
+            )
 
             mock_converter_class.assert_called_once_with(
                 property_registry=mock_registry,
@@ -71,11 +87,14 @@ class TestRdfService:
         """Test serializing empty entity data."""
         entity_data = {"type": "item", "id": "Q1"}
 
-        with patch(
-            "models.rest_api.entitybase.v1.services.rdf_service.parse_entity"
-        ) as mock_parse, patch(
-            "models.rdf_builder.converter.EntityConverter"
-        ) as mock_converter_class:
+        with (
+            patch(
+                "models.rest_api.entitybase.v1.services.rdf_service.parse_entity"
+            ) as mock_parse,
+            patch(
+                "models.rdf_builder.converter.EntityConverter"
+            ) as mock_converter_class,
+        ):
             mock_entity = MagicMock()
             mock_parse.return_value = mock_entity
 

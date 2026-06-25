@@ -319,7 +319,10 @@ class TestEntityRepository:
         mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
         mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
-        mock_id_resolver.resolve_id.side_effect = [0, 456]  # first not found, then found after register
+        mock_id_resolver.resolve_id.side_effect = [
+            0,
+            456,
+        ]  # first not found, then found after register
         mock_vitess_client.cursor = mock_cursor
         mock_vitess_client.id_resolver = mock_id_resolver
 

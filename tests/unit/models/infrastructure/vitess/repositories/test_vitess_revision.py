@@ -376,7 +376,9 @@ class TestRevisionRepository:
         mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
-        mock_cursor.fetchone.return_value = (0,)  # COUNT = 0 means revision doesn't exist
+        mock_cursor.fetchone.return_value = (
+            0,
+        )  # COUNT = 0 means revision doesn't exist
         mock_vitess_client.cursor = mock_cursor
         mock_vitess_client.id_resolver = mock_id_resolver
 
@@ -401,8 +403,8 @@ class TestRevisionRepository:
 
         repo = RevisionRepository(vitess_client=mock_vitess_client)
 
-        result = repo.insert_revision("Q123", 1, sample_revision_data, 12345, expected_revision_id=5)
+        result = repo.insert_revision(
+            "Q123", 1, sample_revision_data, 12345, expected_revision_id=5
+        )
 
         assert result is True
-
-

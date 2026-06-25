@@ -5,7 +5,9 @@ from unittest.mock import MagicMock, patch
 import pytest
 from fastapi import HTTPException
 
-from models.rest_api.entitybase.v1.services.enumeration_service import EnumerationService
+from models.rest_api.entitybase.v1.services.enumeration_service import (
+    EnumerationService,
+)
 
 
 class TestEnumerationService:
@@ -140,7 +142,9 @@ class TestEnumerationService:
 
     def test_confirm_id_usage_valid(self):
         """Test confirming valid ID usage."""
-        with patch("models.rest_api.entitybase.v1.services.enumeration_service.logger") as mock_logger:
+        with patch(
+            "models.rest_api.entitybase.v1.services.enumeration_service.logger"
+        ) as mock_logger:
             EnumerationService.confirm_id_usage("Q300000001")
 
             mock_logger.info.assert_called_once()
@@ -149,7 +153,9 @@ class TestEnumerationService:
 
     def test_confirm_id_usage_invalid_format(self):
         """Test confirming ID with invalid format."""
-        with patch("models.rest_api.entitybase.v1.services.enumeration_service.logger") as mock_logger:
+        with patch(
+            "models.rest_api.entitybase.v1.services.enumeration_service.logger"
+        ) as mock_logger:
             EnumerationService.confirm_id_usage("invalid")
 
             mock_logger.warning.assert_called_once()
@@ -158,7 +164,9 @@ class TestEnumerationService:
 
     def test_confirm_id_usage_non_numeric(self):
         """Test confirming ID with non-numeric part."""
-        with patch("models.rest_api.entitybase.v1.services.enumeration_service.logger") as mock_logger:
+        with patch(
+            "models.rest_api.entitybase.v1.services.enumeration_service.logger"
+        ) as mock_logger:
             EnumerationService.confirm_id_usage("Qabc")
 
             mock_logger.warning.assert_called_once()
@@ -202,12 +210,15 @@ class TestEnumerationService:
             "DB connection failed"
         )
 
-        with patch(
-            "models.rest_api.entitybase.v1.services.enumeration_service.IdRangeManager",
-            mock_id_range_manager_class,
-        ), patch(
-            "models.rest_api.entitybase.v1.services.enumeration_service.logger"
-        ) as mock_logger:
+        with (
+            patch(
+                "models.rest_api.entitybase.v1.services.enumeration_service.IdRangeManager",
+                mock_id_range_manager_class,
+            ),
+            patch(
+                "models.rest_api.entitybase.v1.services.enumeration_service.logger"
+            ) as mock_logger,
+        ):
             service = EnumerationService(
                 worker_id="test-worker",
                 vitess_client=mock_vitess_client,

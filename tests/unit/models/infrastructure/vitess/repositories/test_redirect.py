@@ -257,7 +257,10 @@ class TestRedirectRepository:
         """Test set_target when redirect target entity doesn't exist."""
         mock_vitess_client = MagicMock()
         mock_id_resolver = MagicMock()
-        mock_id_resolver.resolve_id.side_effect = [123, None]  # source found, target not found
+        mock_id_resolver.resolve_id.side_effect = [
+            123,
+            None,
+        ]  # source found, target not found
         mock_vitess_client.id_resolver = mock_id_resolver
 
         repo = RedirectRepository(vitess_client=mock_vitess_client)

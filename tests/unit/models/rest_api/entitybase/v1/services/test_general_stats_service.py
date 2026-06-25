@@ -502,7 +502,14 @@ class TestComputeDailyStatsExec:
         """Test compute_daily_stats returns aggregated stats."""
         mock_cursor = MagicMock()
         mock_cursor.fetchone.side_effect = [
-            [100], [100], [100], [100], [100], [100], [100], [100],
+            [100],
+            [100],
+            [100],
+            [100],
+            [100],
+            [100],
+            [100],
+            [100],
             ["labels", 100],
             ["descriptions", 100],
             ["aliases", 100],

@@ -151,7 +151,10 @@ class TestUserStatsWorker:
         mock_worker.start = AsyncMock()
 
         with (
-            patch("models.workers.user_stats.user_stats_worker.UserStatsWorker", return_value=mock_worker),
+            patch(
+                "models.workers.user_stats.user_stats_worker.UserStatsWorker",
+                return_value=mock_worker,
+            ),
             patch("models.workers.user_stats.user_stats_worker.FastAPI", None),
             patch("models.workers.user_stats.user_stats_worker.logger"),
         ):
@@ -167,12 +170,24 @@ class TestUserStatsWorker:
         mock_worker = MagicMock()
 
         with (
-            patch("models.workers.user_stats.user_stats_worker.UserStatsWorker", return_value=mock_worker),
+            patch(
+                "models.workers.user_stats.user_stats_worker.UserStatsWorker",
+                return_value=mock_worker,
+            ),
             patch("models.workers.user_stats.user_stats_worker.FastAPI"),
             patch("models.workers.user_stats.user_stats_worker.uvicorn"),
-            patch("models.workers.user_stats.user_stats_worker.asyncio.gather", new_callable=AsyncMock) as mock_gather,
-            patch("models.workers.user_stats.user_stats_worker.run_worker", new_callable=AsyncMock),
-            patch("models.workers.user_stats.user_stats_worker.run_server", new_callable=AsyncMock),
+            patch(
+                "models.workers.user_stats.user_stats_worker.asyncio.gather",
+                new_callable=AsyncMock,
+            ) as mock_gather,
+            patch(
+                "models.workers.user_stats.user_stats_worker.run_worker",
+                new_callable=AsyncMock,
+            ),
+            patch(
+                "models.workers.user_stats.user_stats_worker.run_server",
+                new_callable=AsyncMock,
+            ),
             patch("models.workers.user_stats.user_stats_worker.logger"),
         ):
             await main()
@@ -187,12 +202,25 @@ class TestUserStatsWorker:
         mock_worker = MagicMock()
 
         with (
-            patch("models.workers.user_stats.user_stats_worker.UserStatsWorker", return_value=mock_worker),
+            patch(
+                "models.workers.user_stats.user_stats_worker.UserStatsWorker",
+                return_value=mock_worker,
+            ),
             patch("models.workers.user_stats.user_stats_worker.FastAPI"),
             patch("models.workers.user_stats.user_stats_worker.uvicorn"),
-            patch("models.workers.user_stats.user_stats_worker.asyncio.gather", new_callable=AsyncMock, side_effect=Exception("Gather error")),
-            patch("models.workers.user_stats.user_stats_worker.run_worker", new_callable=AsyncMock),
-            patch("models.workers.user_stats.user_stats_worker.run_server", new_callable=AsyncMock),
+            patch(
+                "models.workers.user_stats.user_stats_worker.asyncio.gather",
+                new_callable=AsyncMock,
+                side_effect=Exception("Gather error"),
+            ),
+            patch(
+                "models.workers.user_stats.user_stats_worker.run_worker",
+                new_callable=AsyncMock,
+            ),
+            patch(
+                "models.workers.user_stats.user_stats_worker.run_server",
+                new_callable=AsyncMock,
+            ),
             patch("models.workers.user_stats.user_stats_worker.logger"),
             pytest.raises(Exception, match="Gather error"),
         ):

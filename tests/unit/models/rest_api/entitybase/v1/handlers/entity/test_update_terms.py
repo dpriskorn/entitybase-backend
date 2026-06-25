@@ -1,12 +1,13 @@
 """Unit tests for EntityUpdateTermsMixin."""
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from pydantic import BaseModel
 
 from models.rest_api.entitybase.v1.handlers.entity.update_terms import (
     EntityUpdateTermsMixin,
+    TermTransactionContext,
 )
 
 
@@ -520,3 +521,651 @@ class TestDeleteAliasesErrors:
 
         assert exc_info.value.status_code == 423
         assert "Entity locked" in exc_info.value.detail
+
+
+class TestDeleteAliasesSuccess:
+    """Unit tests for EntityUpdateTermsMixin.delete_aliases success."""
+
+    def _create_mixin_with_mocks(self):
+        """Create a mixin with mocked dependencies."""
+        mock_state = MagicMock()
+        mock_vitess = MagicMock()
+        mock_state.vitess_client = mock_vitess
+        mock_s3_client = MagicMock()
+        mock_state.s3_client = mock_s3_client
+        mixin = EntityUpdateTermsMixin(state=mock_state)
+        return mixin, mock_state
+
+    @pytest.mark.asyncio
+    async def test_delete_aliases_success(self) -> None:
+        """Test deleting all aliases successfully."""
+        from models.data.infrastructure.s3.enums import EntityType
+        from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+
+        mixin, mock_state = self._create_mixin_with_mocks()
+        mock_state.vitess_client.is_entity_deleted.return_value = False
+        mock_state.vitess_client.is_entity_locked.return_value = False
+
+        mock_entity = MagicMock()
+        mock_entity.entity_data.revision = {
+            "hashes": {"aliases": {"en": [111, 222]}},
+        }
+
+        mock_response = MagicMock()
+        mock_response.revision_id = 3
+
+        with patch(
+            "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
+        ) as MockTx:
+            mock_tx = MagicMock()
+            mock_tx.state.vitess_client.get_head.return_value = 2
+            mock_tx.create_revision_with_hashes = AsyncMock(return_value=mock_response)
+            mock_tx.publish_event = AsyncMock()
+            MockTx.return_value = mock_tx
+
+            with patch(
+                "models.rest_api.entitybase.v1.handlers.entity.update_terms.EntityReadHandler",
+                return_value=MagicMock(get_entity=MagicMock(return_value=mock_entity)),
+            ):
+                with patch(
+                    "models.rest_api.entitybase.v1.handlers.entity.update_terms.infer_entity_type_from_id",
+                    return_value=EntityType.ITEM,
+                ):
+                    result = await mixin.delete_aliases(
+                        "Q1", "en", EditHeaders(x_edit_summary="test", x_user_id="0")
+                    )
+
+                    assert result == mock_response
+
+    @pytest.mark.asyncio
+    async def test_delete_aliases_idempotent(self) -> None:
+        """Test delete_aliases returns entity when language not in aliases."""
+        from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+
+        mixin, mock_state = self._create_mixin_with_mocks()
+        mock_state.vitess_client.is_entity_deleted.return_value = False
+        mock_state.vitess_client.is_entity_locked.return_value = False
+
+        mock_entity = MagicMock()
+        mock_entity.entity_data.revision = {
+            "hashes": {"aliases": {"fr": [333]}},
+        }
+
+        with patch(
+            "models.rest_api.entitybase.v1.handlers.entity.update_terms.EntityReadHandler",
+            return_value=MagicMock(get_entity=MagicMock(return_value=mock_entity)),
+        ):
+            with patch(
+                "models.rest_api.entitybase.v1.handlers.entity.update_terms.infer_entity_type_from_id",
+                return_value=MagicMock(),
+            ):
+                result = await mixin.delete_aliases(
+                    "Q1", "en", EditHeaders(x_edit_summary="test", x_user_id="0")
+                )
+
+                assert result == mock_entity
+
+
+class TestAddAliasSuccess:
+    """Unit tests for EntityUpdateTermsMixin.add_alias success path."""
+
+    def _create_mixin_with_mocks(self):
+        """Create a mixin with mocked dependencies."""
+        mock_state = MagicMock()
+        mock_vitess = MagicMock()
+        mock_state.vitess_client = mock_vitess
+        mock_s3_client = MagicMock()
+        mock_state.s3_client = mock_s3_client
+        mixin = EntityUpdateTermsMixin(state=mock_state)
+        return mixin, mock_state
+
+    @pytest.mark.asyncio
+    async def test_add_alias_duplicate(self) -> None:
+        """Test adding duplicate alias raises 409."""
+        from fastapi import HTTPException
+        from models.data.infrastructure.s3.enums import EntityType
+        from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+
+        mixin, mock_state = self._create_mixin_with_mocks()
+        mock_state.vitess_client.is_entity_deleted.return_value = False
+        mock_state.vitess_client.is_entity_locked.return_value = False
+
+        mock_entity = MagicMock()
+        mock_entity.entity_data.revision = {
+            "hashes": {"aliases": {"en": [12345]}},
+        }
+
+        with patch(
+            "models.internal_representation.metadata_extractor.MetadataExtractor"
+        ) as MockExtractor:
+            MockExtractor.hash_string.return_value = 12345
+
+            with patch(
+                "models.rest_api.entitybase.v1.handlers.entity.update_terms.EntityReadHandler",
+                return_value=MagicMock(get_entity=MagicMock(return_value=mock_entity)),
+            ):
+                with patch(
+                    "models.rest_api.entitybase.v1.handlers.entity.update_terms.infer_entity_type_from_id",
+                    return_value=EntityType.ITEM,
+                ):
+                    with pytest.raises(HTTPException) as exc_info:
+                        await mixin.add_alias(
+                            "Q1",
+                            "en",
+                            "alias",
+                            EditHeaders(x_edit_summary="test", x_user_id="0"),
+                        )
+
+                    assert exc_info.value.status_code == 409
+                    assert "already exists" in exc_info.value.detail
+
+    @pytest.mark.asyncio
+    async def test_add_alias_success_with_vitess_config(self) -> None:
+        """Test add_alias success with vitess_config set."""
+        from models.data.infrastructure.s3.enums import EntityType
+        from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+
+        mixin, mock_state = self._create_mixin_with_mocks()
+        mock_state.vitess_client.is_entity_deleted.return_value = False
+        mock_state.vitess_client.is_entity_locked.return_value = False
+        mock_state.vitess_config = MagicMock()
+
+        mock_entity = MagicMock()
+        mock_entity.entity_data.revision = {
+            "hashes": {"aliases": {"en": []}},
+        }
+
+        mock_response = MagicMock()
+        mock_response.revision_id = 3
+
+        with patch(
+            "models.internal_representation.metadata_extractor.MetadataExtractor"
+        ) as MockExtractor:
+            MockExtractor.hash_string.return_value = 99999
+
+            with patch(
+                "models.infrastructure.vitess.repositories.terms.TermsRepository"
+            ) as MockTermsRepo:
+                mock_terms_repo = MagicMock()
+                MockTermsRepo.return_value = mock_terms_repo
+
+                with patch(
+                    "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
+                ) as MockTx:
+                    mock_tx = MagicMock()
+                    mock_tx.state.vitess_client.get_head.return_value = 2
+                    mock_tx.create_revision_with_hashes = AsyncMock(
+                        return_value=mock_response
+                    )
+                    mock_tx.publish_event = AsyncMock()
+                    MockTx.return_value = mock_tx
+
+                    with patch(
+                        "models.rest_api.entitybase.v1.handlers.entity.update_terms.EntityReadHandler",
+                        return_value=MagicMock(
+                            get_entity=MagicMock(return_value=mock_entity)
+                        ),
+                    ):
+                        with patch(
+                            "models.rest_api.entitybase.v1.handlers.entity.update_terms.infer_entity_type_from_id",
+                            return_value=EntityType.ITEM,
+                        ):
+                            result = await mixin.add_alias(
+                                "Q1",
+                                "en",
+                                "newalias",
+                                EditHeaders(x_edit_summary="test", x_user_id="0"),
+                            )
+
+                            assert result == mock_response
+                            mock_state.s3_client.store_term_metadata.assert_called_once()
+                            mock_terms_repo.insert_term.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_add_alias_success_no_vitess_config(self) -> None:
+        """Test add_alias success without vitess_config."""
+        from models.data.infrastructure.s3.enums import EntityType
+        from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+
+        mixin, mock_state = self._create_mixin_with_mocks()
+        mock_state.vitess_client.is_entity_deleted.return_value = False
+        mock_state.vitess_client.is_entity_locked.return_value = False
+        mock_state.vitess_config = None
+
+        mock_entity = MagicMock()
+        mock_entity.entity_data.revision = {
+            "hashes": {"aliases": {"en": []}},
+        }
+
+        mock_response = MagicMock()
+        mock_response.revision_id = 3
+
+        with patch(
+            "models.internal_representation.metadata_extractor.MetadataExtractor"
+        ) as MockExtractor:
+            MockExtractor.hash_string.return_value = 77777
+
+            with patch(
+                "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
+            ) as MockTx:
+                mock_tx = MagicMock()
+                mock_tx.state.vitess_client.get_head.return_value = 2
+                mock_tx.create_revision_with_hashes = AsyncMock(
+                    return_value=mock_response
+                )
+                mock_tx.publish_event = AsyncMock()
+                MockTx.return_value = mock_tx
+
+                with patch(
+                    "models.rest_api.entitybase.v1.handlers.entity.update_terms.EntityReadHandler",
+                    return_value=MagicMock(
+                        get_entity=MagicMock(return_value=mock_entity)
+                    ),
+                ):
+                    with patch(
+                        "models.rest_api.entitybase.v1.handlers.entity.update_terms.infer_entity_type_from_id",
+                        return_value=EntityType.ITEM,
+                    ):
+                        result = await mixin.add_alias(
+                            "Q1",
+                            "en",
+                            "newalias",
+                            EditHeaders(x_edit_summary="test", x_user_id="0"),
+                        )
+
+                        assert result == mock_response
+
+
+class TestExecuteTermAddTransaction:
+    """Unit tests for _execute_term_add_transaction."""
+
+    @pytest.mark.asyncio
+    async def test_add_transaction_success(self) -> None:
+        """Test successful term add transaction."""
+        from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+
+        mock_state = MagicMock()
+        mock_state.vitess_client.user_repository.log_user_activity = AsyncMock(
+            return_value=MagicMock(success=True)
+        )
+        mixin = EntityUpdateTermsMixin(state=mock_state)
+
+        from models.data.infrastructure.s3.enums import EntityType as ET
+
+        context = TermTransactionContext(
+            entity_id="Q1",
+            entity_type=ET.ITEM,
+            updated_hashes={"labels": {}},
+            existing_revision={},
+            edit_headers=EditHeaders(x_edit_summary="test", x_user_id="0"),
+        )
+        mock_response = MagicMock()
+        mock_response.revision_id = 3
+
+        with patch(
+            "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
+        ) as MockTx:
+            mock_tx = MagicMock()
+            mock_tx.state.vitess_client.get_head.return_value = 2
+            mock_tx.create_revision_with_hashes = AsyncMock(return_value=mock_response)
+            mock_tx.publish_event = AsyncMock()
+            MockTx.return_value = mock_tx
+
+            result = await mixin._execute_term_add_transaction(context)
+
+            assert result == mock_response
+            mock_tx.commit.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_add_transaction_http_exception(self) -> None:
+        """Test term add transaction rolls back on HTTPException."""
+        from fastapi import HTTPException
+        from models.data.infrastructure.s3.enums import EntityType as ET
+        from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+
+        mock_state = MagicMock()
+        mixin = EntityUpdateTermsMixin(state=mock_state)
+
+        context = TermTransactionContext(
+            entity_id="Q1",
+            entity_type=ET.ITEM,
+            updated_hashes={"labels": {}},
+            existing_revision={},
+            edit_headers=EditHeaders(x_edit_summary="test", x_user_id="0"),
+        )
+
+        with patch(
+            "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
+        ) as MockTx:
+            mock_tx = MagicMock()
+            mock_tx.state.vitess_client.get_head.return_value = 2
+            mock_tx.create_revision_with_hashes = AsyncMock(
+                side_effect=HTTPException(status_code=409, detail="Conflict")
+            )
+            MockTx.return_value = mock_tx
+
+            with pytest.raises(HTTPException):
+                await mixin._execute_term_add_transaction(context)
+
+            mock_tx.rollback.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_add_transaction_generic_exception(self) -> None:
+        """Test term add transaction rolls back on generic exception."""
+        from fastapi import HTTPException
+        from models.data.infrastructure.s3.enums import EntityType as ET
+        from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+
+        mock_state = MagicMock()
+        mixin = EntityUpdateTermsMixin(state=mock_state)
+
+        context = TermTransactionContext(
+            entity_id="Q1",
+            entity_type=ET.ITEM,
+            updated_hashes={"labels": {}},
+            existing_revision={},
+            edit_headers=EditHeaders(x_edit_summary="test", x_user_id="0"),
+        )
+
+        with patch(
+            "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
+        ) as MockTx:
+            mock_tx = MagicMock()
+            mock_tx.state.vitess_client.get_head.return_value = 2
+            mock_tx.create_revision_with_hashes = AsyncMock(
+                side_effect=ValueError("DB error")
+            )
+            MockTx.return_value = mock_tx
+
+            with pytest.raises(HTTPException) as exc_info:
+                await mixin._execute_term_add_transaction(context)
+
+            assert exc_info.value.status_code == 500
+            mock_tx.rollback.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_add_transaction_user_activity_failure(self) -> None:
+        """Test term add transaction logs warning on user activity failure."""
+        from models.data.infrastructure.s3.enums import EntityType as ET
+        from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+
+        mock_state = MagicMock()
+        mock_state.vitess_client.user_repository.log_user_activity = AsyncMock(
+            return_value=MagicMock(success=False, error="Log error")
+        )
+        mixin = EntityUpdateTermsMixin(state=mock_state)
+
+        context = TermTransactionContext(
+            entity_id="Q1",
+            entity_type=ET.ITEM,
+            updated_hashes={"labels": {}},
+            existing_revision={},
+            edit_headers=EditHeaders(x_edit_summary="test", x_user_id="0"),
+        )
+        mock_response = MagicMock()
+        mock_response.revision_id = 3
+
+        with patch(
+            "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
+        ) as MockTx:
+            mock_tx = MagicMock()
+            mock_tx.state.vitess_client.get_head.return_value = 2
+            mock_tx.create_revision_with_hashes = AsyncMock(return_value=mock_response)
+            mock_tx.publish_event = AsyncMock()
+            MockTx.return_value = mock_tx
+
+            result = await mixin._execute_term_add_transaction(context)
+
+            assert result == mock_response
+            mock_tx.commit.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_add_transaction_no_user_id(self) -> None:
+        """Test term add transaction without user ID skips activity log."""
+        from models.data.infrastructure.s3.enums import EntityType as ET
+        from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+
+        mock_state = MagicMock()
+        mixin = EntityUpdateTermsMixin(state=mock_state)
+
+        context = TermTransactionContext(
+            entity_id="Q1",
+            entity_type=ET.ITEM,
+            updated_hashes={"labels": {}},
+            existing_revision={},
+            edit_headers=EditHeaders(x_edit_summary="test", x_user_id=0),
+        )
+        mock_response = MagicMock()
+        mock_response.revision_id = 3
+
+        with patch(
+            "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
+        ) as MockTx:
+            mock_tx = MagicMock()
+            mock_tx.state.vitess_client.get_head.return_value = 2
+            mock_tx.create_revision_with_hashes = AsyncMock(return_value=mock_response)
+            mock_tx.publish_event = AsyncMock()
+            MockTx.return_value = mock_tx
+
+            result = await mixin._execute_term_add_transaction(context)
+
+            assert result == mock_response
+            mock_state.vitess_client.user_repository.log_user_activity.assert_not_called()
+
+
+class TestExecuteTermDeleteTransaction:
+    """Unit tests for _execute_term_delete_transaction."""
+
+    @pytest.mark.asyncio
+    async def test_delete_transaction_success_with_removed_hashes(self) -> None:
+        """Test successful term delete with removed hashes."""
+        from models.data.infrastructure.s3.enums import EntityType as ET
+        from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+
+        mock_state = MagicMock()
+        mock_state.vitess_client.user_repository.log_user_activity = AsyncMock(
+            return_value=MagicMock(success=True)
+        )
+        mixin = EntityUpdateTermsMixin(state=mock_state)
+
+        context = TermTransactionContext(
+            entity_id="Q1",
+            entity_type=ET.ITEM,
+            updated_hashes={"labels": {}},
+            existing_revision={},
+            edit_headers=EditHeaders(x_edit_summary="test", x_user_id="0"),
+        )
+        mock_response = MagicMock()
+        mock_response.revision_id = 3
+
+        with patch(
+            "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
+        ) as MockTx:
+            mock_tx = MagicMock()
+            mock_tx.state.vitess_client.get_head.return_value = 2
+            mock_tx.create_revision_with_hashes = AsyncMock(return_value=mock_response)
+            mock_tx.publish_event = AsyncMock()
+            MockTx.return_value = mock_tx
+
+            with patch.object(mixin, "_decrement_term_ref_count") as mock_decrement:
+                result = await mixin._execute_term_delete_transaction(
+                    context, removed_hashes=[12345]
+                )
+
+                assert result == mock_response
+                mock_decrement.assert_called_once_with(12345)
+                mock_tx.commit.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_delete_transaction_success_no_removed_hashes(self) -> None:
+        """Test successful term delete without removed hashes."""
+        from models.data.infrastructure.s3.enums import EntityType as ET
+        from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+
+        mock_state = MagicMock()
+        mock_state.vitess_client.user_repository.log_user_activity = AsyncMock(
+            return_value=MagicMock(success=True)
+        )
+        mixin = EntityUpdateTermsMixin(state=mock_state)
+
+        context = TermTransactionContext(
+            entity_id="Q1",
+            entity_type=ET.ITEM,
+            updated_hashes={"labels": {}},
+            existing_revision={},
+            edit_headers=EditHeaders(x_edit_summary="test", x_user_id="0"),
+        )
+        mock_response = MagicMock()
+        mock_response.revision_id = 3
+
+        with patch(
+            "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
+        ) as MockTx:
+            mock_tx = MagicMock()
+            mock_tx.state.vitess_client.get_head.return_value = 2
+            mock_tx.create_revision_with_hashes = AsyncMock(return_value=mock_response)
+            mock_tx.publish_event = AsyncMock()
+            MockTx.return_value = mock_tx
+
+            result = await mixin._execute_term_delete_transaction(context)
+
+            assert result == mock_response
+            mock_tx.commit.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_delete_transaction_http_exception(self) -> None:
+        """Test term delete transaction rolls back on HTTPException."""
+        from fastapi import HTTPException
+        from models.data.infrastructure.s3.enums import EntityType as ET
+        from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+
+        mock_state = MagicMock()
+        mixin = EntityUpdateTermsMixin(state=mock_state)
+
+        context = TermTransactionContext(
+            entity_id="Q1",
+            entity_type=ET.ITEM,
+            updated_hashes={"labels": {}},
+            existing_revision={},
+            edit_headers=EditHeaders(x_edit_summary="test", x_user_id="0"),
+        )
+
+        with patch(
+            "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
+        ) as MockTx:
+            mock_tx = MagicMock()
+            mock_tx.state.vitess_client.get_head.return_value = 2
+            mock_tx.create_revision_with_hashes = AsyncMock(
+                side_effect=HTTPException(status_code=409, detail="Conflict")
+            )
+            MockTx.return_value = mock_tx
+
+            with pytest.raises(HTTPException):
+                await mixin._execute_term_delete_transaction(context)
+
+            mock_tx.rollback.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_delete_transaction_generic_exception(self) -> None:
+        """Test term delete transaction rolls back on generic exception."""
+        from fastapi import HTTPException
+        from models.data.infrastructure.s3.enums import EntityType as ET
+        from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+
+        mock_state = MagicMock()
+        mixin = EntityUpdateTermsMixin(state=mock_state)
+
+        context = TermTransactionContext(
+            entity_id="Q1",
+            entity_type=ET.ITEM,
+            updated_hashes={"labels": {}},
+            existing_revision={},
+            edit_headers=EditHeaders(x_edit_summary="test", x_user_id="0"),
+        )
+
+        with patch(
+            "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
+        ) as MockTx:
+            mock_tx = MagicMock()
+            mock_tx.state.vitess_client.get_head.return_value = 2
+            mock_tx.create_revision_with_hashes = AsyncMock(
+                side_effect=ValueError("DB error")
+            )
+            MockTx.return_value = mock_tx
+
+            with pytest.raises(HTTPException) as exc_info:
+                await mixin._execute_term_delete_transaction(context)
+
+            assert exc_info.value.status_code == 500
+            mock_tx.rollback.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_delete_transaction_user_activity_failure(self) -> None:
+        """Test term delete transaction logs warning on user activity failure."""
+        from models.data.infrastructure.s3.enums import EntityType as ET
+        from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+
+        mock_state = MagicMock()
+        mock_state.vitess_client.user_repository.log_user_activity = AsyncMock(
+            return_value=MagicMock(success=False, error="Log error")
+        )
+        mixin = EntityUpdateTermsMixin(state=mock_state)
+
+        context = TermTransactionContext(
+            entity_id="Q1",
+            entity_type=ET.ITEM,
+            updated_hashes={"labels": {}},
+            existing_revision={},
+            edit_headers=EditHeaders(x_edit_summary="test", x_user_id="0"),
+        )
+        mock_response = MagicMock()
+        mock_response.revision_id = 3
+
+        with patch(
+            "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
+        ) as MockTx:
+            mock_tx = MagicMock()
+            mock_tx.state.vitess_client.get_head.return_value = 2
+            mock_tx.create_revision_with_hashes = AsyncMock(return_value=mock_response)
+            mock_tx.publish_event = AsyncMock()
+            MockTx.return_value = mock_tx
+
+            result = await mixin._execute_term_delete_transaction(
+                context, removed_hashes=[12345]
+            )
+
+            assert result == mock_response
+            mock_tx.commit.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_delete_transaction_no_user_id(self) -> None:
+        """Test term delete transaction without user ID skips activity log."""
+        from models.data.infrastructure.s3.enums import EntityType as ET
+        from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+
+        mock_state = MagicMock()
+        mixin = EntityUpdateTermsMixin(state=mock_state)
+
+        context = TermTransactionContext(
+            entity_id="Q1",
+            entity_type=ET.ITEM,
+            updated_hashes={"labels": {}},
+            existing_revision={},
+            edit_headers=EditHeaders(x_edit_summary="test", x_user_id=0),
+        )
+        mock_response = MagicMock()
+        mock_response.revision_id = 3
+
+        with patch(
+            "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
+        ) as MockTx:
+            mock_tx = MagicMock()
+            mock_tx.state.vitess_client.get_head.return_value = 2
+            mock_tx.create_revision_with_hashes = AsyncMock(return_value=mock_response)
+            mock_tx.publish_event = AsyncMock()
+            MockTx.return_value = mock_tx
+
+            result = await mixin._execute_term_delete_transaction(context)
+
+            assert result == mock_response
+            mock_state.vitess_client.user_repository.log_user_activity.assert_not_called()

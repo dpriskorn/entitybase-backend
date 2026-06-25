@@ -660,7 +660,13 @@ class TestEntityStatementService:
                 "summary": "test edit",
                 "at": "2024-01-01T00:00:00Z",
             },
-            "hashes": {"statements": [], "labels": {}, "descriptions": {}, "aliases": {}, "sitelinks": {}},
+            "hashes": {
+                "statements": [],
+                "labels": {},
+                "descriptions": {},
+                "aliases": {},
+                "sitelinks": {},
+            },
         }
         s3_data = S3RevisionData(
             schema="1.0.0",
@@ -733,12 +739,15 @@ class TestEntityStatementService:
         revision_data = RevisionData(
             revision_id=41,
             entity_type="item",
-            edit={"type": "unspecified", "user_id": 0, "summary": "base", "at": "2024-01-01T00:00:00Z"},
+            edit={
+                "type": "unspecified",
+                "user_id": 0,
+                "summary": "base",
+                "at": "2024-01-01T00:00:00Z",
+            },
             hashes=HashMaps(),
         )
-        edit_headers = EditHeaders(
-            **{"X-User-ID": 5, "X-Edit-Summary": "test summary"}
-        )
+        edit_headers = EditHeaders(**{"X-User-ID": 5, "X-Edit-Summary": "test summary"})
 
         service = EntityStatementService(state=mock_state)
         result = await service._store_updated_revision(
@@ -785,12 +794,15 @@ class TestEntityStatementService:
         revision_data = RevisionData(
             revision_id=41,
             entity_type="item",
-            edit={"type": "unspecified", "user_id": 0, "summary": "base", "at": "2024-01-01T00:00:00Z"},
+            edit={
+                "type": "unspecified",
+                "user_id": 0,
+                "summary": "base",
+                "at": "2024-01-01T00:00:00Z",
+            },
             hashes=HashMaps(),
         )
-        edit_headers = EditHeaders(
-            **{"X-User-ID": 5, "X-Edit-Summary": "test summary"}
-        )
+        edit_headers = EditHeaders(**{"X-User-ID": 5, "X-Edit-Summary": "test summary"})
 
         service = EntityStatementService(state=mock_state)
 
@@ -825,12 +837,15 @@ class TestEntityStatementService:
         revision_data = RevisionData(
             revision_id=41,
             entity_type="item",
-            edit={"type": "unspecified", "user_id": 0, "summary": "base", "at": "2024-01-01T00:00:00Z"},
+            edit={
+                "type": "unspecified",
+                "user_id": 0,
+                "summary": "base",
+                "at": "2024-01-01T00:00:00Z",
+            },
             hashes=HashMaps(),
         )
-        edit_headers = EditHeaders(
-            **{"X-User-ID": 5, "X-Edit-Summary": "test summary"}
-        )
+        edit_headers = EditHeaders(**{"X-User-ID": 5, "X-Edit-Summary": "test summary"})
 
         service = EntityStatementService(state=mock_state)
 
@@ -857,20 +872,21 @@ class TestEntityStatementService:
         mock_state = MagicMock()
         service = EntityStatementService(state=mock_state)
 
-        with patch.object(
-            service,
-            "_fetch_current_entity_data",
-        ) as mock_fetch, patch.object(
-            service,
-            "_find_and_replace_statement",
-            return_value=False,
+        with (
+            patch.object(
+                service,
+                "_fetch_current_entity_data",
+            ) as mock_fetch,
+            patch.object(
+                service,
+                "_find_and_replace_statement",
+                return_value=False,
+            ),
         ):
             mock_fetch.return_value.data = {"claims": {}}
             request = MagicMock()
             edit_headers = _make_edit_headers()
-            result = await service.patch_statement(
-                "Q1", "99999", request, edit_headers
-            )
+            result = await service.patch_statement("Q1", "99999", request, edit_headers)
 
             assert result.success is False
             assert "Statement not found" in str(result.error)
@@ -976,12 +992,15 @@ class TestEntityStatementService:
             return_value=mock_response
         )
 
-        with patch(
-            "models.rest_api.entitybase.v1.services.entity_statement_service.EntityReadHandler",
-            return_value=mock_read_handler,
-        ), patch(
-            "models.rest_api.entitybase.v1.services.entity_statement_service.EntityHandler",
-            return_value=mock_entity_handler,
+        with (
+            patch(
+                "models.rest_api.entitybase.v1.services.entity_statement_service.EntityReadHandler",
+                return_value=mock_read_handler,
+            ),
+            patch(
+                "models.rest_api.entitybase.v1.services.entity_statement_service.EntityHandler",
+                return_value=mock_entity_handler,
+            ),
         ):
             service = EntityStatementService(state=mock_state)
             edit_headers = _make_edit_headers()

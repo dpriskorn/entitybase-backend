@@ -8,7 +8,9 @@ from fastapi import HTTPException
 
 from models.data.rest_api.v1.entitybase.request import EntityRedirectRequest
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
-from models.data.rest_api.v1.entitybase.response.entity.revert import EntityRevertResponse
+from models.data.rest_api.v1.entitybase.response.entity.revert import (
+    EntityRevertResponse,
+)
 from models.rest_api.entitybase.v1.services.redirects import RedirectService
 
 
@@ -198,7 +200,9 @@ class TestRedirectService:
         service = RedirectService(state=mock_state)
 
         with pytest.raises(HTTPException) as exc_info:
-            await service.revert_redirect("Q1", 10, EditHeaders(x_user_id=0, x_edit_summary="test"))
+            await service.revert_redirect(
+                "Q1", 10, EditHeaders(x_user_id=0, x_edit_summary="test")
+            )
         assert exc_info.value.status_code == 404
         assert "not a redirect" in exc_info.value.detail
 
@@ -211,7 +215,9 @@ class TestRedirectService:
         service = RedirectService(state=mock_state)
 
         with pytest.raises(HTTPException) as exc_info:
-            await service.revert_redirect("Q1", 10, EditHeaders(x_user_id=0, x_edit_summary="test"))
+            await service.revert_redirect(
+                "Q1", 10, EditHeaders(x_user_id=0, x_edit_summary="test")
+            )
         assert exc_info.value.status_code == 423
         assert "deleted" in exc_info.value.detail
 
@@ -225,7 +231,9 @@ class TestRedirectService:
         service = RedirectService(state=mock_state)
 
         with pytest.raises(HTTPException) as exc_info:
-            await service.revert_redirect("Q1", 10, EditHeaders(x_user_id=0, x_edit_summary="test"))
+            await service.revert_redirect(
+                "Q1", 10, EditHeaders(x_user_id=0, x_edit_summary="test")
+            )
         assert exc_info.value.status_code == 423
         assert "locked or archived" in exc_info.value.detail
 

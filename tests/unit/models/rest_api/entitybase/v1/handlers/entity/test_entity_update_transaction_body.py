@@ -38,7 +38,9 @@ class TestEntityUpdateTransactionBody:
             mock_tx = MagicMock()
             mock_tx_cls.return_value = mock_tx
             mock_tx.state = mock_state
-            mock_tx.process_statements.side_effect = S3NotFoundError("Revision not found")
+            mock_tx.process_statements.side_effect = S3NotFoundError(
+                "Revision not found"
+            )
 
             with pytest.raises(HTTPException) as exc_info:
                 await handler._update_with_transaction(

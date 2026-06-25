@@ -337,7 +337,9 @@ class TestIdRangeManager:
         }
 
         with patch.object(
-            manager, "_allocate_new_range", return_value=OperationResult(success=False, error="DB error")
+            manager,
+            "_allocate_new_range",
+            return_value=OperationResult(success=False, error="DB error"),
         ):
             with pytest.raises(RuntimeError, match="DB error"):
                 manager.get_next_id("Q")
@@ -345,7 +347,9 @@ class TestIdRangeManager:
     def test_initialize_from_database_error(self):
         """Test initialize_from_database re-raises exceptions."""
         mock_client = MagicMock()
-        mock_client.cursor.__enter__ = MagicMock(side_effect=Exception("Connection lost"))
+        mock_client.cursor.__enter__ = MagicMock(
+            side_effect=Exception("Connection lost")
+        )
 
         manager = IdRangeManager(vitess_client=mock_client)
 
@@ -393,7 +397,9 @@ class TestIdRangeManager:
         manager.worker_id = "test-worker"
 
         with patch.object(
-            manager, "_allocate_new_range", return_value=OperationResult(success=False, error="no config")
+            manager,
+            "_allocate_new_range",
+            return_value=OperationResult(success=False, error="no config"),
         ):
             with pytest.raises(RuntimeError, match="no config"):
                 manager.get_next_id("Q")

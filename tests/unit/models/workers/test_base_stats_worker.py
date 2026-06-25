@@ -58,13 +58,17 @@ class TestBaseStatsWorker:
     async def test_start_disabled(self):
         """Test start returns early when disabled."""
         with (
-            patch.object(ConcreteStatsWorker, "get_enabled_setting", return_value=False),
+            patch.object(
+                ConcreteStatsWorker, "get_enabled_setting", return_value=False
+            ),
             patch("models.workers.vitess_worker.VitessClient"),
             patch("models.workers.vitess_worker.settings"),
         ):
             worker = ConcreteStatsWorker()
 
-            with patch("models.workers.base_stats_worker.calculate_seconds_until_next_run") as mock_calc:
+            with patch(
+                "models.workers.base_stats_worker.calculate_seconds_until_next_run"
+            ) as mock_calc:
                 await worker.start()
 
                 mock_calc.assert_not_called()
@@ -120,12 +124,20 @@ class TestBaseStatsWorker:
         worker = ConcreteStatsWorker()
 
         with (
-            patch.object(ConcreteStatsWorker, "run_daily_computation", new_callable=AsyncMock) as mock_computation,
-            patch("models.workers.base_stats_worker.calculate_seconds_until_next_run", return_value=0),
-            patch("models.workers.base_stats_worker.asyncio.sleep", new_callable=AsyncMock) as mock_sleep,
+            patch.object(
+                ConcreteStatsWorker, "run_daily_computation", new_callable=AsyncMock
+            ) as mock_computation,
+            patch(
+                "models.workers.base_stats_worker.calculate_seconds_until_next_run",
+                return_value=0,
+            ),
+            patch(
+                "models.workers.base_stats_worker.asyncio.sleep", new_callable=AsyncMock
+            ) as mock_sleep,
             patch("models.workers.vitess_worker.VitessClient"),
             patch("models.workers.vitess_worker.settings"),
         ):
+
             async def stop_after_sleep(*args, **kwargs):
                 worker.running = False
 
@@ -141,9 +153,16 @@ class TestBaseStatsWorker:
         worker = ConcreteStatsWorker()
 
         with (
-            patch.object(ConcreteStatsWorker, "run_daily_computation", new_callable=AsyncMock) as mock_computation,
-            patch("models.workers.base_stats_worker.calculate_seconds_until_next_run", return_value=0),
-            patch("models.workers.base_stats_worker.asyncio.sleep", new_callable=AsyncMock) as mock_sleep,
+            patch.object(
+                ConcreteStatsWorker, "run_daily_computation", new_callable=AsyncMock
+            ) as mock_computation,
+            patch(
+                "models.workers.base_stats_worker.calculate_seconds_until_next_run",
+                return_value=0,
+            ),
+            patch(
+                "models.workers.base_stats_worker.asyncio.sleep", new_callable=AsyncMock
+            ) as mock_sleep,
             patch("models.workers.vitess_worker.VitessClient"),
             patch("models.workers.vitess_worker.settings"),
         ):

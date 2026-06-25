@@ -62,7 +62,10 @@ class TestCreateTables:
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         with (
-            patch("models.workers.create.create_tables.pymysql.connect", return_value=mock_conn),
+            patch(
+                "models.workers.create.create_tables.pymysql.connect",
+                return_value=mock_conn,
+            ),
             patch("models.workers.create.create_tables.settings") as mock_settings,
         ):
             mock_settings.get_vitess_config.host = "localhost"
@@ -84,7 +87,10 @@ class TestCreateTables:
             worker = CreateTables()
 
         with (
-            patch("models.workers.create.create_tables.pymysql.connect", side_effect=Exception("DB down")),
+            patch(
+                "models.workers.create.create_tables.pymysql.connect",
+                side_effect=Exception("DB down"),
+            ),
             patch("models.workers.create.create_tables.settings") as mock_settings,
         ):
             mock_settings.get_vitess_config.host = "localhost"
@@ -102,7 +108,9 @@ class TestCreateTables:
             worker = CreateTables()
 
         with (
-            patch("models.workers.create.create_tables.pymysql.connect") as mock_connect,
+            patch(
+                "models.workers.create.create_tables.pymysql.connect"
+            ) as mock_connect,
             patch("models.workers.create.create_tables.settings") as mock_settings,
             patch("models.infrastructure.vitess.client.VitessClient"),
             patch("models.infrastructure.vitess.repositories.schema.SchemaRepository"),
@@ -130,7 +138,9 @@ class TestCreateTables:
             worker = CreateTables()
 
         with (
-            patch("models.workers.create.create_tables.pymysql.connect") as mock_connect,
+            patch(
+                "models.workers.create.create_tables.pymysql.connect"
+            ) as mock_connect,
             patch("models.workers.create.create_tables.settings") as mock_settings,
         ):
             mock_settings.get_vitess_config.host = "localhost"
@@ -168,7 +178,10 @@ class TestCreateTables:
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         with (
-            patch("models.workers.create.create_tables.pymysql.connect", return_value=mock_conn),
+            patch(
+                "models.workers.create.create_tables.pymysql.connect",
+                return_value=mock_conn,
+            ),
             patch("models.workers.create.create_tables.settings") as mock_settings,
         ):
             mock_settings.get_vitess_config.host = "localhost"
@@ -214,7 +227,10 @@ class TestCreateTables:
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         with (
-            patch("models.workers.create.create_tables.pymysql.connect", return_value=mock_conn),
+            patch(
+                "models.workers.create.create_tables.pymysql.connect",
+                return_value=mock_conn,
+            ),
             patch("models.workers.create.create_tables.settings") as mock_settings,
         ):
             mock_settings.get_vitess_config.host = "localhost"
@@ -241,7 +257,10 @@ class TestCreateTables:
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         with (
-            patch("models.workers.create.create_tables.pymysql.connect", return_value=mock_conn),
+            patch(
+                "models.workers.create.create_tables.pymysql.connect",
+                return_value=mock_conn,
+            ),
             patch("models.workers.create.create_tables.settings") as mock_settings,
         ):
             mock_settings.get_vitess_config.host = "localhost"

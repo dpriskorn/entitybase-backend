@@ -447,7 +447,12 @@ class TestStatusService:
         mock_state.vitess_client.create_revision.return_value = True
 
         current_state = EntityState(
-            sp=False, locked=True, archived=False, dangling=False, mep=False, deleted=False,
+            sp=False,
+            locked=True,
+            archived=False,
+            dangling=False,
+            mep=False,
+            deleted=False,
         )
         mock_revision = self.create_mock_revision(current_state)
         mock_state.s3_client.read_revision.return_value = mock_revision
@@ -471,7 +476,12 @@ class TestStatusService:
         mock_state.vitess_client.create_revision.return_value = True
 
         current_state = EntityState(
-            sp=False, locked=False, archived=False, dangling=False, mep=False, deleted=False,
+            sp=False,
+            locked=False,
+            archived=False,
+            dangling=False,
+            mep=False,
+            deleted=False,
         )
         mock_revision = self.create_mock_revision(current_state)
         mock_state.s3_client.read_revision.return_value = mock_revision
@@ -495,7 +505,12 @@ class TestStatusService:
         mock_state.vitess_client.create_revision.return_value = True
 
         current_state = EntityState(
-            sp=False, locked=False, archived=True, dangling=False, mep=False, deleted=False,
+            sp=False,
+            locked=False,
+            archived=True,
+            dangling=False,
+            mep=False,
+            deleted=False,
         )
         mock_revision = self.create_mock_revision(current_state)
         mock_state.s3_client.read_revision.return_value = mock_revision
@@ -519,7 +534,12 @@ class TestStatusService:
         mock_state.vitess_client.create_revision.return_value = True
 
         current_state = EntityState(
-            sp=False, locked=False, archived=False, dangling=False, mep=False, deleted=False,
+            sp=False,
+            locked=False,
+            archived=False,
+            dangling=False,
+            mep=False,
+            deleted=False,
         )
         mock_revision = self.create_mock_revision(current_state)
         mock_state.s3_client.read_revision.return_value = mock_revision
@@ -543,7 +563,12 @@ class TestStatusService:
         mock_state.vitess_client.create_revision.return_value = True
 
         current_state = EntityState(
-            sp=True, locked=False, archived=False, dangling=False, mep=False, deleted=False,
+            sp=True,
+            locked=False,
+            archived=False,
+            dangling=False,
+            mep=False,
+            deleted=False,
         )
         mock_revision = self.create_mock_revision(current_state)
         mock_state.s3_client.read_revision.return_value = mock_revision
@@ -567,7 +592,12 @@ class TestStatusService:
         mock_state.vitess_client.create_revision.return_value = True
 
         current_state = EntityState(
-            sp=False, locked=False, archived=False, dangling=False, mep=False, deleted=False,
+            sp=False,
+            locked=False,
+            archived=False,
+            dangling=False,
+            mep=False,
+            deleted=False,
         )
         mock_revision = self.create_mock_revision(current_state)
         mock_state.s3_client.read_revision.return_value = mock_revision
@@ -576,7 +606,9 @@ class TestStatusService:
         service = StatusService(state=mock_state)
         request = EntityStatusRequest()
 
-        result = service.change_status("Q42", StatusOperation.MASS_EDIT_PROTECT, request)
+        result = service.change_status(
+            "Q42", StatusOperation.MASS_EDIT_PROTECT, request
+        )
 
         assert result.id == "Q42"
         assert result.status == "mass_edit_protected"
@@ -591,7 +623,12 @@ class TestStatusService:
         mock_state.vitess_client.create_revision.return_value = True
 
         current_state = EntityState(
-            sp=False, locked=False, archived=False, dangling=False, mep=True, deleted=False,
+            sp=False,
+            locked=False,
+            archived=False,
+            dangling=False,
+            mep=True,
+            deleted=False,
         )
         mock_revision = self.create_mock_revision(current_state)
         mock_state.s3_client.read_revision.return_value = mock_revision
@@ -697,7 +734,8 @@ class TestStatusService:
         assert service._get_edit_type(StatusOperation.UNLOCK) == EditType.LOCK_REMOVED
         assert service._get_edit_type(StatusOperation.ARCHIVE) == EditType.ARCHIVE_ADDED
         assert (
-            service._get_edit_type(StatusOperation.UNARCHIVE) == EditType.ARCHIVE_REMOVED
+            service._get_edit_type(StatusOperation.UNARCHIVE)
+            == EditType.ARCHIVE_REMOVED
         )
         assert (
             service._get_edit_type(StatusOperation.SEMI_PROTECT)

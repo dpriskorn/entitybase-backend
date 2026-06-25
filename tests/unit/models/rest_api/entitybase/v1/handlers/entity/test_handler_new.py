@@ -170,16 +170,15 @@ class TestEntityHandlerNew:
                 handler, "_hash_sitelinks_new", new_callable=AsyncMock
             ) as mock_hash_sitelinks:
                 mock_hash_sitelinks.return_value = SitelinkHashes(root={})
-                with patch.object(
-                    EntityHandler, "_build_revision_data"
-                ) as mock_build:
+                with patch.object(EntityHandler, "_build_revision_data") as mock_build:
                     from models.infrastructure.s3.revision.revision_data import (
                         RevisionData,
                     )
 
                     mock_build.return_value = MagicMock(spec=RevisionData)
                     with patch.object(
-                        EntityHandler, "_store_revision_s3_new",
+                        EntityHandler,
+                        "_store_revision_s3_new",
                         new_callable=AsyncMock,
                     ) as mock_store:
                         mock_store.return_value = 999
@@ -231,14 +230,17 @@ class TestEntityHandlerNew:
         with patch.object(
             handler, "_hash_terms_new", new_callable=AsyncMock
         ) as mock_hash_terms:
-            mock_hash_terms.return_value = HashMaps(labels={}, descriptions={}, aliases={})
+            mock_hash_terms.return_value = HashMaps(
+                labels={}, descriptions={}, aliases={}
+            )
             with patch.object(
                 handler, "_hash_sitelinks_new", new_callable=AsyncMock
             ) as mock_hash_sitelinks:
                 mock_hash_sitelinks.return_value = SitelinkHashes(root={})
                 with patch.object(EntityHandler, "_build_revision_data"):
                     with patch.object(
-                        EntityHandler, "_store_revision_s3_new",
+                        EntityHandler,
+                        "_store_revision_s3_new",
                         new_callable=AsyncMock,
                     ):
                         result = await handler._create_revision_new(ctx, hash_result)
@@ -287,7 +289,9 @@ class TestEntityHandlerNew:
         )
         result = RevisionResult(success=True, revision_id=1)
 
-        with patch("models.rest_api.entitybase.v1.handlers.entity.handler.settings") as mock_settings:
+        with patch(
+            "models.rest_api.entitybase.v1.handlers.entity.handler.settings"
+        ) as mock_settings:
             mock_settings.streaming_enabled = False
 
             await EntityHandler._publish_events_new(ctx, result)
@@ -303,7 +307,9 @@ class TestEntityHandlerNew:
         )
         result = RevisionResult(success=True, revision_id=1)
 
-        with patch("models.rest_api.entitybase.v1.handlers.entity.handler.settings") as mock_settings:
+        with patch(
+            "models.rest_api.entitybase.v1.handlers.entity.handler.settings"
+        ) as mock_settings:
             mock_settings.streaming_enabled = True
 
             await EntityHandler._publish_events_new(ctx, result)
@@ -328,7 +334,9 @@ class TestEntityHandlerNew:
         )
         result = RevisionResult(success=True, revision_id=1)
 
-        with patch("models.rest_api.entitybase.v1.handlers.entity.handler.settings") as mock_settings:
+        with patch(
+            "models.rest_api.entitybase.v1.handlers.entity.handler.settings"
+        ) as mock_settings:
             mock_settings.streaming_enabled = True
 
             await EntityHandler._publish_events_new(ctx, result)
@@ -416,14 +424,18 @@ class TestEntityHandlerNew:
                 "lemmas": {"en": {"language": "en", "value": "test"}},
                 "language": "en",
                 "lexical_category": "Q1234",
-                "forms": [{
-                    "id": "L123-F1",
-                    "representations": {"en": {"language": "en", "value": "test"}},
-                }],
-                "senses": [{
-                    "id": "L123-S1",
-                    "glosses": {"en": {"language": "en", "value": "a test"}},
-                }],
+                "forms": [
+                    {
+                        "id": "L123-F1",
+                        "representations": {"en": {"language": "en", "value": "test"}},
+                    }
+                ],
+                "senses": [
+                    {
+                        "id": "L123-S1",
+                        "glosses": {"en": {"language": "en", "value": "a test"}},
+                    }
+                ],
             },
             entity_type=EntityType.LEXEME,
         )
@@ -517,15 +529,19 @@ class TestEntityHandlerNew:
                     ) as mock_build:
                         mock_build.return_value = MagicMock()
                         with patch.object(
-                            EntityHandler, "_store_revision_s3_new",
+                            EntityHandler,
+                            "_store_revision_s3_new",
                             new_callable=AsyncMock,
                         ) as mock_store:
                             mock_store.return_value = 999
                             with patch.object(
-                                EntityHandler, "_publish_events_new",
+                                EntityHandler,
+                                "_publish_events_new",
                                 new_callable=AsyncMock,
                             ):
-                                response = await handler.process_entity_revision_new(ctx)
+                                response = await handler.process_entity_revision_new(
+                                    ctx
+                                )
 
                                 assert response.id == "Q42"
 

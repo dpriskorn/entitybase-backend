@@ -100,14 +100,13 @@ class TestProcessLexemeTerms:
         s3_client = MagicMock()
         config = LexemeTermProcessorConfig(s3_client=s3_client)
 
-        forms = [
-            {"representations": {"en": {"value": "test"}}}
-        ]
+        forms = [{"representations": {"en": {"value": "test"}}}]
 
-        with patch(
-            "models.rest_api.entitybase.v1.utils.lexeme_term_processor._process_term_data"
-        ) as mock_process_data, patch(
-            "models.rest_api.entitybase.v1.utils.lexeme_term_processor.logger"
+        with (
+            patch(
+                "models.rest_api.entitybase.v1.utils.lexeme_term_processor._process_term_data"
+            ) as mock_process_data,
+            patch("models.rest_api.entitybase.v1.utils.lexeme_term_processor.logger"),
         ):
             mock_process_data.return_value = None
 
@@ -120,14 +119,13 @@ class TestProcessLexemeTerms:
         s3_client = MagicMock()
         config = LexemeTermProcessorConfig(s3_client=s3_client)
 
-        senses = [
-            {"glosses": {"en": {"value": "test gloss"}}}
-        ]
+        senses = [{"glosses": {"en": {"value": "test gloss"}}}]
 
-        with patch(
-            "models.rest_api.entitybase.v1.utils.lexeme_term_processor._process_term_data"
-        ) as mock_process_data, patch(
-            "models.rest_api.entitybase.v1.utils.lexeme_term_processor.logger"
+        with (
+            patch(
+                "models.rest_api.entitybase.v1.utils.lexeme_term_processor._process_term_data"
+            ) as mock_process_data,
+            patch("models.rest_api.entitybase.v1.utils.lexeme_term_processor.logger"),
         ):
             mock_process_data.return_value = None
 
@@ -141,12 +139,14 @@ class TestProcessLexemeTerms:
         lemmas = {"en": {"value": "test lemma"}}
         config = LexemeTermProcessorConfig(s3_client=s3_client, lemmas=lemmas)
 
-        with patch(
-            "models.rest_api.entitybase.v1.utils.lexeme_term_processor._process_lexeme_lemmas"
-        ) as mock_process_lemmas, patch(
-            "models.rest_api.entitybase.v1.utils.lexeme_term_processor._process_term_data"
-        ) as mock_process_data, patch(
-            "models.rest_api.entitybase.v1.utils.lexeme_term_processor.logger"
+        with (
+            patch(
+                "models.rest_api.entitybase.v1.utils.lexeme_term_processor._process_lexeme_lemmas"
+            ) as mock_process_lemmas,
+            patch(
+                "models.rest_api.entitybase.v1.utils.lexeme_term_processor._process_term_data"
+            ) as mock_process_data,
+            patch("models.rest_api.entitybase.v1.utils.lexeme_term_processor.logger"),
         ):
             mock_process_lemmas.return_value = None
             mock_process_data.return_value = None
@@ -267,11 +267,14 @@ class TestProcessLexemeLemmas:
         )
         lemmas = {"en": {"value": "test lemma"}}
 
-        with patch(
-            "models.rest_api.entitybase.v1.utils.lexeme_term_processor.MetadataExtractor"
-        ) as mock_extractor_class, patch(
-            "models.rest_api.entitybase.v1.utils.lexeme_term_processor.logger"
-        ) as mock_logger:
+        with (
+            patch(
+                "models.rest_api.entitybase.v1.utils.lexeme_term_processor.MetadataExtractor"
+            ) as mock_extractor_class,
+            patch(
+                "models.rest_api.entitybase.v1.utils.lexeme_term_processor.logger"
+            ) as mock_logger,
+        ):
             mock_extractor = MagicMock()
             mock_extractor.hash_string.return_value = 12345
             mock_extractor_class.return_value = mock_extractor
@@ -295,9 +298,7 @@ class TestProcessTermData:
             storage_method="store_form_representation",
             term_type="form representation",
         )
-        terms = [
-            {"representations": {"en": {"value": "test form"}}}
-        ]
+        terms = [{"representations": {"en": {"value": "test form"}}}]
 
         with patch(
             "models.rest_api.entitybase.v1.utils.lexeme_term_processor.MetadataExtractor"
@@ -310,7 +311,9 @@ class TestProcessTermData:
 
             assert "representation_hashes" in terms[0]
             assert "en" in terms[0]["representation_hashes"]
-            s3_client.store_form_representation.assert_called_once_with("test form", 12345)
+            s3_client.store_form_representation.assert_called_once_with(
+                "test form", 12345
+            )
 
     def test_process_term_data_with_callback(self):
         """Test term data processing with callback."""
@@ -321,9 +324,7 @@ class TestProcessTermData:
             storage_method="store_sense_gloss",
             term_type="sense gloss",
         )
-        terms = [
-            {"glosses": {"en": {"value": "test gloss"}}}
-        ]
+        terms = [{"glosses": {"en": {"value": "test gloss"}}}]
         callback = MagicMock()
 
         with patch(
@@ -346,9 +347,7 @@ class TestProcessTermData:
             storage_method="store_form_representation",
             term_type="form representation",
         )
-        terms = [
-            {"other_key": "value"}
-        ]
+        terms = [{"other_key": "value"}]
 
         with patch(
             "models.rest_api.entitybase.v1.utils.lexeme_term_processor.MetadataExtractor"
@@ -369,9 +368,7 @@ class TestProcessTermData:
             storage_method="store_form_representation",
             term_type="form representation",
         )
-        terms = [
-            {"representations": {"en": {"language": "en"}}}
-        ]
+        terms = [{"representations": {"en": {"language": "en"}}}]
 
         with patch(
             "models.rest_api.entitybase.v1.utils.lexeme_term_processor.MetadataExtractor"
@@ -394,15 +391,16 @@ class TestProcessTermData:
             storage_method="store_form_representation",
             term_type="form representation",
         )
-        terms = [
-            {"representations": {"en": {"value": "test form"}}}
-        ]
+        terms = [{"representations": {"en": {"value": "test form"}}}]
 
-        with patch(
-            "models.rest_api.entitybase.v1.utils.lexeme_term_processor.MetadataExtractor"
-        ) as mock_extractor_class, patch(
-            "models.rest_api.entitybase.v1.utils.lexeme_term_processor.logger"
-        ) as mock_logger:
+        with (
+            patch(
+                "models.rest_api.entitybase.v1.utils.lexeme_term_processor.MetadataExtractor"
+            ) as mock_extractor_class,
+            patch(
+                "models.rest_api.entitybase.v1.utils.lexeme_term_processor.logger"
+            ) as mock_logger,
+        ):
             mock_extractor = MagicMock()
             mock_extractor.hash_string.return_value = 12345
             mock_extractor_class.return_value = mock_extractor

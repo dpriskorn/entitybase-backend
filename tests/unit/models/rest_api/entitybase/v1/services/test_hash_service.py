@@ -102,14 +102,18 @@ class TestHashService:
         ) as MockStatementService:
             mock_ss_instance = MockStatementService.return_value
             mock_ss_instance.hash_entity_statements.return_value = mock_hash_result
-            mock_ss_instance.deduplicate_and_store_statements.return_value = mock_store_result
+            mock_ss_instance.deduplicate_and_store_statements.return_value = (
+                mock_store_result
+            )
 
             mock_entity_data = MagicMock(spec=PreparedRequestData)
             result = service.hash_statements(mock_entity_data)
 
             assert isinstance(result, StatementsHashes)
             assert result.root == [123, 456]
-            mock_ss_instance.hash_entity_statements.assert_called_once_with(mock_entity_data)
+            mock_ss_instance.hash_entity_statements.assert_called_once_with(
+                mock_entity_data
+            )
             mock_ss_instance.deduplicate_and_store_statements.assert_called_once()
 
     def test_hash_statements_hash_failure(self):
@@ -152,7 +156,9 @@ class TestHashService:
         ) as MockStatementService:
             mock_ss_instance = MockStatementService.return_value
             mock_ss_instance.hash_entity_statements.return_value = mock_hash_result
-            mock_ss_instance.deduplicate_and_store_statements.return_value = mock_store_result
+            mock_ss_instance.deduplicate_and_store_statements.return_value = (
+                mock_store_result
+            )
 
             mock_entity_data = MagicMock(spec=PreparedRequestData)
             with pytest.raises(HTTPException) as exc_info:
@@ -423,17 +429,23 @@ class TestHashService:
             "aliases": {"en": [{"value": "Alias"}]},
         }.get(k, d)
 
-        with patch(
-            "models.internal_representation.metadata_extractor.MetadataExtractor.hash_string",
-            side_effect=lambda x: hash(x),
-        ), patch(
-            "models.rest_api.entitybase.v1.services.hash_service.StatementService"
-        ) as MockStatementService, patch(
-            "models.rest_api.entitybase.v1.services.hash_service.TermsRepository"
-        ) as MockTermsRepo:
+        with (
+            patch(
+                "models.internal_representation.metadata_extractor.MetadataExtractor.hash_string",
+                side_effect=lambda x: hash(x),
+            ),
+            patch(
+                "models.rest_api.entitybase.v1.services.hash_service.StatementService"
+            ) as MockStatementService,
+            patch(
+                "models.rest_api.entitybase.v1.services.hash_service.TermsRepository"
+            ) as MockTermsRepo,
+        ):
             mock_ss_instance = MockStatementService.return_value
             mock_ss_instance.hash_entity_statements.return_value = mock_hash_result
-            mock_ss_instance.deduplicate_and_store_statements.return_value = mock_store_result
+            mock_ss_instance.deduplicate_and_store_statements.return_value = (
+                mock_store_result
+            )
 
             mock_terms_repo_instance = MockTermsRepo.return_value
             mock_terms_repo_instance.insert_term.return_value = mock_insert_result
@@ -477,14 +489,19 @@ class TestHashService:
             "aliases": {},
         }.get(k, d)
 
-        with patch(
-            "models.rest_api.entitybase.v1.services.hash_service.StatementService"
-        ) as MockStatementService, patch(
-            "models.rest_api.entitybase.v1.services.hash_service.TermsRepository"
-        ) as MockTermsRepo:
+        with (
+            patch(
+                "models.rest_api.entitybase.v1.services.hash_service.StatementService"
+            ) as MockStatementService,
+            patch(
+                "models.rest_api.entitybase.v1.services.hash_service.TermsRepository"
+            ) as MockTermsRepo,
+        ):
             mock_ss_instance = MockStatementService.return_value
             mock_ss_instance.hash_entity_statements.return_value = mock_hash_result
-            mock_ss_instance.deduplicate_and_store_statements.return_value = mock_store_result
+            mock_ss_instance.deduplicate_and_store_statements.return_value = (
+                mock_store_result
+            )
 
             mock_terms_repo_instance = MockTermsRepo.return_value
             mock_terms_repo_instance.insert_term.return_value = mock_insert_result
