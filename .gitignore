@@ -50,3 +50,4 @@ e2e.env
 # Generated requirements (no longer needed - using poetry directly in Dockerfiles)
 requirements*.txt
 .python-version
+*.py,cover

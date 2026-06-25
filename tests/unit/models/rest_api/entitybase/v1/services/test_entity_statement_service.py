@@ -12,6 +12,14 @@ from models.rest_api.entitybase.v1.services.entity_statement_service import (
 )
 
 
+def _make_edit_headers() -> EditHeaders:
+    """Create standard edit headers for testing."""
+    return EditHeaders(
+        x_edit_summary="test edit",
+        x_user_id="0",
+    )
+
+
 class TestEntityStatementService:
     """Unit tests for EntityStatementService."""
 
@@ -406,3 +414,433 @@ class TestEntityStatementService:
 
         assert result.success is True
         assert 11111 not in mock_revision.hashes.statements.root
+
+    # Async method integration tests for EntityStatementService
+
+    @pytest.mark.asyncio
+    async def test_add_property_success(self) -> None:
+        """Test add_property successfully adds claims and returns revision ID."""
+        from models.data.rest_api.v1.entitybase.request import AddPropertyRequest
+        from models.data.rest_api.v1.entitybase.response import (
+            RevisionIdResult,
+            EntityResponse,
+        )
+
+        mock_state = MagicMock()
+        mock_response = MagicMock(spec=EntityResponse)
+        mock_response.revision_id = 42
+
+        service = EntityStatementService(state=mock_state)
+
+        with (
+            patch.object(
+                service,
+                "_validate_property_exists",
+                return_value=None,
+            ),
+            patch.object(
+                service,
+                "_fetch_current_entity_data",
+            ) as mock_fetch,
+            patch.object(
+                service,
+                "_process_entity_update",
+                new=AsyncMock(return_value=mock_response),
+            ),
+        ):
+            mock_fetch.return_value.data = {"claims": {}}
+            request = AddPropertyRequest(claims=[{"test": "data"}])
+            edit_headers = _make_edit_headers()
+            result = await service.add_property(
+                "Q1",
+                "P31",
+                request,
+                edit_headers,
+            )
+
+        assert result.success is True
+        assert isinstance(result.data, RevisionIdResult)
+        assert result.data.revision_id == 42
+
+    @pytest.mark.asyncio
+    async def test_remove_statement_success(self) -> None:
+        """Test remove_statement successfully removes and returns revision ID."""
+        from models.data.rest_api.v1.entitybase.response import (
+            RevisionIdResult,
+        )
+
+        mock_state = MagicMock()
+        mock_state.vitess_client = MagicMock()
+        mock_state.vitess_client.get_head.return_value = 5
+
+        service = EntityStatementService(state=mock_state)
+        mock_revision_data = MagicMock()
+
+        with (
+            patch.object(
+                service,
+                "_fetch_revision_data",
+                return_value=mock_revision_data,
+            ),
+            patch.object(
+                service,
+                "_remove_statement_from_revision",
+                return_value=OperationResult(success=True),
+            ),
+            patch.object(
+                service,
+                "_decrement_statement_ref_count",
+                return_value=None,
+            ),
+            patch.object(
+                service,
+                "_store_updated_revision",
+                new=AsyncMock(return_value=99),
+            ),
+        ):
+            edit_headers = _make_edit_headers()
+            result = await service.remove_statement("Q1", "12345", edit_headers)
+
+        assert result.success is True
+        assert isinstance(result.data, RevisionIdResult)
+        assert result.data.revision_id == 99
+
+    @pytest.mark.asyncio
+    async def test_remove_statement_not_found(self) -> None:
+        """Test remove_statement when statement is not found."""
+        mock_state = MagicMock()
+        mock_state.vitess_client = MagicMock()
+        mock_state.vitess_client.get_head.return_value = 5
+
+        service = EntityStatementService(state=mock_state)
+        mock_revision_data = MagicMock()
+
+        with (
+            patch.object(
+                service,
+                "_fetch_revision_data",
+                return_value=mock_revision_data,
+            ),
+            patch.object(
+                service,
+                "_remove_statement_from_revision",
+                return_value=OperationResult(
+                    success=False, error="Statement hash not found"
+                ),
+            ),
+        ):
+            edit_headers = _make_edit_headers()
+            result = await service.remove_statement("Q1", "99999", edit_headers)
+
+        assert result.success is False
+        assert "not found" in result.error
+
+    @pytest.mark.asyncio
+    async def test_add_statement_success(self) -> None:
+        """Test add_statement successfully adds a single statement."""
+        from models.data.rest_api.v1.entitybase.request import AddStatementRequest
+        from models.data.rest_api.v1.entitybase.response import (
+            RevisionIdResult,
+            EntityResponse,
+        )
+
+        mock_state = MagicMock()
+        mock_response = MagicMock(spec=EntityResponse)
+        mock_response.revision_id = 77
+
+        service = EntityStatementService(state=mock_state)
+
+        with (
+            patch.object(
+                service,
+                "_validate_property_exists",
+                return_value=None,
+            ),
+            patch.object(
+                service,
+                "_fetch_current_entity_data",
+            ) as mock_fetch,
+            patch.object(
+                service,
+                "_process_entity_update",
+                new=AsyncMock(return_value=mock_response),
+            ),
+        ):
+            mock_fetch.return_value.data = {"claims": {}}
+            request = AddStatementRequest(
+                claim={
+                    "property": {"id": "P31"},
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P31",
+                        "datavalue": {"type": "string", "value": "test"},
+                    },
+                }
+            )
+            edit_headers = _make_edit_headers()
+            result = await service.add_statement("Q1", request, edit_headers)
+
+        assert result.success is True
+        assert isinstance(result.data, RevisionIdResult)
+        assert result.data.revision_id == 77
+
+    @pytest.mark.asyncio
+    async def test_add_statement_missing_property_id(self) -> None:
+        """Test add_statement raises error when claim has no property ID."""
+        from fastapi import HTTPException
+        from models.data.rest_api.v1.entitybase.request import AddStatementRequest
+
+        service = EntityStatementService(state=MagicMock())
+        request = AddStatementRequest(claim={"mainsnak": {"snaktype": "value"}})
+        edit_headers = _make_edit_headers()
+
+        with pytest.raises(HTTPException) as exc_info:
+            await service.add_statement("Q1", request, edit_headers)
+
+        assert exc_info.value.status_code == 400
+        assert "property ID" in exc_info.value.detail
+
+    @pytest.mark.asyncio
+    async def test_patch_statement_success(self) -> None:
+        """Test patch_statement successfully replaces a statement."""
+        from models.data.rest_api.v1.entitybase.request import PatchStatementRequest
+        from models.data.rest_api.v1.entitybase.response import (
+            RevisionIdResult,
+            EntityResponse,
+        )
+
+        mock_state = MagicMock()
+        mock_response = MagicMock(spec=EntityResponse)
+        mock_response.revision_id = 55
+
+        service = EntityStatementService(state=mock_state)
+
+        with (
+            patch.object(
+                service,
+                "_fetch_current_entity_data",
+            ) as mock_fetch,
+            patch.object(
+                service,
+                "_find_and_replace_statement",
+                return_value=True,
+            ),
+            patch.object(
+                service,
+                "_process_entity_update",
+                new=AsyncMock(return_value=mock_response),
+            ),
+        ):
+            mock_fetch.return_value.data = {"claims": {"P31": [{"test": "data"}]}}
+            request = PatchStatementRequest(claim={"new": "data"})
+            edit_headers = _make_edit_headers()
+            result = await service.patch_statement("Q1", "12345", request, edit_headers)
+
+        assert result.success is True
+        assert isinstance(result.data, RevisionIdResult)
+        assert result.data.revision_id == 55
+
+    # _fetch_revision_data tests
+
+    def test_fetch_revision_data_success(self) -> None:
+        """Test fetching revision data successfully."""
+        from models.data.infrastructure.s3.revision_data import S3RevisionData
+
+        mock_state = MagicMock()
+        mock_s3 = MagicMock()
+        mock_state.s3_client = mock_s3
+
+        revision_dict = {
+            "revision_id": 42,
+            "entity_type": "item",
+            "edit": {
+                "type": "manual-update",
+                "user_id": 0,
+                "mass": False,
+                "summary": "test edit",
+                "at": "2024-01-01T00:00:00Z",
+            },
+            "hashes": {"statements": [], "labels": {}, "descriptions": {}, "aliases": {}, "sitelinks": {}},
+        }
+        s3_data = S3RevisionData(
+            schema="1.0.0",
+            revision=revision_dict,
+            hash=12345,
+            created_at="2024-01-01T00:00:00Z",
+        )
+        mock_s3.read_revision.return_value = s3_data
+
+        service = EntityStatementService(state=mock_state)
+        result = service._fetch_revision_data("Q1", 42)
+
+        assert result.revision_id == 42
+
+    def test_fetch_revision_data_s3_not_found(self) -> None:
+        """Test fetching revision data when S3 raises not found."""
+        from fastapi import HTTPException
+        from models.infrastructure.s3.exceptions import S3NotFoundError
+
+        mock_state = MagicMock()
+        mock_s3 = MagicMock()
+        mock_state.s3_client = mock_s3
+        mock_s3.read_revision.side_effect = S3NotFoundError("Not found")
+
+        service = EntityStatementService(state=mock_state)
+
+        with pytest.raises(HTTPException) as exc_info:
+            service._fetch_revision_data("Q1", 42)
+
+        assert exc_info.value.status_code == 404
+
+    def test_fetch_revision_data_generic_error(self) -> None:
+        """Test fetching revision data when a generic error occurs."""
+        from fastapi import HTTPException
+
+        mock_state = MagicMock()
+        mock_s3 = MagicMock()
+        mock_state.s3_client = mock_s3
+        mock_s3.read_revision.side_effect = Exception("Connection error")
+
+        service = EntityStatementService(state=mock_state)
+
+        with pytest.raises(HTTPException) as exc_info:
+            service._fetch_revision_data("Q1", 42)
+
+        assert exc_info.value.status_code == 400
+        assert "Connection error" in exc_info.value.detail
+
+    # _store_updated_revision tests
+
+    @pytest.mark.asyncio
+    async def test_store_updated_revision_success(self, mocker) -> None:
+        """Test storing updated revision successfully."""
+        from models.data.infrastructure.s3.enums import EditType
+        from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
+        from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+        from models.infrastructure.s3.revision.revision_data import RevisionData
+
+        mock_state = MagicMock()
+        mock_s3 = MagicMock()
+        mock_vitess = MagicMock()
+        mock_state.s3_client = mock_s3
+        mock_state.vitess_client = mock_vitess
+        mock_vitess.create_revision.return_value = True
+        mocker.patch(
+            "rapidhash.rapidhash",
+            return_value=12345,
+        )
+
+        revision_data = RevisionData(
+            revision_id=41,
+            entity_type="item",
+            edit={"type": "unspecified", "user_id": 0, "summary": "base", "at": "2024-01-01T00:00:00Z"},
+            hashes=HashMaps(),
+        )
+        edit_headers = EditHeaders(
+            **{"X-User-ID": 5, "X-Edit-Summary": "test summary"}
+        )
+
+        service = EntityStatementService(state=mock_state)
+        result = await service._store_updated_revision(
+            revision_data=revision_data,
+            entity_id="Q1",
+            head_revision_id=41,
+            edit_headers=edit_headers,
+        )
+
+        assert result == 42
+        assert revision_data.revision_id == 42
+        assert revision_data.edit.edit_type == EditType.MANUAL_UPDATE
+        assert revision_data.edit.edit_summary == "test summary"
+        assert revision_data.edit.user_id == 5
+        mock_s3.store_revision.assert_called_once()
+        mock_vitess.create_revision.assert_called_once_with(
+            entity_id="Q1",
+            entity_data=revision_data,
+            revision_id=42,
+            content_hash=12345,
+            expected_revision_id=41,
+        )
+
+    @pytest.mark.asyncio
+    async def test_store_updated_revision_conflict(self, mocker) -> None:
+        """Test storing updated revision when a conflict occurs."""
+        from fastapi import HTTPException
+        from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
+        from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+        from models.infrastructure.s3.revision.revision_data import RevisionData
+
+        mock_state = MagicMock()
+        mock_s3 = MagicMock()
+        mock_vitess = MagicMock()
+        mock_state.s3_client = mock_s3
+        mock_state.vitess_client = mock_vitess
+        mock_vitess.create_revision.return_value = False
+        mock_vitess.get_head.return_value = 50
+        mocker.patch(
+            "rapidhash.rapidhash",
+            return_value=12345,
+        )
+
+        revision_data = RevisionData(
+            revision_id=41,
+            entity_type="item",
+            edit={"type": "unspecified", "user_id": 0, "summary": "base", "at": "2024-01-01T00:00:00Z"},
+            hashes=HashMaps(),
+        )
+        edit_headers = EditHeaders(
+            **{"X-User-ID": 5, "X-Edit-Summary": "test summary"}
+        )
+
+        service = EntityStatementService(state=mock_state)
+
+        with pytest.raises(HTTPException) as exc_info:
+            await service._store_updated_revision(
+                revision_data=revision_data,
+                entity_id="Q1",
+                head_revision_id=41,
+                edit_headers=edit_headers,
+            )
+
+        assert exc_info.value.status_code == 400
+        assert "Conflict" in exc_info.value.detail
+
+    @pytest.mark.asyncio
+    async def test_store_updated_revision_generic_error(self, mocker) -> None:
+        """Test storing updated revision when a generic error occurs."""
+        from fastapi import HTTPException
+        from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
+        from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+        from models.infrastructure.s3.revision.revision_data import RevisionData
+
+        mock_state = MagicMock()
+        mock_s3 = MagicMock()
+        mock_state.s3_client = mock_s3
+        mock_s3.store_revision.side_effect = Exception("S3 is down")
+        mocker.patch(
+            "rapidhash.rapidhash",
+            return_value=12345,
+        )
+
+        revision_data = RevisionData(
+            revision_id=41,
+            entity_type="item",
+            edit={"type": "unspecified", "user_id": 0, "summary": "base", "at": "2024-01-01T00:00:00Z"},
+            hashes=HashMaps(),
+        )
+        edit_headers = EditHeaders(
+            **{"X-User-ID": 5, "X-Edit-Summary": "test summary"}
+        )
+
+        service = EntityStatementService(state=mock_state)
+
+        with pytest.raises(HTTPException) as exc_info:
+            await service._store_updated_revision(
+                revision_data=revision_data,
+                entity_id="Q1",
+                head_revision_id=41,
+                edit_headers=edit_headers,
+            )
+
+        assert exc_info.value.status_code == 400
+        assert "S3 is down" in exc_info.value.detail
