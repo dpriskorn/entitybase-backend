@@ -154,6 +154,7 @@ class SqliteSchemaRepository(Repository):
                     created_at TEXT DEFAULT (datetime('now'))
                 )
             """)
+            logger.info("Created entity and backlink tables")
 
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS user_daily_stats (
@@ -325,6 +326,7 @@ class SqliteSchemaRepository(Repository):
             cursor.execute(
                 "CREATE INDEX IF NOT EXISTS idx_activity_entity ON user_activity(entity_id)"
             )
+            logger.info("Created user-related tables")
 
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS user_thanks (
@@ -389,3 +391,4 @@ class SqliteSchemaRepository(Repository):
             cursor.execute(
                 "CREATE INDEX IF NOT EXISTS idx_lex_lang ON lexeme_terms(language)"
             )
+            logger.info("Created lexeme term tables and all indexes")
