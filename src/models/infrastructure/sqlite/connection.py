@@ -7,13 +7,14 @@ from typing import Any, Literal
 
 from pydantic import Field
 
+from models.base import Base
 from models.data.config.sqlite import SqliteConfig
 from models.infrastructure.connection import ConnectionManager
 
 logger = logging.getLogger(__name__)
 
 
-class SqliteCursorWrapper:
+class SqliteCursorWrapper(Base):
     """Wraps a sqlite3 cursor to translate MySQL-style %s params to SQLite ? style.
 
     This allows existing repository code using %s placeholders to work
@@ -22,6 +23,7 @@ class SqliteCursorWrapper:
 
     def __init__(self, cursor: sqlite3.Cursor) -> None:
         self._cursor = cursor
+        super().__init__()
 
     def execute(
         self, sql: str, parameters: Any = None
@@ -66,7 +68,7 @@ class SqliteCursorWrapper:
         return iter(self._cursor.fetchall())
 
 
-class SqliteCursorContextManager:
+class SqliteCursorContextManager(Base):
     """Context manager for SQLite cursors."""
 
     def __init__(
@@ -74,6 +76,7 @@ class SqliteCursorContextManager:
     ) -> None:
         self.connection_manager = connection_manager
         self.cursor: SqliteCursorWrapper | None = None
+        super().__init__()
 
     def __enter__(self) -> SqliteCursorWrapper:
         self.cursor = self.connection_manager.cursor()
