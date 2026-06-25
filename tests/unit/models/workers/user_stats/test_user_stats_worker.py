@@ -107,3 +107,93 @@ class TestUserStatsWorker:
             await worker._store_statistics(stats)
 
             mock_vitess_client.user_repository.insert_user_statistics.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_store_statistics_no_vitess_client(self):
+        """Test storing statistics without vitess client returns early."""
+        worker = UserStatsWorker(vitess_client=None)
+
+        await worker._store_statistics(MagicMock())
+
+    @pytest.mark.asyncio
+    async def test_run_server_no_uvicorn(self):
+        """Test run_server raises RuntimeError when uvicorn is None."""
+        from models.workers.user_stats.user_stats_worker import run_server
+
+        with patch("models.workers.user_stats.user_stats_worker.uvicorn", None):
+            with pytest.raises(RuntimeError, match="uvicorn not installed"):
+                await run_server(MagicMock())
+
+    @pytest.mark.asyncio
+    async def test_run_server_success(self):
+        """Test run_server starts uvicorn server."""
+        from models.workers.user_stats.user_stats_worker import run_server
+
+        mock_uvicorn = MagicMock()
+        mock_server = MagicMock()
+        mock_server.serve = AsyncMock()
+        mock_uvicorn.Config.return_value = MagicMock()
+        mock_uvicorn.Server.return_value = mock_server
+
+        with patch("models.workers.user_stats.user_stats_worker.uvicorn", mock_uvicorn):
+            await run_server(MagicMock())
+
+            mock_uvicorn.Config.assert_called_once()
+            mock_uvicorn.Server.assert_called_once()
+            mock_server.serve.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_main_no_fastapi(self):
+        """Test main function with FastAPI not installed."""
+        from models.workers.user_stats.user_stats_worker import main
+
+        mock_worker = MagicMock()
+        mock_worker.start = AsyncMock()
+
+        with (
+            patch("models.workers.user_stats.user_stats_worker.UserStatsWorker", return_value=mock_worker),
+            patch("models.workers.user_stats.user_stats_worker.FastAPI", None),
+            patch("models.workers.user_stats.user_stats_worker.logger"),
+        ):
+            await main()
+
+            mock_worker.start.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_main_with_fastapi(self):
+        """Test main function with FastAPI installed."""
+        from models.workers.user_stats.user_stats_worker import main
+
+        mock_worker = MagicMock()
+
+        with (
+            patch("models.workers.user_stats.user_stats_worker.UserStatsWorker", return_value=mock_worker),
+            patch("models.workers.user_stats.user_stats_worker.FastAPI"),
+            patch("models.workers.user_stats.user_stats_worker.uvicorn"),
+            patch("models.workers.user_stats.user_stats_worker.asyncio.gather", new_callable=AsyncMock) as mock_gather,
+            patch("models.workers.user_stats.user_stats_worker.run_worker", new_callable=AsyncMock),
+            patch("models.workers.user_stats.user_stats_worker.run_server", new_callable=AsyncMock),
+            patch("models.workers.user_stats.user_stats_worker.logger"),
+        ):
+            await main()
+
+            mock_gather.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_main_with_fastapi_gather_error(self):
+        """Test main function handles asyncio.gather error."""
+        from models.workers.user_stats.user_stats_worker import main
+
+        mock_worker = MagicMock()
+
+        with (
+            patch("models.workers.user_stats.user_stats_worker.UserStatsWorker", return_value=mock_worker),
+            patch("models.workers.user_stats.user_stats_worker.FastAPI"),
+            patch("models.workers.user_stats.user_stats_worker.uvicorn"),
+            patch("models.workers.user_stats.user_stats_worker.asyncio.gather", new_callable=AsyncMock, side_effect=Exception("Gather error")),
+            patch("models.workers.user_stats.user_stats_worker.run_worker", new_callable=AsyncMock),
+            patch("models.workers.user_stats.user_stats_worker.run_server", new_callable=AsyncMock),
+            patch("models.workers.user_stats.user_stats_worker.logger"),
+            pytest.raises(Exception, match="Gather error"),
+        ):
+            await main()

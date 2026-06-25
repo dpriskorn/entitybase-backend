@@ -844,3 +844,187 @@ class TestEntityStatementService:
 
         assert exc_info.value.status_code == 400
         assert "S3 is down" in exc_info.value.detail
+
+    # --- Coverage edge cases ---
+
+    @pytest.mark.asyncio
+    async def test_patch_statement_not_found_path(self) -> None:
+        """Line 164: patch_statement returns error when statement not found."""
+        from models.rest_api.entitybase.v1.services.entity_statement_service import (
+            EntityStatementService,
+        )
+
+        mock_state = MagicMock()
+        service = EntityStatementService(state=mock_state)
+
+        with patch.object(
+            service,
+            "_fetch_current_entity_data",
+        ) as mock_fetch, patch.object(
+            service,
+            "_find_and_replace_statement",
+            return_value=False,
+        ):
+            mock_fetch.return_value.data = {"claims": {}}
+            request = MagicMock()
+            edit_headers = _make_edit_headers()
+            result = await service.patch_statement(
+                "Q1", "99999", request, edit_headers
+            )
+
+            assert result.success is False
+            assert "Statement not found" in str(result.error)
+
+    def test_validate_property_exists_happy_path(self) -> None:
+        """Line 189->exit: entity_type == 'property' returns without error."""
+        mock_state = MagicMock()
+        mock_read_handler = MagicMock()
+        mock_response = MagicMock()
+        mock_response.entity_data.revision = {"entity_type": "property"}
+        mock_read_handler.get_entity.return_value = mock_response
+
+        with patch(
+            "models.rest_api.entitybase.v1.services.entity_statement_service.EntityReadHandler",
+            return_value=mock_read_handler,
+        ):
+            service = EntityStatementService(state=mock_state)
+            service._validate_property_exists("P31")
+            assert True
+
+    def test_fetch_revision_data_invalid_type(self) -> None:
+        """Line 223: non-S3RevisionData type raises validation error."""
+        from fastapi import HTTPException
+
+        mock_state = MagicMock()
+        mock_s3 = MagicMock()
+        mock_state.s3_client = mock_s3
+        mock_s3.read_revision.return_value = {"not": "S3RevisionData"}
+
+        service = EntityStatementService(state=mock_state)
+
+        with pytest.raises(HTTPException) as exc_info:
+            service._fetch_revision_data("Q1", 42)
+
+        # Caught by outer except Exception and re-raised as 400
+        assert exc_info.value.status_code == 400
+
+    def test_fetch_revision_data_old_edit_format(self) -> None:
+        """Lines 225-232: old-format edit keys are renamed."""
+        from models.data.infrastructure.s3.revision_data import S3RevisionData
+
+        mock_state = MagicMock()
+        mock_s3 = MagicMock()
+        mock_state.s3_client = mock_s3
+
+        revision_dict = {
+            "revision_id": 42,
+            "entity_type": "item",
+            "edit": {
+                "edit_type": "manual-update",
+                "edit_summary": "old format",
+                "is_mass_edit": True,
+                "user_id": 0,
+                "at": "2024-01-01T00:00:00Z",
+            },
+            "hashes": {
+                "statements": [],
+                "labels": {},
+                "descriptions": {},
+                "aliases": {},
+                "sitelinks": {},
+            },
+        }
+        s3_data = S3RevisionData(
+            schema="1.0.0",
+            revision=revision_dict,
+            hash=12345,
+            created_at="2024-01-01T00:00:00Z",
+        )
+        mock_s3.read_revision.return_value = s3_data
+
+        service = EntityStatementService(state=mock_state)
+        result = service._fetch_revision_data("Q1", 42)
+
+        assert result.revision_id == 42
+
+    def test_find_and_replace_statement_no_claims_key(self) -> None:
+        """Line 357->367: no 'claims' key in current_data."""
+        current_data = {"something_else": {}}
+
+        replaced = EntityStatementService._find_and_replace_statement(
+            current_data, "12345", {"new": "data"}
+        )
+
+        assert replaced is False
+
+    @pytest.mark.asyncio
+    async def test_process_entity_update_success(self) -> None:
+        """Lines 377-393: _process_entity_update with mocked deps."""
+        from models.rest_api.entitybase.v1.services.entity_statement_service import (
+            EntityStatementService,
+        )
+
+        mock_state = MagicMock()
+        mock_read_handler = MagicMock()
+        mock_response = MagicMock()
+        mock_response.revision_id = 42
+        mock_response.entity_data.revision = {"entity_type": "item"}
+        mock_read_handler.get_entity.return_value = mock_response
+
+        mock_entity_handler = MagicMock()
+        mock_entity_handler.process_entity_revision_new = AsyncMock(
+            return_value=mock_response
+        )
+
+        with patch(
+            "models.rest_api.entitybase.v1.services.entity_statement_service.EntityReadHandler",
+            return_value=mock_read_handler,
+        ), patch(
+            "models.rest_api.entitybase.v1.services.entity_statement_service.EntityHandler",
+            return_value=mock_entity_handler,
+        ):
+            service = EntityStatementService(state=mock_state)
+            edit_headers = _make_edit_headers()
+            result = await service._process_entity_update(
+                "Q1",
+                {"claims": {"P31": [{"test": "data"}]}},
+                edit_headers,
+                None,
+            )
+
+        assert result.revision_id == 42
+
+    def test_fetch_revision_data_no_edit_key(self) -> None:
+        """Line 225->233: revision_data without 'edit' key hits False branch."""
+        from fastapi import HTTPException
+        from models.data.infrastructure.s3.revision_data import S3RevisionData
+
+        mock_state = MagicMock()
+        mock_s3 = MagicMock()
+        mock_state.s3_client = mock_s3
+
+        revision_dict = {
+            "revision_id": 42,
+            "entity_type": "item",
+            "hashes": {
+                "statements": [],
+                "labels": {},
+                "descriptions": {},
+                "aliases": {},
+                "sitelinks": {},
+            },
+        }
+        s3_data = S3RevisionData(
+            schema="1.0.0",
+            revision=revision_dict,
+            hash=12345,
+            created_at="2024-01-01T00:00:00Z",
+        )
+        mock_s3.read_revision.return_value = s3_data
+
+        service = EntityStatementService(state=mock_state)
+
+        with pytest.raises(HTTPException) as exc_info:
+            service._fetch_revision_data("Q1", 42)
+
+        assert exc_info.value.status_code == 400

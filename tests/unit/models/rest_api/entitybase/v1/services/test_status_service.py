@@ -399,6 +399,215 @@ class TestStatusService:
         assert result.idempotent is False
         mock_state.vitess_client.create_revision.assert_called_once()
 
+    def test_change_status_s3_read_failure(self):
+        """Test change_status raises 404 when S3 read fails."""
+        from fastapi import HTTPException
+
+        mock_state = self.create_mock_state()
+        mock_state.vitess_client.entity_exists.return_value = True
+        mock_state.vitess_client.is_entity_deleted.return_value = False
+        mock_state.vitess_client.get_head.return_value = 42
+        mock_state.s3_client.read_revision.side_effect = Exception("S3 error")
+
+        service = StatusService(state=mock_state)
+        request = EntityStatusRequest()
+
+        with pytest.raises(HTTPException) as exc_info:
+            service.change_status("Q42", StatusOperation.LOCK, request)
+        assert exc_info.value.status_code == 404
+
+    def test_change_status_state_none(self):
+        """Test change_status handles revision state being None."""
+        mock_state = self.create_mock_state()
+        mock_state.vitess_client.entity_exists.return_value = True
+        mock_state.vitess_client.is_entity_deleted.return_value = False
+        mock_state.vitess_client.get_head.return_value = 42
+        mock_state.vitess_client.create_revision.return_value = True
+
+        revision_data = self.create_mock_revision()
+        revision_data.revision["state"] = None
+        mock_state.s3_client.read_revision.return_value = revision_data
+        mock_state.s3_client.store_revision.return_value = (999, MagicMock())
+
+        service = StatusService(state=mock_state)
+        request = EntityStatusRequest()
+
+        result = service.change_status("Q42", StatusOperation.LOCK, request)
+
+        assert result.id == "Q42"
+        assert result.status == "locked"
+        assert result.idempotent is False
+
+    def test_change_status_non_idempotent_unlock(self):
+        """Test change_status unlocked (non-idempotent)."""
+        mock_state = self.create_mock_state()
+        mock_state.vitess_client.entity_exists.return_value = True
+        mock_state.vitess_client.is_entity_deleted.return_value = False
+        mock_state.vitess_client.get_head.return_value = 42
+        mock_state.vitess_client.create_revision.return_value = True
+
+        current_state = EntityState(
+            sp=False, locked=True, archived=False, dangling=False, mep=False, deleted=False,
+        )
+        mock_revision = self.create_mock_revision(current_state)
+        mock_state.s3_client.read_revision.return_value = mock_revision
+        mock_state.s3_client.store_revision.return_value = (999, MagicMock())
+
+        service = StatusService(state=mock_state)
+        request = EntityStatusRequest()
+
+        result = service.change_status("Q42", StatusOperation.UNLOCK, request)
+
+        assert result.id == "Q42"
+        assert result.status == "unlocked"
+        assert result.idempotent is False
+
+    def test_change_status_non_idempotent_archive(self):
+        """Test change_status archived (non-idempotent)."""
+        mock_state = self.create_mock_state()
+        mock_state.vitess_client.entity_exists.return_value = True
+        mock_state.vitess_client.is_entity_deleted.return_value = False
+        mock_state.vitess_client.get_head.return_value = 42
+        mock_state.vitess_client.create_revision.return_value = True
+
+        current_state = EntityState(
+            sp=False, locked=False, archived=False, dangling=False, mep=False, deleted=False,
+        )
+        mock_revision = self.create_mock_revision(current_state)
+        mock_state.s3_client.read_revision.return_value = mock_revision
+        mock_state.s3_client.store_revision.return_value = (999, MagicMock())
+
+        service = StatusService(state=mock_state)
+        request = EntityStatusRequest()
+
+        result = service.change_status("Q42", StatusOperation.ARCHIVE, request)
+
+        assert result.id == "Q42"
+        assert result.status == "archived"
+        assert result.idempotent is False
+
+    def test_change_status_non_idempotent_unarchive(self):
+        """Test change_status unarchived (non-idempotent)."""
+        mock_state = self.create_mock_state()
+        mock_state.vitess_client.entity_exists.return_value = True
+        mock_state.vitess_client.is_entity_deleted.return_value = False
+        mock_state.vitess_client.get_head.return_value = 42
+        mock_state.vitess_client.create_revision.return_value = True
+
+        current_state = EntityState(
+            sp=False, locked=False, archived=True, dangling=False, mep=False, deleted=False,
+        )
+        mock_revision = self.create_mock_revision(current_state)
+        mock_state.s3_client.read_revision.return_value = mock_revision
+        mock_state.s3_client.store_revision.return_value = (999, MagicMock())
+
+        service = StatusService(state=mock_state)
+        request = EntityStatusRequest()
+
+        result = service.change_status("Q42", StatusOperation.UNARCHIVE, request)
+
+        assert result.id == "Q42"
+        assert result.status == "unarchived"
+        assert result.idempotent is False
+
+    def test_change_status_non_idempotent_semi_protect(self):
+        """Test change_status semi_protected (non-idempotent)."""
+        mock_state = self.create_mock_state()
+        mock_state.vitess_client.entity_exists.return_value = True
+        mock_state.vitess_client.is_entity_deleted.return_value = False
+        mock_state.vitess_client.get_head.return_value = 42
+        mock_state.vitess_client.create_revision.return_value = True
+
+        current_state = EntityState(
+            sp=False, locked=False, archived=False, dangling=False, mep=False, deleted=False,
+        )
+        mock_revision = self.create_mock_revision(current_state)
+        mock_state.s3_client.read_revision.return_value = mock_revision
+        mock_state.s3_client.store_revision.return_value = (999, MagicMock())
+
+        service = StatusService(state=mock_state)
+        request = EntityStatusRequest()
+
+        result = service.change_status("Q42", StatusOperation.SEMI_PROTECT, request)
+
+        assert result.id == "Q42"
+        assert result.status == "semi_protected"
+        assert result.idempotent is False
+
+    def test_change_status_non_idempotent_unsemi_protect(self):
+        """Test change_status unsemi_protected (non-idempotent)."""
+        mock_state = self.create_mock_state()
+        mock_state.vitess_client.entity_exists.return_value = True
+        mock_state.vitess_client.is_entity_deleted.return_value = False
+        mock_state.vitess_client.get_head.return_value = 42
+        mock_state.vitess_client.create_revision.return_value = True
+
+        current_state = EntityState(
+            sp=True, locked=False, archived=False, dangling=False, mep=False, deleted=False,
+        )
+        mock_revision = self.create_mock_revision(current_state)
+        mock_state.s3_client.read_revision.return_value = mock_revision
+        mock_state.s3_client.store_revision.return_value = (999, MagicMock())
+
+        service = StatusService(state=mock_state)
+        request = EntityStatusRequest()
+
+        result = service.change_status("Q42", StatusOperation.UNSEMI_PROTECT, request)
+
+        assert result.id == "Q42"
+        assert result.status == "unprotected"
+        assert result.idempotent is False
+
+    def test_change_status_non_idempotent_mass_edit_protect(self):
+        """Test change_status mass_edit_protected (non-idempotent)."""
+        mock_state = self.create_mock_state()
+        mock_state.vitess_client.entity_exists.return_value = True
+        mock_state.vitess_client.is_entity_deleted.return_value = False
+        mock_state.vitess_client.get_head.return_value = 42
+        mock_state.vitess_client.create_revision.return_value = True
+
+        current_state = EntityState(
+            sp=False, locked=False, archived=False, dangling=False, mep=False, deleted=False,
+        )
+        mock_revision = self.create_mock_revision(current_state)
+        mock_state.s3_client.read_revision.return_value = mock_revision
+        mock_state.s3_client.store_revision.return_value = (999, MagicMock())
+
+        service = StatusService(state=mock_state)
+        request = EntityStatusRequest()
+
+        result = service.change_status("Q42", StatusOperation.MASS_EDIT_PROTECT, request)
+
+        assert result.id == "Q42"
+        assert result.status == "mass_edit_protected"
+        assert result.idempotent is False
+
+    def test_change_status_non_idempotent_mass_edit_unprotect(self):
+        """Test change_status mass_edit_unprotected (non-idempotent)."""
+        mock_state = self.create_mock_state()
+        mock_state.vitess_client.entity_exists.return_value = True
+        mock_state.vitess_client.is_entity_deleted.return_value = False
+        mock_state.vitess_client.get_head.return_value = 42
+        mock_state.vitess_client.create_revision.return_value = True
+
+        current_state = EntityState(
+            sp=False, locked=False, archived=False, dangling=False, mep=True, deleted=False,
+        )
+        mock_revision = self.create_mock_revision(current_state)
+        mock_state.s3_client.read_revision.return_value = mock_revision
+        mock_state.s3_client.store_revision.return_value = (999, MagicMock())
+
+        service = StatusService(state=mock_state)
+        request = EntityStatusRequest()
+
+        result = service.change_status(
+            "Q42", StatusOperation.MASS_EDIT_UNPROTECT, request
+        )
+
+        assert result.id == "Q42"
+        assert result.status == "mass_edit_unprotected"
+        assert result.idempotent is False
+
     def test_change_status_conflict(self):
         """Test change_status raises 409 on conflict."""
         from fastapi import HTTPException

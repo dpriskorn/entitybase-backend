@@ -215,8 +215,6 @@ class StatusService(Service):
             content_hash=content_hash,
         )
         if not revision_created:
-            from models.rest_api.utils import raise_validation_error
-
             current_head = self.state.vitess_client.get_head(entity_id)
             raise_validation_error(
                 f"Conflict: entity was modified by another edit. "

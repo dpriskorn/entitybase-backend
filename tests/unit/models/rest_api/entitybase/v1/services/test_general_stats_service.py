@@ -1,7 +1,7 @@
 """Unit tests for general stats service."""
 
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 
 class TestGeneralStatsService:
@@ -365,6 +365,27 @@ class TestTermsPerLanguage:
         result = service.get_terms_per_language()
         assert result.terms == {}
 
+    def test_get_terms_per_language_aliases_fail(self, service, mock_state):
+        """Test get_terms_per_language handles aliases table failure."""
+        call_count = 0
+
+        def fetchall_side_effect():
+            nonlocal call_count
+            call_count += 1
+            if call_count == 1:
+                return [["en", 100]]
+            if call_count == 2:
+                return [["en", 50]]
+            raise Exception("aliases table not found")
+
+        mock_cursor = MagicMock()
+        mock_cursor.fetchall.side_effect = fetchall_side_effect
+        mock_state.vitess_client.cursor.__enter__.return_value = mock_cursor
+
+        result = service.get_terms_per_language()
+
+        assert result.terms["en"] == 150
+
 
 class TestTermsByType:
     """Unit tests for get_terms_by_type method."""
@@ -432,3 +453,145 @@ class TestTermsByType:
 
         result = service.get_terms_by_type()
         assert result.counts == {}
+
+    def test_get_terms_by_type_aliases_fail(self, service, mock_state):
+        """Test get_terms_by_type handles aliases table failure."""
+        call_count = 0
+
+        def fetchone_side_effect():
+            nonlocal call_count
+            call_count += 1
+            if call_count == 1:
+                return ["labels", 1000]
+            if call_count == 2:
+                return ["descriptions", 500]
+            raise Exception("aliases table not found")
+
+        mock_cursor = MagicMock()
+        mock_cursor.fetchone.side_effect = fetchone_side_effect
+        mock_state.vitess_client.cursor.__enter__.return_value = mock_cursor
+
+        result = service.get_terms_by_type()
+
+        assert result.counts["labels"] == 1000
+        assert result.counts["descriptions"] == 500
+        assert "aliases" not in result.counts
+
+
+class TestComputeDailyStatsExec:
+    """Unit tests for actually executing compute_daily_stats."""
+
+    @pytest.fixture
+    def mock_state(self):
+        """Create a mock state object."""
+        state = MagicMock()
+        state.vitess_client = MagicMock()
+        return state
+
+    @pytest.fixture
+    def service(self, mock_state):
+        """Create service with mock state."""
+        from models.rest_api.entitybase.v1.services.general_stats_service import (
+            GeneralStatsService,
+        )
+
+        svc = GeneralStatsService(state=mock_state)
+        return svc
+
+    def test_compute_daily_stats(self, service, mock_state):
+        """Test compute_daily_stats returns aggregated stats."""
+        mock_cursor = MagicMock()
+        mock_cursor.fetchone.side_effect = [
+            [100], [100], [100], [100], [100], [100], [100], [100],
+            ["labels", 100],
+            ["descriptions", 100],
+            ["aliases", 100],
+        ]
+        mock_cursor.fetchall.return_value = [["en", 50]]
+        mock_state.vitess_client.cursor.__enter__.return_value = mock_cursor
+
+        result = service.compute_daily_stats()
+
+        assert result.total_statements == 100
+        assert result.total_qualifiers == 100
+        assert result.total_references == 100
+        assert result.total_items == 100
+        assert result.total_lexemes == 100
+        assert result.total_properties == 100
+        assert result.total_sitelinks == 100
+        assert result.total_terms == 100
+        assert result.terms_per_language.terms["en"] == 150
+        assert result.terms_by_type.counts["labels"] == 100
+
+
+class TestTermsByTypeEdgeCases:
+    """Unit tests for edge cases in get_terms_by_type."""
+
+    @pytest.fixture
+    def mock_state(self):
+        """Create a mock state object."""
+        state = MagicMock()
+        state.vitess_client = MagicMock()
+        return state
+
+    @pytest.fixture
+    def service(self, mock_state):
+        """Create service with mock state."""
+        from models.rest_api.entitybase.v1.services.general_stats_service import (
+            GeneralStatsService,
+        )
+
+        svc = GeneralStatsService(state=mock_state)
+        return svc
+
+    def test_get_terms_by_type_empty_result(self, service, mock_state):
+        """Test get_terms_by_type when fetchone returns None."""
+        mock_cursor = MagicMock()
+        mock_cursor.fetchone.return_value = None
+        mock_state.vitess_client.cursor.__enter__.return_value = mock_cursor
+
+        result = service.get_terms_by_type()
+
+        assert result.counts == {}
+
+
+class TestTermsDeduplicationEdgeCases:
+    """Unit tests for edge cases in _get_terms_deduplication_stats."""
+
+    @pytest.fixture
+    def mock_state(self):
+        """Create a mock state object."""
+        state = MagicMock()
+        state.vitess_client = MagicMock()
+        return state
+
+    @pytest.fixture
+    def service(self, mock_state):
+        """Create service with mock state."""
+        from models.rest_api.entitybase.v1.services.general_stats_service import (
+            GeneralStatsService,
+        )
+
+        svc = GeneralStatsService(state=mock_state)
+        return svc
+
+    def test_get_terms_deduplication_stats_empty_result(self, service, mock_state):
+        """Test _get_terms_deduplication_stats when fetchone returns None."""
+        mock_cursor = MagicMock()
+        mock_cursor.fetchone.return_value = None
+        mock_state.vitess_client.cursor.__enter__.return_value = mock_cursor
+
+        result = service._get_terms_deduplication_stats()
+
+        assert result.unique_hashes == 0
+        assert result.total_ref_count == 0
+
+    def test_get_terms_deduplication_stats_outer_exception(self, service, mock_state):
+        """Test _get_terms_deduplication_stats handles outer exception."""
+        mock_state.vitess_client.cursor.__enter__.side_effect = Exception(
+            "Connection error"
+        )
+
+        result = service._get_terms_deduplication_stats()
+
+        assert result.unique_hashes == 0
