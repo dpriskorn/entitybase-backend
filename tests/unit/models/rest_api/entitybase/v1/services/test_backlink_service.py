@@ -288,3 +288,107 @@ class TestBacklinkService:
         result = service.extract_backlinks_from_entity("Q1", claims)
 
         assert len(result) == 2
+
+    def test_extract_backlinks_skips_unresolvable_referenced_entity(self):
+        """Test skip when referenced entity ID cannot be resolved."""
+        from models.rest_api.entitybase.v1.services.backlink_service import (
+            BacklinkService,
+        )
+
+        mock_state = MagicMock()
+        mock_id_resolver = MagicMock()
+
+        def resolve_side_effect(eid: str) -> int | None:
+            mapping = {"Q1": 1, "Q999": 0, "Q998": None, "Q5": 5}
+            return mapping.get(eid)
+
+        mock_id_resolver.resolve_id.side_effect = resolve_side_effect
+        mock_state.vitess_client.id_resolver = mock_id_resolver
+        mock_state.vitess_client.backlink_repository = MagicMock()
+
+        service = BacklinkService(state=mock_state)
+
+        claims = {
+            "P31": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P31",
+                        "datavalue": {
+                            "type": "wikibase-entityid",
+                            "value": {"entity-type": "item", "id": "Q999"},
+                        },
+                    },
+                    "rank": "normal",
+                },
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P31",
+                        "datavalue": {
+                            "type": "wikibase-entityid",
+                            "value": {"entity-type": "item", "id": "Q998"},
+                        },
+                    },
+                    "rank": "normal",
+                },
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P31",
+                        "datavalue": {
+                            "type": "wikibase-entityid",
+                            "value": {"entity-type": "item", "id": "Q5"},
+                        },
+                    },
+                    "rank": "normal",
+                },
+            ]
+        }
+
+        result = service.extract_backlinks_from_entity("Q1", claims)
+
+        assert len(result) == 1
+
+    def test_extract_and_store_backlinks_failure(self):
+        """Test failure during backlink storage."""
+        from models.rest_api.entitybase.v1.services.backlink_service import (
+            BacklinkService,
+        )
+        from models.data.common import OperationResult
+
+        mock_state = MagicMock()
+        mock_id_resolver = MagicMock()
+        mock_id_resolver.resolve_id.side_effect = lambda eid: {"Q1": 1, "Q5": 5}.get(
+            eid
+        )
+        mock_state.vitess_client.id_resolver = mock_id_resolver
+
+        mock_repo = MagicMock()
+        mock_repo.insert_backlinks.return_value = OperationResult(
+            success=False, error="DB connection error"
+        )
+        mock_state.vitess_client.backlink_repository = mock_repo
+
+        service = BacklinkService(state=mock_state)
+
+        claims = {
+            "P31": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P31",
+                        "datavalue": {
+                            "type": "wikibase-entityid",
+                            "value": {"entity-type": "item", "id": "Q5"},
+                        },
+                    },
+                    "rank": "normal",
+                }
+            ]
+        }
+
+        result = service.extract_and_store_backlinks("Q1", claims)
+
+        assert result.success is False
+        assert "DB connection error" in result.error
