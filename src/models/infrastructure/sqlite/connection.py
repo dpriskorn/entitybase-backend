@@ -48,6 +48,7 @@ class SqliteCursorWrapper:
         return self._cursor.fetchall()
 
     def fetchmany(self, size: int | None = None) -> list[Any]:
+        # None uses cursor's arraysize (default behavior); 0 returns empty list
         return self._cursor.fetchmany(size)
 
     def close(self) -> None:
