@@ -166,3 +166,55 @@ class TestStatementHandler:
         )
 
         assert result == []
+
+
+class TestGetStatement:
+    """Tests for get_statement method."""
+
+    @pytest.fixture
+    def mock_state(self):
+        """Create a mock state object."""
+        state = MagicMock()
+        return state
+
+    @pytest.fixture
+    def mock_handler(self, mock_state):
+        """Create a mock handler with mocked state."""
+        from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
+        handler = StatementHandler(state=mock_state)
+        return handler
+
+    def test_get_statement_s3_not_initialized(self, mock_handler, mock_state):
+        """Test get_statement raises 503 when S3 is not initialized."""
+        mock_state.s3_client = None
+
+        with pytest.raises(HTTPException) as exc_info:
+            mock_handler.get_statement(12345)
+
+        assert exc_info.value.status_code == 503
+
+    def test_get_statement_not_found(self, mock_handler, mock_state):
+        """Test get_statement raises 404 when statement doesn't exist."""
+        mock_state.s3_client.read_statement.side_effect = Exception("Not found")
+
+        with pytest.raises(HTTPException) as exc_info:
+            mock_handler.get_statement(12345)
+
+        assert exc_info.value.status_code == 404
+
+
+class TestGetStatementsBatch:
+    """Tests for get_statements_batch method."""
+
+    @pytest.fixture
+    def mock_state(self):
+        """Create a mock state object."""
+        state = MagicMock()
+        return state
+
+    @pytest.fixture
+    def mock_handler(self, mock_state):
+        """Create a mock handler with mocked state."""
+        from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
+        handler = StatementHandler(state=mock_state)
+        return handler
