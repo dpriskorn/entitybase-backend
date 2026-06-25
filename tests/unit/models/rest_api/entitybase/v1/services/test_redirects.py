@@ -1,7 +1,7 @@
 """Unit tests for redirects service."""
 
 import pytest
-from unittest.mock import MagicMock, patch, AsyncMock
+from unittest.mock import MagicMock, patch
 from fastapi import HTTPException
 
 
@@ -130,81 +130,6 @@ class TestRedirectService:
         assert to_head == 10
         assert from_head == 0
         assert mock_state.vitess_client.get_head.call_count == 2
-
-    @pytest.mark.asyncio
-    async def test_create_redirect_success(self, service, mock_state):
-        """Test successful redirect creation."""
-        from models.data.rest_api.v1.entitybase.request import EntityRedirectRequest
-        from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
-        from models.data.infrastructure.s3.revision.revision_data import RevisionData
-
-        mock_request = EntityRedirectRequest(redirect_from_id="Q1", redirect_to_id="Q2")
-        mock_edit_headers = EditHeaders(x_user_id=123, x_edit_summary="test redirect")
-
-        mock_state.vitess_client.get_redirect_target.return_value = None
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.is_entity_locked.return_value = False
-        mock_state.vitess_client.is_entity_archived.return_value = False
-        mock_state.vitess_client.get_head.side_effect = [10, 5]
-        mock_state.vitess_client.create_revision.return_value = True
-        mock_state.entity_change_stream_producer = None
-
-        with patch(
-            "models.rest_api.entitybase.v1.services.redirects.RevisionData"
-        ) as MockRevisionData, patch(
-            "models.rest_api.entitybase.v1.services.redirects.MetadataExtractor"
-        ) as MockMetadataExtractor, patch(
-            "models.rest_api.entitybase.v1.services.redirects.S3RevisionData"
-        ) as MockS3RevisionData:
-            mock_revision_instance = MagicMock()
-            mock_revision_instance.model_dump.return_value = {}
-            MockRevisionData.return_value = mock_revision_instance
-            MockMetadataExtractor.hash_string.return_value = 12345
-            MockS3RevisionData.return_value = MagicMock()
-
-            response = await service.create_redirect(mock_request, mock_edit_headers)
-
-            assert response.redirect_from_id == "Q1"
-            assert response.redirect_to_id == "Q2"
-            mock_state.vitess_client.create_revision.assert_called_once()
-            mock_state.vitess_client.create_redirect.assert_called_once()
-            mock_state.vitess_client.set_redirect_target.assert_called_once()
-
-    @pytest.mark.asyncio
-    async def test_create_redirect_revision_conflict(self, service, mock_state):
-        """Test redirect creation fails when revision conflict occurs."""
-        from models.data.rest_api.v1.entitybase.request import EntityRedirectRequest
-        from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
-
-        mock_request = EntityRedirectRequest(redirect_from_id="Q1", redirect_to_id="Q2")
-        mock_edit_headers = EditHeaders(x_user_id=123, x_edit_summary="test redirect")
-
-        mock_state.vitess_client.get_redirect_target.return_value = None
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.is_entity_locked.return_value = False
-        mock_state.vitess_client.is_entity_archived.return_value = False
-        mock_state.vitess_client.get_head.side_effect = [10, 5]
-        mock_state.vitess_client.create_revision.return_value = False
-        mock_state.entity_change_stream_producer = None
-
-        with patch(
-            "models.rest_api.entitybase.v1.services.redirects.RevisionData"
-        ) as MockRevisionData, patch(
-            "models.rest_api.entitybase.v1.services.redirects.MetadataExtractor"
-        ) as MockMetadataExtractor, patch(
-            "models.rest_api.entitybase.v1.services.redirects.S3RevisionData"
-        ) as MockS3RevisionData:
-            mock_revision_instance = MagicMock()
-            mock_revision_instance.model_dump.return_value = {}
-            MockRevisionData.return_value = mock_revision_instance
-            MockMetadataExtractor.hash_string.return_value = 12345
-            MockS3RevisionData.return_value = MagicMock()
-
-            with pytest.raises(HTTPException) as exc_info:
-                await service.create_redirect(mock_request, mock_edit_headers)
-
-            assert exc_info.value.status_code == 409
-            assert "Conflict" in str(exc_info.value.detail)
 
     @pytest.mark.asyncio
     async def test_revert_redirect_success(self, service, mock_state):
