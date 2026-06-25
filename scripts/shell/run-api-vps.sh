@@ -2,8 +2,6 @@
 cd "$(dirname "$0")/../.."
 set -e
 
-source .venv/bin/activate
-
 echo "🚀 Starting Docker services (MySQL, rustfs, Redpanda)..."
 docker compose -f docker-compose.tests.yml up -d mysql rustfs redpanda
 
@@ -18,13 +16,9 @@ docker compose -f docker-compose.tests.yml up --build create-topics || exit 1
 
 echo "✅ Setup complete! Starting API..."
 
-# Load environment variables
 source test.env
 
-# Set PYTHONPATH
-export PYTHONPATH=src
-
 echo "🐍 Starting API with uvicorn..."
-exec uvicorn models.rest_api.main:app \
+exec poetry run uvicorn models.rest_api.main:app \
   --host 0.0.0.0 \
   --port 8080

@@ -2,15 +2,10 @@
 cd "$(dirname "$0")/../.."
 set -Eeuo pipefail
 
-source .venv/bin/activate
-
 ./scripts/shell/run-scc.sh
 git log --date=short --format='%ad' | sort | uniq -c | awk '{sum+=$1; count++} END {print "Average commits per day:", sum/count}' >> STATISTICS.md
-# python scripts/doc/generate_git_stats.py >> STATISTICS.md
 ./scripts/shell/count-tests.sh >> STATISTICS.md
 ./scripts/shell/count-words.sh
-# ./scripts/shell/run-coverage.sh
-# python scripts/doc/update-coverage-stats.py
 poetry run python scripts/doc/extract_endpoints.py
 poetry run python scripts/doc/generate_workers_overview.py > docs/ARCHITECTURE/WORKERS.md
 poetry run python scripts/doc/generate_services_overview.py > docs/ARCHITECTURE/SERVICES.md
@@ -22,5 +17,4 @@ poetry run python scripts/doc/update_schemas_readme.py > schemas/README.md
 poetry run python scripts/doc/generate_architecture_diagrams.py
 poetry run python scripts/doc/generate_pngs.py
 poetry run python scripts/generate_api_docs.py
-# python scripts/generate-doc-tree.py > docs/FILE-OVERVIEW.md
 ./scripts/generate-tree.sh

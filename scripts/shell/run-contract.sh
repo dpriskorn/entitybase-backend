@@ -1,4 +1,5 @@
 #!/bin/bash
+cd "$(dirname "$0")/../.."
 set -e
-source .venv/bin/activate
-PYTHONPATH=src poetry run pytest tests/contract/ -v -m contract
+
+poetry run pytest tests/contract/ -v -m contract

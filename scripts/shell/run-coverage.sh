@@ -1,16 +1,13 @@
 #!/bin/bash
 cd "$(dirname "$0")/../.."
-# set -euo pipefail
+set -e
 
 THRESHOLD=30
 
 source test.env
 
-source .venv/bin/activate
-
 echo "Cleaning up..."
 
-# Cleanup first
 rm coverage_below_threshold.txt || true
 rm coverage.txt || true
 rm coverage.xml || true
@@ -18,7 +15,6 @@ find . -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
 find . -name "*.pyc" -delete 2>/dev/null || true
 
 echo "Running all tests with coverage..."
-# Test
 poetry run pytest \
   -n "auto" \
   --cov=src \

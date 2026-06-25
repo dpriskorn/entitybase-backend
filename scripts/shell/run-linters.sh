@@ -2,8 +2,6 @@
 cd "$(dirname "$0")/../.."
 set -e
 
-export PATH="$PWD/.venv/bin:$PATH"
-
 # == custom internal linters ==
 poetry run python scripts/linters/check_async_calls.py src/
 ./scripts/shell/run-int-lint.sh

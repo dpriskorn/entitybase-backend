@@ -3,9 +3,4 @@
 
 cd "$(dirname "$0")/../.."
 
-if [ ! -d ".venv" ]; then
-    echo "Error: Virtual environment not found at $(pwd)/.venv"
-    exit 1
-fi
-
-.venv/bin/python scripts/generate_api_docs.py
+poetry run python scripts/generate_api_docs.py
