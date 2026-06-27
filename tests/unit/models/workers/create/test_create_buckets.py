@@ -356,6 +356,8 @@ class TestCreateBuckets:
                     endpoint_url="http://custom:9000",
                     aws_access_key_id="mykey",
                     aws_secret_access_key="mysecret",
+                    config=mock.ANY,
+                    region_name="us-east-1",
                 )
 
 
