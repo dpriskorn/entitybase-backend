@@ -110,7 +110,6 @@ jobs:
 
   be-integration-tests:
     runs-on: ubuntu-latest
-    needs: [be-lint, be-unit-01, be-unit-02, be-unit-03, be-unit-04]
     timeout-minutes: 60
     steps:
       - name: Checkout code
