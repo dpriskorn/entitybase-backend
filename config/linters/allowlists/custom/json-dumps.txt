@@ -14,10 +14,3 @@ src/models/infrastructure/mysql/repositories/user.py:525
 src/models/infrastructure/mysql/repositories/user.py:478
 src/models/infrastructure/mysql/repositories/user.py:479
 src/models/infrastructure/mysql/repositories/user.py:526
-src/models/infrastructure/vitess/storage/base.py:39
-src/models/infrastructure/vitess/storage/base.py:122
-src/models/infrastructure/vitess/repositories/user.py:529
-src/models/infrastructure/vitess/repositories/user.py:530
-src/models/infrastructure/vitess/repositories/revision.py:229
-src/models/infrastructure/vitess/repositories/revision.py:321
-src/models/infrastructure/vitess/repositories/backlink.py:116
