@@ -57,8 +57,9 @@ const handleLogin = async () => {
 
     localStorage.setItem('access_token', response.access_token)
     router.push('/dashboard')
-  } catch (err: any) {
-    error.value = err.response?.data?.detail || 'Invalid username or password'
+  } catch (err: unknown) {
+    const errorObj = err as { response?: { data?: { detail?: string } } }
+    error.value = errorObj.response?.data?.detail || 'Invalid username or password'
   } finally {
     loading.value = false
   }

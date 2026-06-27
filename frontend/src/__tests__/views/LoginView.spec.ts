@@ -280,9 +280,8 @@ describe('LoginView', () => {
 
   describe('Loading state', () => {
     it('should show "Signing in..." during login', async () => {
-      let resolveLogin: () => void
       vi.mocked(authService.login).mockImplementation(
-        () => new Promise(resolve => { resolveLogin = resolve })
+        () => new Promise(() => { /* pending */ })
       )
 
       const wrapper = mount(LoginView, {

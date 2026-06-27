@@ -13,8 +13,6 @@ const mockLocalStorage = {
 Object.defineProperty(global, 'localStorage', { value: mockLocalStorage })
 
 describe('Router Configuration', () => {
-  let router: ReturnType<typeof createRouter>
-
   beforeEach(() => {
     vi.clearAllMocks()
     mockLocalStorage.store = {}

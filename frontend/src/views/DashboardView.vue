@@ -63,8 +63,9 @@ const loadStats = async () => {
 
   try {
     stats.value = await statsService.getGeneralStats()
-  } catch (err: any) {
-    error.value = err.response?.data?.detail || 'Failed to load statistics'
+  } catch (err: unknown) {
+    const errorObj = err as { response?: { data?: { detail?: string } } }
+    error.value = errorObj.response?.data?.detail || 'Failed to load statistics'
   } finally {
     loading.value = false
   }
