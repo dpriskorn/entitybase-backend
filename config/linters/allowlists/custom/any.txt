@@ -71,3 +71,13 @@ src/models/infrastructure/sqlite/client.py:138
 src/models/infrastructure/sqlite/connection.py:44
 src/models/infrastructure/sqlite/connection.py:58
 src/models/infrastructure/sqlite/connection.py:65
+src/models/infrastructure/vitess/client.py:68
+src/models/infrastructure/vitess/client.py:75
+src/models/infrastructure/vitess/client.py:84
+src/models/infrastructure/vitess/client.py:91
+src/models/infrastructure/vitess/client.py:98
+src/models/infrastructure/vitess/client.py:107
+src/models/infrastructure/vitess/client.py:116
+src/models/infrastructure/vitess/client.py:123
+src/models/infrastructure/vitess/client.py:132
+src/models/infrastructure/vitess/client.py:141
