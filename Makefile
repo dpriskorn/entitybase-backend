@@ -1,4 +1,4 @@
-.PHONY: be-lint test test-fast coverage help ruff mypy radon vulture stop api-vps vps-reset docs docs-generate docs-build docs-serve check release push-release ci fe-lint fe-test fe-run be-tests
+.PHONY: be-lint be-test-fast be-coverage help ruff mypy radon vulture stop api-vps vps-reset docs docs-generate docs-build docs-serve check release push-release ci fe-lint fe-test fe-run be-tests be-test-unit be-test-e2e be-test-contract be-test-integration
 
 help:
 	@echo "Available targets:"
@@ -40,7 +40,7 @@ help:
 	@echo "  make test-unit-02 - Run unit tests (internal_representation, workers)"
 	@echo "  make test-unit-03 - Run unit tests (infrastructure, rdf_builder)"
 	@echo "  make test-unit-04 - Run unit tests (rest_api)"
-	@echo "  make coverage    - Run tests with coverage report"
+	@echo "  make be-coverage    - Run tests with coverage report"
 	@echo "  make fe-lint     - Run frontend linter (eslint/prettier)"
 	@echo "  make fe-test     - Run frontend tests (vitest)"
 	@echo "  make fe-run      - Run frontend dev server"
@@ -149,7 +149,7 @@ lint-test-fast: be-lint test-unit-e2e-contract
 
 test-fast: test-unit-e2e-contract
 
-coverage: check
+be-coverage: check
 	./scripts/shell/run-coverage.sh
 
 fe-lint:
