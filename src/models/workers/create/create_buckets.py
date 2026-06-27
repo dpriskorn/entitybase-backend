@@ -6,6 +6,7 @@ import sys
 from typing import Any, Dict, List, TypedDict
 
 import boto3 as _boto3  # noqa  # type: ignore[import-untyped]
+from botocore.config import Config  # type: ignore[import-untyped]
 from botocore.exceptions import ClientError  # type: ignore[import-untyped]
 from pydantic import BaseModel, Field
 
@@ -60,6 +61,8 @@ class CreateBuckets(BaseModel):
 
     def _create_s3_client(self) -> Any:
         """Create S3 client with shared credentials for all buckets."""
+        from models.data.infrastructure.s3.adressing import S3Adressing
+
         logger.info(
             f"Creating S3 client with endpoint={self.rustfs_endpoint}, "
             f"access_key={self.rustfs_access_key[:4]}..."
@@ -69,6 +72,11 @@ class CreateBuckets(BaseModel):
             endpoint_url=self.rustfs_endpoint,
             aws_access_key_id=self.rustfs_access_key,
             aws_secret_access_key=self.rustfs_secret_key,
+            config=Config(
+                signature_version="s3v4",
+                s3=S3Adressing().model_dump(),
+            ),
+            region_name="us-east-1",
         )
         logger.debug(f"S3 client created, verifying connection...")
         return client
