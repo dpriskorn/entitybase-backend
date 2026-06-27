@@ -375,13 +375,21 @@ class TestUpdateAliasesErrors:
         """Test that invalid entity ID raises 400."""
         from fastapi import HTTPException
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+        from models.data.rest_api.v1.entitybase.request.entity.context import (
+            AliasContext,
+            EditOperationContext,
+        )
 
         mixin, mock_state = self._create_mixin_with_mocks()
 
         edit_headers = EditHeaders(x_edit_summary="test")
+        context = AliasContext(language_code="en", aliases=["alias"])
+        edit_operation_context = EditOperationContext(
+            edit_headers=edit_headers, user_id=0
+        )
 
         with pytest.raises(HTTPException) as exc_info:
-            await mixin.update_aliases("invalid", "en", ["alias"], edit_headers)
+            await mixin.update_aliases("invalid", context, edit_operation_context)
 
         assert exc_info.value.status_code == 400
         assert "Invalid entity ID format" in exc_info.value.detail
@@ -408,13 +416,21 @@ class TestAddAliasErrors:
         """Test that invalid entity ID raises 400."""
         from fastapi import HTTPException
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+        from models.data.rest_api.v1.entitybase.request.entity.context import (
+            AliasContext,
+            EditOperationContext,
+        )
 
         mixin, mock_state = self._create_mixin_with_mocks()
 
         edit_headers = EditHeaders(x_edit_summary="test")
+        context = AliasContext(language_code="en", aliases=["alias"])
+        edit_operation_context = EditOperationContext(
+            edit_headers=edit_headers, user_id=0
+        )
 
         with pytest.raises(HTTPException) as exc_info:
-            await mixin.add_alias("invalid", "en", "alias", edit_headers)
+            await mixin.add_alias("invalid", context, edit_operation_context)
 
         assert exc_info.value.status_code == 400
         assert "Invalid entity ID format" in exc_info.value.detail
@@ -424,14 +440,22 @@ class TestAddAliasErrors:
         """Test that adding alias to deleted entity raises 410."""
         from fastapi import HTTPException
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+        from models.data.rest_api.v1.entitybase.request.entity.context import (
+            AliasContext,
+            EditOperationContext,
+        )
 
         mixin, mock_state = self._create_mixin_with_mocks()
         mock_state.mysql_client.is_entity_deleted.return_value = True
 
         edit_headers = EditHeaders(x_edit_summary="test")
+        context = AliasContext(language_code="en", aliases=["alias"])
+        edit_operation_context = EditOperationContext(
+            edit_headers=edit_headers, user_id=0
+        )
 
         with pytest.raises(HTTPException) as exc_info:
-            await mixin.add_alias("Q1", "en", "alias", edit_headers)
+            await mixin.add_alias("Q1", context, edit_operation_context)
 
         assert exc_info.value.status_code == 410
         assert "Entity deleted" in exc_info.value.detail
@@ -441,15 +465,23 @@ class TestAddAliasErrors:
         """Test that adding alias to locked entity raises 423."""
         from fastapi import HTTPException
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+        from models.data.rest_api.v1.entitybase.request.entity.context import (
+            AliasContext,
+            EditOperationContext,
+        )
 
         mixin, mock_state = self._create_mixin_with_mocks()
         mock_state.mysql_client.is_entity_deleted.return_value = False
         mock_state.mysql_client.is_entity_locked.return_value = True
 
         edit_headers = EditHeaders(x_edit_summary="test")
+        context = AliasContext(language_code="en", aliases=["alias"])
+        edit_operation_context = EditOperationContext(
+            edit_headers=edit_headers, user_id=0
+        )
 
         with pytest.raises(HTTPException) as exc_info:
-            await mixin.add_alias("Q1", "en", "alias", edit_headers)
+            await mixin.add_alias("Q1", context, edit_operation_context)
 
         assert exc_info.value.status_code == 423
         assert "Entity locked" in exc_info.value.detail
@@ -625,6 +657,10 @@ class TestAddAliasSuccess:
         from fastapi import HTTPException
         from models.data.infrastructure.s3.enums import EntityType
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+        from models.data.rest_api.v1.entitybase.request.entity.context import (
+            AliasContext,
+            EditOperationContext,
+        )
 
         mixin, mock_state = self._create_mixin_with_mocks()
         mock_state.mysql_client.is_entity_deleted.return_value = False
@@ -634,6 +670,12 @@ class TestAddAliasSuccess:
         mock_entity.entity_data.revision = {
             "hashes": {"aliases": {"en": [12345]}},
         }
+
+        edit_headers = EditHeaders(x_edit_summary="test")
+        context = AliasContext(language_code="en", aliases=["alias"])
+        edit_operation_context = EditOperationContext(
+            edit_headers=edit_headers, user_id=0
+        )
 
         with patch(
             "models.internal_representation.metadata_extractor.MetadataExtractor"
@@ -651,9 +693,8 @@ class TestAddAliasSuccess:
                     with pytest.raises(HTTPException) as exc_info:
                         await mixin.add_alias(
                             "Q1",
-                            "en",
-                            "alias",
-                            EditHeaders(x_edit_summary="test"),
+                            context,
+                            edit_operation_context,
                         )
 
                     assert exc_info.value.status_code == 409
@@ -664,6 +705,10 @@ class TestAddAliasSuccess:
         """Test add_alias success with mysql_config set."""
         from models.data.infrastructure.s3.enums import EntityType
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+        from models.data.rest_api.v1.entitybase.request.entity.context import (
+            AliasContext,
+            EditOperationContext,
+        )
 
         mixin, mock_state = self._create_mixin_with_mocks()
         mock_state.mysql_client.is_entity_deleted.return_value = False
@@ -677,6 +722,12 @@ class TestAddAliasSuccess:
 
         mock_response = MagicMock()
         mock_response.revision_id = 3
+
+        edit_headers = EditHeaders(x_edit_summary="test")
+        context = AliasContext(language_code="en", aliases=["newalias"])
+        edit_operation_context = EditOperationContext(
+            edit_headers=edit_headers, user_id=0
+        )
 
         with patch(
             "models.internal_representation.metadata_extractor.MetadataExtractor"
@@ -712,9 +763,8 @@ class TestAddAliasSuccess:
                         ):
                             result = await mixin.add_alias(
                                 "Q1",
-                                "en",
-                                "newalias",
-                                EditHeaders(x_edit_summary="test"),
+                                context,
+                                edit_operation_context,
                             )
 
                             assert result == mock_response
@@ -726,6 +776,10 @@ class TestAddAliasSuccess:
         """Test add_alias success without mysql_config."""
         from models.data.infrastructure.s3.enums import EntityType
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+        from models.data.rest_api.v1.entitybase.request.entity.context import (
+            AliasContext,
+            EditOperationContext,
+        )
 
         mixin, mock_state = self._create_mixin_with_mocks()
         mock_state.mysql_client.is_entity_deleted.return_value = False
@@ -739,6 +793,12 @@ class TestAddAliasSuccess:
 
         mock_response = MagicMock()
         mock_response.revision_id = 3
+
+        edit_headers = EditHeaders(x_edit_summary="test")
+        context = AliasContext(language_code="en", aliases=["newalias"])
+        edit_operation_context = EditOperationContext(
+            edit_headers=edit_headers, user_id=0
+        )
 
         with patch(
             "models.internal_representation.metadata_extractor.MetadataExtractor"
@@ -768,9 +828,8 @@ class TestAddAliasSuccess:
                     ):
                         result = await mixin.add_alias(
                             "Q1",
-                            "en",
-                            "newalias",
-                            EditHeaders(x_edit_summary="test"),
+                            context,
+                            edit_operation_context,
                         )
 
                         assert result == mock_response

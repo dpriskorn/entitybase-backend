@@ -14,6 +14,7 @@ from models.data.common import OperationResult
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
 from models.data.rest_api.v1.entitybase.request.entity.context import (
+    EditOperationContext,
     EventPublishContext,
 )
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
@@ -58,13 +59,17 @@ class TestUpdateTransaction:
 
         transaction = UpdateTransaction(state=mock_state, entity_id=entity_id)
 
+        edit_operation_context = EditOperationContext(
+            edit_headers=edit_headers,
+            user_id=123,
+        )
+
         result = await transaction.create_revision(
             entity_id=entity_id,
             request_data=request_data,
             entity_type=entity_type,
-            edit_headers=edit_headers,
+            edit_operation_context=edit_operation_context,
             hash_result=hash_result,
-            user_id=123,
         )
 
         assert result.id == entity_id
@@ -106,13 +111,17 @@ class TestUpdateTransaction:
 
         transaction = UpdateTransaction(state=mock_state, entity_id=entity_id)
 
+        edit_operation_context = EditOperationContext(
+            edit_headers=edit_headers,
+            user_id=1,
+        )
+
         result = await transaction.create_revision(
             entity_id=entity_id,
             request_data=request_data,
             entity_type=entity_type,
-            edit_headers=edit_headers,
+            edit_operation_context=edit_operation_context,
             hash_result=hash_result,
-            user_id=1,
         )
 
         assert result.id == entity_id
@@ -370,14 +379,18 @@ class TestUpdateTransaction:
         mock_mysql.create_revision.return_value = False
         mock_mysql.get_head.return_value = 2
 
+        edit_operation_context = EditOperationContext(
+            edit_headers=edit_headers,
+            user_id=123,
+        )
+
         with pytest.raises(HTTPException) as exc_info:
             await transaction.create_revision(
                 entity_id=entity_id,
                 request_data=request_data,
                 entity_type=entity_type,
-                edit_headers=edit_headers,
+                edit_operation_context=edit_operation_context,
                 hash_result=hash_result,
-                user_id=123,
             )
 
         assert exc_info.value.status_code == 409
@@ -417,11 +430,15 @@ class TestUpdateTransaction:
 
         transaction = UpdateTransaction(state=mock_state, entity_id=entity_id)
 
+        edit_operation_context = EditOperationContext(
+            edit_headers=edit_headers,
+            user_id=1,
+        )
+
         result = await transaction.create_revision_with_hashes(
             entity_id=entity_id,
             entity_type=entity_type,
-            edit_headers=edit_headers,
-            user_id=1,
+            edit_operation_context=edit_operation_context,
             existing_hashes=existing_hashes,
             existing_revision=existing_revision,
         )
@@ -465,12 +482,16 @@ class TestUpdateTransaction:
 
         transaction = UpdateTransaction(state=mock_state, entity_id=entity_id)
 
+        edit_operation_context = EditOperationContext(
+            edit_headers=edit_headers,
+            user_id=1,
+        )
+
         with pytest.raises(HTTPException) as exc_info:
             await transaction.create_revision_with_hashes(
                 entity_id=entity_id,
                 entity_type=entity_type,
-                edit_headers=edit_headers,
-                user_id=1,
+                edit_operation_context=edit_operation_context,
                 existing_hashes=existing_hashes,
                 existing_revision=existing_revision,
             )

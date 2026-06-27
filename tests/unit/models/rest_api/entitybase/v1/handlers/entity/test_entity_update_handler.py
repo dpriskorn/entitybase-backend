@@ -7,6 +7,8 @@ from fastapi import HTTPException
 
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.rest_api.v1.entitybase.request.entity.context import (
+    AliasContext,
+    EditOperationContext,
     TermUpdateContext,
     SitelinkUpdateContext,
 )
@@ -253,6 +255,9 @@ class TestEntityUpdateHandler:
             "hashes": {"labels": {"en": 12345}, "statements": []},
         }
 
+        mock_response = MagicMock()
+        mock_response.revision_id = 3
+
         handler = EntityUpdateHandler(state=mock_state)
 
         with patch.object(
@@ -262,13 +267,24 @@ class TestEntityUpdateHandler:
                 "models.rest_api.entitybase.v1.handlers.entity.update_terms.EntityReadHandler",
                 return_value=MagicMock(get_entity=MagicMock(return_value=mock_entity)),
             ):
-                result = await handler.delete_label(
-                    "Q42",
-                    "en",
-                    EditHeaders(x_edit_summary="Delete label"),
-                )
+                with patch(
+                    "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
+                ) as MockTx:
+                    mock_tx = MagicMock()
+                    mock_tx.state.mysql_client.get_head.return_value = 2
+                    mock_tx.create_revision_with_hashes = AsyncMock(
+                        return_value=mock_response
+                    )
+                    mock_tx.publish_event = AsyncMock()
+                    MockTx.return_value = mock_tx
 
-                assert result is not None
+                    result = await handler.delete_label(
+                        "Q42",
+                        "en",
+                        EditHeaders(x_edit_summary="Delete label"),
+                    )
+
+                    assert result is not None
 
     @pytest.mark.asyncio
     async def test_delete_label_idempotent(self) -> None:
@@ -409,6 +425,9 @@ class TestEntityUpdateHandler:
             "hashes": {"descriptions": {"en": 67890}, "statements": []},
         }
 
+        mock_response = MagicMock()
+        mock_response.revision_id = 3
+
         handler = EntityUpdateHandler(state=mock_state)
 
         with patch.object(
@@ -418,13 +437,24 @@ class TestEntityUpdateHandler:
                 "models.rest_api.entitybase.v1.handlers.entity.update_terms.EntityReadHandler",
                 return_value=MagicMock(get_entity=MagicMock(return_value=mock_entity)),
             ):
-                result = await handler.delete_description(
-                    "Q42",
-                    "en",
-                    EditHeaders(x_edit_summary="Delete description"),
-                )
+                with patch(
+                    "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
+                ) as MockTx:
+                    mock_tx = MagicMock()
+                    mock_tx.state.mysql_client.get_head.return_value = 2
+                    mock_tx.create_revision_with_hashes = AsyncMock(
+                        return_value=mock_response
+                    )
+                    mock_tx.publish_event = AsyncMock()
+                    MockTx.return_value = mock_tx
 
-                assert result is not None
+                    result = await handler.delete_description(
+                        "Q42",
+                        "en",
+                        EditHeaders(x_edit_summary="Delete description"),
+                    )
+
+                    assert result is not None
 
     @pytest.mark.asyncio
     async def test_delete_description_idempotent(self) -> None:
@@ -479,6 +509,12 @@ class TestEntityUpdateHandler:
 
         handler = EntityUpdateHandler(state=mock_state)
 
+        context = AliasContext(language_code="en", aliases=["Alias1", "Alias2"])
+        edit_operation_context = EditOperationContext(
+            edit_headers=EditHeaders(x_edit_summary="Update aliases"),
+            user_id=0,
+        )
+
         with patch.object(
             handler, "_update_with_transaction", new_callable=AsyncMock
         ) as mock_update:
@@ -495,9 +531,8 @@ class TestEntityUpdateHandler:
                 ):
                     result = await handler.update_aliases(
                         "Q42",
-                        "en",
-                        ["Alias1", "Alias2"],
-                        EditHeaders(x_edit_summary="Update aliases"),
+                        context,
+                        edit_operation_context,
                     )
 
                     assert mock_update.called
@@ -514,12 +549,17 @@ class TestEntityUpdateHandler:
         mock_state = MagicMock()
         handler = EntityUpdateHandler(state=mock_state)
 
+        context = AliasContext(language_code="en", aliases=["Alias"])
+        edit_operation_context = EditOperationContext(
+            edit_headers=EditHeaders(x_edit_summary="Update aliases"),
+            user_id=0,
+        )
+
         with pytest.raises(HTTPException) as exc_info:
             await handler.update_aliases(
                 "INVALID",
-                "en",
-                ["Alias"],
-                EditHeaders(x_edit_summary="Update aliases"),
+                context,
+                edit_operation_context,
             )
         assert exc_info.value.status_code == 400
         assert exc_info.value.detail == "Invalid entity ID format"

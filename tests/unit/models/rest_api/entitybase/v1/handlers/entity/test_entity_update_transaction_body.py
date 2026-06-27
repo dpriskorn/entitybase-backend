@@ -6,6 +6,9 @@ import pytest
 from fastapi import HTTPException
 
 from models.data.infrastructure.s3.enums import EntityType
+from models.data.rest_api.v1.entitybase.request.entity.context import (
+    EditOperationContext,
+)
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.infrastructure.s3.exceptions import S3NotFoundError
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
@@ -31,6 +34,10 @@ class TestEntityUpdateTransactionBody:
 
         handler = EntityUpdateHandler(state=mock_state)
         modified_data = {"labels": {"en": {"language": "en", "value": "Test"}}}
+        edit_operation_context = EditOperationContext(
+            edit_headers=EditHeaders(x_edit_summary="Update"),
+            user_id=0,
+        )
 
         with patch(
             "models.rest_api.entitybase.v1.handlers.entity.update.UpdateTransaction"
@@ -47,7 +54,7 @@ class TestEntityUpdateTransactionBody:
                     "Q42",
                     modified_data,
                     EntityType.ITEM,
-                    EditHeaders(x_edit_summary="Update"),
+                    edit_operation_context,
                 )
             assert exc_info.value.status_code == 404
             mock_tx.rollback.assert_called_once()
@@ -69,6 +76,10 @@ class TestEntityUpdateTransactionBody:
 
         handler = EntityUpdateHandler(state=mock_state)
         modified_data = {"labels": {"en": {"language": "en", "value": "Test"}}}
+        edit_operation_context = EditOperationContext(
+            edit_headers=EditHeaders(x_edit_summary="Update"),
+            user_id=0,
+        )
 
         with patch(
             "models.rest_api.entitybase.v1.handlers.entity.update.UpdateTransaction"
@@ -85,7 +96,7 @@ class TestEntityUpdateTransactionBody:
                     "Q42",
                     modified_data,
                     EntityType.ITEM,
-                    EditHeaders(x_edit_summary="Update"),
+                    edit_operation_context,
                 )
             assert exc_info.value.status_code == 422
             mock_tx.rollback.assert_called_once()
@@ -107,6 +118,10 @@ class TestEntityUpdateTransactionBody:
 
         handler = EntityUpdateHandler(state=mock_state)
         modified_data = {"labels": {"en": {"language": "en", "value": "Test"}}}
+        edit_operation_context = EditOperationContext(
+            edit_headers=EditHeaders(x_edit_summary="Update"),
+            user_id=0,
+        )
 
         with patch(
             "models.rest_api.entitybase.v1.handlers.entity.update.UpdateTransaction"
@@ -121,7 +136,7 @@ class TestEntityUpdateTransactionBody:
                     "Q42",
                     modified_data,
                     EntityType.ITEM,
-                    EditHeaders(x_edit_summary="Update"),
+                    edit_operation_context,
                 )
             assert exc_info.value.status_code == 500
             assert "Unexpected error" in str(exc_info.value.detail)
@@ -144,6 +159,10 @@ class TestEntityUpdateTransactionBody:
 
         handler = EntityUpdateHandler(state=mock_state)
         modified_data = {"labels": {"en": {"language": "en", "value": "Test"}}}
+        edit_operation_context = EditOperationContext(
+            edit_headers=EditHeaders(x_edit_summary="Update"),
+            user_id=123,
+        )
 
         from models.data.rest_api.v1.entitybase.response import (
             EntityResponse,
@@ -198,8 +217,7 @@ class TestEntityUpdateTransactionBody:
                 "Q42",
                 modified_data,
                 EntityType.ITEM,
-                EditHeaders(x_edit_summary="Update"),
-                user_id=123,
+                edit_operation_context,
             )
 
             assert result.id == "Q42"
@@ -226,6 +244,10 @@ class TestEntityUpdateTransactionBody:
 
         handler = EntityUpdateHandler(state=mock_state)
         modified_data = {"labels": {"en": {"language": "en", "value": "Test"}}}
+        edit_operation_context = EditOperationContext(
+            edit_headers=EditHeaders(x_edit_summary="Update"),
+            user_id=123,
+        )
 
         from models.data.rest_api.v1.entitybase.response import (
             EntityResponse,
@@ -272,8 +294,7 @@ class TestEntityUpdateTransactionBody:
                 "Q42",
                 modified_data,
                 EntityType.ITEM,
-                EditHeaders(x_edit_summary="Update"),
-                user_id=123,
+                edit_operation_context,
             )
 
             assert result.id == "Q42"
@@ -296,6 +317,10 @@ class TestEntityUpdateTransactionBody:
 
         handler = EntityUpdateHandler(state=mock_state)
         modified_data = {"labels": {"en": {"language": "en", "value": "Test"}}}
+        edit_operation_context = EditOperationContext(
+            edit_headers=EditHeaders(x_edit_summary="Bot update"),
+            user_id=0,
+        )
 
         from models.data.rest_api.v1.entitybase.response import (
             EntityResponse,
@@ -339,8 +364,7 @@ class TestEntityUpdateTransactionBody:
                 "Q42",
                 modified_data,
                 EntityType.ITEM,
-                EditHeaders(x_edit_summary="Bot update"),
-                user_id=0,
+                edit_operation_context,
             )
 
             assert result.id == "Q42"
