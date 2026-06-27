@@ -1,4 +1,4 @@
-.PHONY: be-lint be-test-fast be-coverage help stop docs docs-generate docs-build docs-serve check release push-release ci fe-lint fe-tests fe-run be-tests be-test-unit be-test-e2e be-test-contract be-test-integration
+.PHONY: be-lint be-test-fast be-coverage help ruff mypy radon vulture stop docs docs-generate docs-build docs-serve check release push-release ci fe-lint fe-tests fe-run be-tests be-test-unit be-test-e2e be-test-contract be-test-integration
 
 help:
 	@echo "Available targets:"
@@ -11,6 +11,10 @@ help:
 	@echo "  make release       - Create tag locally (e.g., v2026.2.28)"
 	@echo "  make push-release - Create tag and push to trigger GitHub release workflow"
 	@echo "  make be-lint         - Run all linters"
+	@echo "  make ruff         - Run ruff linter"
+	@echo "  make mypy         - Run mypy type checker"
+	@echo "  make radon        - Run radon complexity checker"
+	@echo "  make vulture      - Run vulture dead code checker"
 	@echo "  make docs-generate - Generate documentation from code (statistics, endpoints, etc.)"
 	@echo "  make docs-build   - Build static documentation site (uses zensical)"
 	@echo "  make docs-serve   - Serve documentation locally with live reload (uses zensical)"
@@ -57,6 +61,18 @@ push-release:
 
 be-lint:
 	./scripts/shell/run-linters.sh
+
+ruff:
+	./scripts/shell/run-ruff.sh
+
+mypy:
+	./scripts/shell/run-mypy.sh
+
+radon:
+	./scripts/shell/run-radon.sh
+
+vulture:
+	./scripts/shell/run-vulture.sh
 
 be-test-contract: check
 	./scripts/shell/run-contract.sh
