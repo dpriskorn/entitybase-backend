@@ -133,3 +133,10 @@ class RevisionContext(BaseModel):
     validator: Any | None = Field(default=None, description="Validator instance")
     edit_headers: Any = Field(default=None, description="Edit headers")
     user_id: int = Field(default=0, description="User ID")
+
+
+class EditOperationContext(BaseModel):
+    """Context for edit operations, bundling edit_headers and user_id."""
+
+    edit_headers: Any = Field(..., description="Edit headers")
+    user_id: int = Field(default=0, description="User ID")

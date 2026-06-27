@@ -7,12 +7,12 @@ from datetime import datetime, timezone
 from typing import Any, Callable
 
 from models.data.infrastructure.s3 import EntityState
-from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.infrastructure.s3.enums import MetadataType
 from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
 from models.data.rest_api.v1.entitybase.request.entity.context import (
+    EditOperationContext,
     EventPublishContext,
 )
 from models.data.rest_api.v1.entitybase.response import EntityResponse
@@ -121,9 +121,8 @@ class UpdateTransaction(EntityTransaction):
         entity_id: str,
         request_data: PreparedRequestData,
         entity_type: Any,
-        edit_headers: EditHeaders,
+        edit_operation_context: EditOperationContext,
         hash_result: StatementHashResult,
-        user_id: int = 0,
     ) -> EntityResponse:
         """Create revision using new architecture components."""
         logger.debug(f"[UpdateTransaction] Starting revision creation for {entity_id}")
@@ -172,8 +171,8 @@ class UpdateTransaction(EntityTransaction):
             edit=EditData(
                 mass=False,
                 type=EditType.UNSPECIFIED,
-                user_id=user_id,
-                summary=edit_headers.x_edit_summary,
+                user_id=edit_operation_context.user_id,
+                summary=edit_operation_context.edit_headers.x_edit_summary,
                 at=created_at,
             ),
             state=EntityState(),
@@ -192,7 +191,7 @@ class UpdateTransaction(EntityTransaction):
         logger.debug(
             f"[UpdateTransaction.create_revision] entity_id={entity_id}, mysql_client={id(self.state.mysql_client)}, id_resolver={id(self.state.mysql_client.id_resolver)}"
         )
-        expected_revision_id = edit_headers.x_base_revision_id
+        expected_revision_id = edit_operation_context.edit_headers.x_base_revision_id
         revision_created = self.state.mysql_client.create_revision(
             entity_id=entity_id,
             entity_data=revision_data,
@@ -235,10 +234,9 @@ class UpdateTransaction(EntityTransaction):
         self,
         entity_id: str,
         entity_type: Any,
-        edit_headers: EditHeaders,
+        edit_operation_context: EditOperationContext,
         existing_hashes: dict[str, Any],
         existing_revision: dict[str, Any],
-        user_id: int = 0,
     ) -> EntityResponse:
         """Create revision with pre-computed hashes (for single-term updates).
 
@@ -295,8 +293,8 @@ class UpdateTransaction(EntityTransaction):
             edit=EditData(
                 mass=False,
                 type=EditType.UNSPECIFIED,
-                user_id=user_id,
-                summary=edit_headers.x_edit_summary,
+                user_id=edit_operation_context.user_id,
+                summary=edit_operation_context.edit_headers.x_edit_summary,
                 at=created_at,
             ),
             state=EntityState(),
@@ -315,7 +313,7 @@ class UpdateTransaction(EntityTransaction):
         logger.debug(f"Content hash: {content_hash}")
 
         logger.debug("Creating revision in database")
-        expected_revision_id = edit_headers.x_base_revision_id
+        expected_revision_id = edit_operation_context.edit_headers.x_base_revision_id
         revision_created = self.state.mysql_client.create_revision(
             entity_id=entity_id,
             entity_data=revision_data,

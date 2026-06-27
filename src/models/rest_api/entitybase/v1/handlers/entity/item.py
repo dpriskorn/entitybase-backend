@@ -11,6 +11,7 @@ from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
 from models.data.rest_api.v1.entitybase.request.entity.context import (
+    EditOperationContext,
     EventPublishContext,
     CreationTransactionContext,
 )
@@ -74,8 +75,10 @@ class ItemCreateHandler(EntityCreateHandler):
             entity_id=ctx.entity_id,
             request_data=ctx.request_data,
             entity_type=EntityType.ITEM,
-            edit_headers=ctx.edit_headers,
-            user_id=ctx.user_id,
+            edit_operation_context=EditOperationContext(
+                edit_headers=ctx.edit_headers,
+                user_id=ctx.user_id,
+            ),
             hash_result=hash_result,
         )
         logger.debug(f"🔍 HANDLER: Revision created: {response}")
@@ -126,7 +129,7 @@ class ItemCreateHandler(EntityCreateHandler):
                 request_data=request_data,
                 request=request,
                 edit_headers=edit_headers,
-                user_id=edit_headers.x_user_id,
+                user_id=user_id,
                 validator=validator,
             )
             response = await self._execute_creation_transaction(tx_ctx)

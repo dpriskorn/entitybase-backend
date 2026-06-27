@@ -112,6 +112,7 @@ class TestItemCreateHandlerExecuteCreationTransaction:
         mock_ctx.request_data = MagicMock()
         mock_ctx.edit_headers = EditHeaders(x_edit_summary="test")
         mock_ctx.validator = None
+        mock_ctx.user_id = 0
 
         result = await ItemCreateHandler._execute_creation_transaction(mock_ctx)
 

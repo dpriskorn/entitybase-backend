@@ -10,9 +10,10 @@ from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
 from models.data.rest_api.v1.entitybase.request.entity.context import (
+    EditOperationContext,
     EventPublishContext,
 )
-from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.data.rest_api.v1.entitybase.response import StatementHashResult
 from models.rest_api.entitybase.v1.endpoints.lexeme_utils import (
@@ -55,9 +56,8 @@ class CreationTransaction(EntityTransaction):
         entity_id: str,
         request_data: PreparedRequestData,
         entity_type: Any,
-        edit_headers: EditHeaders,
+        edit_operation_context: EditOperationContext,
         hash_result: StatementHashResult,
-        user_id: int = 0,
     ) -> EntityResponse:
         """Create revision using new architecture components."""
         logger.debug(f"Creating revision for {entity_id}")
@@ -105,8 +105,8 @@ class CreationTransaction(EntityTransaction):
             edit=EditData(
                 mass=False,
                 type=EditType.UNSPECIFIED,
-                user_id=user_id,
-                summary=edit_headers.x_edit_summary,
+                user_id=edit_operation_context.user_id,
+                summary=edit_operation_context.edit_headers.x_edit_summary,
                 at=created_at,
             ),
             state=EntityState(dangling=is_dangling),
@@ -127,7 +127,7 @@ class CreationTransaction(EntityTransaction):
             entity_data=revision_data,
             revision_id=1,
             content_hash=content_hash,
-            expected_revision_id=edit_headers.x_base_revision_id,
+            expected_revision_id=edit_operation_context.edit_headers.x_base_revision_id,
         )
         if not revision_created:
             from models.rest_api.utils import raise_validation_error
@@ -135,7 +135,7 @@ class CreationTransaction(EntityTransaction):
             current_head = self.state.mysql_client.get_head(entity_id)
             raise_validation_error(
                 f"Conflict: entity was modified by another edit. "
-                f"Expected base revision {edit_headers.x_base_revision_id}, but current revision is {current_head}. "
+                f"Expected base revision {edit_operation_context.edit_headers.x_base_revision_id}, but current revision is {current_head}. "
                 f"Please retry with the latest revision ID.",
                 status_code=409,
             )

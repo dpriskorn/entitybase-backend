@@ -115,7 +115,7 @@ class EntityStatementService(Service):
             return result
         self._decrement_statement_ref_count(statement_hash)
         new_revision_id = await self._store_updated_revision(
-            revision_data, entity_id, head_revision_id, edit_headers, user_id=edit_headers.x_user_id
+            revision_data, entity_id, head_revision_id, edit_headers, user_id=0
         )
         return OperationResult(
             success=True,
@@ -388,7 +388,7 @@ class EntityStatementService(Service):
             entity_type=entity_response.entity_data.revision.get("entity_type"),
             edit_type=EditType.UNSPECIFIED,
             edit_headers=edit_headers,
-            user_id=edit_headers.x_user_id,
+            user_id=0,
             is_creation=False,
             validator=validator,
         )

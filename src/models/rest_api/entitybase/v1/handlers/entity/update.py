@@ -7,13 +7,13 @@ from typing import Any
 from fastapi import HTTPException
 from pydantic import BaseModel
 
-from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.infrastructure.s3.enums import EntityType
 from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.request import UserActivityType
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
 from models.data.rest_api.v1.entitybase.request.entity.context import (
+    EditOperationContext,
     EventPublishContext,
 )
 from models.data.rest_api.v1.entitybase.response import EntityResponse
@@ -58,8 +58,7 @@ class EntityUpdateHandler(
         entity_id: str,
         modified_data: dict[str, Any],
         entity_type: EntityType,
-        edit_headers: EditHeaders,
-        user_id: int = 0,
+        edit_operation_context: EditOperationContext,
         validator: Any | None = None,
     ) -> EntityResponse:
         """Execute entity update using UpdateTransaction.
@@ -138,7 +137,7 @@ class EntityUpdateHandler(
                 entity_id=entity_id,
                 request_data=request_data,
                 entity_type=entity_type,
-                edit_headers=edit_headers,
+                edit_operation_context=edit_operation_context,
                 hash_result=hash_result,
             )
             logger.debug(
@@ -146,8 +145,8 @@ class EntityUpdateHandler(
             )
 
             edit_context = EditContext(
-                user_id=user_id,
-                edit_summary=edit_headers.x_edit_summary,
+                user_id=edit_operation_context.user_id,
+                edit_summary=edit_operation_context.edit_headers.x_edit_summary,
             )
             event_context = EventPublishContext(
                 entity_id=entity_id,
@@ -158,10 +157,10 @@ class EntityUpdateHandler(
             )
             await tx.publish_event(event_context, edit_context)
 
-            if user_id:
+            if edit_operation_context.user_id:
                 activity_result = await (
                     self.state.mysql_client.user_repository.log_user_activity(
-                        user_id=user_id,
+                        user_id=edit_operation_context.user_id,
                         activity_type=UserActivityType.ENTITY_EDIT,
                         entity_id=entity_id,
                         revision_id=response.revision_id,
