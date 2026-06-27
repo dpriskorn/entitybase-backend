@@ -92,7 +92,7 @@ class TtlDumpWorker(Worker):
             self.db_client = SqliteClient(config=db_config)
         else:
             if VitessClient is None:
-                raise RuntimeError("Vitess client not available")
+                raise RuntimeError("database client not available")
             self.db_client = VitessClient(config=db_config)
 
         s3_config = settings.get_s3_config
@@ -174,7 +174,7 @@ class TtlDumpWorker(Worker):
 
     async def _fetch_all_entities(self) -> list[EntityDumpRecord]:
         if not self.db_client:
-            raise ValueError("Vitess client not initialized")
+            raise ValueError("database client not initialized")
 
         with self.db_client.cursor as cursor:
             cursor.execute(
@@ -195,7 +195,7 @@ class TtlDumpWorker(Worker):
         self, week_start: datetime, week_end: datetime
     ) -> list[EntityDumpRecord]:
         if not self.db_client:
-            raise ValueError("Vitess client not initialized")
+            raise ValueError("database client not initialized")
 
         entities = await self._fetch_all_entities()
         await self._filter_entities_by_week(entities, week_start, week_end)

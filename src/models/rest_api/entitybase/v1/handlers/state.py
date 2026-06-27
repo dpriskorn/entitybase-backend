@@ -133,9 +133,9 @@ class StateHandler(BaseModel):
             logger.warning("S3 client connection failed")
         logger.debug("Checking Vitess connection...")
         if self.vitess_config and self.vitess_client.healthy_connection:
-            logger.debug("Vitess client connected successfully")
+            logger.debug("database client connected successfully")
         else:
-            logger.warning("Vitess client connection failed")
+            logger.warning("database client connection failed")
         # todo create healthy_connection method
         # if self.streaming_enabled and self.entitychange_stream_producer.healthy_connection:
         #     logger.debug("Kafka entitychange client connected successfully")

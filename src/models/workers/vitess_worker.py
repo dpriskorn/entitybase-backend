@@ -7,8 +7,8 @@ from pydantic import Field
 
 from models.config.settings import settings
 from models.infrastructure.client import Client
-from models.infrastructure.sqlite.client import SqliteClient
 from models.infrastructure.vitess.client import VitessClient
+from models.infrastructure.sqlite.client import SqliteClient
 from models.workers.worker import Worker
 
 logger = logging.getLogger(__name__)
