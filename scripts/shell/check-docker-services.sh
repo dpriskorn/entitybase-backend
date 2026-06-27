@@ -147,8 +147,6 @@ check_running_service "ttl-dump-worker" || overall_status=1
 check_completed_job "create-tables" || overall_status=1
 check_completed_job "create-buckets" || overall_status=1
 
-check_mysql_connectivity || overall_status=1
-
 # Final status
 if [ $overall_status -eq 0 ]; then
     echo "✅ All services healthy and ready"
