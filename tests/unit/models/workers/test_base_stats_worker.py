@@ -28,7 +28,7 @@ class TestBaseStatsWorker:
     def test_state_property_with_client(self):
         """Test state property returns SimpleNamespace with mysql_client."""
         with patch("models.workers.base_stats_worker.BaseStatsWorker.model_post_init"):
-            worker = ConcreteStatsWorker(db_client="test-client")
+            worker = ConcreteStatsWorker.model_construct(db_client="test-client")
 
         result = worker.state
 
