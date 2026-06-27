@@ -118,7 +118,7 @@ async def test_delete_nonexistent_user(
             f"{api_prefix}/auth/users/99999",
             headers={"X-Edit-Summary": "test", **auth_headers},
         )
-        assert response.status_code in [404]
+        assert response.status_code == 404
         data = response.json()
         assert "detail" in data
 
@@ -130,10 +130,10 @@ async def test_login_missing_edit_summary(api_prefix: str) -> None:
     from models.rest_api.main import app
 
     async with AsyncClient(
-        transport=ASGITransport(app=app), base_url="http://test"
+        transport=ASGITransport(app=app), base_url="http/test"
     ) as client:
         response = await client.post(
             f"{api_prefix}/auth/login",
             json={"username": "test", "password": "pass"},
         )
-        assert response.status_code in [401]
+        assert response.status_code == 401
