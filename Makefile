@@ -1,4 +1,4 @@
-.PHONY: be-lint be-test-fast be-coverage help stop docs docs-generate docs-build docs-serve check release push-release ci fe-lint fe-test fe-run be-tests be-test-unit be-test-e2e be-test-contract be-test-integration
+.PHONY: be-lint be-test-fast be-coverage help stop docs docs-generate docs-build docs-serve check release push-release ci fe-lint fe-tests fe-run be-tests be-test-unit be-test-e2e be-test-contract be-test-integration
 
 help:
 	@echo "Available targets:"
@@ -130,7 +130,7 @@ be-coverage: check
 fe-lint:
 	cd frontend && npm run lint
 
-fe-test:
+fe-tests:
 	cd frontend && npm run test
 
 fe-run:
