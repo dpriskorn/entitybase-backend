@@ -1,12 +1,22 @@
 """Authentication routes for login, register, and user management."""
 
 import logging
+from typing import TYPE_CHECKING, Any, cast
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
+if TYPE_CHECKING:
+    from models.infrastructure.vitess.repositories.user import UserRepository
+
 from models.data.common.roles import UserRole
-from models.data.rest_api.v1.entitybase.request.auth import LoginRequest, RegisterRequest
-from models.data.rest_api.v1.entitybase.response.auth import LoginResponse, RegisterResponse
+from models.data.rest_api.v1.entitybase.request.auth import (
+    LoginRequest,
+    RegisterRequest,
+)
+from models.data.rest_api.v1.entitybase.response.auth import (
+    LoginResponse,
+    RegisterResponse,
+)
 from models.rest_api.auth import (
     AuthenticatedRequest,
     create_access_token,
@@ -22,11 +32,11 @@ logger = logging.getLogger(__name__)
 auth_router = APIRouter(tags=["authentication"])
 
 
-def get_user_repository(state):
+def get_user_repository(state: Any) -> UserRepository:
     """Get user repository from app state."""
     if not hasattr(state, "vitess_client") or not state.vitess_client:
         raise_validation_error("Database not available", status_code=503)
-    return state.vitess_client.user_repository
+    return cast(UserRepository, state.vitess_client.user_repository)
 
 
 @auth_router.post("/auth/login", response_model=LoginResponse)
@@ -37,7 +47,9 @@ async def login(request: LoginRequest, req: Request) -> LoginResponse:
     state = req.app.state.state_handler
     user_repo = get_user_repository(state)
 
-    success, user = user_repo.verify_user_credentials(request.username, request.password)
+    success, user = user_repo.verify_user_credentials(
+        request.username, request.password
+    )
 
     if not success or user is None:
         logger.warning(f"Failed login attempt for user: {request.username}")
@@ -116,7 +128,9 @@ async def delete_user(
 
     Admins can delete any user. Users can delete themselves.
     """
-    logger.debug(f"Delete user request: user_id={user_id}, auth user={auth.user.user_id}")
+    logger.debug(
+        f"Delete user request: user_id={user_id}, auth user={auth.user.user_id}"
+    )
 
     if auth.user.user_id != user_id and auth.user.role != UserRole.ADMIN:
         raise HTTPException(

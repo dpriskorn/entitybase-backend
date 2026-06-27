@@ -98,7 +98,7 @@ class UpdateTransaction(EntityTransaction):
             )
 
         # Store new statements
-        hash_data = hash_result.get_data()
+        hash_data: StatementHashResult = hash_result.get_data()
         store_result = ss.deduplicate_and_store_statements(hash_data, validator)
         if not store_result.success:
             from models.rest_api.utils import raise_validation_error

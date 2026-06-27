@@ -1,6 +1,7 @@
 """FastAPI authentication dependencies."""
 
 import logging
+from collections.abc import Callable
 from typing import Annotated
 
 from fastapi import Depends, Header, HTTPException, status
@@ -15,8 +16,12 @@ logger = logging.getLogger(__name__)
 
 async def verify_auth(
     Authorization: Annotated[str | None, Header()] = None,
-    X_Edit_Summary: Annotated[str | None, Header(alias="X-Edit-Summary", convert_underscores=False)] = None,
-    X_Base_Revision_ID: Annotated[int, Header(alias="X-Base-Revision-ID", convert_underscores=False)] = 0,
+    X_Edit_Summary: Annotated[
+        str | None, Header(alias="X-Edit-Summary", convert_underscores=False)
+    ] = None,
+    X_Base_Revision_ID: Annotated[
+        int, Header(alias="X-Base-Revision-ID", convert_underscores=False)
+    ] = 0,
 ) -> AuthenticatedRequest:
     """Validate Bearer JWT token and X-Edit-Summary header.
 
@@ -66,7 +71,7 @@ async def verify_auth(
     )
 
 
-async def require_role(*roles: UserRole):
+async def require_role(*roles: UserRole) -> Callable[[AuthenticatedRequest], AuthenticatedRequest]:
     """Dependency factory for role-based access control.
 
     Usage:
@@ -76,6 +81,7 @@ async def require_role(*roles: UserRole):
         ):
             ...
     """
+
     async def role_checker(
         auth: AuthenticatedRequest = Depends(verify_auth),
     ) -> AuthenticatedRequest:

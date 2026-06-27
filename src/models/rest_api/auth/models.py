@@ -22,4 +22,6 @@ class AuthenticatedRequest(BaseModel):
 
     user: User
     edit_summary: str = Field(..., min_length=1, max_length=200)
-    base_revision_id: int = Field(default=0, description="Base revision ID for optimistic locking")
+    base_revision_id: int = Field(
+        default=0, description="Base revision ID for optimistic locking"
+    )

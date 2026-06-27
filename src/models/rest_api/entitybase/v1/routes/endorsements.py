@@ -1,6 +1,6 @@
 """Endorsement-related routes."""
 
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Depends, Header, Query, Request
 
 from models.rest_api.entitybase.v1.handlers.endorsements import EndorsementHandler
 from models.data.rest_api.v1.entitybase.request import EndorsementListRequest

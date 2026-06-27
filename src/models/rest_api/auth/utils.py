@@ -29,12 +29,14 @@ class EnvBootstrapConfig(BaseModel):
 def hash_password(password: str) -> str:
     """Hash password using bcrypt."""
     salt = bcrypt.gensalt()
-    return bcrypt.hashpw(password.encode(), salt).decode()
+    hashed: bytes = bcrypt.hashpw(password.encode(), salt)
+    return hashed.decode()
 
 
 def verify_password(password: str, password_hash: str) -> bool:
     """Verify password against bcrypt hash."""
-    return bcrypt.checkpw(password.encode(), password_hash.encode())
+    result: bool = bcrypt.checkpw(password.encode(), password_hash.encode())
+    return result
 
 
 def create_access_token(user: User, expires_delta: timedelta | None = None) -> str:
@@ -52,7 +54,8 @@ def create_access_token(user: User, expires_delta: timedelta | None = None) -> s
         "exp": expire,
         "iat": now,
     }
-    return jwt.encode(to_encode, JWT_SECRET, algorithm=JWT_ALGORITHM)
+    token: str = jwt.encode(to_encode, JWT_SECRET, algorithm=JWT_ALGORITHM)
+    return token
 
 
 def decode_token(token: str) -> User | None:

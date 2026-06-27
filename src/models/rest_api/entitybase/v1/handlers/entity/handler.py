@@ -479,7 +479,7 @@ class EntityHandler(Handler):
                 raise_validation_error(
                     hash_operation.error or "Failed to hash statements", status_code=500
                 )
-            hash_result = hash_operation.get_data()
+            hash_result: StatementHashResult = hash_operation.get_data()
             logger.info(
                 f"Entity {entity_id}: Statement hashing complete: {len(hash_result.statements)} hashes generated",
                 extra={

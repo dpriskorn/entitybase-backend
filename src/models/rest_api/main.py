@@ -167,7 +167,9 @@ async def _bootstrap_admin_user(state_handler: StateHandler) -> None:
     user_repo = state_handler.vitess_client.user_repository
 
     if user_repo.user_exists_by_username(config.admin_name):
-        logger.info(f"Admin user '{config.admin_name}' already exists, skipping bootstrap")
+        logger.info(
+            f"Admin user '{config.admin_name}' already exists, skipping bootstrap"
+        )
         return
 
     try:

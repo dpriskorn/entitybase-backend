@@ -70,7 +70,9 @@ class UserRepository(Repository):
             return OperationResult(success=False, error=f"Invalid role: {role}")
 
         if not username or len(username) < 3:
-            return OperationResult(success=False, error="Username must be at least 3 characters")
+            return OperationResult(
+                success=False, error="Username must be at least 3 characters"
+            )
 
         logger.debug(f"Creating user with username: {username}, role: {role}")
         try:
@@ -84,7 +86,9 @@ class UserRepository(Repository):
                 )
                 user_id = cursor.lastrowid
                 logger.info(f"Created user: {username} with user_id: {user_id}")
-                return OperationResult(success=True, data={"user_id": user_id, "username": username})
+                return OperationResult(
+                    success=True, data={"user_id": user_id, "username": username}
+                )
         except Exception as e:
             error_msg = str(e)
             if "Duplicate entry" in error_msg:
@@ -168,34 +172,6 @@ class UserRepository(Repository):
                     logger.error(f"Failed to create UserResponse: {e}")
                     return False, None
             return False, None
-
-    def get_user(self, user_id: int) -> UserResponse | None:
-        """Get user data by ID."""
-
-        with self.vitess_client.cursor as cursor:
-            cursor.execute(
-                """SELECT user_id, username, role, created_at, preferences
-                   FROM users WHERE user_id = %s""",
-                (user_id,),
-            )
-            row = cursor.fetchone()
-            if row:
-                try:
-                    user = UserResponse(
-                        user_id=row[0],
-                        username=row[1],
-                        role=UserRole(row[2]),
-                        created_at=row[3],
-                        preferences=row[4],
-                    )
-                    logger.debug(
-                        f"Successfully created UserResponse for user_id={user_id}"
-                    )
-                    return user
-                except Exception as e:
-                    logger.error(f"Failed to create UserResponse from row {row}: {e}")
-                    raise_validation_error(f"Invalid user data: {e}", status_code=400)
-            return None
 
     def delete_user(self, user_id: int) -> OperationResult:
         """Delete a user by ID (hard delete).

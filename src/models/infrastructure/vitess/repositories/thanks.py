@@ -95,7 +95,8 @@ class ThanksRepository(Repository):
                                     )
                                 else:
                                     result = OperationResult(
-                                        success=False, error="Failed to retrieve created thank"
+                                        success=False,
+                                        error="Failed to retrieve created thank",
                                     )
         except Exception as e:
             logger.error(f"Error sending thank: {e}")

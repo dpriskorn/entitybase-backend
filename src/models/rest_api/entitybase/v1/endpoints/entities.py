@@ -410,7 +410,9 @@ async def add_entity_statement(
     state = req.app.state.state_handler
     validate_state_clients(state)
     handler = EntityStatementService(state=state)
-    result = await handler.add_statement(entity_id, request, edit_headers=auth_to_edit_headers(auth))
+    result = await handler.add_statement(
+        entity_id, request, edit_headers=auth_to_edit_headers(auth)
+    )
     if not isinstance(result, OperationResult):
         raise_validation_error("Invalid response type", status_code=500)
     return result
