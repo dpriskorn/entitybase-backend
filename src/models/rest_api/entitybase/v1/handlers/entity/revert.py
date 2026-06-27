@@ -76,7 +76,11 @@ class EntityRevertHandler(Handler):
         logger.debug(f"New revision ID: {new_revision_id}")
 
         new_revision_data = await self._create_revision_data(
-            entity_id, target_revision_data, new_revision_id, edit_headers, user_id=user_id
+            entity_id,
+            target_revision_data,
+            new_revision_id,
+            edit_headers,
+            user_id=user_id,
         )
 
         content_hash = await self._store_revision(

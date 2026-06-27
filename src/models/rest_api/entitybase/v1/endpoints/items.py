@@ -46,7 +46,10 @@ async def create_item(
         logger.debug("🔍 ENDPOINT: Handler created, calling create_entity")
 
         result = await handler.create_entity(
-            entity_request, edit_headers=headers, user_id=auth.user.user_id, validator=validator
+            entity_request,
+            edit_headers=headers,
+            user_id=auth.user.user_id,
+            validator=validator,
         )
         logger.info(f"🔍 ENDPOINT: Item creation successful: {result.id}")
 

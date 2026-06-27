@@ -92,6 +92,7 @@ class EntityJsonImportHandler(Handler):
             await create_handler.create_entity(
                 create_request,
                 EditHeaders(**edit_headers_data),
+                0,
                 validator,
                 auto_assign_id=False,
             )

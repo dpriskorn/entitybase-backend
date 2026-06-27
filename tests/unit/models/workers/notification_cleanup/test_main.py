@@ -36,7 +36,7 @@ class TestNotificationCleanupWorker:
         mock_mysql_client.cursor.__exit__ = MagicMock(return_value=False)
 
         worker = NotificationCleanupWorker()
-        worker.__dict__['db_client'] = mock_mysql_client
+        worker.__dict__["db_client"] = mock_mysql_client
 
         await worker.run_cleanup()
 
@@ -55,7 +55,7 @@ class TestNotificationCleanupWorker:
         mock_mysql_client.cursor.__exit__ = MagicMock(return_value=False)
 
         worker = NotificationCleanupWorker()
-        worker.__dict__['db_client'] = mock_mysql_client
+        worker.__dict__["db_client"] = mock_mysql_client
 
         await worker.run_cleanup()
 
@@ -69,7 +69,7 @@ class TestNotificationCleanupWorker:
         mock_mysql_client.cursor.__exit__ = MagicMock(return_value=False)
 
         worker = NotificationCleanupWorker()
-        worker.__dict__['db_client'] = mock_mysql_client
+        worker.__dict__["db_client"] = mock_mysql_client
 
         cutoff_date = datetime.now(timezone.utc) - timedelta(days=30)
         deleted = worker._delete_old_notifications(cutoff_date)
@@ -88,7 +88,7 @@ class TestNotificationCleanupWorker:
         mock_mysql_client.cursor.__exit__ = MagicMock(return_value=False)
 
         worker = NotificationCleanupWorker()
-        worker.__dict__['db_client'] = mock_mysql_client
+        worker.__dict__["db_client"] = mock_mysql_client
 
         deleted = worker._enforce_user_limits()
 
@@ -105,7 +105,7 @@ class TestNotificationCleanupWorker:
         mock_mysql_client.cursor.__exit__ = MagicMock(return_value=False)
 
         worker = NotificationCleanupWorker()
-        worker.__dict__['db_client'] = mock_mysql_client
+        worker.__dict__["db_client"] = mock_mysql_client
 
         deleted = worker._enforce_user_limits()
 
@@ -125,7 +125,7 @@ class TestNotificationCleanupWorker:
         mock_mysql_client.cursor.__exit__ = MagicMock(return_value=False)
 
         worker = NotificationCleanupWorker()
-        worker.__dict__['db_client'] = mock_mysql_client
+        worker.__dict__["db_client"] = mock_mysql_client
 
         deleted = worker._enforce_user_limits()
 

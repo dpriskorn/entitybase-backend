@@ -48,7 +48,9 @@ class TestEntityStatusHandler:
             )
 
             request = EntityStatusRequest(edit_summary="locking")
-            result = handler.lock("Q42", request, self._make_edit_headers(), user_id=123)
+            result = handler.lock(
+                "Q42", request, self._make_edit_headers(), user_id=123
+            )
 
             assert result.id == "Q42"
             assert result.status == "locked"
@@ -64,7 +66,9 @@ class TestEntityStatusHandler:
             )
 
             request = EntityStatusRequest(edit_summary="unlocking")
-            result = handler.unlock("Q42", request, self._make_edit_headers(), user_id=123)
+            result = handler.unlock(
+                "Q42", request, self._make_edit_headers(), user_id=123
+            )
 
             assert result.status == "unlocked"
             mock_service.change_status.assert_called_once()
@@ -79,7 +83,9 @@ class TestEntityStatusHandler:
             )
 
             request = EntityStatusRequest(edit_summary="locking")
-            result = handler.archive("Q42", request, self._make_edit_headers(), user_id=123)
+            result = handler.archive(
+                "Q42", request, self._make_edit_headers(), user_id=123
+            )
 
             assert result.status == "archived"
             mock_service.change_status.assert_called_once()
@@ -96,7 +102,9 @@ class TestEntityStatusHandler:
             )
 
             request = EntityStatusRequest(edit_summary="unlocking")
-            result = handler.unarchive("Q42", request, self._make_edit_headers(), user_id=123)
+            result = handler.unarchive(
+                "Q42", request, self._make_edit_headers(), user_id=123
+            )
 
             assert result.status == "unarchived"
             mock_service.change_status.assert_called_once()

@@ -442,7 +442,9 @@ class TestEntityRevertHandlerRevertEntity:
                 success=True
             )
 
-            response = await handler.revert_entity("Q42", request, edit_headers, user_id=123)
+            response = await handler.revert_entity(
+                "Q42", request, edit_headers, user_id=123
+            )
 
         assert isinstance(response, EntityRevertResponse)
         assert response.entity_id == "Q42"
@@ -493,7 +495,9 @@ class TestEntityRevertHandlerRevertEntity:
             mock_head.return_value = 5
             mock_store.return_value = 999
 
-            response = await handler.revert_entity("Q42", request, edit_headers, user_id=456)
+            response = await handler.revert_entity(
+                "Q42", request, edit_headers, user_id=456
+            )
 
         mock_mysql.user_repository.log_user_activity.assert_called_once_with(
             user_id=456,
@@ -541,7 +545,9 @@ class TestEntityRevertHandlerRevertEntity:
             mock_head.return_value = 5
             mock_store.return_value = 999
 
-            response = await handler.revert_entity("Q42", request, edit_headers, user_id=789)
+            response = await handler.revert_entity(
+                "Q42", request, edit_headers, user_id=789
+            )
 
         assert response.new_revision_id == 6
 
@@ -580,7 +586,9 @@ class TestEntityRevertHandlerRevertEntity:
             mock_head.return_value = 5
             mock_store.return_value = 999
 
-            response = await handler.revert_entity("Q42", request, edit_headers, user_id=0)
+            response = await handler.revert_entity(
+                "Q42", request, edit_headers, user_id=0
+            )
 
         mock_mysql.user_repository.log_user_activity.assert_not_called()
         assert response.new_revision_id == 6

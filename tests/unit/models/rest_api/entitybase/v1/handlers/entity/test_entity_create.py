@@ -124,7 +124,10 @@ class TestEntityCreateHandler:
 
             edit_headers = EditHeaders(x_edit_summary="Test creation")
             result = await handler.create_entity(
-                request, edit_headers=edit_headers, user_id=123, validator=mock_validator
+                request,
+                edit_headers=edit_headers,
+                user_id=123,
+                validator=mock_validator,
             )
 
             assert result.id == "Q42"

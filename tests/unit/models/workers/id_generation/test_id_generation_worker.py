@@ -95,7 +95,7 @@ class TestIdGeneratorWorker:
     async def test_shutdown(self):
         """Test worker shutdown."""
         worker = IdGeneratorWorker()
-        worker.__dict__['db_client'] = MagicMock()
+        worker.__dict__["db_client"] = MagicMock()
         worker.running = True
 
         await worker._shutdown()

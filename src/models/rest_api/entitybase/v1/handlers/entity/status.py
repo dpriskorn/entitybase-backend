@@ -24,7 +24,11 @@ class EntityStatusHandler(Handler):
     """Handler for entity status change operations."""
 
     def lock(
-        self, entity_id: str, request: EntityStatusRequest, edit_headers: EditHeaders, user_id: int = 0
+        self,
+        entity_id: str,
+        request: EntityStatusRequest,
+        edit_headers: EditHeaders,
+        user_id: int = 0,
     ) -> EntityStatusResponse:
         """Lock an entity from edits."""
         logger.debug(f"Locking entity: {entity_id}")
@@ -36,7 +40,11 @@ class EntityStatusHandler(Handler):
         return response
 
     def unlock(
-        self, entity_id: str, request: EntityStatusRequest, edit_headers: EditHeaders, user_id: int = 0
+        self,
+        entity_id: str,
+        request: EntityStatusRequest,
+        edit_headers: EditHeaders,
+        user_id: int = 0,
     ) -> EntityStatusResponse:
         """Remove lock from an entity."""
         logger.debug(f"Unlocking entity: {entity_id}")
@@ -48,7 +56,11 @@ class EntityStatusHandler(Handler):
         return response
 
     def archive(
-        self, entity_id: str, request: EntityStatusRequest, edit_headers: EditHeaders, user_id: int = 0
+        self,
+        entity_id: str,
+        request: EntityStatusRequest,
+        edit_headers: EditHeaders,
+        user_id: int = 0,
     ) -> EntityStatusResponse:
         """Archive an entity."""
         logger.debug(f"Archiving entity: {entity_id}")
@@ -60,7 +72,11 @@ class EntityStatusHandler(Handler):
         return response
 
     def unarchive(
-        self, entity_id: str, request: EntityStatusRequest, edit_headers: EditHeaders, user_id: int = 0
+        self,
+        entity_id: str,
+        request: EntityStatusRequest,
+        edit_headers: EditHeaders,
+        user_id: int = 0,
     ) -> EntityStatusResponse:
         """Unarchive an entity."""
         logger.debug(f"Unarchiving entity: {entity_id}")

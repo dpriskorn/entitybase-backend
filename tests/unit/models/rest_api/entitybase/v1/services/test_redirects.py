@@ -200,9 +200,7 @@ class TestRedirectService:
         service = RedirectService(state=mock_state)
 
         with pytest.raises(HTTPException) as exc_info:
-            await service.revert_redirect(
-                "Q1", 10, EditHeaders(x_edit_summary="test")
-            )
+            await service.revert_redirect("Q1", 10, EditHeaders(x_edit_summary="test"))
         assert exc_info.value.status_code == 404
         assert "not a redirect" in exc_info.value.detail
 
@@ -215,9 +213,7 @@ class TestRedirectService:
         service = RedirectService(state=mock_state)
 
         with pytest.raises(HTTPException) as exc_info:
-            await service.revert_redirect(
-                "Q1", 10, EditHeaders(x_edit_summary="test")
-            )
+            await service.revert_redirect("Q1", 10, EditHeaders(x_edit_summary="test"))
         assert exc_info.value.status_code == 423
         assert "deleted" in exc_info.value.detail
 
@@ -231,9 +227,7 @@ class TestRedirectService:
         service = RedirectService(state=mock_state)
 
         with pytest.raises(HTTPException) as exc_info:
-            await service.revert_redirect(
-                "Q1", 10, EditHeaders(x_edit_summary="test")
-            )
+            await service.revert_redirect("Q1", 10, EditHeaders(x_edit_summary="test"))
         assert exc_info.value.status_code == 423
         assert "locked or archived" in exc_info.value.detail
 

@@ -73,7 +73,9 @@ class TestEntityDeleteHandler:
         request = EntityDeleteRequest(delete_type=DeleteType.SOFT)
         edit_headers = EditHeaders(x_edit_summary="Soft delete test")
 
-        response = await handler.delete_entity("Q42", request, edit_headers, user_id=123)
+        response = await handler.delete_entity(
+            "Q42", request, edit_headers, user_id=123
+        )
 
         assert response.id == "Q42"
         assert response.revision_id == 6
@@ -107,7 +109,9 @@ class TestEntityDeleteHandler:
         request = EntityDeleteRequest(delete_type=DeleteType.HARD)
         edit_headers = EditHeaders(x_edit_summary="Hard delete test")
 
-        response = await handler.delete_entity("Q42", request, edit_headers, user_id=456)
+        response = await handler.delete_entity(
+            "Q42", request, edit_headers, user_id=456
+        )
 
         assert response.id == "Q42"
         assert response.revision_id == 4
@@ -132,7 +136,6 @@ class TestEntityDeleteHandler:
         with pytest.raises(Exception):
             await handler.delete_entity("Q999", request, edit_headers, user_id=123)
 
-
     @pytest.mark.asyncio
     async def test_delete_entity_already_deleted(self) -> None:
         """Test delete when entity is already deleted."""
@@ -150,7 +153,6 @@ class TestEntityDeleteHandler:
 
         with pytest.raises(Exception):
             await handler.delete_entity("Q42", request, edit_headers, user_id=123)
-
 
     @pytest.mark.asyncio
     async def test_delete_s3_not_found(self) -> None:
@@ -175,7 +177,6 @@ class TestEntityDeleteHandler:
 
         with pytest.raises(Exception):
             await handler.delete_entity("Q42", request, edit_headers, user_id=123)
-
 
     @pytest.mark.asyncio
     async def test_delete_conflict(self) -> None:
@@ -202,7 +203,6 @@ class TestEntityDeleteHandler:
         with pytest.raises(Exception):
             await handler.delete_entity("Q42", request, edit_headers, user_id=123)
 
-
     @pytest.mark.asyncio
     async def test_delete_mysql_not_initialized(self) -> None:
         """Test delete when Sql client is not initialized."""
@@ -216,7 +216,6 @@ class TestEntityDeleteHandler:
 
         with pytest.raises(Exception):
             await handler.delete_entity("Q42", request, edit_headers, user_id=123)
-
 
     @pytest.mark.asyncio
     async def test_delete_s3_not_initialized(self) -> None:

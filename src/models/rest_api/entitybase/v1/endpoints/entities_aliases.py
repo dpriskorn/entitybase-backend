@@ -10,6 +10,10 @@ from models.rest_api.auth.models import AuthenticatedRequest
 
 from models.data.rest_api.v1.entitybase.request.headers import EditHeadersType
 from models.data.rest_api.v1.entitybase.request import TermUpdateRequest
+from models.data.rest_api.v1.entitybase.request.entity.context import (
+    AliasContext,
+    EditOperationContext,
+)
 from models.data.rest_api.v1.entitybase.response import (
     TermHashResponse,
     TermHashesResponse,
@@ -79,11 +83,9 @@ async def update_entity_aliases(
     try:
         result = await update_handler.update_aliases(
             entity_id,
-            language_code,
-            aliases_data,
-            headers,
+            AliasContext(language_code=language_code, aliases=aliases_data),
+            EditOperationContext(edit_headers=headers, user_id=0),
             validator,
-            user_id=0,
         )
         logger.info(f"ALIAS UPDATE SUCCESS: entity={entity_id}")
         hashes = [MetadataExtractor.hash_string(alias) for alias in aliases_data]
@@ -124,11 +126,9 @@ async def add_entity_alias(
     update_handler = EntityUpdateHandler(state=state)
     await update_handler.add_alias(
         entity_id,
-        language_code,
-        request.value,
-        headers,
+        AliasContext(language_code=language_code, aliases=[request.value]),
+        EditOperationContext(edit_headers=headers, user_id=auth.user.user_id),
         validator,
-        user_id=auth.user.user_id,
     )
 
     hash_value = MetadataExtractor.hash_string(request.value)
@@ -157,8 +157,8 @@ async def delete_entity_aliases(
         entity_id,
         language_code,
         headers,
+        0,
         validator,
-        user_id=0,
     )
 
     return DeleteResponse(success=True)

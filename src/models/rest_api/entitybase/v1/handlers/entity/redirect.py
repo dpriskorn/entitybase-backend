@@ -20,7 +20,10 @@ class RedirectHandler(Handler):
     """Handles redirect operations."""
 
     async def create_entity_redirect(
-        self, request: EntityRedirectRequest, edit_headers: EditHeaders
+        self,
+        request: EntityRedirectRequest,
+        edit_headers: EditHeaders,
+        user_id: int = 0,
     ) -> EntityRedirectResponse:
         """Create a redirect from one entity to another."""
         logger.debug(
@@ -32,7 +35,11 @@ class RedirectHandler(Handler):
         )
 
     async def revert_entity_redirect(
-        self, entity_id: str, request: RedirectRevertRequest, edit_headers: EditHeaders
+        self,
+        entity_id: str,
+        request: RedirectRevertRequest,
+        edit_headers: EditHeaders,
+        user_id: int = 0,
     ) -> EntityRevertResponse:
         """Revert a redirect entity back to normal using the general revert."""
         logger.debug(

@@ -179,8 +179,10 @@ class EntityUpdateTermsMixin(BaseModel):
             response = await tx.create_revision_with_hashes(
                 entity_id=context.entity_id,
                 entity_type=context.entity_type,
-                edit_headers=context.edit_headers,
-                user_id=context.user_id,
+                edit_operation_context=EditOperationContext(
+                    edit_headers=context.edit_headers,
+                    user_id=context.user_id,
+                ),
                 existing_hashes=context.updated_hashes,
                 existing_revision=context.existing_revision,
             )
@@ -251,8 +253,10 @@ class EntityUpdateTermsMixin(BaseModel):
             response = await tx.create_revision_with_hashes(
                 entity_id=context.entity_id,
                 entity_type=context.entity_type,
-                edit_headers=context.edit_headers,
-                user_id=context.user_id,
+                edit_operation_context=EditOperationContext(
+                    edit_headers=context.edit_headers,
+                    user_id=context.user_id,
+                ),
                 existing_hashes=context.updated_hashes,
                 existing_revision=context.existing_revision,
             )
