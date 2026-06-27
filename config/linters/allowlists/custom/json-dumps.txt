@@ -11,4 +11,6 @@ src/models/workers/json_dumps/json_dump_worker.py:327
 src/models/infrastructure/vitess/repositories/user.py:501
 src/models/infrastructure/vitess/repositories/user.py:502
 src/models/infrastructure/vitess/repositories/user.py:525
+src/models/infrastructure/vitess/repositories/user.py:478
+src/models/infrastructure/vitess/repositories/user.py:479
 src/models/infrastructure/vitess/repositories/user.py:526
