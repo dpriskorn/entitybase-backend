@@ -2,19 +2,19 @@ import pytest
 from unittest.mock import MagicMock, patch
 
 from models.infrastructure.mysql.storage.statement_storage import (
-    StatementSqlStorage,
+    StatementMysqlStorage,
 )
 from models.infrastructure.mysql.storage.qualifier_storage import (
-    QualifierSqlStorage,
+    QualifierMysqlStorage,
 )
 from models.infrastructure.mysql.storage.reference_storage import (
-    ReferenceSqlStorage,
+    ReferenceMysqlStorage,
 )
-from models.infrastructure.mysql.storage.snak_storage import SnakSqlStorage
-from models.infrastructure.mysql.storage.base import BaseSqlStorage
+from models.infrastructure.mysql.storage.snak_storage import SnakMysqlStorage
+from models.infrastructure.mysql.storage.base import BaseMysqlStorage
 
 
-class TestStatementSqlStorage:
+class TestStatementMysqlStorage:
     """Tests for StatementSqlStorage."""
 
     @pytest.fixture
@@ -28,7 +28,7 @@ class TestStatementSqlStorage:
 
     def test_store_statement(self, mock_mysql_client):
         """Test storing a statement."""
-        storage = StatementSqlStorage(mysql_client=mock_mysql_client)
+        storage = StatementMysqlStorage(mysql_client=mock_mysql_client)
         statement_data = {
             "statement": {"type": "statement", "mainsnak": {}},
             "schema": "1.0.0",
@@ -42,7 +42,7 @@ class TestStatementSqlStorage:
 
     def test_load_statement_not_found(self, mock_mysql_client):
         """Test loading a non-existent statement returns None."""
-        storage = StatementSqlStorage(mysql_client=mock_mysql_client)
+        storage = StatementMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         mock_cursor.fetchone.return_value = None
 
@@ -52,7 +52,7 @@ class TestStatementSqlStorage:
 
     def test_delete_statement(self, mock_mysql_client):
         """Test deleting a statement."""
-        storage = StatementSqlStorage(mysql_client=mock_mysql_client)
+        storage = StatementMysqlStorage(mysql_client=mock_mysql_client)
 
         result = storage.delete_statement(12345)
 
@@ -60,7 +60,7 @@ class TestStatementSqlStorage:
 
     def test_increment_ref_count(self, mock_mysql_client):
         """Test incrementing reference count."""
-        storage = StatementSqlStorage(mysql_client=mock_mysql_client)
+        storage = StatementMysqlStorage(mysql_client=mock_mysql_client)
 
         result = storage.increment_ref_count(12345)
 
@@ -68,7 +68,7 @@ class TestStatementSqlStorage:
 
     def test_decrement_ref_count(self, mock_mysql_client):
         """Test decrementing reference count."""
-        storage = StatementSqlStorage(mysql_client=mock_mysql_client)
+        storage = StatementMysqlStorage(mysql_client=mock_mysql_client)
 
         result = storage.decrement_ref_count(12345)
 
@@ -76,7 +76,7 @@ class TestStatementSqlStorage:
 
     def test_exists(self, mock_mysql_client):
         """Test checking if statement exists."""
-        storage = StatementSqlStorage(mysql_client=mock_mysql_client)
+        storage = StatementMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         mock_cursor.fetchone.return_value = (1,)
 
@@ -86,7 +86,7 @@ class TestStatementSqlStorage:
 
     def test_exists_not_found(self, mock_mysql_client):
         """Test checking if statement exists returns False."""
-        storage = StatementSqlStorage(mysql_client=mock_mysql_client)
+        storage = StatementMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         mock_cursor.fetchone.return_value = None
 
@@ -96,7 +96,7 @@ class TestStatementSqlStorage:
 
     def test_store_statement_invalid_hash(self, mock_mysql_client):
         """Test storing statement with invalid hash returns error."""
-        storage = StatementSqlStorage(mysql_client=mock_mysql_client)
+        storage = StatementMysqlStorage(mysql_client=mock_mysql_client)
 
         result = storage.store_statement(0, {})
 
@@ -105,7 +105,7 @@ class TestStatementSqlStorage:
 
     def test_store_statement_exception(self, mock_mysql_client):
         """Test storing statement when database raises exception."""
-        storage = StatementSqlStorage(mysql_client=mock_mysql_client)
+        storage = StatementMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         mock_cursor.execute.side_effect = Exception("DB error")
 
@@ -116,7 +116,7 @@ class TestStatementSqlStorage:
 
     def test_load_statement_invalid_hash(self, mock_mysql_client):
         """Test loading statement with invalid hash returns None."""
-        storage = StatementSqlStorage(mysql_client=mock_mysql_client)
+        storage = StatementMysqlStorage(mysql_client=mock_mysql_client)
 
         result = storage.load_statement(0)
 
@@ -124,7 +124,7 @@ class TestStatementSqlStorage:
 
     def test_load_statement_exception(self, mock_mysql_client):
         """Test loading statement when database raises exception."""
-        storage = StatementSqlStorage(mysql_client=mock_mysql_client)
+        storage = StatementMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         mock_cursor.execute.side_effect = Exception("DB error")
 
@@ -134,7 +134,7 @@ class TestStatementSqlStorage:
 
     def test_load_statements_batch_empty(self, mock_mysql_client):
         """Test loading statements with empty hash list."""
-        storage = StatementSqlStorage(mysql_client=mock_mysql_client)
+        storage = StatementMysqlStorage(mysql_client=mock_mysql_client)
 
         result = storage.load_statements_batch([])
 
@@ -142,7 +142,7 @@ class TestStatementSqlStorage:
 
     def test_load_statements_batch_all_invalid(self, mock_mysql_client):
         """Test loading statements with all invalid hashes."""
-        storage = StatementSqlStorage(mysql_client=mock_mysql_client)
+        storage = StatementMysqlStorage(mysql_client=mock_mysql_client)
 
         result = storage.load_statements_batch([0, -1, 0])
 
@@ -150,7 +150,7 @@ class TestStatementSqlStorage:
 
     def test_load_statements_batch_exception(self, mock_mysql_client):
         """Test loading statements batch when database raises exception."""
-        storage = StatementSqlStorage(mysql_client=mock_mysql_client)
+        storage = StatementMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         mock_cursor.execute.side_effect = Exception("DB error")
 
@@ -160,7 +160,7 @@ class TestStatementSqlStorage:
 
     def test_delete_statement_invalid_hash(self, mock_mysql_client):
         """Test deleting statement with invalid hash returns error."""
-        storage = StatementSqlStorage(mysql_client=mock_mysql_client)
+        storage = StatementMysqlStorage(mysql_client=mock_mysql_client)
 
         result = storage.delete_statement(0)
 
@@ -169,7 +169,7 @@ class TestStatementSqlStorage:
 
     def test_delete_statement_exception(self, mock_mysql_client):
         """Test deleting statement when database raises exception."""
-        storage = StatementSqlStorage(mysql_client=mock_mysql_client)
+        storage = StatementMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         mock_cursor.execute.side_effect = Exception("DB error")
 
@@ -180,7 +180,7 @@ class TestStatementSqlStorage:
 
     def test_increment_ref_count_invalid_hash(self, mock_mysql_client):
         """Test incrementing ref count with invalid hash."""
-        storage = StatementSqlStorage(mysql_client=mock_mysql_client)
+        storage = StatementMysqlStorage(mysql_client=mock_mysql_client)
 
         result = storage.increment_ref_count(0)
 
@@ -189,7 +189,7 @@ class TestStatementSqlStorage:
 
     def test_increment_ref_count_exception(self, mock_mysql_client):
         """Test incrementing ref count when database raises exception."""
-        storage = StatementSqlStorage(mysql_client=mock_mysql_client)
+        storage = StatementMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         mock_cursor.execute.side_effect = Exception("DB error")
 
@@ -200,7 +200,7 @@ class TestStatementSqlStorage:
 
     def test_decrement_ref_count_invalid_hash(self, mock_mysql_client):
         """Test decrementing ref count with invalid hash."""
-        storage = StatementSqlStorage(mysql_client=mock_mysql_client)
+        storage = StatementMysqlStorage(mysql_client=mock_mysql_client)
 
         result = storage.decrement_ref_count(0)
 
@@ -209,7 +209,7 @@ class TestStatementSqlStorage:
 
     def test_decrement_ref_count_exception(self, mock_mysql_client):
         """Test decrementing ref count when database raises exception."""
-        storage = StatementSqlStorage(mysql_client=mock_mysql_client)
+        storage = StatementMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         mock_cursor.execute.side_effect = Exception("DB error")
 
@@ -220,7 +220,7 @@ class TestStatementSqlStorage:
 
     def test_exists_invalid_hash(self, mock_mysql_client):
         """Test checking existence with invalid hash."""
-        storage = StatementSqlStorage(mysql_client=mock_mysql_client)
+        storage = StatementMysqlStorage(mysql_client=mock_mysql_client)
 
         result = storage.exists(0)
 
@@ -228,7 +228,7 @@ class TestStatementSqlStorage:
 
     def test_exists_exception(self, mock_mysql_client):
         """Test checking existence when database raises exception."""
-        storage = StatementSqlStorage(mysql_client=mock_mysql_client)
+        storage = StatementMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         mock_cursor.execute.side_effect = Exception("DB error")
 
@@ -237,7 +237,7 @@ class TestStatementSqlStorage:
         assert result is False
 
 
-class TestQualifierSqlStorage:
+class TestQualifierMysqlStorage:
     """Tests for QualifierSqlStorage."""
 
     @pytest.fixture
@@ -251,7 +251,7 @@ class TestQualifierSqlStorage:
 
     def test_store_qualifier(self, mock_mysql_client):
         """Test storing a qualifier."""
-        storage = QualifierSqlStorage(mysql_client=mock_mysql_client)
+        storage = QualifierMysqlStorage(mysql_client=mock_mysql_client)
         from models.data.infrastructure.s3.qualifier_data import S3QualifierData
 
         qualifier_data = S3QualifierData(
@@ -266,7 +266,7 @@ class TestQualifierSqlStorage:
 
     def test_load_qualifier_not_found(self, mock_mysql_client):
         """Test loading a non-existent qualifier returns None."""
-        storage = QualifierSqlStorage(mysql_client=mock_mysql_client)
+        storage = QualifierMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         mock_cursor.fetchone.return_value = None
 
@@ -275,7 +275,7 @@ class TestQualifierSqlStorage:
         assert result is None
 
 
-class TestReferenceSqlStorage:
+class TestReferenceMysqlStorage:
     """Tests for ReferenceSqlStorage."""
 
     @pytest.fixture
@@ -289,7 +289,7 @@ class TestReferenceSqlStorage:
 
     def test_store_reference(self, mock_mysql_client):
         """Test storing a reference."""
-        storage = ReferenceSqlStorage(mysql_client=mock_mysql_client)
+        storage = ReferenceMysqlStorage(mysql_client=mock_mysql_client)
         from models.data.infrastructure.s3.reference_data import S3ReferenceData
 
         reference_data = S3ReferenceData(
@@ -304,7 +304,7 @@ class TestReferenceSqlStorage:
 
     def test_load_reference_not_found(self, mock_mysql_client):
         """Test loading a non-existent reference returns None."""
-        storage = ReferenceSqlStorage(mysql_client=mock_mysql_client)
+        storage = ReferenceMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         mock_cursor.fetchone.return_value = None
 
@@ -314,7 +314,7 @@ class TestReferenceSqlStorage:
 
     def test_load_reference_success(self, mock_mysql_client):
         """Test loading a reference successfully."""
-        storage = ReferenceSqlStorage(mysql_client=mock_mysql_client)
+        storage = ReferenceMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         import json
 
@@ -335,7 +335,7 @@ class TestReferenceSqlStorage:
 
     def test_load_references_batch(self, mock_mysql_client):
         """Test loading multiple references in batch."""
-        storage = ReferenceSqlStorage(mysql_client=mock_mysql_client)
+        storage = ReferenceMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         import json
 
@@ -370,7 +370,7 @@ class TestReferenceSqlStorage:
 
     def test_load_references_batch_with_none(self, mock_mysql_client):
         """Test loading batch when some references don't exist."""
-        storage = ReferenceSqlStorage(mysql_client=mock_mysql_client)
+        storage = ReferenceMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         import json
 
@@ -395,7 +395,7 @@ class TestReferenceSqlStorage:
 
     def test_delete_reference(self, mock_mysql_client):
         """Test deleting a reference."""
-        storage = ReferenceSqlStorage(mysql_client=mock_mysql_client)
+        storage = ReferenceMysqlStorage(mysql_client=mock_mysql_client)
 
         result = storage.delete_reference(12345)
 
@@ -403,7 +403,7 @@ class TestReferenceSqlStorage:
 
     def test_increment_ref_count(self, mock_mysql_client):
         """Test incrementing reference count."""
-        storage = ReferenceSqlStorage(mysql_client=mock_mysql_client)
+        storage = ReferenceMysqlStorage(mysql_client=mock_mysql_client)
 
         result = storage.increment_ref_count(12345)
 
@@ -411,7 +411,7 @@ class TestReferenceSqlStorage:
 
     def test_decrement_ref_count(self, mock_mysql_client):
         """Test decrementing reference count."""
-        storage = ReferenceSqlStorage(mysql_client=mock_mysql_client)
+        storage = ReferenceMysqlStorage(mysql_client=mock_mysql_client)
 
         result = storage.decrement_ref_count(12345)
 
@@ -419,7 +419,7 @@ class TestReferenceSqlStorage:
 
     def test_exists(self, mock_mysql_client):
         """Test checking if reference exists."""
-        storage = ReferenceSqlStorage(mysql_client=mock_mysql_client)
+        storage = ReferenceMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         mock_cursor.fetchone.return_value = (1,)
 
@@ -429,7 +429,7 @@ class TestReferenceSqlStorage:
 
     def test_exists_not_found(self, mock_mysql_client):
         """Test checking if reference exists returns False."""
-        storage = ReferenceSqlStorage(mysql_client=mock_mysql_client)
+        storage = ReferenceMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         mock_cursor.fetchone.return_value = None
 
@@ -438,7 +438,7 @@ class TestReferenceSqlStorage:
         assert result is False
 
 
-class TestSnakSqlStorage:
+class TestSnakMysqlStorage:
     """Tests for SnakSqlStorage."""
 
     @pytest.fixture
@@ -452,7 +452,7 @@ class TestSnakSqlStorage:
 
     def test_store_snak(self, mock_mysql_client):
         """Test storing a snak."""
-        storage = SnakSqlStorage(mysql_client=mock_mysql_client)
+        storage = SnakMysqlStorage(mysql_client=mock_mysql_client)
         from models.data.infrastructure.s3.snak_data import S3SnakData
 
         snak_data = S3SnakData(
@@ -468,7 +468,7 @@ class TestSnakSqlStorage:
 
     def test_load_snak_not_found(self, mock_mysql_client):
         """Test loading a non-existent snak returns None."""
-        storage = SnakSqlStorage(mysql_client=mock_mysql_client)
+        storage = SnakMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         mock_cursor.fetchone.return_value = None
 
@@ -477,7 +477,7 @@ class TestSnakSqlStorage:
         assert result is None
 
 
-class TestBaseSqlStorage:
+class TestBaseMysqlStorage:
     """Tests for BaseSqlStorage methods directly."""
 
     @pytest.fixture
@@ -491,7 +491,7 @@ class TestBaseSqlStorage:
 
     def test_get_ref_count_found(self, mock_mysql_client):
         """Test getting ref count when record exists."""
-        storage = BaseSqlStorage(mysql_client=mock_mysql_client)
+        storage = BaseMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         mock_cursor.fetchone.return_value = (5,)
 
@@ -501,7 +501,7 @@ class TestBaseSqlStorage:
 
     def test_get_ref_count_not_found(self, mock_mysql_client):
         """Test getting ref count when record doesn't exist."""
-        storage = BaseSqlStorage(mysql_client=mock_mysql_client)
+        storage = BaseMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         mock_cursor.fetchone.return_value = None
 
@@ -511,7 +511,7 @@ class TestBaseSqlStorage:
 
     def test_get_ref_count_invalid_hash(self, mock_mysql_client):
         """Test getting ref count with invalid hash."""
-        storage = BaseSqlStorage(mysql_client=mock_mysql_client)
+        storage = BaseMysqlStorage(mysql_client=mock_mysql_client)
 
         result = storage._get_ref_count(0)
 
@@ -519,7 +519,7 @@ class TestBaseSqlStorage:
 
     def test_get_ref_count_exception(self, mock_mysql_client):
         """Test getting ref count when database raises exception."""
-        storage = BaseSqlStorage(mysql_client=mock_mysql_client)
+        storage = BaseMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         mock_cursor.execute.side_effect = Exception("DB error")
 
@@ -529,7 +529,7 @@ class TestBaseSqlStorage:
 
     def test_store_invalid_hash(self, mock_mysql_client):
         """Test storing with invalid hash."""
-        storage = BaseSqlStorage(mysql_client=mock_mysql_client)
+        storage = BaseMysqlStorage(mysql_client=mock_mysql_client)
 
         result = storage._store(0, {})
 
@@ -538,7 +538,7 @@ class TestBaseSqlStorage:
 
     def test_store_exception(self, mock_mysql_client):
         """Test storing when database raises exception."""
-        storage = BaseSqlStorage(mysql_client=mock_mysql_client)
+        storage = BaseMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         mock_cursor.execute.side_effect = Exception("DB error")
 
@@ -549,7 +549,7 @@ class TestBaseSqlStorage:
 
     def test_load_invalid_hash(self, mock_mysql_client):
         """Test loading with invalid hash."""
-        storage = BaseSqlStorage(mysql_client=mock_mysql_client)
+        storage = BaseMysqlStorage(mysql_client=mock_mysql_client)
 
         result = storage._load(0)
 
@@ -557,7 +557,7 @@ class TestBaseSqlStorage:
 
     def test_load_exception(self, mock_mysql_client):
         """Test loading when database raises exception."""
-        storage = BaseSqlStorage(mysql_client=mock_mysql_client)
+        storage = BaseMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         mock_cursor.execute.side_effect = Exception("DB error")
 
@@ -567,7 +567,7 @@ class TestBaseSqlStorage:
 
     def test_load_batch_empty(self, mock_mysql_client):
         """Test loading batch with empty list."""
-        storage = BaseSqlStorage(mysql_client=mock_mysql_client)
+        storage = BaseMysqlStorage(mysql_client=mock_mysql_client)
 
         result = storage._load_batch([])
 
@@ -575,7 +575,7 @@ class TestBaseSqlStorage:
 
     def test_load_batch_all_invalid(self, mock_mysql_client):
         """Test loading batch with all invalid hashes."""
-        storage = BaseSqlStorage(mysql_client=mock_mysql_client)
+        storage = BaseMysqlStorage(mysql_client=mock_mysql_client)
 
         result = storage._load_batch([0, -1])
 
@@ -583,7 +583,7 @@ class TestBaseSqlStorage:
 
     def test_load_batch_exception(self, mock_mysql_client):
         """Test loading batch when database raises exception."""
-        storage = BaseSqlStorage(mysql_client=mock_mysql_client)
+        storage = BaseMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         mock_cursor.execute.side_effect = Exception("DB error")
 
@@ -593,7 +593,7 @@ class TestBaseSqlStorage:
 
     def test_delete_invalid_hash(self, mock_mysql_client):
         """Test deleting with invalid hash."""
-        storage = BaseSqlStorage(mysql_client=mock_mysql_client)
+        storage = BaseMysqlStorage(mysql_client=mock_mysql_client)
 
         result = storage._delete(0)
 
@@ -602,7 +602,7 @@ class TestBaseSqlStorage:
 
     def test_delete_exception(self, mock_mysql_client):
         """Test deleting when database raises exception."""
-        storage = BaseSqlStorage(mysql_client=mock_mysql_client)
+        storage = BaseMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         mock_cursor.execute.side_effect = Exception("DB error")
 
@@ -613,7 +613,7 @@ class TestBaseSqlStorage:
 
     def test_delete_success(self, mock_mysql_client):
         """Test deleting successfully."""
-        storage = BaseSqlStorage(mysql_client=mock_mysql_client)
+        storage = BaseMysqlStorage(mysql_client=mock_mysql_client)
 
         result = storage._delete(12345)
 
@@ -621,7 +621,7 @@ class TestBaseSqlStorage:
 
     def test_increment_ref_count_invalid_hash(self, mock_mysql_client):
         """Test incrementing ref count with invalid hash."""
-        storage = BaseSqlStorage(mysql_client=mock_mysql_client)
+        storage = BaseMysqlStorage(mysql_client=mock_mysql_client)
 
         result = storage._increment_ref_count(0)
 
@@ -630,7 +630,7 @@ class TestBaseSqlStorage:
 
     def test_increment_ref_count_exception(self, mock_mysql_client):
         """Test incrementing ref count when database raises exception."""
-        storage = BaseSqlStorage(mysql_client=mock_mysql_client)
+        storage = BaseMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         mock_cursor.execute.side_effect = Exception("DB error")
 
@@ -641,7 +641,7 @@ class TestBaseSqlStorage:
 
     def test_increment_ref_count_success(self, mock_mysql_client):
         """Test incrementing ref count successfully."""
-        storage = BaseSqlStorage(mysql_client=mock_mysql_client)
+        storage = BaseMysqlStorage(mysql_client=mock_mysql_client)
 
         result = storage._increment_ref_count(12345)
 
@@ -649,7 +649,7 @@ class TestBaseSqlStorage:
 
     def test_decrement_ref_count_invalid_hash(self, mock_mysql_client):
         """Test decrementing ref count with invalid hash."""
-        storage = BaseSqlStorage(mysql_client=mock_mysql_client)
+        storage = BaseMysqlStorage(mysql_client=mock_mysql_client)
 
         result = storage._decrement_ref_count(0)
 
@@ -658,7 +658,7 @@ class TestBaseSqlStorage:
 
     def test_decrement_ref_count_exception(self, mock_mysql_client):
         """Test decrementing ref count when database raises exception."""
-        storage = BaseSqlStorage(mysql_client=mock_mysql_client)
+        storage = BaseMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         mock_cursor.execute.side_effect = Exception("DB error")
 
@@ -669,7 +669,7 @@ class TestBaseSqlStorage:
 
     def test_decrement_ref_count_success(self, mock_mysql_client):
         """Test decrementing ref count successfully."""
-        storage = BaseSqlStorage(mysql_client=mock_mysql_client)
+        storage = BaseMysqlStorage(mysql_client=mock_mysql_client)
 
         result = storage._decrement_ref_count(12345)
 
@@ -677,7 +677,7 @@ class TestBaseSqlStorage:
 
     def test_exists_invalid_hash(self, mock_mysql_client):
         """Test checking existence with invalid hash."""
-        storage = BaseSqlStorage(mysql_client=mock_mysql_client)
+        storage = BaseMysqlStorage(mysql_client=mock_mysql_client)
 
         result = storage._exists(0)
 
@@ -685,7 +685,7 @@ class TestBaseSqlStorage:
 
     def test_exists_exception(self, mock_mysql_client):
         """Test checking existence when database raises exception."""
-        storage = BaseSqlStorage(mysql_client=mock_mysql_client)
+        storage = BaseMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         mock_cursor.execute.side_effect = Exception("DB error")
 
@@ -695,7 +695,7 @@ class TestBaseSqlStorage:
 
     def test_exists_found(self, mock_mysql_client):
         """Test checking existence when found."""
-        storage = BaseSqlStorage(mysql_client=mock_mysql_client)
+        storage = BaseMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         mock_cursor.fetchone.return_value = (1,)
 
@@ -705,7 +705,7 @@ class TestBaseSqlStorage:
 
     def test_exists_not_found(self, mock_mysql_client):
         """Test checking existence when not found."""
-        storage = BaseSqlStorage(mysql_client=mock_mysql_client)
+        storage = BaseMysqlStorage(mysql_client=mock_mysql_client)
         mock_cursor = mock_mysql_client.cursor.__enter__.return_value
         mock_cursor.fetchone.return_value = None
 

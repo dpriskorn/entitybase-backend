@@ -1,20 +1,20 @@
-"""Unit tests for SqlWorker base class."""
+"""Unit tests for MysqlWorker base class."""
 
 from unittest.mock import Mock, create_autospec
 
 import pytest
 
-from models.workers.mysql_worker import SqlWorker
+from models.workers.mysql_worker import MysqlWorker
 from models.workers.worker import Worker
 
 
 @pytest.mark.unit
-class TestSqlWorker:
-    """Tests for SqlWorker base class."""
+class TestMysqlWorker:
+    """Tests for MysqlWorker base class."""
 
     def test_mysql_worker_initialization_defaults(self):
-        """Test SqlWorker initialization with default values."""
-        mock_worker = create_autospec(SqlWorker, instance=True)
+        """Test MysqlWorker initialization with default values."""
+        mock_worker = create_autospec(MysqlWorker, instance=True)
         mock_worker.mysql_client = None
         mock_worker.running = False
 
@@ -22,11 +22,11 @@ class TestSqlWorker:
         assert mock_worker.running is False
 
     def test_mysql_worker_inherits_from_worker(self):
-        """Test that SqlWorker inherits from Worker."""
-        assert issubclass(SqlWorker, Worker)
+        """Test that MysqlWorker inherits from Worker."""
+        assert issubclass(MysqlWorker, Worker)
 
     def test_mysql_worker_is_pydantic_model(self):
-        """Test that SqlWorker is a Pydantic model."""
+        """Test that MysqlWorker is a Pydantic model."""
         from pydantic import BaseModel
 
-        assert issubclass(SqlWorker, BaseModel)
+        assert issubclass(MysqlWorker, BaseModel)
