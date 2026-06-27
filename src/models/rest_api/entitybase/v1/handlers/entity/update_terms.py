@@ -12,6 +12,7 @@ from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
 from models.data.rest_api.v1.entitybase.request.entity.context import (
     EditOperationContext,
     TermUpdateContext,
+    AliasContext,
     EventPublishContext,
 )
 from models.data.rest_api.v1.entitybase.response import EntityResponse
@@ -392,14 +393,13 @@ class EntityUpdateTermsMixin(BaseModel):
     async def update_aliases(
         self,
         entity_id: str,
-        language_code: str,
-        aliases: list[str],
+        context: AliasContext,
         edit_operation_context: EditOperationContext,
         validator: Any | None = None,
     ) -> EntityResponse:
         """Replace all aliases for a language."""
         logger.info(
-            f"update_aliases: entity={entity_id}, lang={language_code}, count={len(aliases)}"
+            f"update_aliases: entity={entity_id}, lang={context.language_code}, count={len(context.aliases)}"
         )
         logger.debug(
             f"[update_aliases] mysql_client={id(self.state.mysql_client)}, id_resolver={id(self.state.mysql_client.id_resolver)}"
@@ -418,9 +418,11 @@ class EntityUpdateTermsMixin(BaseModel):
 
         if "aliases" not in entity_dict:
             entity_dict["aliases"] = {}
-        entity_dict["aliases"][language_code] = [{"value": alias} for alias in aliases]
+        entity_dict["aliases"][context.language_code] = [
+            {"value": alias} for alias in context.aliases
+        ]
         logger.debug(
-            f"update_aliases: updated aliases for {language_code}: {entity_dict['aliases'].get(language_code)}"
+            f"update_aliases: updated aliases for {context.language_code}: {entity_dict['aliases'].get(context.language_code)}"
         )
 
         logger.debug(
