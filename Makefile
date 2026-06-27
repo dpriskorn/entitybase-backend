@@ -22,24 +22,24 @@ help:
 	@echo "  make docs         - Run docs-generate + docs-build + docs-serve"
 	@echo "  make lint-test-all - Run all lint + tests (unit -> E2E -> contract -> integration)"
 	@echo "  make lint-test-fast        - Run lint + fast tests (unit -> E2E -> contract)"
-	@echo "  make test-fast        - Run fast tests (unit -> E2E -> contract)"
+	@echo "  make be-test-fast        - Run fast tests (unit -> E2E -> contract)"
 	@echo "  make be-tests        - Run all tests (unit -> E2E -> contract -> integration)"
-	@echo "  make test-unit   - Run unit tests only (fast feedback)"
-	@echo "  make test-e2e     - Run all e2e tests"
-	@echo "  make test-e2e-01 - Run e2e tests (basics)"
-	@echo "  make test-e2e-02 - Run e2e tests (terms)"
-	@echo "  make test-e2e-03 - Run e2e tests (user features)"
-	@echo "  make test-e2e-04 - Run e2e tests (advanced)"
-	@echo "  make test-contract - Run contract tests (API schema validation)"
-	@echo "  make test-integration-01 - Run integration tests (first 50)"
-	@echo "  make test-integration-02 - Run integration tests (mid 50)"
-	@echo "  make test-integration-03 - Run integration tests (late 50a)"
-	@echo "  make test-integration-04 - Run integration tests (late 50b)"
-	@echo "  make test-integration - Run all integration tests"
-	@echo "  make test-unit-01 - Run unit tests (config, data, services, validation, json_parser)"
-	@echo "  make test-unit-02 - Run unit tests (internal_representation, workers)"
-	@echo "  make test-unit-03 - Run unit tests (infrastructure, rdf_builder)"
-	@echo "  make test-unit-04 - Run unit tests (rest_api)"
+	@echo "  make be-test-unit   - Run unit tests only (fast feedback)"
+	@echo "  make be-test-e2e     - Run all e2e tests"
+	@echo "  make be-test-e2e-01 - Run e2e tests (basics)"
+	@echo "  make be-test-e2e-02 - Run e2e tests (terms)"
+	@echo "  make be-test-e2e-03 - Run e2e tests (user features)"
+	@echo "  make be-test-e2e-04 - Run e2e tests (advanced)"
+	@echo "  make be-test-contract - Run contract tests (API schema validation)"
+	@echo "  make be-test-integration-01 - Run integration tests (first 50)"
+	@echo "  make be-test-integration-02 - Run integration tests (mid 50)"
+	@echo "  make be-test-integration-03 - Run integration tests (late 50a)"
+	@echo "  make be-test-integration-04 - Run integration tests (late 50b)"
+	@echo "  make be-test-integration - Run all integration tests"
+	@echo "  make be-test-unit-01 - Run unit tests (config, data, services, validation, json_parser)"
+	@echo "  make be-test-unit-02 - Run unit tests (internal_representation, workers)"
+	@echo "  make be-test-unit-03 - Run unit tests (infrastructure, rdf_builder)"
+	@echo "  make be-test-unit-04 - Run unit tests (rest_api)"
 	@echo "  make be-coverage    - Run tests with coverage report"
 	@echo "  make fe-lint     - Run frontend linter (eslint/prettier)"
 	@echo "  make fe-test     - Run frontend tests (vitest)"
@@ -83,7 +83,7 @@ radon:
 vulture:
 	./scripts/shell/run-vulture.sh
 
-test-contract: check
+be-test-contract: check
 	./scripts/shell/run-contract.sh
 
 docs-generate:
@@ -97,57 +97,57 @@ docs-serve:
 
 docs: docs-generate docs-build docs-serve
 
-test-unit: test-unit-01 test-unit-02 test-unit-03 test-unit-04
+be-test-unit: be-test-unit-01 be-test-unit-02 be-test-unit-03 be-test-unit-04
 
-test-unit-01:
+be-test-unit-01:
 	./scripts/shell/run-unit-01-config-data.sh
 
-test-unit-02:
+be-test-unit-02:
 	./scripts/shell/run-unit-02-internal-workers.sh
 
-test-unit-03:
+be-test-unit-03:
 	./scripts/shell/run-unit-03-infra-rdf.sh
 
-test-unit-04:
+be-test-unit-04:
 	./scripts/shell/run-unit-04-rest-api.sh
 
-test-e2e-01:
+be-test-e2e-01:
 	./scripts/shell/run-e2e-01-basics.sh
 
-test-e2e-02:
+be-test-e2e-02:
 	./scripts/shell/run-e2e-02-terms.sh
 
-test-e2e-03:
+be-test-e2e-03:
 	./scripts/shell/run-e2e-03-user.sh
 
-test-e2e-04:
+be-test-e2e-04:
 	./scripts/shell/run-e2e-04-advanced.sh
 
-test-e2e: check test-e2e-01 test-e2e-02 test-e2e-03 test-e2e-04
+be-test-e2e: check be-test-e2e-01 be-test-e2e-02 be-test-e2e-03 be-test-e2e-04
 
-test-unit-e2e-contract: test-unit test-e2e test-contract
+be-test-unit-e2e-contract: be-test-unit be-test-e2e be-test-contract
 
-test-integration-01:
+be-test-integration-01:
 	./scripts/shell/run-integration-01-first50.sh
 
-test-integration-02:
+be-test-integration-02:
 	./scripts/shell/run-integration-02-mid50.sh
 
-test-integration-03:
+be-test-integration-03:
 	./scripts/shell/run-integration-03-late50a.sh
 
-test-integration-04:
+be-test-integration-04:
 	./scripts/shell/run-integration-04-late50b.sh
 
-test-integration: check test-integration-01 test-integration-02 test-integration-03 test-integration-04
+be-test-integration: check be-test-integration-01 be-test-integration-02 be-test-integration-03 be-test-integration-04
 
-be-tests: check test-unit test-e2e test-contract test-integration
+be-tests: check be-test-unit be-test-e2e be-test-contract be-test-integration
 
 lint-test-all: be-lint be-tests
 
-lint-test-fast: be-lint test-unit-e2e-contract
+lint-test-fast: be-lint be-test-unit-e2e-contract
 
-test-fast: test-unit-e2e-contract
+be-test-fast: be-test-unit-e2e-contract
 
 be-coverage: check
 	./scripts/shell/run-coverage.sh
