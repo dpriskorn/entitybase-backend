@@ -1,5 +1,7 @@
 models.internal_representation.entity.Entity
 # REST API endpoints
+login
+register
 get_settings
 list_items
 list_properties
@@ -113,6 +115,9 @@ from_
 is_autoconfirmed_user
 version_endpoint
 # Response model fields (Pydantic fields)
+qualifiers_order
+token_type
+expires_in
 has_more
 total_endorsements_given
 total_endorsements_active

@@ -8,9 +8,9 @@ from pydantic import Field
 from models.data.config.sqlite import SqliteConfig
 from models.infrastructure.client import Client
 from models.infrastructure.s3.revision.revision_data import RevisionData
-from models.infrastructure.vitess.connection import (
-    SqlConnectionManager,
-    CursorContextManager,
+from models.infrastructure.sqlite.connection import (
+    SqliteConnectionManager,
+    SqliteCursorContextManager,
 )
 from models.infrastructure.vitess.id_resolver import IdResolver
 from models.infrastructure.vitess.repositories.backlink import BacklinkRecord
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 class SqliteClient(Client):
     """SQLite database client with the same interface as VitessClient."""
 
-    connection_manager: SqlConnectionManager | None = Field(
+    connection_manager: SqliteConnectionManager | None = Field(
         default=None, init=False, exclude=True
     )
     id_resolver: IdResolver | None = Field(default=None, init=False, exclude=True)
@@ -31,17 +31,17 @@ class SqliteClient(Client):
     def model_post_init(self, context: Any) -> None:
         """Initialize SQLite connection and id resolver."""
         logger.info("=== SqliteClient.model_post_init() START ===")
-        self.connection_manager = SqlConnectionManager(config=self.config)
+        self.connection_manager = SqliteConnectionManager(config=self.config)
         self.connection_manager.connect()
         self.id_resolver = IdResolver(vitess_client=self)
         logger.info("=== SqliteClient.model_post_init() END ===")
 
     @property
-    def cursor(self) -> CursorContextManager:
+    def cursor(self) -> SqliteCursorContextManager:
         """Return a cursor context manager for SQLite."""
         if self.connection_manager is None:
             raise RuntimeError("Connection manager not initialized")
-        return CursorContextManager(self.connection_manager)
+        return SqliteCursorContextManager(self.connection_manager)
 
     def disconnect(self) -> None:
         """Disconnect from the database."""
@@ -178,11 +178,11 @@ class SqliteClient(Client):
 
     def create_tables(self) -> None:
         """Create SQLite database tables."""
-        from models.infrastructure.vitess.repositories.schema import (
-            SchemaRepository,
+        from models.infrastructure.sqlite.repositories.schema import (
+            SqliteSchemaRepository,
         )
 
-        schema_repository = SchemaRepository(vitess_client=self)
+        schema_repository = SqliteSchemaRepository(vitess_client=self)
         schema_repository.create_tables()
 
     def entity_exists(self, entity_id: str) -> bool:

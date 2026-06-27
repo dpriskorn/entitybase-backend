@@ -106,29 +106,6 @@ class UserRepository(Repository):
             )
             return cursor.fetchone() is not None
 
-    def get_user_by_username(self, username: str) -> UserResponse | None:
-        """Get user data by username (without password hash)."""
-        with self.vitess_client.cursor as cursor:
-            cursor.execute(
-                """SELECT user_id, username, role, created_at, preferences
-                   FROM users WHERE username = %s""",
-                (username,),
-            )
-            row = cursor.fetchone()
-            if row:
-                try:
-                    return UserResponse(
-                        user_id=row[0],
-                        username=row[1],
-                        role=UserRole(row[2]),
-                        created_at=row[3],
-                        preferences=row[4],
-                    )
-                except Exception as e:
-                    logger.error(f"Failed to create UserResponse from row {row}: {e}")
-                    return None
-            return None
-
     def verify_user_credentials(
         self,
         username: str,
