@@ -71,7 +71,9 @@ async def verify_auth(
     )
 
 
-async def require_role(*roles: UserRole) -> Callable[[AuthenticatedRequest], AuthenticatedRequest]:
+def require_role(
+    *roles: UserRole,
+) -> Callable[[AuthenticatedRequest], AuthenticatedRequest]:
     """Dependency factory for role-based access control.
 
     Usage:

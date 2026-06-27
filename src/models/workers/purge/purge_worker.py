@@ -11,7 +11,7 @@ from pydantic import Field
 
 from models.config.settings import settings
 from models.data.rest_api.v1.entitybase.response import WorkerHealthCheckResponse
-from models.workers.vitess_worker import VitessWorker
+from models.workers.mysql_worker import MysqlWorker
 from models.workers.utils import calculate_seconds_until_next_run
 
 logger = logging.getLogger(__name__)
@@ -46,7 +46,7 @@ DB_TABLES = [
 ]
 
 
-class PurgeWorker(VitessWorker):
+class PurgeWorker(MysqlWorker):
     """Worker that periodically purges all S3 buckets and truncates database tables."""
 
     s3_client: Any = Field(default=None, exclude=True)

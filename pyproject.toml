@@ -29,6 +29,7 @@ dependencies = [
     "requests (>=2.32.5,<3.0.0)",
     "uvicorn (>=0.40.0,<0.41.0)",
     "websockets (>=16.0,<17.0)",
+    "bcrypt (>=5.0.0,<6.0.0)",
 ]
 
 

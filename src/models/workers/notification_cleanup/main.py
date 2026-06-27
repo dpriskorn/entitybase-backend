@@ -7,8 +7,8 @@ from datetime import datetime, timezone, timedelta
 from typing import AsyncGenerator
 
 from models.config.settings import settings
-from models.infrastructure.vitess.client import VitessClient
-from models.workers.vitess_worker import VitessWorker
+from models.infrastructure.mysql.client import MysqlClient
+from models.workers.mysql_worker import MysqlWorker
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 
 
-class NotificationCleanupWorker(VitessWorker):
+class NotificationCleanupWorker(MysqlWorker):
     """Worker that periodically cleans up old notifications to enforce limits."""
 
     max_age_days: int = 30
@@ -48,8 +48,8 @@ class NotificationCleanupWorker(VitessWorker):
         """Lifespan context manager for startup/shutdown."""
         try:
             # Initialize client
-            vitess_config = settings.get_vitess_config
-            self.vitess_client = VitessClient(config=vitess_config)
+            mysql_config = settings.get_mysql_config
+            self.mysql_client = MysqlClient(config=mysql_config)
             logger.info("Notification cleanup worker started")
             yield
         except Exception as e:
@@ -88,9 +88,9 @@ class NotificationCleanupWorker(VitessWorker):
 
     def _delete_old_notifications(self, cutoff_date: datetime) -> int:
         """Delete notifications older than cutoff date."""
-        if self.vitess_client is None:
+        if self.mysql_client is None:
             raise RuntimeError("database client not initialized")
-        with self.vitess_client.connection_manager.connection.cursor() as cursor:
+        with self.mysql_client.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 "DELETE FROM user_notifications WHERE event_timestamp < %s",
                 (cutoff_date.isoformat() + "Z",),
@@ -102,9 +102,9 @@ class NotificationCleanupWorker(VitessWorker):
         total_deleted = 0
 
         # Get users with excess notifications
-        if self.vitess_client is None:
+        if self.mysql_client is None:
             raise RuntimeError("database client not initialized")
-        with self.vitess_client.cursor as cursor:
+        with self.mysql_client.cursor as cursor:
             # Find users with too many notifications
             cursor.execute(
                 """

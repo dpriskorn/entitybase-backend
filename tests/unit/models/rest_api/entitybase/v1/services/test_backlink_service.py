@@ -21,8 +21,8 @@ class TestBacklinkService:
             "Q2": 2,
             "Q5": 5,
         }.get(eid)
-        mock_state.vitess_client.id_resolver = mock_id_resolver
-        mock_state.vitess_client.backlink_repository = MagicMock()
+        mock_state.mysql_client.id_resolver = mock_id_resolver
+        mock_state.mysql_client.backlink_repository = MagicMock()
 
         service = BacklinkService(state=mock_state)
 
@@ -54,8 +54,8 @@ class TestBacklinkService:
         )
 
         mock_state = MagicMock()
-        mock_state.vitess_client.id_resolver = MagicMock()
-        mock_state.vitess_client.backlink_repository = MagicMock()
+        mock_state.mysql_client.id_resolver = MagicMock()
+        mock_state.mysql_client.backlink_repository = MagicMock()
 
         service = BacklinkService(state=mock_state)
 
@@ -70,8 +70,8 @@ class TestBacklinkService:
         )
 
         mock_state = MagicMock()
-        mock_state.vitess_client.id_resolver = MagicMock()
-        mock_state.vitess_client.backlink_repository = MagicMock()
+        mock_state.mysql_client.id_resolver = MagicMock()
+        mock_state.mysql_client.backlink_repository = MagicMock()
 
         service = BacklinkService(state=mock_state)
 
@@ -108,8 +108,8 @@ class TestBacklinkService:
             "Q2": 2,
             "Q5": 5,
         }.get(eid)
-        mock_state.vitess_client.id_resolver = mock_id_resolver
-        mock_state.vitess_client.backlink_repository = MagicMock()
+        mock_state.mysql_client.id_resolver = mock_id_resolver
+        mock_state.mysql_client.backlink_repository = MagicMock()
 
         service = BacklinkService(state=mock_state)
 
@@ -155,8 +155,8 @@ class TestBacklinkService:
         mock_state = MagicMock()
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.side_effect = lambda eid: None
-        mock_state.vitess_client.id_resolver = mock_id_resolver
-        mock_state.vitess_client.backlink_repository = MagicMock()
+        mock_state.mysql_client.id_resolver = mock_id_resolver
+        mock_state.mysql_client.backlink_repository = MagicMock()
 
         service = BacklinkService(state=mock_state)
 
@@ -192,11 +192,11 @@ class TestBacklinkService:
         mock_id_resolver.resolve_id.side_effect = lambda eid: {"Q1": 1, "Q5": 5}.get(
             eid
         )
-        mock_state.vitess_client.id_resolver = mock_id_resolver
+        mock_state.mysql_client.id_resolver = mock_id_resolver
 
         mock_repo = MagicMock()
         mock_repo.insert_backlinks.return_value = OperationResult(success=True)
-        mock_state.vitess_client.backlink_repository = mock_repo
+        mock_state.mysql_client.backlink_repository = mock_repo
 
         service = BacklinkService(state=mock_state)
 
@@ -229,8 +229,8 @@ class TestBacklinkService:
         from models.data.common import OperationResult
 
         mock_state = MagicMock()
-        mock_state.vitess_client.id_resolver = MagicMock()
-        mock_state.vitess_client.backlink_repository = MagicMock()
+        mock_state.mysql_client.id_resolver = MagicMock()
+        mock_state.mysql_client.backlink_repository = MagicMock()
 
         service = BacklinkService(state=mock_state)
 
@@ -251,8 +251,8 @@ class TestBacklinkService:
             "Q2": 2,
             "Q5": 5,
         }.get(eid)
-        mock_state.vitess_client.id_resolver = mock_id_resolver
-        mock_state.vitess_client.backlink_repository = MagicMock()
+        mock_state.mysql_client.id_resolver = mock_id_resolver
+        mock_state.mysql_client.backlink_repository = MagicMock()
 
         service = BacklinkService(state=mock_state)
 
@@ -303,8 +303,8 @@ class TestBacklinkService:
             return mapping.get(eid)
 
         mock_id_resolver.resolve_id.side_effect = resolve_side_effect
-        mock_state.vitess_client.id_resolver = mock_id_resolver
-        mock_state.vitess_client.backlink_repository = MagicMock()
+        mock_state.mysql_client.id_resolver = mock_id_resolver
+        mock_state.mysql_client.backlink_repository = MagicMock()
 
         service = BacklinkService(state=mock_state)
 
@@ -362,13 +362,13 @@ class TestBacklinkService:
         mock_id_resolver.resolve_id.side_effect = lambda eid: {"Q1": 1, "Q5": 5}.get(
             eid
         )
-        mock_state.vitess_client.id_resolver = mock_id_resolver
+        mock_state.mysql_client.id_resolver = mock_id_resolver
 
         mock_repo = MagicMock()
         mock_repo.insert_backlinks.return_value = OperationResult(
             success=False, error="DB connection error"
         )
-        mock_state.vitess_client.backlink_repository = mock_repo
+        mock_state.mysql_client.backlink_repository = mock_repo
 
         service = BacklinkService(state=mock_state)
 

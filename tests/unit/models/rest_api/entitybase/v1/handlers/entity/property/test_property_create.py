@@ -21,10 +21,10 @@ class TestPropertyCreateHandler:
         mock_response.entity_id = "P42"
 
         mock_state = MagicMock()
-        mock_state.vitess_client.entity_exists.return_value = False
-        mock_state.vitess_client.register_entity.return_value = True
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.user_repository.log_user_activity.return_value = (
+        mock_state.mysql_client.entity_exists.return_value = False
+        mock_state.mysql_client.register_entity.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = False
+        mock_state.mysql_client.user_repository.log_user_activity.return_value = (
             MagicMock(success=True)
         )
 
@@ -57,10 +57,10 @@ class TestPropertyCreateHandler:
         mock_response.entity_id = "P999"
 
         mock_state = MagicMock()
-        mock_state.vitess_client.entity_exists.return_value = False
-        mock_state.vitess_client.register_entity.return_value = True
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.user_repository.log_user_activity.return_value = (
+        mock_state.mysql_client.entity_exists.return_value = False
+        mock_state.mysql_client.register_entity.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = False
+        mock_state.mysql_client.user_repository.log_user_activity.return_value = (
             MagicMock(success=True)
         )
 

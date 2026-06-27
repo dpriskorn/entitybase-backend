@@ -7,7 +7,7 @@ from typing import Dict, List
 
 
 def extract_schema_from_database() -> List[Dict[str, str]]:
-    """Extract schema information from Vitess database."""
+    """Extract schema information from Mysql database."""
     try:
         import pymysql
         sys.path.insert(0, "src")
@@ -21,7 +21,7 @@ def extract_schema_from_database() -> List[Dict[str, str]]:
     tables = []
 
     # Find all CREATE TABLE statements in repository files
-    repos_dir = Path("src/models/infrastructure/vitess/repositories")
+    repos_dir = Path("src/models/infrastructure/mysql/repositories")
     if repos_dir.exists():
         for repo_file in repos_dir.glob("*.py"):
             if repo_file.name == "__init__.py":
@@ -148,11 +148,11 @@ def generate_markdown(tables: List[Dict[str, str]]) -> str:
 
     lines = [
         "# Database Schema Overview\n",
-        "This document describes Vitess database schema used by wikibase-backend.\n",
+        "This document describes Mysql database schema used by wikibase-backend.\n",
         "## Summary\n",
         f"- **Total Tables**: {len(tables)}",
-        "- **Database**: MySQL (via Vitess)",
-        "- **Schema Location**: Distributed across repository files in `src/models/infrastructure/vitess/repositories/`\n",
+        "- **Database**: MySQL (via Mysql)",
+        "- **Schema Location**: Distributed across repository files in `src/models/infrastructure/mysql/repositories/`\n",
     ]
 
     # Entity Tables
@@ -228,8 +228,8 @@ def generate_markdown(tables: List[Dict[str, str]]) -> str:
     lines.append("- All tables use appropriate data types for their content")
     lines.append("- Foreign key relationships are enforced at the application level")
     lines.append("- Indexes are optimized for most common query patterns")
-    lines.append("- Schema is applied automatically during Vitess initialization via repository files")
-    lines.append("- BIGINT types are used for Vitess compatibility and scalability")
+    lines.append("- Schema is applied automatically during Mysql initialization via repository files")
+    lines.append("- BIGINT types are used for Mysql compatibility and scalability")
 
     return "\n".join(lines)
 

@@ -65,3 +65,19 @@ def initialized_app():
 def api_prefix():
     """Return the API prefix from settings."""
     return settings.api_prefix
+
+
+@pytest.fixture(scope="session")
+def auth_headers():
+    """Generate valid JWT auth headers for contract tests.
+
+    Creates a token for the admin user (user_id=0) using the same
+    JWT secret that decode_token uses (default: change-me-in-production).
+    """
+    from models.rest_api.auth import create_access_token
+    from models.rest_api.auth.models import User
+    from models.data.common.roles import UserRole
+
+    user = User(user_id=0, username="admin", role=UserRole.ADMIN)
+    token = create_access_token(user)
+    return {"Authorization": f"Bearer {token}"}

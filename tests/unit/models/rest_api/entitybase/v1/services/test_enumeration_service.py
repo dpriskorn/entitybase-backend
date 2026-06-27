@@ -15,7 +15,7 @@ class TestEnumerationService:
 
     def test_get_next_entity_id_item(self):
         """Test getting next entity ID for item type."""
-        mock_vitess_client = MagicMock()
+        mock_mysql_client = MagicMock()
         mock_range_manager = MagicMock()
         mock_range_manager.get_next_id.return_value = "Q300000001"
 
@@ -26,7 +26,7 @@ class TestEnumerationService:
         ):
             service = EnumerationService(
                 worker_id="test-worker",
-                vitess_client=mock_vitess_client,
+                mysql_client=mock_mysql_client,
             )
 
             result = service.get_next_entity_id("item")
@@ -36,7 +36,7 @@ class TestEnumerationService:
 
     def test_get_next_entity_id_property(self):
         """Test getting next entity ID for property type."""
-        mock_vitess_client = MagicMock()
+        mock_mysql_client = MagicMock()
         mock_range_manager = MagicMock()
         mock_range_manager.get_next_id.return_value = "P30001"
 
@@ -47,7 +47,7 @@ class TestEnumerationService:
         ):
             service = EnumerationService(
                 worker_id="test-worker",
-                vitess_client=mock_vitess_client,
+                mysql_client=mock_mysql_client,
             )
 
             result = service.get_next_entity_id("property")
@@ -57,7 +57,7 @@ class TestEnumerationService:
 
     def test_get_next_entity_id_lexeme(self):
         """Test getting next entity ID for lexeme type."""
-        mock_vitess_client = MagicMock()
+        mock_mysql_client = MagicMock()
         mock_range_manager = MagicMock()
         mock_range_manager.get_next_id.return_value = "L5000001"
 
@@ -68,7 +68,7 @@ class TestEnumerationService:
         ):
             service = EnumerationService(
                 worker_id="test-worker",
-                vitess_client=mock_vitess_client,
+                mysql_client=mock_mysql_client,
             )
 
             result = service.get_next_entity_id("lexeme")
@@ -78,7 +78,7 @@ class TestEnumerationService:
 
     def test_get_next_entity_id_entityschema(self):
         """Test getting next entity ID for entityschema type."""
-        mock_vitess_client = MagicMock()
+        mock_mysql_client = MagicMock()
         mock_range_manager = MagicMock()
         mock_range_manager.get_next_id.return_value = "E50001"
 
@@ -89,7 +89,7 @@ class TestEnumerationService:
         ):
             service = EnumerationService(
                 worker_id="test-worker",
-                vitess_client=mock_vitess_client,
+                mysql_client=mock_mysql_client,
             )
 
             result = service.get_next_entity_id("entityschema")
@@ -99,7 +99,7 @@ class TestEnumerationService:
 
     def test_get_next_entity_id_invalid_type(self):
         """Test getting next entity ID with invalid type raises error."""
-        mock_vitess_client = MagicMock()
+        mock_mysql_client = MagicMock()
         mock_range_manager = MagicMock()
 
         with patch.object(
@@ -109,7 +109,7 @@ class TestEnumerationService:
         ):
             service = EnumerationService(
                 worker_id="test-worker",
-                vitess_client=mock_vitess_client,
+                mysql_client=mock_mysql_client,
             )
 
             with pytest.raises(HTTPException) as exc_info:
@@ -120,7 +120,7 @@ class TestEnumerationService:
 
     def test_get_range_status(self):
         """Test getting range status."""
-        mock_vitess_client = MagicMock()
+        mock_mysql_client = MagicMock()
         mock_range_manager = MagicMock()
         mock_status = MagicMock()
         mock_range_manager.get_range_status.return_value = mock_status
@@ -132,7 +132,7 @@ class TestEnumerationService:
         ):
             service = EnumerationService(
                 worker_id="test-worker",
-                vitess_client=mock_vitess_client,
+                mysql_client=mock_mysql_client,
             )
 
             result = service.get_range_status()
@@ -180,7 +180,7 @@ class TestEnumerationService:
 
     def test_model_post_init_initializes_range_manager(self):
         """Test that model_post_init properly initializes range manager."""
-        mock_vitess_client = MagicMock()
+        mock_mysql_client = MagicMock()
         mock_id_range_manager_class = MagicMock()
 
         with patch(
@@ -189,12 +189,12 @@ class TestEnumerationService:
         ) as mock_id_range_manager:
             service = EnumerationService(
                 worker_id="test-worker",
-                vitess_client=mock_vitess_client,
+                mysql_client=mock_mysql_client,
             )
 
             mock_id_range_manager.assert_called_once()
             call_kwargs = mock_id_range_manager.call_args[1]
-            assert call_kwargs["vitess_client"] == mock_vitess_client
+            assert call_kwargs["mysql_client"] == mock_mysql_client
             assert "Q" in call_kwargs["min_ids"]
             assert "P" in call_kwargs["min_ids"]
             assert "L" in call_kwargs["min_ids"]
@@ -202,7 +202,7 @@ class TestEnumerationService:
 
     def test_model_post_init_database_init_failure_is_handled(self):
         """Test that database initialization failure is handled gracefully."""
-        mock_vitess_client = MagicMock()
+        mock_mysql_client = MagicMock()
         mock_id_range_manager_class = MagicMock()
         mock_range_manager_instance = MagicMock()
         mock_id_range_manager_class.return_value = mock_range_manager_instance
@@ -221,7 +221,7 @@ class TestEnumerationService:
         ):
             service = EnumerationService(
                 worker_id="test-worker",
-                vitess_client=mock_vitess_client,
+                mysql_client=mock_mysql_client,
             )
 
             mock_logger.warning.assert_called()

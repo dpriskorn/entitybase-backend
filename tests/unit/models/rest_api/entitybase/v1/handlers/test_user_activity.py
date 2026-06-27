@@ -27,13 +27,11 @@ class TestUserActivityHandler:
             UserActivityHandler,
         )
 
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
+        mock_state.mysql_client.user_repository.user_exists.return_value = True
 
         UserActivityHandler._validate_user(mock_handler, 123)
 
-        mock_state.vitess_client.user_repository.user_exists.assert_called_once_with(
-            123
-        )
+        mock_state.mysql_client.user_repository.user_exists.assert_called_once_with(123)
 
     def test_validate_user_not_found(self, mock_handler, mock_state):
         """Test _validate_user with invalid user."""
@@ -41,7 +39,7 @@ class TestUserActivityHandler:
             UserActivityHandler,
         )
 
-        mock_state.vitess_client.user_repository.user_exists.return_value = False
+        mock_state.mysql_client.user_repository.user_exists.return_value = False
 
         with pytest.raises(HTTPException) as exc_info:
             UserActivityHandler._validate_user(mock_handler, 999)
@@ -131,7 +129,7 @@ class TestUserActivityHandler:
         mock_result = MagicMock()
         mock_result.success = True
         mock_result.data = [{"id": 1}, {"id": 2}]
-        mock_state.vitess_client.user_repository.get_user_activities.return_value = (
+        mock_state.mysql_client.user_repository.get_user_activities.return_value = (
             mock_result
         )
 
@@ -140,7 +138,7 @@ class TestUserActivityHandler:
         )
 
         assert len(result) == 2
-        mock_state.vitess_client.user_repository.get_user_activities.assert_called_once()
+        mock_state.mysql_client.user_repository.get_user_activities.assert_called_once()
 
     def test_fetch_user_activities_failure(self, mock_handler, mock_state):
         """Test _fetch_user_activities with failed result."""
@@ -151,7 +149,7 @@ class TestUserActivityHandler:
         mock_result = MagicMock()
         mock_result.success = False
         mock_result.error = "Database error"
-        mock_state.vitess_client.user_repository.get_user_activities.return_value = (
+        mock_state.mysql_client.user_repository.get_user_activities.return_value = (
             mock_result
         )
 
@@ -171,7 +169,7 @@ class TestUserActivityHandler:
         mock_result = MagicMock()
         mock_result.success = True
         mock_result.data = None
-        mock_state.vitess_client.user_repository.get_user_activities.return_value = (
+        mock_state.mysql_client.user_repository.get_user_activities.return_value = (
             mock_result
         )
 

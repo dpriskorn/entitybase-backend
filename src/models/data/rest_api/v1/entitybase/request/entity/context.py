@@ -121,8 +121,8 @@ class RevisionContext(BaseModel):
     is_creation: bool = Field(
         default=False, description="Whether this is a new entity creation"
     )
-    vitess_client: Any = Field(
-        default=None, description="Vitess database client instance"
+    mysql_client: Any = Field(
+        default=None, description="Mysql database client instance"
     )
     s3_client: Any = Field(default=None, description="S3 storage client instance")
     stream_producer: Any = Field(

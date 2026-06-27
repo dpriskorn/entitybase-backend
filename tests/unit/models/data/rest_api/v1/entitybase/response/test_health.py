@@ -32,24 +32,24 @@ class TestHealthCheckResponse:
         response = HealthCheckResponse(
             status="healthy",
             s3="healthy",
-            vitess="healthy",
+            mysql="healthy",
             timestamp="2024-01-01T00:00:00Z",
         )
         assert response.status == "healthy"
         assert response.s3 == "healthy"
-        assert response.vitess == "healthy"
+        assert response.mysql == "healthy"
 
     def test_model_dump(self):
         """Test model_dump()."""
         response = HealthCheckResponse(
             status="healthy",
             s3="healthy",
-            vitess="unhealthy",
+            mysql="unhealthy",
             timestamp="2024-01-01T00:00:00Z",
         )
         dumped = response.model_dump()
         assert dumped["s3"] == "healthy"
-        assert dumped["vitess"] == "unhealthy"
+        assert dumped["mysql"] == "unhealthy"
 
 
 class TestWorkerHealthCheckResponse:

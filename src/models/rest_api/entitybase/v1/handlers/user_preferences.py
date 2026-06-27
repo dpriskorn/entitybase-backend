@@ -20,10 +20,10 @@ class UserPreferencesHandler(Handler):
 
     def get_preferences(self, user_id: int) -> UserPreferencesResponse:
         """Get user's notification preferences."""
-        if not self.state.vitess_client.user_repository.user_exists(user_id):
+        if not self.state.mysql_client.user_repository.user_exists(user_id):
             raise_validation_error("User not registered", status_code=404)
 
-        result = self.state.vitess_client.user_repository.get_user_preferences(user_id)  # type: ignore[union-attr]
+        result = self.state.mysql_client.user_repository.get_user_preferences(user_id)  # type: ignore[union-attr]
         if not result.success:
             if "User preferences not found" in (result.error or ""):
                 prefs = {"notification_limit": 50, "retention_hours": 24}
@@ -46,10 +46,10 @@ class UserPreferencesHandler(Handler):
         self, user_id: int, request: UserPreferencesRequest
     ) -> UserPreferencesResponse:
         """Update user's notification preferences."""
-        if not self.state.vitess_client.user_repository.user_exists(user_id):  # type: ignore[union-attr]
+        if not self.state.mysql_client.user_repository.user_exists(user_id):  # type: ignore[union-attr]
             raise_validation_error("User not registered", status_code=404)
 
-        result = self.state.vitess_client.user_repository.update_user_preferences(  # type: ignore[union-attr]
+        result = self.state.mysql_client.user_repository.update_user_preferences(  # type: ignore[union-attr]
             user_id=user_id,
             notification_limit=request.notification_limit,
             retention_hours=request.retention_hours,

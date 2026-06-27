@@ -21,18 +21,18 @@ class TestGeneralStatsWorker:
 
     def test_get_enabled_setting(self):
         """Test getting enabled setting."""
-        worker = GeneralStatsWorker(vitess_client=MagicMock())
+        worker = GeneralStatsWorker(mysql_client=MagicMock())
         assert worker.get_enabled_setting() == settings.general_stats_worker_enabled
 
     def test_get_schedule_setting(self):
         """Test getting schedule setting."""
-        worker = GeneralStatsWorker(vitess_client=MagicMock())
+        worker = GeneralStatsWorker(mysql_client=MagicMock())
         assert worker.get_schedule_setting() == settings.general_stats_schedule
 
     @pytest.mark.asyncio
     async def test_run_daily_computation_success(self):
         """Test successful daily computation."""
-        mock_vitess_client = MagicMock()
+        mock_mysql_client = MagicMock()
         mock_service = MagicMock()
         mock_service.compute_daily_stats.return_value = MagicMock(
             total_statements=1000,
@@ -47,7 +47,7 @@ class TestGeneralStatsWorker:
             terms_by_type=MagicMock(),
         )
 
-        worker = GeneralStatsWorker(vitess_client=mock_vitess_client)
+        worker = GeneralStatsWorker(mysql_client=mock_mysql_client)
         worker._store_statistics = AsyncMock()
 
         with (
@@ -74,9 +74,9 @@ class TestGeneralStatsWorker:
             assert worker.last_run is not None
 
     @pytest.mark.asyncio
-    async def test_run_daily_computation_no_vitess_client(self):
-        """Test daily computation with no vitess client."""
-        worker = GeneralStatsWorker(vitess_client=None)
+    async def test_run_daily_computation_no_mysql_client(self):
+        """Test daily computation with no mysql client."""
+        worker = GeneralStatsWorker(mysql_client=None)
 
         with patch(
             "models.workers.general_stats.general_stats_worker.logger"
@@ -88,9 +88,9 @@ class TestGeneralStatsWorker:
     @pytest.mark.asyncio
     async def test_run_daily_computation_exception(self):
         """Test daily computation with exception."""
-        mock_vitess_client = MagicMock()
+        mock_mysql_client = MagicMock()
 
-        worker = GeneralStatsWorker(vitess_client=mock_vitess_client)
+        worker = GeneralStatsWorker(mysql_client=mock_mysql_client)
 
         with (
             patch(
@@ -108,12 +108,12 @@ class TestGeneralStatsWorker:
             mock_logger.error.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_store_statistics_with_vitess_client(self):
-        """Test storing statistics with vitess client."""
-        mock_vitess_client = MagicMock()
-        mock_vitess_client.user_repository = MagicMock()
+    async def test_store_statistics_with_mysql_client(self):
+        """Test storing statistics with mysql client."""
+        mock_mysql_client = MagicMock()
+        mock_mysql_client.user_repository = MagicMock()
 
-        worker = GeneralStatsWorker(vitess_client=mock_vitess_client)
+        worker = GeneralStatsWorker(mysql_client=mock_mysql_client)
 
         stats = GeneralStatsData(
             total_statements=1000,
@@ -135,4 +135,4 @@ class TestGeneralStatsWorker:
 
             await worker._store_statistics(stats)
 
-            mock_vitess_client.user_repository.insert_general_statistics.assert_called_once()
+            mock_mysql_client.user_repository.insert_general_statistics.assert_called_once()

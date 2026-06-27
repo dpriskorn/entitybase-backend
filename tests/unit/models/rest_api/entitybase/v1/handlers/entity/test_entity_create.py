@@ -19,10 +19,10 @@ class TestEntityCreateHandler:
     async def test_create_entity_exists(self) -> None:
         """Test creating an entity that already exists."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
 
-        mock_vitess.entity_exists.return_value = True
+        mock_mysql.entity_exists.return_value = True
 
         handler = EntityCreateHandler(state=mock_state)
 
@@ -34,17 +34,17 @@ class TestEntityCreateHandler:
         with pytest.raises(Exception):  # Should raise validation error
             await handler.create_entity(request, edit_headers=edit_headers)
 
-        mock_vitess.entity_exists.assert_called_once_with("Q42")
+        mock_mysql.entity_exists.assert_called_once_with("Q42")
 
     @pytest.mark.asyncio
     async def test_create_entity_deleted(self) -> None:
         """Test creating an entity that is deleted."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
 
-        mock_vitess.entity_exists.return_value = False
-        mock_vitess.is_entity_deleted.return_value = True
+        mock_mysql.entity_exists.return_value = False
+        mock_mysql.is_entity_deleted.return_value = True
 
         handler = EntityCreateHandler(state=mock_state)
 
@@ -92,14 +92,14 @@ class TestEntityCreateHandler:
     async def test_create_entity_with_validator(self) -> None:
         """Test entity creation with custom validator."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
 
-        mock_vitess.entity_exists.return_value = False
-        mock_vitess.is_entity_deleted.return_value = False
-        mock_vitess.register_entity.return_value = None
+        mock_mysql.entity_exists.return_value = False
+        mock_mysql.is_entity_deleted.return_value = False
+        mock_mysql.register_entity.return_value = None
 
         mock_validator = MagicMock()
         s3_revision_data = S3RevisionData(

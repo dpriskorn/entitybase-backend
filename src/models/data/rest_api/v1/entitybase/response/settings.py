@@ -16,12 +16,12 @@ class SettingsResponse(BaseModel):
     s3_reference_version: str
     s3_statement_version: str
     s3_schema_revision_version: str
-    vitess_host: str
-    vitess_port: int
-    vitess_database: str
-    vitess_pool_size: int
-    vitess_max_overflow: int
-    vitess_pool_timeout: int
+    mysql_host: str
+    mysql_port: int
+    mysql_database: str
+    mysql_pool_size: int
+    mysql_max_overflow: int
+    mysql_pool_timeout: int
     wikibase_repository_name: str
     property_registry_path: str
     log_level: str
@@ -87,7 +87,7 @@ def settings_to_response(settings: Any) -> SettingsResponse:
     """Convert Settings object to SettingsResponse, excluding sensitive fields."""
     import os
 
-    exclude = {"s3_access_key", "s3_secret_key", "vitess_password", "vitess_user"}
+    exclude = {"s3_access_key", "s3_secret_key", "mysql_password", "mysql_user"}
     data = settings.model_dump(exclude=exclude)
     data["property_registry_path"] = str(data["property_registry_path"])
     data["streaming_enabled"] = (

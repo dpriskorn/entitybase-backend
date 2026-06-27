@@ -46,13 +46,11 @@ class TestEndorsementHandler:
             EndorsementHandler,
         )
 
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
+        mock_state.mysql_client.user_repository.user_exists.return_value = True
 
         EndorsementHandler._validate_user(mock_handler, 123)
 
-        mock_state.vitess_client.user_repository.user_exists.assert_called_once_with(
-            123
-        )
+        mock_state.mysql_client.user_repository.user_exists.assert_called_once_with(123)
 
     def test_validate_user_not_found(self, mock_handler, mock_state):
         """Test _validate_user with invalid user."""
@@ -60,7 +58,7 @@ class TestEndorsementHandler:
             EndorsementHandler,
         )
 
-        mock_state.vitess_client.user_repository.user_exists.return_value = False
+        mock_state.mysql_client.user_repository.user_exists.return_value = False
 
         with pytest.raises(HTTPException) as exc_info:
             EndorsementHandler._validate_user(mock_handler, 999)
@@ -225,7 +223,7 @@ class TestEndorsementHandler:
         mock_result = MagicMock()
         mock_result.success = True
         mock_result.data = {"endorsements": [mock_endorsement]}
-        mock_state.vitess_client.endorsement_repository.get_statement_endorsements.return_value = mock_result
+        mock_state.mysql_client.endorsement_repository.get_statement_endorsements.return_value = mock_result
 
         # Verify that the repository is called and data is retrieved
         result = EndorsementHandler._get_and_validate_endorsement(
@@ -233,7 +231,7 @@ class TestEndorsementHandler:
         )
 
         # Just verify we got a result (the mock endorsement is returned)
-        mock_state.vitess_client.endorsement_repository.get_statement_endorsements.assert_called_once()
+        mock_state.mysql_client.endorsement_repository.get_statement_endorsements.assert_called_once()
 
     def test_get_and_validate_endorsement_failure(self, mock_handler, mock_state):
         """Test _get_and_validate_endorsement when repository fails."""
@@ -243,7 +241,7 @@ class TestEndorsementHandler:
 
         mock_result = MagicMock()
         mock_result.success = False
-        mock_state.vitess_client.endorsement_repository.get_statement_endorsements.return_value = mock_result
+        mock_state.mysql_client.endorsement_repository.get_statement_endorsements.return_value = mock_result
 
         with pytest.raises(HTTPException) as exc_info:
             EndorsementHandler._get_and_validate_endorsement(
@@ -262,7 +260,7 @@ class TestEndorsementHandler:
         mock_result = MagicMock()
         mock_result.success = True
         mock_result.data = {"endorsements": []}
-        mock_state.vitess_client.endorsement_repository.get_statement_endorsements.return_value = mock_result
+        mock_state.mysql_client.endorsement_repository.get_statement_endorsements.return_value = mock_result
 
         with pytest.raises(HTTPException) as exc_info:
             EndorsementHandler._get_and_validate_endorsement(

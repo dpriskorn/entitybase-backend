@@ -145,7 +145,7 @@ async def _create_database_tables(state_handler: StateHandler) -> None:
     db_type = state_handler.settings.db_type
     try:
         logger.info(f"Creating database tables (db_type={db_type})...")
-        state_handler.vitess_client.create_tables()
+        state_handler.mysql_client.create_tables()
         logger.info(
             f"Database tables created/verified successfully (db_type={db_type})"
         )
@@ -164,7 +164,7 @@ async def _bootstrap_admin_user(state_handler: StateHandler) -> None:
         logger.debug("No admin bootstrap config found in environment")
         return
 
-    user_repo = state_handler.vitess_client.user_repository
+    user_repo = state_handler.mysql_client.user_repository
 
     if user_repo.user_exists_by_username(config.admin_name):
         logger.info(

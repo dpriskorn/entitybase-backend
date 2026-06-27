@@ -63,11 +63,11 @@ class CreateTables(BaseModel):
     ]
 
     @property
-    def vitess_config(self) -> Any:
+    def mysql_config(self) -> Any:
         """Get database configuration."""
-        config = settings.get_vitess_config
+        config = settings.get_mysql_config
         logger.debug(
-            f"VitessConfig loaded: host='{config.host}', port={config.port}, database='{config.database}', user='{config.user}', password_length={len(config.password)}"
+            f"MysqlConfig loaded: host='{config.host}', port={config.port}, database='{config.database}', user='{config.user}', password_length={len(config.password)}"
         )
         return config
 
@@ -75,10 +75,10 @@ class CreateTables(BaseModel):
         """Create database if it doesn't exist."""
         try:
             conn = pymysql.connect(
-                host=self.vitess_config.host,
-                port=self.vitess_config.port,
-                user=self.vitess_config.user,
-                password=self.vitess_config.password,
+                host=self.mysql_config.host,
+                port=self.mysql_config.port,
+                user=self.mysql_config.user,
+                password=self.mysql_config.password,
             )
             with conn.cursor() as cursor:
                 cursor.execute("CREATE DATABASE IF NOT EXISTS entitybase")
@@ -95,17 +95,17 @@ class CreateTables(BaseModel):
         try:
             self.ensure_database_exists()
 
-            from models.infrastructure.vitess.repositories.schema import (
+            from models.infrastructure.mysql.repositories.schema import (
                 SchemaRepository,
             )
-            from models.infrastructure.vitess.client import VitessClient
+            from models.infrastructure.mysql.client import MysqlClient
 
             logger.info("Creating database tables using SchemaRepository...")
             logger.debug(
-                f"Creating VitessClient with config: host='{self.vitess_config.host}', port={self.vitess_config.port}, database='{self.vitess_config.database}'"
+                f"Creating MysqlClient with config: host='{self.mysql_config.host}', port={self.mysql_config.port}, database='{self.mysql_config.database}'"
             )
-            vitess_client = VitessClient(config=self.vitess_config)
-            schema_repository = SchemaRepository(vitess_client=vitess_client)
+            mysql_client = MysqlClient(config=self.mysql_config)
+            schema_repository = SchemaRepository(mysql_client=mysql_client)
             schema_repository.create_tables()
 
             # Assume all tables were created successfully
@@ -128,11 +128,11 @@ class CreateTables(BaseModel):
             self.ensure_database_exists()
 
             conn = pymysql.connect(
-                host=self.vitess_config.host,
-                port=self.vitess_config.port,
-                user=self.vitess_config.user,
-                password=self.vitess_config.password,
-                database=self.vitess_config.database,
+                host=self.mysql_config.host,
+                port=self.mysql_config.port,
+                user=self.mysql_config.user,
+                password=self.mysql_config.password,
+                database=self.mysql_config.database,
             )
 
             with conn.cursor() as cursor:

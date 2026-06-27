@@ -393,35 +393,35 @@ class TestEntityConverter:
         assert set(result) == {"Q100", "Q200"}
         mock_load_redirects.assert_called_once_with("Q42", temp_dir)
 
-    def test_fetch_redirects_vitess_client(self) -> None:
+    def test_fetch_redirects_mysql_client(self) -> None:
         """Test fetching redirects from Sql client."""
         property_registry = PropertyRegistry(properties={})
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         converter = EntityConverter(
-            property_registry=property_registry, vitess_client=mock_vitess
+            property_registry=property_registry, mysql_client=mock_mysql
         )
 
-        mock_vitess.get_incoming_redirects.return_value = ["Q100"]
+        mock_mysql.get_incoming_redirects.return_value = ["Q100"]
 
         result = converter._fetch_redirects("Q42")
 
         assert result == ["Q100"]
-        mock_vitess.get_incoming_redirects.assert_called_once_with("Q42")
+        mock_mysql.get_incoming_redirects.assert_called_once_with("Q42")
 
-    def test_fetch_redirects_vitess_exception(self) -> None:
+    def test_fetch_redirects_mysql_exception(self) -> None:
         """Test fetching redirects when Sql throws exception."""
         property_registry = PropertyRegistry(properties={})
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         converter = EntityConverter(
-            property_registry=property_registry, vitess_client=mock_vitess
+            property_registry=property_registry, mysql_client=mock_mysql
         )
 
-        mock_vitess.get_incoming_redirects.side_effect = Exception("Sql error")
+        mock_mysql.get_incoming_redirects.side_effect = Exception("Sql error")
 
         result = converter._fetch_redirects("Q42")
 
         assert result == []
-        mock_vitess.get_incoming_redirects.assert_called_once_with("Q42")
+        mock_mysql.get_incoming_redirects.assert_called_once_with("Q42")
 
     def test_write_redirects(self) -> None:
         """Test writing redirects."""

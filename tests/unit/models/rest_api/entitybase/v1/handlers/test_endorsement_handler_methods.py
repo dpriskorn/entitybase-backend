@@ -15,7 +15,7 @@ class TestEndorsementHandlerMethods:
     def mock_state(self):
         """Create a mock state object."""
         state = MagicMock()
-        state.vitess_client = MagicMock()
+        state.mysql_client = MagicMock()
         state.endorsement_stream_producer = None
         return state
 
@@ -45,7 +45,7 @@ class TestEndorsementHandlerMethods:
 
     def test_validate_user_not_found(self, handler, mock_state):
         """Test _validate_user raises 404 when user not found."""
-        mock_state.vitess_client.user_repository.user_exists.return_value = False
+        mock_state.mysql_client.user_repository.user_exists.return_value = False
 
         with pytest.raises(HTTPException) as exc_info:
             handler._validate_user(99999)
@@ -112,7 +112,7 @@ class TestEndorsementHandlerMethods:
         self, handler, mock_state, mock_endorsement
     ):
         """Test _get_and_validate_endorsement success path."""
-        mock_state.vitess_client.endorsement_repository.get_statement_endorsements.return_value = MagicMock(
+        mock_state.mysql_client.endorsement_repository.get_statement_endorsements.return_value = MagicMock(
             success=True,
             data={
                 "endorsements": [mock_endorsement],
@@ -127,7 +127,7 @@ class TestEndorsementHandlerMethods:
 
     def test_get_and_validate_endorsement_failure(self, handler, mock_state):
         """Test _get_and_validate_endorsement when repo fails."""
-        mock_state.vitess_client.endorsement_repository.get_statement_endorsements.return_value = MagicMock(
+        mock_state.mysql_client.endorsement_repository.get_statement_endorsements.return_value = MagicMock(
             success=False, error="DB error"
         )
 
@@ -138,7 +138,7 @@ class TestEndorsementHandlerMethods:
 
     def test_get_and_validate_endorsement_no_data(self, handler, mock_state):
         """Test _get_and_validate_endorsement when no endorsements."""
-        mock_state.vitess_client.endorsement_repository.get_statement_endorsements.return_value = MagicMock(
+        mock_state.mysql_client.endorsement_repository.get_statement_endorsements.return_value = MagicMock(
             success=True, data={"endorsements": []}
         )
 
@@ -149,7 +149,7 @@ class TestEndorsementHandlerMethods:
 
     def test_get_statement_endorsements_success(self, handler, mock_state):
         """Test get_statement_endorsements success path."""
-        mock_state.vitess_client.endorsement_repository.get_statement_endorsements.return_value = MagicMock(
+        mock_state.mysql_client.endorsement_repository.get_statement_endorsements.return_value = MagicMock(
             success=True,
             data={
                 "endorsements": [
@@ -165,7 +165,7 @@ class TestEndorsementHandlerMethods:
                 "has_more": False,
             },
         )
-        mock_state.vitess_client.endorsement_repository.get_batch_statement_endorsement_stats.return_value = MagicMock(
+        mock_state.mysql_client.endorsement_repository.get_batch_statement_endorsement_stats.return_value = MagicMock(
             success=True,
             data=[
                 {
@@ -186,7 +186,7 @@ class TestEndorsementHandlerMethods:
 
     def test_get_statement_endorsements_error(self, handler, mock_state):
         """Test get_statement_endorsements when repo fails."""
-        mock_state.vitess_client.endorsement_repository.get_statement_endorsements.return_value = MagicMock(
+        mock_state.mysql_client.endorsement_repository.get_statement_endorsements.return_value = MagicMock(
             success=False, error="Failed"
         )
 
@@ -201,11 +201,11 @@ class TestEndorsementHandlerMethods:
 
     def test_get_statement_endorsements_stats_error(self, handler, mock_state):
         """Test get_statement_endorsements when stats fails."""
-        mock_state.vitess_client.endorsement_repository.get_statement_endorsements.return_value = MagicMock(
+        mock_state.mysql_client.endorsement_repository.get_statement_endorsements.return_value = MagicMock(
             success=True,
             data={"endorsements": [], "total_count": 0, "has_more": False},
         )
-        mock_state.vitess_client.endorsement_repository.get_batch_statement_endorsement_stats.return_value = MagicMock(
+        mock_state.mysql_client.endorsement_repository.get_batch_statement_endorsement_stats.return_value = MagicMock(
             success=False, error="Stats failed"
         )
 
@@ -220,7 +220,7 @@ class TestEndorsementHandlerMethods:
 
     def test_get_statement_endorsements_no_stats_data(self, handler, mock_state):
         """Test get_statement_endorsements when stats data is empty."""
-        mock_state.vitess_client.endorsement_repository.get_statement_endorsements.return_value = MagicMock(
+        mock_state.mysql_client.endorsement_repository.get_statement_endorsements.return_value = MagicMock(
             success=True,
             data={
                 "endorsements": [
@@ -236,7 +236,7 @@ class TestEndorsementHandlerMethods:
                 "has_more": False,
             },
         )
-        mock_state.vitess_client.endorsement_repository.get_batch_statement_endorsement_stats.return_value = MagicMock(
+        mock_state.mysql_client.endorsement_repository.get_batch_statement_endorsement_stats.return_value = MagicMock(
             success=True, data=None
         )
 
@@ -249,8 +249,8 @@ class TestEndorsementHandlerMethods:
 
     def test_get_user_endorsements_success(self, handler, mock_state):
         """Test get_user_endorsements success path."""
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
-        mock_state.vitess_client.endorsement_repository.get_user_endorsements.return_value = MagicMock(
+        mock_state.mysql_client.user_repository.user_exists.return_value = True
+        mock_state.mysql_client.endorsement_repository.get_user_endorsements.return_value = MagicMock(
             success=True,
             data={
                 "endorsements": [
@@ -278,7 +278,7 @@ class TestEndorsementHandlerMethods:
 
     def test_get_user_endorsements_user_not_found(self, handler, mock_state):
         """Test get_user_endorsements when user not found."""
-        mock_state.vitess_client.user_repository.user_exists.return_value = False
+        mock_state.mysql_client.user_repository.user_exists.return_value = False
 
         from models.data.rest_api.v1.entitybase.request import EndorsementListRequest
 
@@ -291,8 +291,8 @@ class TestEndorsementHandlerMethods:
 
     def test_get_user_endorsements_error(self, handler, mock_state):
         """Test get_user_endorsements when repo fails."""
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
-        mock_state.vitess_client.endorsement_repository.get_user_endorsements.return_value = MagicMock(
+        mock_state.mysql_client.user_repository.user_exists.return_value = True
+        mock_state.mysql_client.endorsement_repository.get_user_endorsements.return_value = MagicMock(
             success=False, error="Failed"
         )
 
@@ -307,8 +307,8 @@ class TestEndorsementHandlerMethods:
 
     def test_get_user_endorsement_stats_success(self, handler, mock_state):
         """Test get_user_endorsement_stats success path."""
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
-        mock_state.vitess_client.endorsement_repository.get_user_endorsement_stats.return_value = MagicMock(
+        mock_state.mysql_client.user_repository.user_exists.return_value = True
+        mock_state.mysql_client.endorsement_repository.get_user_endorsement_stats.return_value = MagicMock(
             success=True,
             data={"total_endorsements_given": 10, "total_endorsements_active": 5},
         )
@@ -321,7 +321,7 @@ class TestEndorsementHandlerMethods:
 
     def test_get_user_endorsement_stats_user_not_found(self, handler, mock_state):
         """Test get_user_endorsement_stats when user not found."""
-        mock_state.vitess_client.user_repository.user_exists.return_value = False
+        mock_state.mysql_client.user_repository.user_exists.return_value = False
 
         with pytest.raises(HTTPException) as exc_info:
             handler.get_user_endorsement_stats(99999)
@@ -330,8 +330,8 @@ class TestEndorsementHandlerMethods:
 
     def test_get_user_endorsement_stats_error(self, handler, mock_state):
         """Test get_user_endorsement_stats when repo fails."""
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
-        mock_state.vitess_client.endorsement_repository.get_user_endorsement_stats.return_value = MagicMock(
+        mock_state.mysql_client.user_repository.user_exists.return_value = True
+        mock_state.mysql_client.endorsement_repository.get_user_endorsement_stats.return_value = MagicMock(
             success=False, error="Failed"
         )
 
@@ -342,7 +342,7 @@ class TestEndorsementHandlerMethods:
 
     def test_get_batch_statement_endorsement_stats_success(self, handler, mock_state):
         """Test get_batch_statement_endorsement_stats success."""
-        mock_state.vitess_client.endorsement_repository.get_batch_statement_endorsement_stats.return_value = MagicMock(
+        mock_state.mysql_client.endorsement_repository.get_batch_statement_endorsement_stats.return_value = MagicMock(
             success=True,
             data=[
                 {
@@ -367,7 +367,7 @@ class TestEndorsementHandlerMethods:
 
     def test_get_batch_statement_endorsement_stats_error(self, handler, mock_state):
         """Test get_batch_statement_endorsement_stats when repo fails."""
-        mock_state.vitess_client.endorsement_repository.get_batch_statement_endorsement_stats.return_value = MagicMock(
+        mock_state.mysql_client.endorsement_repository.get_batch_statement_endorsement_stats.return_value = MagicMock(
             success=False, error="Failed"
         )
 
@@ -381,11 +381,11 @@ class TestEndorsementHandlerMethods:
         self, handler, mock_state, mock_endorsement
     ):
         """Test endorse_statement success path."""
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
-        mock_state.vitess_client.endorsement_repository.create_endorsement.return_value = MagicMock(
+        mock_state.mysql_client.user_repository.user_exists.return_value = True
+        mock_state.mysql_client.endorsement_repository.create_endorsement.return_value = MagicMock(
             success=True
         )
-        mock_state.vitess_client.endorsement_repository.get_statement_endorsements.return_value = MagicMock(
+        mock_state.mysql_client.endorsement_repository.get_statement_endorsements.return_value = MagicMock(
             success=True,
             data={
                 "endorsements": [mock_endorsement],
@@ -393,7 +393,7 @@ class TestEndorsementHandlerMethods:
                 "has_more": False,
             },
         )
-        mock_state.vitess_client.user_repository.log_user_activity.return_value = (
+        mock_state.mysql_client.user_repository.log_user_activity.return_value = (
             MagicMock(success=True)
         )
 
@@ -405,8 +405,8 @@ class TestEndorsementHandlerMethods:
     @pytest.mark.asyncio
     async def test_endorse_statement_create_failure(self, handler, mock_state):
         """Test endorse_statement when create_endorsement fails."""
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
-        mock_state.vitess_client.endorsement_repository.create_endorsement.return_value = MagicMock(
+        mock_state.mysql_client.user_repository.user_exists.return_value = True
+        mock_state.mysql_client.endorsement_repository.create_endorsement.return_value = MagicMock(
             success=False, error="Already endorsed"
         )
 
@@ -420,11 +420,11 @@ class TestEndorsementHandlerMethods:
         self, handler, mock_state, mock_endorsement
     ):
         """Test endorse_statement when log_user_activity fails."""
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
-        mock_state.vitess_client.endorsement_repository.create_endorsement.return_value = MagicMock(
+        mock_state.mysql_client.user_repository.user_exists.return_value = True
+        mock_state.mysql_client.endorsement_repository.create_endorsement.return_value = MagicMock(
             success=True
         )
-        mock_state.vitess_client.endorsement_repository.get_statement_endorsements.return_value = MagicMock(
+        mock_state.mysql_client.endorsement_repository.get_statement_endorsements.return_value = MagicMock(
             success=True,
             data={
                 "endorsements": [mock_endorsement],
@@ -432,7 +432,7 @@ class TestEndorsementHandlerMethods:
                 "has_more": False,
             },
         )
-        mock_state.vitess_client.user_repository.log_user_activity.return_value = (
+        mock_state.mysql_client.user_repository.log_user_activity.return_value = (
             MagicMock(success=False, error="Log failed")
         )
 
@@ -446,11 +446,11 @@ class TestEndorsementHandlerMethods:
     ):
         """Test withdraw_endorsement success path."""
         mock_endorsement.removed_at = datetime.now(timezone.utc)
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
-        mock_state.vitess_client.endorsement_repository.withdraw_endorsement.return_value = MagicMock(
+        mock_state.mysql_client.user_repository.user_exists.return_value = True
+        mock_state.mysql_client.endorsement_repository.withdraw_endorsement.return_value = MagicMock(
             success=True
         )
-        mock_state.vitess_client.endorsement_repository.get_statement_endorsements.return_value = MagicMock(
+        mock_state.mysql_client.endorsement_repository.get_statement_endorsements.return_value = MagicMock(
             success=True,
             data={
                 "endorsements": [mock_endorsement],
@@ -458,7 +458,7 @@ class TestEndorsementHandlerMethods:
                 "has_more": False,
             },
         )
-        mock_state.vitess_client.user_repository.log_user_activity.return_value = (
+        mock_state.mysql_client.user_repository.log_user_activity.return_value = (
             MagicMock(success=True)
         )
 
@@ -472,11 +472,11 @@ class TestEndorsementHandlerMethods:
     ):
         """Test withdraw_endorsement when log_user_activity fails."""
         mock_endorsement.removed_at = datetime.now(timezone.utc)
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
-        mock_state.vitess_client.endorsement_repository.withdraw_endorsement.return_value = MagicMock(
+        mock_state.mysql_client.user_repository.user_exists.return_value = True
+        mock_state.mysql_client.endorsement_repository.withdraw_endorsement.return_value = MagicMock(
             success=True
         )
-        mock_state.vitess_client.endorsement_repository.get_statement_endorsements.return_value = MagicMock(
+        mock_state.mysql_client.endorsement_repository.get_statement_endorsements.return_value = MagicMock(
             success=True,
             data={
                 "endorsements": [mock_endorsement],
@@ -484,7 +484,7 @@ class TestEndorsementHandlerMethods:
                 "has_more": False,
             },
         )
-        mock_state.vitess_client.user_repository.log_user_activity.return_value = (
+        mock_state.mysql_client.user_repository.log_user_activity.return_value = (
             MagicMock(success=False, error="Log failed")
         )
 
@@ -495,8 +495,8 @@ class TestEndorsementHandlerMethods:
     @pytest.mark.asyncio
     async def test_withdraw_endorsement_failure(self, handler, mock_state):
         """Test withdraw_endorsement when withdrawal fails."""
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
-        mock_state.vitess_client.endorsement_repository.withdraw_endorsement.return_value = MagicMock(
+        mock_state.mysql_client.user_repository.user_exists.return_value = True
+        mock_state.mysql_client.endorsement_repository.withdraw_endorsement.return_value = MagicMock(
             success=False, error="Not found"
         )
 

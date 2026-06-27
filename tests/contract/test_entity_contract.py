@@ -13,7 +13,9 @@ sys.path.insert(0, "src")
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_entity_response_required_fields(api_prefix: str) -> None:
+async def test_entity_response_required_fields(
+    api_prefix: str, auth_headers: dict[str, str]
+) -> None:
     """Contract test: Entity response contains required fields."""
     from models.rest_api.main import app
 
@@ -22,7 +24,7 @@ async def test_entity_response_required_fields(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]
@@ -38,7 +40,9 @@ async def test_entity_response_required_fields(api_prefix: str) -> None:
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_entity_data_structure(api_prefix: str) -> None:
+async def test_entity_data_structure(
+    api_prefix: str, auth_headers: dict[str, str]
+) -> None:
     """Contract test: Entity data contains expected nested structure."""
     from models.rest_api.main import app
 
@@ -47,7 +51,7 @@ async def test_entity_data_structure(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]
@@ -62,7 +66,7 @@ async def test_entity_data_structure(api_prefix: str) -> None:
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_entity_type_field(api_prefix: str) -> None:
+async def test_entity_type_field(api_prefix: str, auth_headers: dict[str, str]) -> None:
     """Contract test: Entity type matches expected value."""
     from models.rest_api.main import app
 
@@ -71,7 +75,7 @@ async def test_entity_type_field(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
 
@@ -90,7 +94,7 @@ async def test_entity_type_field(api_prefix: str) -> None:
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_entity_id_format(api_prefix: str) -> None:
+async def test_entity_id_format(api_prefix: str, auth_headers: dict[str, str]) -> None:
     """Contract test: Entity ID follows expected format (Q#, P#, L#)."""
     from models.rest_api.main import app
 
@@ -99,7 +103,7 @@ async def test_entity_id_format(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]
@@ -113,7 +117,9 @@ async def test_entity_id_format(api_prefix: str) -> None:
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_entity_revision_is_integer(api_prefix: str) -> None:
+async def test_entity_revision_is_integer(
+    api_prefix: str, auth_headers: dict[str, str]
+) -> None:
     """Contract test: Revision ID is an integer."""
     from models.rest_api.main import app
 
@@ -122,7 +128,7 @@ async def test_entity_revision_is_integer(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
 
@@ -137,7 +143,9 @@ async def test_entity_revision_is_integer(api_prefix: str) -> None:
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_entity_revisions_list(api_prefix: str) -> None:
+async def test_entity_revisions_list(
+    api_prefix: str, auth_headers: dict[str, str]
+) -> None:
     """Contract test: Revisions list endpoint returns valid structure."""
     from models.rest_api.main import app
 
@@ -146,7 +154,7 @@ async def test_entity_revisions_list(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]

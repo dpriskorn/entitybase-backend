@@ -74,7 +74,7 @@ def _build_error_response(status_value: str, timestamp: str) -> HealthCheckRespo
     return HealthCheckResponse(
         status=status_value,
         s3="disconnected",
-        vitess="disconnected",
+        mysql="disconnected",
         timestamp=timestamp,
         producers={
             "entity_change": "not_configured",
@@ -98,7 +98,7 @@ def health_check_endpoint(response: Response, req: Request) -> HealthCheckRespon
 
     logger.debug("Checking connection status for S3 and database")
 
-    if not hasattr(state, "vitess_client") or not hasattr(state, "s3_client"):
+    if not hasattr(state, "mysql_client") or not hasattr(state, "s3_client"):
         logger.debug(
             "State handler not properly initialized, returning unavailable status"
         )
@@ -106,7 +106,7 @@ def health_check_endpoint(response: Response, req: Request) -> HealthCheckRespon
         return _build_error_response("unavailable", timestamp)
 
     s3_status = _check_client_status(state.s3_client, "S3")
-    vitess_status = _check_client_status(state.vitess_client, "database")
+    mysql_status = _check_client_status(state.mysql_client, "database")
 
     settings = state.settings
     producers = {
@@ -130,7 +130,7 @@ def health_check_endpoint(response: Response, req: Request) -> HealthCheckRespon
     return HealthCheckResponse(
         status="ok",
         s3=s3_status,
-        vitess=vitess_status,
+        mysql=mysql_status,
         timestamp=timestamp,
         producers=producers,
     )

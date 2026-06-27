@@ -88,13 +88,11 @@ class EntityRevertHandler(Handler):
 
         # Log activity
         if edit_headers.x_user_id > 0:
-            activity_result = (
-                self.state.vitess_client.user_repository.log_user_activity(
-                    user_id=edit_headers.x_user_id,
-                    activity_type=UserActivityType.ENTITY_REVERT,
-                    entity_id=entity_id,
-                    revision_id=new_revision_id,
-                )
+            activity_result = self.state.mysql_client.user_repository.log_user_activity(
+                user_id=edit_headers.x_user_id,
+                activity_type=UserActivityType.ENTITY_REVERT,
+                entity_id=entity_id,
+                revision_id=new_revision_id,
             )
             if not activity_result.success:
                 logger.warning(f"Failed to log user activity: {activity_result.error}")
@@ -110,7 +108,7 @@ class EntityRevertHandler(Handler):
         """Resolve internal entity ID from entity ID."""
         logger.debug("Resolving internal entity ID")
         internal_entity_id = cast(
-            int, self.state.vitess_client.id_resolver.resolve_id(entity_id)
+            int, self.state.mysql_client.id_resolver.resolve_id(entity_id)
         )
         if internal_entity_id == 0:
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)
@@ -122,7 +120,7 @@ class EntityRevertHandler(Handler):
         """Get target revision from database."""
         target_revision = cast(
             RevisionData,
-            self.state.vitess_client.revision_repository.get_revision(
+            self.state.mysql_client.revision_repository.get_revision(
                 internal_entity_id, to_revision_id
             ),
         )
@@ -144,7 +142,7 @@ class EntityRevertHandler(Handler):
 
     async def _get_head_revision(self, internal_entity_id: int) -> int:
         """Get current head revision."""
-        head_result = self.state.vitess_client.head_repository.get_head_revision(
+        head_result = self.state.mysql_client.head_repository.get_head_revision(
             internal_entity_id
         )
         if not head_result.success:
@@ -261,7 +259,7 @@ class EntityRevertHandler(Handler):
         self.state.s3_client.store_revision(content_hash, s3_revision_data)
 
         logger.debug("Inserting revision in database")
-        revision_created = self.state.vitess_client.insert_revision(
+        revision_created = self.state.mysql_client.insert_revision(
             entity_id,
             new_revision_id,
             new_revision_data,
@@ -270,7 +268,7 @@ class EntityRevertHandler(Handler):
         if not revision_created:
             from models.rest_api.utils import raise_validation_error
 
-            current_head = self.state.vitess_client.get_head(entity_id)
+            current_head = self.state.mysql_client.get_head(entity_id)
             raise_validation_error(
                 f"Conflict: entity was modified by another edit. "
                 f"Please retry with the latest revision ID.",

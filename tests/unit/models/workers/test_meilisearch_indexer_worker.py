@@ -42,7 +42,7 @@ class TestMeilisearchIndexerWorker:
         mock_settings.meilisearch_port = 7700
         mock_settings.meilisearch_api_key = None
         mock_settings.meilisearch_index = "entitybase"
-        mock_settings.get_vitess_config = MagicMock(host="", port=0)
+        mock_settings.get_mysql_config = MagicMock(host="", port=0)
         mock_settings.get_s3_config = MagicMock(endpoint_url="")
 
         with patch(
@@ -70,7 +70,7 @@ class TestMeilisearchIndexerWorker:
         mock_settings.meilisearch_port = 7700
         mock_settings.meilisearch_api_key = None
         mock_settings.meilisearch_index = "entitybase"
-        mock_settings.get_vitess_config = MagicMock(host="", port=0)
+        mock_settings.get_mysql_config = MagicMock(host="", port=0)
         mock_settings.get_s3_config = MagicMock(endpoint_url="")
         mock_settings.kafka_entitychange_json_topic = "entity_change"
         mock_settings.meilisearch_consumer_group = "test-group"
@@ -108,7 +108,7 @@ class TestMeilisearchIndexerWorker:
         mock_settings.meilisearch_port = 7700
         mock_settings.meilisearch_api_key = None
         mock_settings.meilisearch_index = "entitybase"
-        mock_settings.get_vitess_config = MagicMock(host="", port=0)
+        mock_settings.get_mysql_config = MagicMock(host="", port=0)
         mock_settings.get_s3_config = MagicMock(endpoint_url="")
 
         with patch(

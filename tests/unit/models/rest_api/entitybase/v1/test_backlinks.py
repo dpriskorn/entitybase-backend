@@ -11,7 +11,7 @@ pytestmark = pytest.mark.unit
 
 class TestBacklinkHandler:
     @pytest.fixture
-    def mock_vitess(self) -> MagicMock:
+    def mock_mysql(self) -> MagicMock:
         """Mock Sql client"""
         client = MagicMock()
         client.id_resolver = MagicMock()
@@ -19,27 +19,27 @@ class TestBacklinkHandler:
         return client
 
     @pytest.fixture
-    def handler(self, mock_vitess: MagicMock) -> BacklinkHandler:
+    def handler(self, mock_mysql: MagicMock) -> BacklinkHandler:
         """Create handler instance"""
         state = MagicMock()
-        state.vitess_client = mock_vitess
+        state.mysql_client = mock_mysql
         return BacklinkHandler(state=state)
 
     @pytest.mark.asyncio
     async def test_get_backlinks_success(
-        self, handler: BacklinkHandler, mock_vitess: MagicMock
+        self, handler: BacklinkHandler, mock_mysql: MagicMock
     ):
         """Test successful backlinks retrieval."""
-        # Mock vitess client
-        mock_vitess.id_resolver.resolve_id.return_value = 123
-        mock_vitess.id_resolver.resolve_entity_id.return_value = "Q456"
+        # Mock mysql client
+        mock_mysql.id_resolver.resolve_id.return_value = 123
+        mock_mysql.id_resolver.resolve_entity_id.return_value = "Q456"
 
         # Mock backlinks
         mock_backlink = MagicMock()
         mock_backlink.referencing_internal_id = 456
         mock_backlink.property_id = "P31"
         mock_backlink.rank = "normal"
-        mock_vitess.get_backlinks.return_value = [mock_backlink]
+        mock_mysql.get_backlinks.return_value = [mock_backlink]
 
         result = await handler.get("Q123", limit=50, offset=10)
 
@@ -54,10 +54,10 @@ class TestBacklinkHandler:
 
     @pytest.mark.asyncio
     async def test_get_backlinks_entity_not_found(
-        self, handler: BacklinkHandler, mock_vitess: MagicMock
+        self, handler: BacklinkHandler, mock_mysql: MagicMock
     ):
         """Test backlinks retrieval for non-existent entity."""
-        mock_vitess.id_resolver.resolve_id.return_value = 0  # Not found
+        mock_mysql.id_resolver.resolve_id.return_value = 0  # Not found
 
         with pytest.raises(HTTPException) as exc_info:
             await handler.get("Q999")
@@ -67,11 +67,11 @@ class TestBacklinkHandler:
 
     @pytest.mark.asyncio
     async def test_get_backlinks_no_backlinks(
-        self, handler: BacklinkHandler, mock_vitess: MagicMock
+        self, handler: BacklinkHandler, mock_mysql: MagicMock
     ):
         """Test backlinks retrieval with no backlinks."""
-        mock_vitess.id_resolver.resolve_id.return_value = 123
-        mock_vitess.get_backlinks.return_value = []
+        mock_mysql.id_resolver.resolve_id.return_value = 123
+        mock_mysql.get_backlinks.return_value = []
 
         result = await handler.get("Q123")
 
@@ -81,17 +81,17 @@ class TestBacklinkHandler:
 
     @pytest.mark.asyncio
     async def test_get_backlinks_resolve_entity_id_failure(
-        self, handler: BacklinkHandler, mock_vitess: MagicMock
+        self, handler: BacklinkHandler, mock_mysql: MagicMock
     ):
         """Test backlinks when entity ID resolution fails."""
-        mock_vitess.id_resolver.resolve_id.return_value = 123
-        mock_vitess.id_resolver.resolve_entity_id.return_value = ""  # Resolution failed
+        mock_mysql.id_resolver.resolve_id.return_value = 123
+        mock_mysql.id_resolver.resolve_entity_id.return_value = ""  # Resolution failed
 
         mock_backlink = MagicMock()
         mock_backlink.referencing_internal_id = 456
         mock_backlink.property_id = "P31"
         mock_backlink.rank = "normal"
-        mock_vitess.get_backlinks.return_value = [mock_backlink]
+        mock_mysql.get_backlinks.return_value = [mock_backlink]
 
         result = await handler.get("Q123")
 

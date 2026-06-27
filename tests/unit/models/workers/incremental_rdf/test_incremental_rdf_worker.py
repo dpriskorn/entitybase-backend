@@ -24,7 +24,7 @@ class TestIncrementalRDFWorker:
         worker = IncrementalRDFWorker(worker_id="test-worker", worker_enabled=False)
         assert worker.worker_id == "test-worker"
         assert worker.worker_enabled is False
-        assert worker.vitess_client is None
+        assert worker.mysql_client is None
         assert worker.s3_client is None
         assert worker.consumer is None
         assert worker.producer is None

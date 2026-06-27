@@ -23,11 +23,11 @@ class TestStatusService:
     """Unit tests for StatusService."""
 
     def create_mock_state(self):
-        """Create a mock state with vitess and s3 clients."""
+        """Create a mock state with mysql and s3 clients."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
         return mock_state
 
@@ -72,10 +72,10 @@ class TestStatusService:
 
         service.validate_preconditions()
 
-    def test_validate_preconditions_vitess_none(self):
-        """Test validate_preconditions raises when vitess is None."""
+    def test_validate_preconditions_mysql_none(self):
+        """Test validate_preconditions raises when mysql is None."""
         mock_state = MagicMock()
-        mock_state.vitess_client = None
+        mock_state.mysql_client = None
         mock_state.s3_client = MagicMock()
 
         service = StatusService(state=mock_state)
@@ -87,7 +87,7 @@ class TestStatusService:
     def test_validate_preconditions_s3_none(self):
         """Test validate_preconditions raises when s3 is None."""
         mock_state = MagicMock()
-        mock_state.vitess_client = MagicMock()
+        mock_state.mysql_client = MagicMock()
         mock_state.s3_client = None
 
         service = StatusService(state=mock_state)
@@ -99,7 +99,7 @@ class TestStatusService:
     def test_validate_entity_exists_not_found(self):
         """Test validate_entity_exists raises 404 when entity doesn't exist."""
         mock_state = self.create_mock_state()
-        mock_state.vitess_client.entity_exists.return_value = False
+        mock_state.mysql_client.entity_exists.return_value = False
 
         service = StatusService(state=mock_state)
 
@@ -111,8 +111,8 @@ class TestStatusService:
     def test_validate_entity_exists_deleted(self):
         """Test validate_entity_exists raises 410 when entity is deleted."""
         mock_state = self.create_mock_state()
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.is_entity_deleted.return_value = True
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = True
 
         service = StatusService(state=mock_state)
 
@@ -124,9 +124,9 @@ class TestStatusService:
     def test_validate_entity_exists_success(self):
         """Test validate_entity_exists returns head revision ID."""
         mock_state = self.create_mock_state()
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.get_head.return_value = 42
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = False
+        mock_state.mysql_client.get_head.return_value = 42
 
         service = StatusService(state=mock_state)
 
@@ -137,9 +137,9 @@ class TestStatusService:
     def test_validate_entity_exists_no_revisions(self):
         """Test validate_entity_exists raises 404 when no revisions."""
         mock_state = self.create_mock_state()
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.get_head.return_value = 0
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = False
+        mock_state.mysql_client.get_head.return_value = 0
 
         service = StatusService(state=mock_state)
 
@@ -150,7 +150,7 @@ class TestStatusService:
     def test_change_status_entity_not_found(self):
         """Test change_status raises 404 when entity doesn't exist."""
         mock_state = self.create_mock_state()
-        mock_state.vitess_client.entity_exists.return_value = False
+        mock_state.mysql_client.entity_exists.return_value = False
 
         service = StatusService(state=mock_state)
         request = EntityStatusRequest()
@@ -162,8 +162,8 @@ class TestStatusService:
     def test_change_status_entity_deleted(self):
         """Test change_status raises 410 when entity is deleted."""
         mock_state = self.create_mock_state()
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.is_entity_deleted.return_value = True
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = True
 
         service = StatusService(state=mock_state)
         request = EntityStatusRequest()
@@ -175,9 +175,9 @@ class TestStatusService:
     def test_change_status_idempotent_lock(self):
         """Test change_status returns idempotent response when already locked."""
         mock_state = self.create_mock_state()
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.get_head.return_value = 42
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = False
+        mock_state.mysql_client.get_head.return_value = 42
 
         current_state = EntityState(
             sp=False,
@@ -203,9 +203,9 @@ class TestStatusService:
     def test_change_status_idempotent_unlock(self):
         """Test change_status returns idempotent response when already unlocked."""
         mock_state = self.create_mock_state()
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.get_head.return_value = 42
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = False
+        mock_state.mysql_client.get_head.return_value = 42
 
         current_state = EntityState(
             sp=False,
@@ -231,9 +231,9 @@ class TestStatusService:
     def test_change_status_idempotent_archive(self):
         """Test change_status returns idempotent response when already archived."""
         mock_state = self.create_mock_state()
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.get_head.return_value = 42
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = False
+        mock_state.mysql_client.get_head.return_value = 42
 
         current_state = EntityState(
             sp=False,
@@ -259,9 +259,9 @@ class TestStatusService:
     def test_change_status_idempotent_semi_protect(self):
         """Test change_status returns idempotent response when already semi-protected."""
         mock_state = self.create_mock_state()
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.get_head.return_value = 42
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = False
+        mock_state.mysql_client.get_head.return_value = 42
 
         current_state = EntityState(
             sp=True,
@@ -287,9 +287,9 @@ class TestStatusService:
     def test_change_status_idempotent_mass_edit_protect(self):
         """Test change_status returns idempotent response when already mass-edit protected."""
         mock_state = self.create_mock_state()
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.get_head.return_value = 42
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = False
+        mock_state.mysql_client.get_head.return_value = 42
 
         current_state = EntityState(
             sp=False,
@@ -371,10 +371,10 @@ class TestStatusService:
     def test_change_status_success(self):
         """Test change_status successfully changes status (non-idempotent)."""
         mock_state = self.create_mock_state()
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.get_head.return_value = 42
-        mock_state.vitess_client.create_revision.return_value = True
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = False
+        mock_state.mysql_client.get_head.return_value = 42
+        mock_state.mysql_client.create_revision.return_value = True
 
         current_state = EntityState(
             sp=False,
@@ -397,16 +397,16 @@ class TestStatusService:
         assert result.revision_id == 43
         assert result.status == "locked"
         assert result.idempotent is False
-        mock_state.vitess_client.create_revision.assert_called_once()
+        mock_state.mysql_client.create_revision.assert_called_once()
 
     def test_change_status_s3_read_failure(self):
         """Test change_status raises 404 when S3 read fails."""
         from fastapi import HTTPException
 
         mock_state = self.create_mock_state()
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.get_head.return_value = 42
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = False
+        mock_state.mysql_client.get_head.return_value = 42
         mock_state.s3_client.read_revision.side_effect = Exception("S3 error")
 
         service = StatusService(state=mock_state)
@@ -419,10 +419,10 @@ class TestStatusService:
     def test_change_status_state_none(self):
         """Test change_status handles revision state being None."""
         mock_state = self.create_mock_state()
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.get_head.return_value = 42
-        mock_state.vitess_client.create_revision.return_value = True
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = False
+        mock_state.mysql_client.get_head.return_value = 42
+        mock_state.mysql_client.create_revision.return_value = True
 
         revision_data = self.create_mock_revision()
         revision_data.revision["state"] = None
@@ -441,10 +441,10 @@ class TestStatusService:
     def test_change_status_non_idempotent_unlock(self):
         """Test change_status unlocked (non-idempotent)."""
         mock_state = self.create_mock_state()
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.get_head.return_value = 42
-        mock_state.vitess_client.create_revision.return_value = True
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = False
+        mock_state.mysql_client.get_head.return_value = 42
+        mock_state.mysql_client.create_revision.return_value = True
 
         current_state = EntityState(
             sp=False,
@@ -470,10 +470,10 @@ class TestStatusService:
     def test_change_status_non_idempotent_archive(self):
         """Test change_status archived (non-idempotent)."""
         mock_state = self.create_mock_state()
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.get_head.return_value = 42
-        mock_state.vitess_client.create_revision.return_value = True
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = False
+        mock_state.mysql_client.get_head.return_value = 42
+        mock_state.mysql_client.create_revision.return_value = True
 
         current_state = EntityState(
             sp=False,
@@ -499,10 +499,10 @@ class TestStatusService:
     def test_change_status_non_idempotent_unarchive(self):
         """Test change_status unarchived (non-idempotent)."""
         mock_state = self.create_mock_state()
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.get_head.return_value = 42
-        mock_state.vitess_client.create_revision.return_value = True
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = False
+        mock_state.mysql_client.get_head.return_value = 42
+        mock_state.mysql_client.create_revision.return_value = True
 
         current_state = EntityState(
             sp=False,
@@ -528,10 +528,10 @@ class TestStatusService:
     def test_change_status_non_idempotent_semi_protect(self):
         """Test change_status semi_protected (non-idempotent)."""
         mock_state = self.create_mock_state()
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.get_head.return_value = 42
-        mock_state.vitess_client.create_revision.return_value = True
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = False
+        mock_state.mysql_client.get_head.return_value = 42
+        mock_state.mysql_client.create_revision.return_value = True
 
         current_state = EntityState(
             sp=False,
@@ -557,10 +557,10 @@ class TestStatusService:
     def test_change_status_non_idempotent_unsemi_protect(self):
         """Test change_status unsemi_protected (non-idempotent)."""
         mock_state = self.create_mock_state()
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.get_head.return_value = 42
-        mock_state.vitess_client.create_revision.return_value = True
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = False
+        mock_state.mysql_client.get_head.return_value = 42
+        mock_state.mysql_client.create_revision.return_value = True
 
         current_state = EntityState(
             sp=True,
@@ -586,10 +586,10 @@ class TestStatusService:
     def test_change_status_non_idempotent_mass_edit_protect(self):
         """Test change_status mass_edit_protected (non-idempotent)."""
         mock_state = self.create_mock_state()
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.get_head.return_value = 42
-        mock_state.vitess_client.create_revision.return_value = True
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = False
+        mock_state.mysql_client.get_head.return_value = 42
+        mock_state.mysql_client.create_revision.return_value = True
 
         current_state = EntityState(
             sp=False,
@@ -617,10 +617,10 @@ class TestStatusService:
     def test_change_status_non_idempotent_mass_edit_unprotect(self):
         """Test change_status mass_edit_unprotected (non-idempotent)."""
         mock_state = self.create_mock_state()
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.get_head.return_value = 42
-        mock_state.vitess_client.create_revision.return_value = True
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = False
+        mock_state.mysql_client.get_head.return_value = 42
+        mock_state.mysql_client.create_revision.return_value = True
 
         current_state = EntityState(
             sp=False,
@@ -650,10 +650,10 @@ class TestStatusService:
         from fastapi import HTTPException
 
         mock_state = self.create_mock_state()
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.get_head.side_effect = [42, 50]
-        mock_state.vitess_client.create_revision.return_value = False
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = False
+        mock_state.mysql_client.get_head.side_effect = [42, 50]
+        mock_state.mysql_client.create_revision.return_value = False
 
         current_state = EntityState(
             sp=False,

@@ -17,7 +17,7 @@ from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.request import UserActivityType
 from models.data.infrastructure.s3.enums import EntityType, MetadataType
-from models.infrastructure.vitess.repositories.terms import TermsRepository
+from models.infrastructure.mysql.repositories.terms import TermsRepository
 
 
 class TermTransactionContext(BaseModel):
@@ -95,10 +95,10 @@ class EntityUpdateTermsMixin(BaseModel):
         if not entity_type:
             raise_validation_error("Invalid entity ID format", status_code=400)
 
-        if self.state.vitess_client.is_entity_deleted(entity_id):
+        if self.state.mysql_client.is_entity_deleted(entity_id):
             raise_validation_error("Entity deleted", status_code=410)
 
-        if self.state.vitess_client.is_entity_locked(entity_id):
+        if self.state.mysql_client.is_entity_locked(entity_id):
             raise_validation_error("Entity locked", status_code=423)
 
         read_handler = EntityReadHandler(state=self.state)
@@ -129,7 +129,7 @@ class EntityUpdateTermsMixin(BaseModel):
 
     def _decrement_term_ref_count(self, hash_value: int) -> None:
         """Decrement ref_count for a term hash and clean up if orphaned."""
-        terms_repo = TermsRepository(vitess_client=self.state.vitess_client)
+        terms_repo = TermsRepository(mysql_client=self.state.mysql_client)
         result = terms_repo.decrement_ref_count(hash_value)
         if not result.success:
             logger.warning(
@@ -165,7 +165,7 @@ class EntityUpdateTermsMixin(BaseModel):
         tx = UpdateTransaction(state=self.state)
         tx.entity_id = context.entity_id
         try:
-            head_revision_id = tx.state.vitess_client.get_head(context.entity_id)
+            head_revision_id = tx.state.mysql_client.get_head(context.entity_id)
 
             response = await tx.create_revision_with_hashes(
                 entity_id=context.entity_id,
@@ -194,7 +194,7 @@ class EntityUpdateTermsMixin(BaseModel):
 
             if context.edit_headers.x_user_id:
                 activity_result = await (
-                    self.state.vitess_client.user_repository.log_user_activity(
+                    self.state.mysql_client.user_repository.log_user_activity(
                         user_id=context.edit_headers.x_user_id,
                         activity_type=UserActivityType.ENTITY_EDIT,
                         entity_id=context.entity_id,
@@ -236,7 +236,7 @@ class EntityUpdateTermsMixin(BaseModel):
         tx = UpdateTransaction(state=self.state)
         tx.entity_id = context.entity_id
         try:
-            head_revision_id = tx.state.vitess_client.get_head(context.entity_id)
+            head_revision_id = tx.state.mysql_client.get_head(context.entity_id)
 
             response = await tx.create_revision_with_hashes(
                 entity_id=context.entity_id,
@@ -261,7 +261,7 @@ class EntityUpdateTermsMixin(BaseModel):
 
             if context.edit_headers.x_user_id:
                 activity_result = await (
-                    self.state.vitess_client.user_repository.log_user_activity(
+                    self.state.mysql_client.user_repository.log_user_activity(
                         user_id=context.edit_headers.x_user_id,
                         activity_type=UserActivityType.ENTITY_EDIT,
                         entity_id=context.entity_id,
@@ -341,10 +341,10 @@ class EntityUpdateTermsMixin(BaseModel):
         if not entity_type:
             raise_validation_error("Invalid entity ID format", status_code=400)
 
-        if self.state.vitess_client.is_entity_deleted(entity_id):
+        if self.state.mysql_client.is_entity_deleted(entity_id):
             raise_validation_error("Entity deleted", status_code=410)
 
-        if self.state.vitess_client.is_entity_locked(entity_id):
+        if self.state.mysql_client.is_entity_locked(entity_id):
             raise_validation_error("Entity locked", status_code=423)
 
         read_handler = EntityReadHandler(state=self.state)
@@ -386,7 +386,7 @@ class EntityUpdateTermsMixin(BaseModel):
             f"update_aliases: entity={entity_id}, lang={language_code}, count={len(aliases)}"
         )
         logger.debug(
-            f"[update_aliases] vitess_client={id(self.state.vitess_client)}, id_resolver={id(self.state.vitess_client.id_resolver)}"
+            f"[update_aliases] mysql_client={id(self.state.mysql_client)}, id_resolver={id(self.state.mysql_client.id_resolver)}"
         )
         entity_type = infer_entity_type_from_id(entity_id)
         if not entity_type:
@@ -435,7 +435,7 @@ class EntityUpdateTermsMixin(BaseModel):
         4. Create new revision with updated hash list
         """
         from models.internal_representation.metadata_extractor import MetadataExtractor
-        from models.infrastructure.vitess.repositories.terms import TermsRepository
+        from models.infrastructure.mysql.repositories.terms import TermsRepository
 
         logger.debug(
             f"Adding alias '{alias}' for entity {entity_id}, language {language_code}"
@@ -445,10 +445,10 @@ class EntityUpdateTermsMixin(BaseModel):
         if not entity_type:
             raise_validation_error("Invalid entity ID format", status_code=400)
 
-        if self.state.vitess_client.is_entity_deleted(entity_id):
+        if self.state.mysql_client.is_entity_deleted(entity_id):
             raise_validation_error("Entity deleted", status_code=410)
 
-        if self.state.vitess_client.is_entity_locked(entity_id):
+        if self.state.mysql_client.is_entity_locked(entity_id):
             raise_validation_error("Entity locked", status_code=423)
 
         read_handler = EntityReadHandler(state=self.state)
@@ -469,8 +469,8 @@ class EntityUpdateTermsMixin(BaseModel):
             )
 
         self.state.s3_client.store_term_metadata(alias, new_alias_hash, "aliases")
-        if self.state.vitess_config:
-            terms_repo = TermsRepository(vitess_client=self.state.vitess_client)
+        if self.state.mysql_config:
+            terms_repo = TermsRepository(mysql_client=self.state.mysql_client)
             terms_repo.insert_term(new_alias_hash, alias, "alias")
 
         updated_alias_hashes = existing_alias_hashes + [new_alias_hash]
@@ -503,10 +503,10 @@ class EntityUpdateTermsMixin(BaseModel):
         if not entity_type:
             raise_validation_error("Invalid entity ID format", status_code=400)
 
-        if self.state.vitess_client.is_entity_deleted(entity_id):
+        if self.state.mysql_client.is_entity_deleted(entity_id):
             raise_validation_error("Entity deleted", status_code=410)
 
-        if self.state.vitess_client.is_entity_locked(entity_id):
+        if self.state.mysql_client.is_entity_locked(entity_id):
             raise_validation_error("Entity locked", status_code=423)
 
         read_handler = EntityReadHandler(state=self.state)

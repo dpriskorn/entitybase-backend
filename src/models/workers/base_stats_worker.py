@@ -10,13 +10,13 @@ from types import SimpleNamespace
 from pydantic import Field
 
 from models.data.rest_api.v1.entitybase.response import WorkerHealthCheckResponse
-from models.workers.vitess_worker import VitessWorker
+from models.workers.mysql_worker import MysqlWorker
 from models.workers.utils import calculate_seconds_until_next_run
 
 logger = logging.getLogger(__name__)
 
 
-class BaseStatsWorker(VitessWorker, ABC):
+class BaseStatsWorker(MysqlWorker, ABC):
     """Base class for statistics workers."""
 
     worker_id: str = Field(
@@ -27,7 +27,7 @@ class BaseStatsWorker(VitessWorker, ABC):
     @property
     def state(self) -> SimpleNamespace:
         """Return state object for service compatibility."""
-        return SimpleNamespace(vitess_client=self.db_client)
+        return SimpleNamespace(mysql_client=self.db_client)
 
     @abstractmethod
     async def run_daily_computation(self) -> None:

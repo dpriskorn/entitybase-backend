@@ -13,7 +13,9 @@ sys.path.insert(0, "src")
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_backlinks_response_schema(api_prefix: str) -> None:
+async def test_backlinks_response_schema(
+    api_prefix: str, auth_headers: dict[str, str]
+) -> None:
     """Contract test: Verify backlinks response matches expected schema."""
     from models.rest_api.main import app
 
@@ -22,7 +24,7 @@ async def test_backlinks_response_schema(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]
@@ -38,7 +40,9 @@ async def test_backlinks_response_schema(api_prefix: str) -> None:
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_backlinks_pagination(api_prefix: str) -> None:
+async def test_backlinks_pagination(
+    api_prefix: str, auth_headers: dict[str, str]
+) -> None:
     """Contract test: Verify pagination parameters work correctly."""
     from models.rest_api.main import app
 
@@ -47,7 +51,7 @@ async def test_backlinks_pagination(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]
@@ -61,7 +65,9 @@ async def test_backlinks_pagination(api_prefix: str) -> None:
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_backlinks_empty_response(api_prefix: str) -> None:
+async def test_backlinks_empty_response(
+    api_prefix: str, auth_headers: dict[str, str]
+) -> None:
     """Contract test: Verify empty backlinks returns valid structure."""
     from models.rest_api.main import app
 
@@ -70,7 +76,7 @@ async def test_backlinks_empty_response(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]
@@ -100,7 +106,9 @@ async def test_backlinks_not_found_entity(api_prefix: str) -> None:
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_backlink_response_fields(api_prefix: str) -> None:
+async def test_backlink_response_fields(
+    api_prefix: str, auth_headers: dict[str, str]
+) -> None:
     """Contract test: Verify each backlink has required fields."""
     from models.rest_api.main import app
 
@@ -109,7 +117,7 @@ async def test_backlink_response_fields(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]
@@ -126,7 +134,9 @@ async def test_backlink_response_fields(api_prefix: str) -> None:
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_backlinks_pagination_response(api_prefix: str) -> None:
+async def test_backlinks_pagination_response(
+    api_prefix: str, auth_headers: dict[str, str]
+) -> None:
     """Contract test: Verify pagination fields are integers."""
     from models.rest_api.main import app
 
@@ -135,7 +145,7 @@ async def test_backlinks_pagination_response(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]
@@ -153,7 +163,9 @@ async def test_backlinks_pagination_response(api_prefix: str) -> None:
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_backlinks_empty_list_type(api_prefix: str) -> None:
+async def test_backlinks_empty_list_type(
+    api_prefix: str, auth_headers: dict[str, str]
+) -> None:
     """Contract test: Empty backlinks returns list, not null."""
     from models.rest_api.main import app
 
@@ -162,7 +174,7 @@ async def test_backlinks_empty_list_type(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]
@@ -178,7 +190,9 @@ async def test_backlinks_empty_list_type(api_prefix: str) -> None:
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_backlinks_limit_default_value(api_prefix: str) -> None:
+async def test_backlinks_limit_default_value(
+    api_prefix: str, auth_headers: dict[str, str]
+) -> None:
     """Contract test: Verify default limit value."""
     from models.rest_api.main import app
 
@@ -187,7 +201,7 @@ async def test_backlinks_limit_default_value(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]

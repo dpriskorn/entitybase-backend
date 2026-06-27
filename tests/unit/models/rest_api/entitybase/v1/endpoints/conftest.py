@@ -9,16 +9,16 @@ import pytest
 def mock_entity_read_state():
     """Create a properly mocked state for EntityReadHandler tests."""
     mock_state = MagicMock()
-    mock_vitess = MagicMock()
+    mock_mysql = MagicMock()
     mock_s3 = MagicMock()
 
-    mock_state.vitess_client = mock_vitess
+    mock_state.mysql_client = mock_mysql
     mock_state.s3_client = mock_s3
     mock_state.entity_change_stream_producer = AsyncMock()
 
-    mock_vitess.entity_exists.return_value = True
-    mock_vitess.get_head.return_value = 12345
-    mock_vitess.is_entity_deleted.return_value = False
-    mock_vitess.is_entity_locked.return_value = False
+    mock_mysql.entity_exists.return_value = True
+    mock_mysql.get_head.return_value = 12345
+    mock_mysql.is_entity_deleted.return_value = False
+    mock_mysql.is_entity_locked.return_value = False
 
-    yield mock_state, mock_vitess, mock_s3
+    yield mock_state, mock_mysql, mock_s3

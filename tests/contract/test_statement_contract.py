@@ -13,7 +13,9 @@ sys.path.insert(0, "src")
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_statement_response_schema(api_prefix: str) -> None:
+async def test_statement_response_schema(
+    api_prefix: str, auth_headers: dict[str, str]
+) -> None:
     """Contract test: Statement has required fields."""
     from models.rest_api.main import app
 
@@ -22,7 +24,7 @@ async def test_statement_response_schema(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]
@@ -45,7 +47,9 @@ async def test_statement_response_schema(api_prefix: str) -> None:
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_statement_hash_type(api_prefix: str) -> None:
+async def test_statement_hash_type(
+    api_prefix: str, auth_headers: dict[str, str]
+) -> None:
     """Contract test: Hash is integer."""
     from models.rest_api.main import app
 
@@ -54,7 +58,7 @@ async def test_statement_hash_type(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]
@@ -65,7 +69,9 @@ async def test_statement_hash_type(api_prefix: str) -> None:
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_statement_batch_response(api_prefix: str) -> None:
+async def test_statement_batch_response(
+    api_prefix: str, auth_headers: dict[str, str]
+) -> None:
     """Contract test: Batch response has statements array."""
     from models.rest_api.main import app
 
@@ -74,7 +80,7 @@ async def test_statement_batch_response(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]

@@ -29,8 +29,8 @@ class TestEntityStatementService:
     async def test_add_property_new_property(self) -> None:
         """Test adding claims to a new property."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
 
         service = EntityStatementService(state=mock_state)
         current_data = MagicMock()
@@ -47,12 +47,12 @@ class TestEntityStatementService:
     async def test_remove_statement_decrements_ref_count(self) -> None:
         """Test that remove_statement decrements reference count."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
         mock_cursor = MagicMock()
         mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
         mock_cursor.__exit__ = MagicMock(return_value=False)
-        mock_vitess.cursor = mock_cursor
+        mock_mysql.cursor = mock_cursor
 
         service = EntityStatementService(state=mock_state)
         service._decrement_statement_ref_count("12345")
@@ -88,8 +88,8 @@ class TestEntityStatementService:
     async def test_patch_statement_not_found(self) -> None:
         """Test patching statement when it doesn't exist."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
 
         service = EntityStatementService(state=mock_state)
         current_data = MagicMock()
@@ -470,8 +470,8 @@ class TestEntityStatementService:
         )
 
         mock_state = MagicMock()
-        mock_state.vitess_client = MagicMock()
-        mock_state.vitess_client.get_head.return_value = 5
+        mock_state.mysql_client = MagicMock()
+        mock_state.mysql_client.get_head.return_value = 5
 
         service = EntityStatementService(state=mock_state)
         mock_revision_data = MagicMock()
@@ -509,8 +509,8 @@ class TestEntityStatementService:
     async def test_remove_statement_not_found(self) -> None:
         """Test remove_statement when statement is not found."""
         mock_state = MagicMock()
-        mock_state.vitess_client = MagicMock()
-        mock_state.vitess_client.get_head.return_value = 5
+        mock_state.mysql_client = MagicMock()
+        mock_state.mysql_client.get_head.return_value = 5
 
         service = EntityStatementService(state=mock_state)
         mock_revision_data = MagicMock()
@@ -727,10 +727,10 @@ class TestEntityStatementService:
 
         mock_state = MagicMock()
         mock_s3 = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_state.s3_client = mock_s3
-        mock_state.vitess_client = mock_vitess
-        mock_vitess.create_revision.return_value = True
+        mock_state.mysql_client = mock_mysql
+        mock_mysql.create_revision.return_value = True
         mocker.patch(
             "rapidhash.rapidhash",
             return_value=12345,
@@ -763,7 +763,7 @@ class TestEntityStatementService:
         assert revision_data.edit.edit_summary == "test summary"
         assert revision_data.edit.user_id == 5
         mock_s3.store_revision.assert_called_once()
-        mock_vitess.create_revision.assert_called_once_with(
+        mock_mysql.create_revision.assert_called_once_with(
             entity_id="Q1",
             entity_data=revision_data,
             revision_id=42,
@@ -781,11 +781,11 @@ class TestEntityStatementService:
 
         mock_state = MagicMock()
         mock_s3 = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_state.s3_client = mock_s3
-        mock_state.vitess_client = mock_vitess
-        mock_vitess.create_revision.return_value = False
-        mock_vitess.get_head.return_value = 50
+        mock_state.mysql_client = mock_mysql
+        mock_mysql.create_revision.return_value = False
+        mock_mysql.get_head.return_value = 50
         mocker.patch(
             "rapidhash.rapidhash",
             return_value=12345,

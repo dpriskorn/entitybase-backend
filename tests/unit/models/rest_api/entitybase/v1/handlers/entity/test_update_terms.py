@@ -17,22 +17,22 @@ class TestEntityUpdateTermsMixin:
     def _create_mixin_with_mocks(self):
         """Create a mixin with mocked dependencies."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
 
         mock_s3_client = MagicMock()
         mock_state.s3_client = mock_s3_client
 
         mixin = EntityUpdateTermsMixin(state=mock_state)
 
-        return mixin, mock_vitess, mock_s3_client
+        return mixin, mock_mysql, mock_s3_client
 
     @patch("models.rest_api.entitybase.v1.handlers.entity.update_terms.TermsRepository")
     def test_decrement_term_ref_count_handles_none_data(
         self, mock_terms_repo_class
     ) -> None:
         """Test handling when result.data is None - treats as orphaned (deletes)."""
-        mixin, mock_vitess, mock_s3 = self._create_mixin_with_mocks()
+        mixin, mock_mysql, mock_s3 = self._create_mixin_with_mocks()
 
         mock_terms_repo = MagicMock()
         mock_terms_repo_class.return_value = mock_terms_repo
@@ -50,7 +50,7 @@ class TestEntityUpdateTermsMixin:
         self, mock_terms_repo_class
     ) -> None:
         """Test that term is Sql and S3 deleted when ref_count hits 0."""
-        mixin, mock_vitess, mock_s3 = self._create_mixin_with_mocks()
+        mixin, mock_mysql, mock_s3 = self._create_mixin_with_mocks()
 
         mock_terms_repo = MagicMock()
         mock_terms_repo_class.return_value = mock_terms_repo
@@ -70,7 +70,7 @@ class TestEntityUpdateTermsMixin:
         self, mock_terms_repo_class
     ) -> None:
         """Test graceful failure handling when decrement fails."""
-        mixin, mock_vitess, mock_s3 = self._create_mixin_with_mocks()
+        mixin, mock_mysql, mock_s3 = self._create_mixin_with_mocks()
 
         mock_terms_repo = MagicMock()
         mock_terms_repo_class.return_value = mock_terms_repo
@@ -90,7 +90,7 @@ class TestEntityUpdateTermsMixin:
         self, mock_terms_repo_class
     ) -> None:
         """Test that all three metadata types are cleaned up when ref_count hits 0."""
-        mixin, mock_vitess, mock_s3 = self._create_mixin_with_mocks()
+        mixin, mock_mysql, mock_s3 = self._create_mixin_with_mocks()
 
         mock_terms_repo = MagicMock()
         mock_terms_repo_class.return_value = mock_terms_repo
@@ -110,8 +110,8 @@ class TestUpdateLabelErrors:
     def _create_mixin_with_mocks(self):
         """Create a mixin with mocked dependencies."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
 
         mock_s3_client = MagicMock()
         mock_state.s3_client = mock_s3_client
@@ -167,8 +167,8 @@ class TestDeleteLabelErrors:
     def _create_mixin_with_mocks(self):
         """Create a mixin with mocked dependencies."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
 
         mock_s3_client = MagicMock()
         mock_state.s3_client = mock_s3_client
@@ -200,7 +200,7 @@ class TestDeleteLabelErrors:
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 
         mixin, mock_state = self._create_mixin_with_mocks()
-        mock_state.vitess_client.is_entity_deleted.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = True
 
         edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
 
@@ -217,8 +217,8 @@ class TestDeleteLabelErrors:
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 
         mixin, mock_state = self._create_mixin_with_mocks()
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.is_entity_locked.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = False
+        mock_state.mysql_client.is_entity_locked.return_value = True
 
         edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
 
@@ -235,8 +235,8 @@ class TestUpdateDescriptionErrors:
     def _create_mixin_with_mocks(self):
         """Create a mixin with mocked dependencies."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
 
         mock_s3_client = MagicMock()
         mock_state.s3_client = mock_s3_client
@@ -292,8 +292,8 @@ class TestDeleteDescriptionErrors:
     def _create_mixin_with_mocks(self):
         """Create a mixin with mocked dependencies."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
 
         mock_s3_client = MagicMock()
         mock_state.s3_client = mock_s3_client
@@ -325,7 +325,7 @@ class TestDeleteDescriptionErrors:
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 
         mixin, mock_state = self._create_mixin_with_mocks()
-        mock_state.vitess_client.is_entity_deleted.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = True
 
         edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
 
@@ -342,8 +342,8 @@ class TestDeleteDescriptionErrors:
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 
         mixin, mock_state = self._create_mixin_with_mocks()
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.is_entity_locked.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = False
+        mock_state.mysql_client.is_entity_locked.return_value = True
 
         edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
 
@@ -360,8 +360,8 @@ class TestUpdateAliasesErrors:
     def _create_mixin_with_mocks(self):
         """Create a mixin with mocked dependencies."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
 
         mock_s3_client = MagicMock()
         mock_state.s3_client = mock_s3_client
@@ -393,8 +393,8 @@ class TestAddAliasErrors:
     def _create_mixin_with_mocks(self):
         """Create a mixin with mocked dependencies."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
 
         mock_s3_client = MagicMock()
         mock_state.s3_client = mock_s3_client
@@ -426,7 +426,7 @@ class TestAddAliasErrors:
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 
         mixin, mock_state = self._create_mixin_with_mocks()
-        mock_state.vitess_client.is_entity_deleted.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = True
 
         edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
 
@@ -443,8 +443,8 @@ class TestAddAliasErrors:
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 
         mixin, mock_state = self._create_mixin_with_mocks()
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.is_entity_locked.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = False
+        mock_state.mysql_client.is_entity_locked.return_value = True
 
         edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
 
@@ -461,8 +461,8 @@ class TestDeleteAliasesErrors:
     def _create_mixin_with_mocks(self):
         """Create a mixin with mocked dependencies."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
 
         mock_s3_client = MagicMock()
         mock_state.s3_client = mock_s3_client
@@ -494,7 +494,7 @@ class TestDeleteAliasesErrors:
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 
         mixin, mock_state = self._create_mixin_with_mocks()
-        mock_state.vitess_client.is_entity_deleted.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = True
 
         edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
 
@@ -511,8 +511,8 @@ class TestDeleteAliasesErrors:
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 
         mixin, mock_state = self._create_mixin_with_mocks()
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.is_entity_locked.return_value = True
+        mock_state.mysql_client.is_entity_deleted.return_value = False
+        mock_state.mysql_client.is_entity_locked.return_value = True
 
         edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
 
@@ -529,8 +529,8 @@ class TestDeleteAliasesSuccess:
     def _create_mixin_with_mocks(self):
         """Create a mixin with mocked dependencies."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
         mock_s3_client = MagicMock()
         mock_state.s3_client = mock_s3_client
         mixin = EntityUpdateTermsMixin(state=mock_state)
@@ -543,8 +543,8 @@ class TestDeleteAliasesSuccess:
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 
         mixin, mock_state = self._create_mixin_with_mocks()
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.is_entity_locked.return_value = False
+        mock_state.mysql_client.is_entity_deleted.return_value = False
+        mock_state.mysql_client.is_entity_locked.return_value = False
 
         mock_entity = MagicMock()
         mock_entity.entity_data.revision = {
@@ -558,7 +558,7 @@ class TestDeleteAliasesSuccess:
             "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
         ) as MockTx:
             mock_tx = MagicMock()
-            mock_tx.state.vitess_client.get_head.return_value = 2
+            mock_tx.state.mysql_client.get_head.return_value = 2
             mock_tx.create_revision_with_hashes = AsyncMock(return_value=mock_response)
             mock_tx.publish_event = AsyncMock()
             MockTx.return_value = mock_tx
@@ -583,8 +583,8 @@ class TestDeleteAliasesSuccess:
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 
         mixin, mock_state = self._create_mixin_with_mocks()
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.is_entity_locked.return_value = False
+        mock_state.mysql_client.is_entity_deleted.return_value = False
+        mock_state.mysql_client.is_entity_locked.return_value = False
 
         mock_entity = MagicMock()
         mock_entity.entity_data.revision = {
@@ -612,8 +612,8 @@ class TestAddAliasSuccess:
     def _create_mixin_with_mocks(self):
         """Create a mixin with mocked dependencies."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
         mock_s3_client = MagicMock()
         mock_state.s3_client = mock_s3_client
         mixin = EntityUpdateTermsMixin(state=mock_state)
@@ -627,8 +627,8 @@ class TestAddAliasSuccess:
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 
         mixin, mock_state = self._create_mixin_with_mocks()
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.is_entity_locked.return_value = False
+        mock_state.mysql_client.is_entity_deleted.return_value = False
+        mock_state.mysql_client.is_entity_locked.return_value = False
 
         mock_entity = MagicMock()
         mock_entity.entity_data.revision = {
@@ -660,15 +660,15 @@ class TestAddAliasSuccess:
                     assert "already exists" in exc_info.value.detail
 
     @pytest.mark.asyncio
-    async def test_add_alias_success_with_vitess_config(self) -> None:
-        """Test add_alias success with vitess_config set."""
+    async def test_add_alias_success_with_mysql_config(self) -> None:
+        """Test add_alias success with mysql_config set."""
         from models.data.infrastructure.s3.enums import EntityType
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 
         mixin, mock_state = self._create_mixin_with_mocks()
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.is_entity_locked.return_value = False
-        mock_state.vitess_config = MagicMock()
+        mock_state.mysql_client.is_entity_deleted.return_value = False
+        mock_state.mysql_client.is_entity_locked.return_value = False
+        mock_state.mysql_config = MagicMock()
 
         mock_entity = MagicMock()
         mock_entity.entity_data.revision = {
@@ -684,7 +684,7 @@ class TestAddAliasSuccess:
             MockExtractor.hash_string.return_value = 99999
 
             with patch(
-                "models.infrastructure.vitess.repositories.terms.TermsRepository"
+                "models.infrastructure.mysql.repositories.terms.TermsRepository"
             ) as MockTermsRepo:
                 mock_terms_repo = MagicMock()
                 MockTermsRepo.return_value = mock_terms_repo
@@ -693,7 +693,7 @@ class TestAddAliasSuccess:
                     "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
                 ) as MockTx:
                     mock_tx = MagicMock()
-                    mock_tx.state.vitess_client.get_head.return_value = 2
+                    mock_tx.state.mysql_client.get_head.return_value = 2
                     mock_tx.create_revision_with_hashes = AsyncMock(
                         return_value=mock_response
                     )
@@ -722,15 +722,15 @@ class TestAddAliasSuccess:
                             mock_terms_repo.insert_term.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_add_alias_success_no_vitess_config(self) -> None:
-        """Test add_alias success without vitess_config."""
+    async def test_add_alias_success_no_mysql_config(self) -> None:
+        """Test add_alias success without mysql_config."""
         from models.data.infrastructure.s3.enums import EntityType
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 
         mixin, mock_state = self._create_mixin_with_mocks()
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.is_entity_locked.return_value = False
-        mock_state.vitess_config = None
+        mock_state.mysql_client.is_entity_deleted.return_value = False
+        mock_state.mysql_client.is_entity_locked.return_value = False
+        mock_state.mysql_config = None
 
         mock_entity = MagicMock()
         mock_entity.entity_data.revision = {
@@ -749,7 +749,7 @@ class TestAddAliasSuccess:
                 "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
             ) as MockTx:
                 mock_tx = MagicMock()
-                mock_tx.state.vitess_client.get_head.return_value = 2
+                mock_tx.state.mysql_client.get_head.return_value = 2
                 mock_tx.create_revision_with_hashes = AsyncMock(
                     return_value=mock_response
                 )
@@ -785,7 +785,7 @@ class TestExecuteTermAddTransaction:
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 
         mock_state = MagicMock()
-        mock_state.vitess_client.user_repository.log_user_activity = AsyncMock(
+        mock_state.mysql_client.user_repository.log_user_activity = AsyncMock(
             return_value=MagicMock(success=True)
         )
         mixin = EntityUpdateTermsMixin(state=mock_state)
@@ -806,7 +806,7 @@ class TestExecuteTermAddTransaction:
             "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
         ) as MockTx:
             mock_tx = MagicMock()
-            mock_tx.state.vitess_client.get_head.return_value = 2
+            mock_tx.state.mysql_client.get_head.return_value = 2
             mock_tx.create_revision_with_hashes = AsyncMock(return_value=mock_response)
             mock_tx.publish_event = AsyncMock()
             MockTx.return_value = mock_tx
@@ -838,7 +838,7 @@ class TestExecuteTermAddTransaction:
             "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
         ) as MockTx:
             mock_tx = MagicMock()
-            mock_tx.state.vitess_client.get_head.return_value = 2
+            mock_tx.state.mysql_client.get_head.return_value = 2
             mock_tx.create_revision_with_hashes = AsyncMock(
                 side_effect=HTTPException(status_code=409, detail="Conflict")
             )
@@ -871,7 +871,7 @@ class TestExecuteTermAddTransaction:
             "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
         ) as MockTx:
             mock_tx = MagicMock()
-            mock_tx.state.vitess_client.get_head.return_value = 2
+            mock_tx.state.mysql_client.get_head.return_value = 2
             mock_tx.create_revision_with_hashes = AsyncMock(
                 side_effect=ValueError("DB error")
             )
@@ -890,7 +890,7 @@ class TestExecuteTermAddTransaction:
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 
         mock_state = MagicMock()
-        mock_state.vitess_client.user_repository.log_user_activity = AsyncMock(
+        mock_state.mysql_client.user_repository.log_user_activity = AsyncMock(
             return_value=MagicMock(success=False, error="Log error")
         )
         mixin = EntityUpdateTermsMixin(state=mock_state)
@@ -909,7 +909,7 @@ class TestExecuteTermAddTransaction:
             "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
         ) as MockTx:
             mock_tx = MagicMock()
-            mock_tx.state.vitess_client.get_head.return_value = 2
+            mock_tx.state.mysql_client.get_head.return_value = 2
             mock_tx.create_revision_with_hashes = AsyncMock(return_value=mock_response)
             mock_tx.publish_event = AsyncMock()
             MockTx.return_value = mock_tx
@@ -942,7 +942,7 @@ class TestExecuteTermAddTransaction:
             "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
         ) as MockTx:
             mock_tx = MagicMock()
-            mock_tx.state.vitess_client.get_head.return_value = 2
+            mock_tx.state.mysql_client.get_head.return_value = 2
             mock_tx.create_revision_with_hashes = AsyncMock(return_value=mock_response)
             mock_tx.publish_event = AsyncMock()
             MockTx.return_value = mock_tx
@@ -950,7 +950,7 @@ class TestExecuteTermAddTransaction:
             result = await mixin._execute_term_add_transaction(context)
 
             assert result == mock_response
-            mock_state.vitess_client.user_repository.log_user_activity.assert_not_called()
+            mock_state.mysql_client.user_repository.log_user_activity.assert_not_called()
 
 
 class TestExecuteTermDeleteTransaction:
@@ -963,7 +963,7 @@ class TestExecuteTermDeleteTransaction:
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 
         mock_state = MagicMock()
-        mock_state.vitess_client.user_repository.log_user_activity = AsyncMock(
+        mock_state.mysql_client.user_repository.log_user_activity = AsyncMock(
             return_value=MagicMock(success=True)
         )
         mixin = EntityUpdateTermsMixin(state=mock_state)
@@ -982,7 +982,7 @@ class TestExecuteTermDeleteTransaction:
             "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
         ) as MockTx:
             mock_tx = MagicMock()
-            mock_tx.state.vitess_client.get_head.return_value = 2
+            mock_tx.state.mysql_client.get_head.return_value = 2
             mock_tx.create_revision_with_hashes = AsyncMock(return_value=mock_response)
             mock_tx.publish_event = AsyncMock()
             MockTx.return_value = mock_tx
@@ -1003,7 +1003,7 @@ class TestExecuteTermDeleteTransaction:
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 
         mock_state = MagicMock()
-        mock_state.vitess_client.user_repository.log_user_activity = AsyncMock(
+        mock_state.mysql_client.user_repository.log_user_activity = AsyncMock(
             return_value=MagicMock(success=True)
         )
         mixin = EntityUpdateTermsMixin(state=mock_state)
@@ -1022,7 +1022,7 @@ class TestExecuteTermDeleteTransaction:
             "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
         ) as MockTx:
             mock_tx = MagicMock()
-            mock_tx.state.vitess_client.get_head.return_value = 2
+            mock_tx.state.mysql_client.get_head.return_value = 2
             mock_tx.create_revision_with_hashes = AsyncMock(return_value=mock_response)
             mock_tx.publish_event = AsyncMock()
             MockTx.return_value = mock_tx
@@ -1054,7 +1054,7 @@ class TestExecuteTermDeleteTransaction:
             "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
         ) as MockTx:
             mock_tx = MagicMock()
-            mock_tx.state.vitess_client.get_head.return_value = 2
+            mock_tx.state.mysql_client.get_head.return_value = 2
             mock_tx.create_revision_with_hashes = AsyncMock(
                 side_effect=HTTPException(status_code=409, detail="Conflict")
             )
@@ -1087,7 +1087,7 @@ class TestExecuteTermDeleteTransaction:
             "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
         ) as MockTx:
             mock_tx = MagicMock()
-            mock_tx.state.vitess_client.get_head.return_value = 2
+            mock_tx.state.mysql_client.get_head.return_value = 2
             mock_tx.create_revision_with_hashes = AsyncMock(
                 side_effect=ValueError("DB error")
             )
@@ -1106,7 +1106,7 @@ class TestExecuteTermDeleteTransaction:
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 
         mock_state = MagicMock()
-        mock_state.vitess_client.user_repository.log_user_activity = AsyncMock(
+        mock_state.mysql_client.user_repository.log_user_activity = AsyncMock(
             return_value=MagicMock(success=False, error="Log error")
         )
         mixin = EntityUpdateTermsMixin(state=mock_state)
@@ -1125,7 +1125,7 @@ class TestExecuteTermDeleteTransaction:
             "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
         ) as MockTx:
             mock_tx = MagicMock()
-            mock_tx.state.vitess_client.get_head.return_value = 2
+            mock_tx.state.mysql_client.get_head.return_value = 2
             mock_tx.create_revision_with_hashes = AsyncMock(return_value=mock_response)
             mock_tx.publish_event = AsyncMock()
             MockTx.return_value = mock_tx
@@ -1160,7 +1160,7 @@ class TestExecuteTermDeleteTransaction:
             "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
         ) as MockTx:
             mock_tx = MagicMock()
-            mock_tx.state.vitess_client.get_head.return_value = 2
+            mock_tx.state.mysql_client.get_head.return_value = 2
             mock_tx.create_revision_with_hashes = AsyncMock(return_value=mock_response)
             mock_tx.publish_event = AsyncMock()
             MockTx.return_value = mock_tx
@@ -1168,4 +1168,4 @@ class TestExecuteTermDeleteTransaction:
             result = await mixin._execute_term_delete_transaction(context)
 
             assert result == mock_response
-            mock_state.vitess_client.user_repository.log_user_activity.assert_not_called()
+            mock_state.mysql_client.user_repository.log_user_activity.assert_not_called()

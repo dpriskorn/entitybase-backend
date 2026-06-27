@@ -34,9 +34,9 @@ class TestEntityTransactionMethods:
     @pytest.fixture
     def mock_state(self) -> MagicMock:
         state = MagicMock()
-        state.vitess_client.entity_repository.create_entity.return_value = True
-        state.vitess_client.entity_repository.delete_entity.return_value = True
-        state.vitess_client.entity_repository.delete.return_value = True
+        state.mysql_client.entity_repository.create_entity.return_value = True
+        state.mysql_client.entity_repository.delete_entity.return_value = True
+        state.mysql_client.entity_repository.delete.return_value = True
         return state
 
     @pytest.fixture
@@ -49,7 +49,7 @@ class TestEntityTransactionMethods:
         tx.register_entity("Q42")
 
         assert tx.entity_id == "Q42"
-        mock_state.vitess_client.entity_repository.create_entity.assert_called_once_with(
+        mock_state.mysql_client.entity_repository.create_entity.assert_called_once_with(
             "Q42"
         )
         assert len(tx.operations) == 1
@@ -60,7 +60,7 @@ class TestEntityTransactionMethods:
         tx.entity_id = "Q42"
         tx._rollback_entity_registration()
 
-        mock_state.vitess_client.entity_repository.delete_entity.assert_called_once_with(
+        mock_state.mysql_client.entity_repository.delete_entity.assert_called_once_with(
             "Q42"
         )
 
@@ -69,7 +69,7 @@ class TestEntityTransactionMethods:
     ) -> None:
         tx._rollback_revision("Q42", 5)
 
-        mock_state.vitess_client.entity_repository.delete.assert_called_once_with(
+        mock_state.mysql_client.entity_repository.delete.assert_called_once_with(
             "Q42", 5
         )
 

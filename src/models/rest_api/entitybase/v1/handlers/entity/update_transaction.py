@@ -141,7 +141,7 @@ class UpdateTransaction(EntityTransaction):
         from models.config.settings import settings
 
         logger.debug("Getting head revision ID")
-        head_revision_id = self.state.vitess_client.get_head(entity_id)
+        head_revision_id = self.state.mysql_client.get_head(entity_id)
         new_revision_id = head_revision_id + 1 if head_revision_id else 1
         logger.debug(f"New revision ID: {new_revision_id}")
 
@@ -189,10 +189,10 @@ class UpdateTransaction(EntityTransaction):
         content_hash = MetadataExtractor.hash_string(revision_json)
 
         logger.debug(
-            f"[UpdateTransaction.create_revision] entity_id={entity_id}, vitess_client={id(self.state.vitess_client)}, id_resolver={id(self.state.vitess_client.id_resolver)}"
+            f"[UpdateTransaction.create_revision] entity_id={entity_id}, mysql_client={id(self.state.mysql_client)}, id_resolver={id(self.state.mysql_client.id_resolver)}"
         )
         expected_revision_id = edit_headers.x_base_revision_id
-        revision_created = self.state.vitess_client.create_revision(
+        revision_created = self.state.mysql_client.create_revision(
             entity_id=entity_id,
             entity_data=revision_data,
             revision_id=new_revision_id,
@@ -202,7 +202,7 @@ class UpdateTransaction(EntityTransaction):
         if not revision_created:
             from models.rest_api.utils import raise_validation_error
 
-            current_head = self.state.vitess_client.get_head(entity_id)
+            current_head = self.state.mysql_client.get_head(entity_id)
             raise_validation_error(
                 f"Conflict: entity was modified by another edit. "
                 f"Expected base revision {expected_revision_id}, but current revision is {current_head}. "
@@ -264,7 +264,7 @@ class UpdateTransaction(EntityTransaction):
         import json
 
         logger.debug(f"Getting head revision for entity {entity_id}")
-        head_revision_id = self.state.vitess_client.get_head(entity_id)
+        head_revision_id = self.state.mysql_client.get_head(entity_id)
         new_revision_id = head_revision_id + 1 if head_revision_id else 1
         logger.debug(f"New revision ID: {new_revision_id}")
 
@@ -314,7 +314,7 @@ class UpdateTransaction(EntityTransaction):
 
         logger.debug("Creating revision in database")
         expected_revision_id = edit_headers.x_base_revision_id
-        revision_created = self.state.vitess_client.create_revision(
+        revision_created = self.state.mysql_client.create_revision(
             entity_id=entity_id,
             entity_data=revision_data,
             revision_id=new_revision_id,
@@ -324,7 +324,7 @@ class UpdateTransaction(EntityTransaction):
         if not revision_created:
             from models.rest_api.utils import raise_validation_error
 
-            current_head = self.state.vitess_client.get_head(entity_id)
+            current_head = self.state.mysql_client.get_head(entity_id)
             raise_validation_error(
                 f"Conflict: entity was modified by another edit. "
                 f"Expected base revision {expected_revision_id}, but current revision is {current_head}. "
@@ -390,9 +390,9 @@ class UpdateTransaction(EntityTransaction):
     def _rollback_statement(self, hash_val: int) -> None:
         logger.info(f"[UpdateTransaction] Rolling back statement {hash_val}")
         # Decrement ref_count
-        self.state.vitess_client.decrement_ref_count(hash_val)
+        self.state.mysql_client.decrement_ref_count(hash_val)
         # Check if orphaned and delete from S3
-        ref_count = self.state.vitess_client.get_ref_count(hash_val)
+        ref_count = self.state.mysql_client.get_ref_count(hash_val)
         if ref_count == 0:
             self.state.s3_client.delete_statement(hash_val)
 
@@ -457,4 +457,4 @@ class UpdateTransaction(EntityTransaction):
             f"[UpdateTransaction] Rolling back revision {revision_id} for {entity_id}"
         )
         # Delete from entity_revisions and revert head
-        self.state.vitess_client.delete_revision(entity_id, revision_id)
+        self.state.mysql_client.delete_revision(entity_id, revision_id)

@@ -13,25 +13,23 @@ class TestWatchlistHandler:
     def setup_method(self):
         """Set up test fixtures."""
         self.state = MagicMock()
-        self.state.vitess_client.user_repository.user_exists.return_value = True
-        self.state.vitess_client.user_repository.is_watchlist_enabled.return_value = (
-            True
-        )
-        self.state.vitess_client.watchlist_repository.add_watch.return_value = (
-            MagicMock(success=True)
-        )
-        self.state.vitess_client.watchlist_repository.remove_watch.return_value = (
-            MagicMock(success=True)
-        )
-        self.state.vitess_client.watchlist_repository.remove_watch_by_id.return_value = MagicMock(
+        self.state.mysql_client.user_repository.user_exists.return_value = True
+        self.state.mysql_client.user_repository.is_watchlist_enabled.return_value = True
+        self.state.mysql_client.watchlist_repository.add_watch.return_value = MagicMock(
             success=True
         )
-        self.state.vitess_client.watchlist_repository.get_user_watchlist.return_value = []
-        self.state.vitess_client.watchlist_repository.get_watches_for_user.return_value = []
-        self.state.vitess_client.watchlist_repository.get_user_notifications.return_value = []
-        self.state.vitess_client.watchlist_repository.get_entity_watch_count.return_value = 10
-        self.state.vitess_client.watchlist_repository.get_property_watch_count.return_value = 5
-        self.state.vitess_client.user_repository.update_user_activity.return_value = (
+        self.state.mysql_client.watchlist_repository.remove_watch.return_value = (
+            MagicMock(success=True)
+        )
+        self.state.mysql_client.watchlist_repository.remove_watch_by_id.return_value = (
+            MagicMock(success=True)
+        )
+        self.state.mysql_client.watchlist_repository.get_user_watchlist.return_value = []
+        self.state.mysql_client.watchlist_repository.get_watches_for_user.return_value = []
+        self.state.mysql_client.watchlist_repository.get_user_notifications.return_value = []
+        self.state.mysql_client.watchlist_repository.get_entity_watch_count.return_value = 10
+        self.state.mysql_client.watchlist_repository.get_property_watch_count.return_value = 5
+        self.state.mysql_client.user_repository.update_user_activity.return_value = (
             MagicMock(success=True)
         )
 
@@ -47,13 +45,13 @@ class TestWatchlistHandler:
         response = self.handler.add_watch(123, request)
 
         assert response.message == "Watch added"
-        self.state.vitess_client.watchlist_repository.add_watch.assert_called_once()
+        self.state.mysql_client.watchlist_repository.add_watch.assert_called_once()
 
     def test_add_watch_user_not_found(self):
         """Test add_watch when user not found."""
         from fastapi import HTTPException
 
-        self.state.vitess_client.user_repository.user_exists.return_value = False
+        self.state.mysql_client.user_repository.user_exists.return_value = False
 
         from models.data.rest_api.v1.entitybase.request.watchlist import (
             WatchlistAddRequest,
@@ -70,7 +68,7 @@ class TestWatchlistHandler:
         """Test add_watch when watchlist is disabled."""
         from fastapi import HTTPException
 
-        self.state.vitess_client.user_repository.is_watchlist_enabled.return_value = (
+        self.state.mysql_client.user_repository.is_watchlist_enabled.return_value = (
             False
         )
 
@@ -89,8 +87,8 @@ class TestWatchlistHandler:
         """Test add_watch when repository returns error."""
         from fastapi import HTTPException
 
-        self.state.vitess_client.watchlist_repository.add_watch.return_value = (
-            MagicMock(success=False, error="Database error")
+        self.state.mysql_client.watchlist_repository.add_watch.return_value = MagicMock(
+            success=False, error="Database error"
         )
 
         from models.data.rest_api.v1.entitybase.request.watchlist import (
@@ -110,7 +108,7 @@ class TestWatchlistHandler:
             WatchlistAddRequest,
         )
 
-        self.state.vitess_client.user_repository.update_user_activity.return_value = (
+        self.state.mysql_client.user_repository.update_user_activity.return_value = (
             MagicMock(success=False, error="Activity error")
         )
 
@@ -132,8 +130,8 @@ class TestWatchlistHandler:
 
     def test_remove_watch_by_id_success(self):
         """Test remove_watch_by_id success."""
-        self.state.vitess_client.watchlist_repository.remove_watch_by_id.return_value = MagicMock(
-            success=True
+        self.state.mysql_client.watchlist_repository.remove_watch_by_id.return_value = (
+            MagicMock(success=True)
         )
         response = self.handler.remove_watch_by_id(123, 1)
 
@@ -143,7 +141,7 @@ class TestWatchlistHandler:
         """Test remove_watch_by_id when user not found."""
         from fastapi import HTTPException
 
-        self.state.vitess_client.user_repository.user_exists.return_value = False
+        self.state.mysql_client.user_repository.user_exists.return_value = False
 
         with pytest.raises(HTTPException) as exc_info:
             self.handler.remove_watch_by_id(123, 1)
@@ -154,8 +152,8 @@ class TestWatchlistHandler:
         """Test remove_watch_by_id when repository returns error."""
         from fastapi import HTTPException
 
-        self.state.vitess_client.watchlist_repository.remove_watch_by_id.return_value = MagicMock(
-            success=False, error="Watch not found"
+        self.state.mysql_client.watchlist_repository.remove_watch_by_id.return_value = (
+            MagicMock(success=False, error="Watch not found")
         )
 
         with pytest.raises(HTTPException) as exc_info:
@@ -165,7 +163,7 @@ class TestWatchlistHandler:
 
     def test_get_watches_success(self):
         """Test get_watches success."""
-        self.state.vitess_client.watchlist_repository.get_watches_for_user.return_value = [
+        self.state.mysql_client.watchlist_repository.get_watches_for_user.return_value = [
             {"entity_id": "Q1"}
         ]
         response = self.handler.get_watches(123)
@@ -176,7 +174,7 @@ class TestWatchlistHandler:
         """Test get_watches when watchlist is disabled."""
         from fastapi import HTTPException
 
-        self.state.vitess_client.user_repository.is_watchlist_enabled.return_value = (
+        self.state.mysql_client.user_repository.is_watchlist_enabled.return_value = (
             False
         )
 
@@ -187,7 +185,7 @@ class TestWatchlistHandler:
 
     def test_get_notifications(self):
         """Test get_notifications."""
-        self.state.vitess_client.watchlist_repository.get_user_notifications.return_value = [
+        self.state.mysql_client.watchlist_repository.get_user_notifications.return_value = [
             {"id": "notif1"}
         ]
 
@@ -199,7 +197,7 @@ class TestWatchlistHandler:
         """Test get_notifications when watchlist is disabled."""
         from fastapi import HTTPException
 
-        self.state.vitess_client.user_repository.is_watchlist_enabled.return_value = (
+        self.state.mysql_client.user_repository.is_watchlist_enabled.return_value = (
             False
         )
 

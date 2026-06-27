@@ -30,7 +30,7 @@ class ItemCreateHandler(EntityCreateHandler):
         """Resolve or auto-assign entity ID."""
         entity_id = request.id
         if entity_id:
-            exists = self.state.vitess_client.id_resolver.entity_exists(entity_id)
+            exists = self.state.mysql_client.id_resolver.entity_exists(entity_id)
             logger.debug(f"🔍 HANDLER: Entity exists check: {exists}")
             if exists:
                 logger.error(f"🔍 HANDLER: Entity {entity_id} already exists")

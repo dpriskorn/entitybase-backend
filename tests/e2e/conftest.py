@@ -43,10 +43,10 @@ def validate_e2e_env_vars():
     preventing long retry loops and confusing connection errors.
     """
     required_vars = {
-        "VITESS_HOST": "Sql database host",
-        "VITESS_PORT": "Sql database port",
-        "VITESS_DATABASE": "Sql database name",
-        "VITESS_USER": "Sql database user",
+        "MYSQL_HOST": "Sql database host",
+        "MYSQL_PORT": "Sql database port",
+        "MYSQL_DATABASE": "Sql database name",
+        "MYSQL_USER": "Sql database user",
     }
 
     missing_vars = []
@@ -70,11 +70,11 @@ def db_conn():
     from models.config.settings import settings
 
     conn = pymysql.connect(
-        host=settings.vitess_host,
-        port=settings.vitess_port,
-        user=settings.vitess_user,
-        password=settings.vitess_password,
-        database=settings.vitess_database,
+        host=settings.mysql_host,
+        port=settings.mysql_port,
+        user=settings.mysql_user,
+        password=settings.mysql_password,
+        database=settings.mysql_database,
         connect_timeout=2,
     )
     yield conn
@@ -115,33 +115,33 @@ def db_cleanup(db_conn):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def create_tables(vitess_client):
+def create_tables(mysql_client):
     """Create database tables before running E2E tests."""
-    from models.infrastructure.vitess.repositories.schema import SchemaRepository
+    from models.infrastructure.mysql.repositories.schema import SchemaRepository
 
-    schema_repository = SchemaRepository(vitess_client=vitess_client)
+    schema_repository = SchemaRepository(mysql_client=mysql_client)
     schema_repository.create_tables()
     logger.info("Database tables created for E2E tests")
 
 
 @pytest.fixture(scope="session")
-def vitess_client():
-    """Create a real VitessClient connected to test database."""
-    from models.infrastructure.vitess.client import VitessClient
-    from models.data.config.vitess import VitessConfig
+def mysql_client():
+    """Create a real MysqlClient connected to test database."""
+    from models.infrastructure.mysql.client import MysqlClient
+    from models.data.config.mysql import MysqlConfig
     from models.config.settings import settings
 
-    vitess_config = VitessConfig(
-        host=settings.vitess_host,
-        port=settings.vitess_port,
-        database=settings.vitess_database,
-        user=settings.vitess_user,
-        password=settings.vitess_password,
+    mysql_config = MysqlConfig(
+        host=settings.mysql_host,
+        port=settings.mysql_port,
+        database=settings.mysql_database,
+        user=settings.mysql_user,
+        password=settings.mysql_password,
         pool_size=20,
         max_overflow=20,
         pool_timeout=5,
     )
-    client = VitessClient(config=vitess_config)
+    client = MysqlClient(config=mysql_config)
     yield client
     client.disconnect()
 
@@ -197,18 +197,18 @@ def create_s3_buckets(s3_config):
 
 
 @pytest.fixture(scope="session")
-def s3_client(s3_config, vitess_client):
+def s3_client(s3_config, mysql_client):
     """Create real MyS3Client connected to S3."""
     from models.infrastructure.s3.client import MyS3Client
 
-    client = MyS3Client(config=s3_config, vitess_client=vitess_client)
+    client = MyS3Client(config=s3_config, mysql_client=mysql_client)
     yield client
     client.disconnect()
     logger.debug("S3Client disconnected in s3_client fixture")
 
 
 @pytest.fixture(scope="session", autouse=True)
-def initialized_app(vitess_client, s3_client, create_s3_buckets):
+def initialized_app(mysql_client, s3_client, create_s3_buckets):
     """Initialize the FastAPI app with state_handler for E2E tests."""
     from models.rest_api.main import app
     from models.rest_api.entitybase.v1.handlers.state import StateHandler
@@ -218,7 +218,7 @@ def initialized_app(vitess_client, s3_client, create_s3_buckets):
     state_handler = StateHandler(settings=settings)
 
     # Inject pre-configured test clients instead of creating new ones
-    state_handler.cached_vitess_client = vitess_client
+    state_handler.cached_mysql_client = mysql_client
     state_handler.cached_s3_client = s3_client
     logger.debug("Injected test Sql and S3 clients into StateHandler")
 

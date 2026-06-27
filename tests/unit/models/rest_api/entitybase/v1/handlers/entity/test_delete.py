@@ -53,17 +53,17 @@ class TestEntityDeleteHandler:
     async def test_soft_delete_success(self) -> None:
         """Test successful soft delete of an entity."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
         mock_state.entity_change_stream_producer = MagicMock()
 
-        mock_vitess.entity_exists.return_value = True
-        mock_vitess.is_entity_deleted.return_value = False
-        mock_vitess.get_head.return_value = 5
-        mock_vitess.create_revision.return_value = True
-        mock_vitess.entity_repository.get_protection_info.return_value = (
+        mock_mysql.entity_exists.return_value = True
+        mock_mysql.is_entity_deleted.return_value = False
+        mock_mysql.get_head.return_value = 5
+        mock_mysql.create_revision.return_value = True
+        mock_mysql.entity_repository.get_protection_info.return_value = (
             _make_protection_info()
         )
         mock_s3.read_revision.return_value = _make_current_revision()
@@ -79,23 +79,23 @@ class TestEntityDeleteHandler:
         assert response.revision_id == 6
         assert response.is_deleted is True
         assert response.deletion_status == "soft_deleted"
-        mock_vitess.create_revision.assert_called_once()
+        mock_mysql.create_revision.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_hard_delete_success(self) -> None:
         """Test successful hard delete of an entity with reference cleanup."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
         mock_state.entity_change_stream_producer = MagicMock()
 
-        mock_vitess.entity_exists.return_value = True
-        mock_vitess.is_entity_deleted.return_value = False
-        mock_vitess.get_head.return_value = 3
-        mock_vitess.create_revision.return_value = True
-        mock_vitess.entity_repository.get_protection_info.return_value = (
+        mock_mysql.entity_exists.return_value = True
+        mock_mysql.is_entity_deleted.return_value = False
+        mock_mysql.get_head.return_value = 3
+        mock_mysql.create_revision.return_value = True
+        mock_mysql.entity_repository.get_protection_info.return_value = (
             _make_protection_info()
         )
         mock_s3.read_revision.return_value = _make_current_revision(
@@ -113,17 +113,17 @@ class TestEntityDeleteHandler:
         assert response.revision_id == 4
         assert response.is_deleted is True
         assert response.deletion_status == "hard_deleted"
-        mock_vitess.decrement_ref_count.assert_called()
+        mock_mysql.decrement_ref_count.assert_called()
 
     @pytest.mark.asyncio
     async def test_delete_entity_not_found(self) -> None:
         """Test delete when entity doesn't exist."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = MagicMock()
 
-        mock_vitess.entity_exists.return_value = False
+        mock_mysql.entity_exists.return_value = False
 
         handler = EntityDeleteHandler(state=mock_state)
 
@@ -137,12 +137,12 @@ class TestEntityDeleteHandler:
     async def test_delete_entity_already_deleted(self) -> None:
         """Test delete when entity is already deleted."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = MagicMock()
 
-        mock_vitess.entity_exists.return_value = True
-        mock_vitess.is_entity_deleted.return_value = True
+        mock_mysql.entity_exists.return_value = True
+        mock_mysql.is_entity_deleted.return_value = True
 
         handler = EntityDeleteHandler(state=mock_state)
 
@@ -156,15 +156,15 @@ class TestEntityDeleteHandler:
     async def test_delete_s3_not_found(self) -> None:
         """Test delete when S3 revision is not found."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
 
-        mock_vitess.entity_exists.return_value = True
-        mock_vitess.is_entity_deleted.return_value = False
-        mock_vitess.get_head.return_value = 5
-        mock_vitess.entity_repository.get_protection_info.return_value = (
+        mock_mysql.entity_exists.return_value = True
+        mock_mysql.is_entity_deleted.return_value = False
+        mock_mysql.get_head.return_value = 5
+        mock_mysql.entity_repository.get_protection_info.return_value = (
             _make_protection_info()
         )
         mock_s3.read_revision.side_effect = S3NotFoundError("Object not found")
@@ -181,18 +181,18 @@ class TestEntityDeleteHandler:
     async def test_delete_conflict(self) -> None:
         """Test delete when revision creation fails due to conflict."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
 
-        mock_vitess.entity_exists.return_value = True
-        mock_vitess.is_entity_deleted.return_value = False
-        mock_vitess.get_head.return_value = 5
-        mock_vitess.entity_repository.get_protection_info.return_value = (
+        mock_mysql.entity_exists.return_value = True
+        mock_mysql.is_entity_deleted.return_value = False
+        mock_mysql.get_head.return_value = 5
+        mock_mysql.entity_repository.get_protection_info.return_value = (
             _make_protection_info()
         )
-        mock_vitess.create_revision.side_effect = [False]
+        mock_mysql.create_revision.side_effect = [False]
         mock_s3.read_revision.return_value = _make_current_revision()
 
         handler = EntityDeleteHandler(state=mock_state)
@@ -204,10 +204,10 @@ class TestEntityDeleteHandler:
             await handler.delete_entity("Q42", request, edit_headers)
 
     @pytest.mark.asyncio
-    async def test_delete_vitess_not_initialized(self) -> None:
+    async def test_delete_mysql_not_initialized(self) -> None:
         """Test delete when Sql client is not initialized."""
         mock_state = MagicMock()
-        mock_state.vitess_client = None
+        mock_state.mysql_client = None
         mock_state.s3_client = MagicMock()
 
         handler = EntityDeleteHandler(state=mock_state)
@@ -222,8 +222,8 @@ class TestEntityDeleteHandler:
     async def test_delete_s3_not_initialized(self) -> None:
         """Test delete when S3 client is not initialized."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = None
 
         handler = EntityDeleteHandler(state=mock_state)

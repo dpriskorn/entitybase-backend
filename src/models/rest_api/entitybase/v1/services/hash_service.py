@@ -11,7 +11,7 @@ from models.data.infrastructure.s3.hashes.sitelinks_hashes import SitelinkHashes
 from models.data.infrastructure.s3.hashes.statements_hashes import StatementsHashes
 from models.data.infrastructure.s3.sitelink_data import S3SitelinkData
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
-from models.infrastructure.vitess.repositories.terms import TermsRepository
+from models.infrastructure.mysql.repositories.terms import TermsRepository
 from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.rest_api.entitybase.v1.service import Service
 from models.rest_api.entitybase.v1.services.statement_service import StatementService
@@ -75,10 +75,10 @@ class HashService(Service):
         """Hash label values, store in S3 and database."""
         hashes = {}
         logger.debug(
-            f"hash_labels: vitess_config={self.state.vitess_config is not None}, vitess_client={self.vitess_client is not None}"
+            f"hash_labels: mysql_config={self.state.mysql_config is not None}, mysql_client={self.mysql_client is not None}"
         )
-        if self.state.vitess_config:
-            terms_repo = TermsRepository(vitess_client=self.vitess_client)
+        if self.state.mysql_config:
+            terms_repo = TermsRepository(mysql_client=self.mysql_client)
             for lang, label_data in labels.items():
                 if "value" in label_data:
                     value = label_data["value"]
@@ -100,8 +100,8 @@ class HashService(Service):
     ) -> DescriptionsHashes:
         """Hash description values, store in S3 and database."""
         hashes = {}
-        if self.state.vitess_config:
-            terms_repo = TermsRepository(vitess_client=self.vitess_client)
+        if self.state.mysql_config:
+            terms_repo = TermsRepository(mysql_client=self.mysql_client)
             for lang, desc_data in descriptions.items():
                 if "value" in desc_data:
                     value = desc_data["value"]
@@ -119,8 +119,8 @@ class HashService(Service):
     ) -> AliasesHashes:
         """Hash alias values, store in S3 and database."""
         hashes = {}
-        if self.state.vitess_config:
-            terms_repo = TermsRepository(vitess_client=self.vitess_client)
+        if self.state.mysql_config:
+            terms_repo = TermsRepository(mysql_client=self.mysql_client)
             for lang, alias_list in aliases.items():
                 lang_hashes = []
                 for alias_data in alias_list:

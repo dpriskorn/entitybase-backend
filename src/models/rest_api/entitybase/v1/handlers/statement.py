@@ -175,17 +175,17 @@ class StatementHandler(Handler):
 
         Returns sorted list of properties used in entity statements.
         """
-        if self.state.vitess_client is None:
+        if self.state.mysql_client is None:
             raise_validation_error("database not initialized", status_code=503)
 
-        if not self.state.vitess_client.entity_exists(entity_id):
+        if not self.state.mysql_client.entity_exists(entity_id):
             raise_validation_error("Entity not found", status_code=404)
 
-        head_revision_id = self.state.vitess_client.get_head(entity_id)
+        head_revision_id = self.state.mysql_client.get_head(entity_id)
         if head_revision_id == 0:
             raise_validation_error("Entity has no revisions", status_code=404)
 
-        history = self.state.vitess_client.get_history(entity_id)
+        history = self.state.mysql_client.get_history(entity_id)
         revision_record = next(
             (r for r in history if r.revision_id == head_revision_id), None
         )
@@ -206,13 +206,13 @@ class StatementHandler(Handler):
 
         Returns dict mapping property ID -> count of statements.
         """
-        if self.state.vitess_client is None:
+        if self.state.mysql_client is None:
             raise_validation_error("database not initialized", status_code=503)
 
-        if not self.state.vitess_client.entity_exists(entity_id):
+        if not self.state.mysql_client.entity_exists(entity_id):
             raise_validation_error("Entity not found", status_code=404)
 
-        head_revision_id = self.state.vitess_client.get_head(entity_id)
+        head_revision_id = self.state.mysql_client.get_head(entity_id)
         if head_revision_id == 0:
             raise_validation_error("Entity has no revisions", status_code=404)
 
@@ -237,7 +237,7 @@ class StatementHandler(Handler):
         logger.debug(f"get_entity_property_hashes called for entity {entity_id}")
         self._validate_entity_access(entity_id)
 
-        head_revision_id = self.state.vitess_client.get_head(entity_id)
+        head_revision_id = self.state.mysql_client.get_head(entity_id)
         revision_metadata = self.state.s3_client.read_full_revision(
             entity_id, head_revision_id
         )
@@ -255,13 +255,13 @@ class StatementHandler(Handler):
 
     def _validate_entity_access(self, entity_id: str) -> None:
         """Validate entity exists and is accessible."""
-        if self.state.vitess_client is None:
+        if self.state.mysql_client is None:
             raise_validation_error("database not initialized", status_code=503)
 
-        if not self.state.vitess_client.entity_exists(entity_id):
+        if not self.state.mysql_client.entity_exists(entity_id):
             raise_validation_error("Entity not found", status_code=404)
 
-        head_revision_id = self.state.vitess_client.get_head(entity_id)
+        head_revision_id = self.state.mysql_client.get_head(entity_id)
         if head_revision_id == 0:
             raise_validation_error("Entity has no revisions", status_code=404)
 
@@ -317,10 +317,10 @@ class StatementHandler(Handler):
         - limit: Maximum number of statements to return (1-10000, default 100)
         - min_ref_count: Minimum ref_count threshold (default 1)
         """
-        if self.state.vitess_client is None:
+        if self.state.mysql_client is None:
             raise_validation_error("database not initialized", status_code=503)
 
-        statement_hashes = self.state.vitess_client.statement_repository.get_most_used(
+        statement_hashes = self.state.mysql_client.statement_repository.get_most_used(
             limit=limit, min_ref_count=min_ref_count
         )
         return MostUsedStatementsResponse(statements=statement_hashes)
@@ -334,14 +334,14 @@ class StatementHandler(Handler):
         Removes statements with ref_count <= 0 that are older than the specified days.
         Limited to the specified number to avoid long-running operations.
         """
-        if self.state.vitess_client is None:
+        if self.state.mysql_client is None:
             raise_validation_error("database not initialized", status_code=503)
 
         if self.state.s3_client is None:
             raise_validation_error("S3 not initialized", status_code=503)
 
         # Get orphaned statements older than specified days
-        orphaned_hashes = self.state.vitess_client.get_orphaned_statements(
+        orphaned_hashes = self.state.mysql_client.get_orphaned_statements(
             request.older_than_days, request.limit
         )
 
@@ -354,7 +354,7 @@ class StatementHandler(Handler):
                 # Delete from S3 first
                 self.state.s3_client.delete_statement(statement_hash)
                 # Then delete from database
-                self.state.vitess_client.delete_statement(statement_hash)
+                self.state.mysql_client.delete_statement(statement_hash)
                 cleaned_count += 1
                 logger.info(f"Cleaned up orphaned statement {statement_hash}")
             except Exception as e:

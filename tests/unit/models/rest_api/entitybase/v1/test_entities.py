@@ -9,7 +9,7 @@ class TestEntitiesEndpoints:
     @pytest.fixture
     def mock_clients(self):
         clients = MagicMock()
-        clients.vitess = MagicMock()
+        clients.mysql = MagicMock()
         clients.s3 = MagicMock()
         clients.stream_producer = MagicMock()
         clients.validator = MagicMock()

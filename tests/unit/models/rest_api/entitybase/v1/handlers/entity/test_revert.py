@@ -18,22 +18,22 @@ class TestEntityRevertHandlerResolveEntityId:
     @pytest.mark.asyncio
     async def test_resolve_entity_id_success(self) -> None:
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
-        mock_vitess.id_resolver.resolve_id.return_value = 42
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
+        mock_mysql.id_resolver.resolve_id.return_value = 42
 
         handler = EntityRevertHandler(state=mock_state)
         result = await handler._resolve_entity_id("Q42")
 
         assert result == 42
-        mock_vitess.id_resolver.resolve_id.assert_called_once_with("Q42")
+        mock_mysql.id_resolver.resolve_id.assert_called_once_with("Q42")
 
     @pytest.mark.asyncio
     async def test_resolve_entity_id_not_found(self) -> None:
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
-        mock_vitess.id_resolver.resolve_id.return_value = 0
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
+        mock_mysql.id_resolver.resolve_id.return_value = 0
 
         handler = EntityRevertHandler(state=mock_state)
         with pytest.raises(HTTPException) as exc_info:
@@ -49,24 +49,24 @@ class TestEntityRevertHandlerGetTargetRevision:
         from models.infrastructure.s3.revision.revision_data import RevisionData
 
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
 
         mock_revision = MagicMock(spec=RevisionData)
-        mock_vitess.revision_repository.get_revision.return_value = mock_revision
+        mock_mysql.revision_repository.get_revision.return_value = mock_revision
 
         handler = EntityRevertHandler(state=mock_state)
         result = await handler._get_target_revision("Q42", 1, 42)
 
         assert result is mock_revision
-        mock_vitess.revision_repository.get_revision.assert_called_once_with(42, 1)
+        mock_mysql.revision_repository.get_revision.assert_called_once_with(42, 1)
 
     @pytest.mark.asyncio
     async def test_get_target_revision_not_found(self) -> None:
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
-        mock_vitess.revision_repository.get_revision.return_value = None
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
+        mock_mysql.revision_repository.get_revision.return_value = None
 
         handler = EntityRevertHandler(state=mock_state)
         with pytest.raises(HTTPException) as exc_info:
@@ -103,9 +103,9 @@ class TestEntityRevertHandlerGetHeadRevision:
         from models.data.common import OperationResult
 
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
-        mock_vitess.head_repository.get_head_revision.return_value = OperationResult(
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
+        mock_mysql.head_repository.get_head_revision.return_value = OperationResult(
             success=True, data=5
         )
 
@@ -113,16 +113,16 @@ class TestEntityRevertHandlerGetHeadRevision:
         result = await handler._get_head_revision(42)
 
         assert result == 5
-        mock_vitess.head_repository.get_head_revision.assert_called_once_with(42)
+        mock_mysql.head_repository.get_head_revision.assert_called_once_with(42)
 
     @pytest.mark.asyncio
     async def test_get_head_revision_failure(self) -> None:
         from models.data.common import OperationResult
 
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
-        mock_vitess.head_repository.get_head_revision.return_value = OperationResult(
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
+        mock_mysql.head_repository.get_head_revision.return_value = OperationResult(
             success=False, error="DB error"
         )
 
@@ -136,9 +136,9 @@ class TestEntityRevertHandlerGetHeadRevision:
         from models.data.common import OperationResult
 
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
-        mock_vitess.head_repository.get_head_revision.return_value = OperationResult(
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
+        mock_mysql.head_repository.get_head_revision.return_value = OperationResult(
             success=True, data=None
         )
 
@@ -280,11 +280,11 @@ class TestEntityRevertHandlerStoreRevision:
         from models.infrastructure.s3.revision.revision_data import RevisionData
 
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
-        mock_vitess.insert_revision.return_value = True
+        mock_mysql.insert_revision.return_value = True
 
         mock_revision_data = MagicMock(spec=RevisionData)
         mock_revision_data.model_dump.return_value = {"key": "value"}
@@ -306,19 +306,19 @@ class TestEntityRevertHandlerStoreRevision:
         mock_s3.store_revision.assert_called_once()
         stored_args = mock_s3.store_revision.call_args[0]
         assert stored_args[0] == 999
-        mock_vitess.insert_revision.assert_called_once_with(
+        mock_mysql.insert_revision.assert_called_once_with(
             "Q42", 11, mock_revision_data, 999
         )
 
     @pytest.mark.asyncio
     async def test_store_revision_conflict(self) -> None:
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
-        mock_vitess.insert_revision.return_value = False
-        mock_vitess.get_head.return_value = 15
+        mock_mysql.insert_revision.return_value = False
+        mock_mysql.get_head.return_value = 15
 
         mock_revision_data = MagicMock()
         mock_revision_data.model_dump.return_value = {"key": "value"}
@@ -337,7 +337,7 @@ class TestEntityRevertHandlerStoreRevision:
             with pytest.raises(HTTPException) as exc_info:
                 await handler._store_revision("Q42", 11, mock_revision_data)
         assert exc_info.value.status_code == 409
-        mock_vitess.get_head.assert_called_once_with("Q42")
+        mock_mysql.get_head.assert_called_once_with("Q42")
 
 
 class TestEntityRevertHandlerPublishChangeEvent:
@@ -436,9 +436,9 @@ class TestEntityRevertHandlerRevertEntity:
             mock_read_s3.return_value = self._make_s3_mock()
             mock_head.return_value = 10
             mock_store.return_value = 999
-            mock_vitess = MagicMock()
-            mock_state.vitess_client = mock_vitess
-            mock_vitess.user_repository.log_user_activity.return_value = MagicMock(
+            mock_mysql = MagicMock()
+            mock_state.mysql_client = mock_mysql
+            mock_mysql.user_repository.log_user_activity.return_value = MagicMock(
                 success=True
             )
 
@@ -458,9 +458,9 @@ class TestEntityRevertHandlerRevertEntity:
     @pytest.mark.asyncio
     async def test_revert_entity_logs_user_activity_success(self) -> None:
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
-        mock_vitess.user_repository.log_user_activity.return_value = MagicMock(
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
+        mock_mysql.user_repository.log_user_activity.return_value = MagicMock(
             success=True
         )
         handler = EntityRevertHandler(state=mock_state)
@@ -495,7 +495,7 @@ class TestEntityRevertHandlerRevertEntity:
 
             response = await handler.revert_entity("Q42", request, edit_headers)
 
-        mock_vitess.user_repository.log_user_activity.assert_called_once_with(
+        mock_mysql.user_repository.log_user_activity.assert_called_once_with(
             user_id=456,
             activity_type="entity_revert",
             entity_id="Q42",
@@ -506,9 +506,9 @@ class TestEntityRevertHandlerRevertEntity:
     @pytest.mark.asyncio
     async def test_revert_entity_logs_user_activity_failure(self) -> None:
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
-        mock_vitess.user_repository.log_user_activity.return_value = MagicMock(
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
+        mock_mysql.user_repository.log_user_activity.return_value = MagicMock(
             success=False, error="DB err"
         )
         handler = EntityRevertHandler(state=mock_state)
@@ -548,8 +548,8 @@ class TestEntityRevertHandlerRevertEntity:
     @pytest.mark.asyncio
     async def test_revert_entity_skips_user_activity_when_anonymous(self) -> None:
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
         handler = EntityRevertHandler(state=mock_state)
         request = EntityRevertRequest(to_revision_id=1)
         edit_headers = EditHeaders(x_user_id=0, x_edit_summary="revert")
@@ -582,7 +582,7 @@ class TestEntityRevertHandlerRevertEntity:
 
             response = await handler.revert_entity("Q42", request, edit_headers)
 
-        mock_vitess.user_repository.log_user_activity.assert_not_called()
+        mock_mysql.user_repository.log_user_activity.assert_not_called()
         assert response.new_revision_id == 6
 
     @pytest.mark.asyncio

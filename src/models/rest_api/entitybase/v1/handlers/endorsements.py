@@ -31,7 +31,7 @@ class EndorsementHandler(Handler):
         logger.debug(f"Endorsing statement {statement_hash} for user {user_id}")
         self._validate_user(user_id)
 
-        result = self.state.vitess_client.endorsement_repository.create_endorsement(
+        result = self.state.mysql_client.endorsement_repository.create_endorsement(
             user_id, statement_hash
         )
         if not result.success:
@@ -45,7 +45,7 @@ class EndorsementHandler(Handler):
         )
 
         # Log activity
-        activity_result = self.state.vitess_client.user_repository.log_user_activity(
+        activity_result = self.state.mysql_client.user_repository.log_user_activity(
             user_id=user_id,
             activity_type=UserActivityType.ENDORSEMENT_GIVEN,
             entity_id="",
@@ -71,7 +71,7 @@ class EndorsementHandler(Handler):
         )
         self._validate_user(user_id)
 
-        result = self.state.vitess_client.endorsement_repository.withdraw_endorsement(
+        result = self.state.mysql_client.endorsement_repository.withdraw_endorsement(
             user_id, statement_hash
         )
         if not result.success:
@@ -85,7 +85,7 @@ class EndorsementHandler(Handler):
         )
 
         # Log activity
-        activity_result = self.state.vitess_client.user_repository.log_user_activity(
+        activity_result = self.state.mysql_client.user_repository.log_user_activity(
             user_id=user_id,
             activity_type=UserActivityType.ENDORSEMENT_WITHDRAWN,
             entity_id="",
@@ -107,7 +107,7 @@ class EndorsementHandler(Handler):
     def _validate_user(self, user_id: int) -> None:
         """Validate that user exists."""
         logger.debug("Validating user exists")
-        if not self.state.vitess_client.user_repository.user_exists(user_id):
+        if not self.state.mysql_client.user_repository.user_exists(user_id):
             raise_validation_error("User not registered", status_code=404)
 
     def _handle_endorsement_error(self, error: str | None, action: str) -> None:
@@ -123,7 +123,7 @@ class EndorsementHandler(Handler):
     ) -> StatementEndorsementResponse:
         """Get and validate endorsement details."""
         endorsements_result = (
-            self.state.vitess_client.endorsement_repository.get_statement_endorsements(
+            self.state.mysql_client.endorsement_repository.get_statement_endorsements(
                 statement_hash, limit=1, offset=0, include_removed=True
             )
         )
@@ -178,7 +178,7 @@ class EndorsementHandler(Handler):
         """Get endorsements for a statement."""
         logger.debug(f"Getting endorsements for statement {statement_hash}")
         result = (
-            self.state.vitess_client.endorsement_repository.get_statement_endorsements(
+            self.state.mysql_client.endorsement_repository.get_statement_endorsements(
                 statement_hash, request.limit, request.offset, request.include_removed
             )
         )
@@ -188,7 +188,7 @@ class EndorsementHandler(Handler):
             )
 
         # Get stats for this statement
-        stats_result = self.state.vitess_client.endorsement_repository.get_batch_statement_endorsement_stats(
+        stats_result = self.state.mysql_client.endorsement_repository.get_batch_statement_endorsement_stats(
             [statement_hash]
         )
         if not stats_result.success:
@@ -229,10 +229,10 @@ class EndorsementHandler(Handler):
     ) -> EndorsementListResponse:
         """Get endorsements given by a user."""
         # Validate user exists
-        if not self.state.vitess_client.user_repository.user_exists(user_id):  # type: ignore[union-attr]
+        if not self.state.mysql_client.user_repository.user_exists(user_id):  # type: ignore[union-attr]
             raise_validation_error("User not registered", status_code=404)
 
-        result = self.state.vitess_client.endorsement_repository.get_user_endorsements(
+        result = self.state.mysql_client.endorsement_repository.get_user_endorsements(
             user_id, request.limit, request.offset, request.include_removed
         )
         if not result.success:
@@ -252,11 +252,11 @@ class EndorsementHandler(Handler):
     def get_user_endorsement_stats(self, user_id: int) -> EndorsementStatsResponse:
         """Get endorsement statistics for a user."""
         # Validate user exists
-        if not self.state.vitess_client.user_repository.user_exists(user_id):  # type: ignore[union-attr]
+        if not self.state.mysql_client.user_repository.user_exists(user_id):  # type: ignore[union-attr]
             raise_validation_error("User not registered", status_code=404)
 
         result = (
-            self.state.vitess_client.endorsement_repository.get_user_endorsement_stats(
+            self.state.mysql_client.endorsement_repository.get_user_endorsement_stats(
                 user_id
             )
         )
@@ -284,7 +284,7 @@ class EndorsementHandler(Handler):
             if statement_hash <= 0:
                 raise_validation_error("Invalid statement hash", status_code=400)
 
-        result = self.state.vitess_client.endorsement_repository.get_batch_statement_endorsement_stats(
+        result = self.state.mysql_client.endorsement_repository.get_batch_statement_endorsement_stats(
             statement_hashes
         )
         if not result.success:

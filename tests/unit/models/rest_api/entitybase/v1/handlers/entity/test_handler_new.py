@@ -119,10 +119,10 @@ class TestEntityHandlerNew:
             entity_id="Q42",
             request_data={},
             entity_type=EntityType.ITEM,
-            vitess_client=MagicMock(),
+            mysql_client=MagicMock(),
             s3_client=MagicMock(),
         )
-        ctx.vitess_client.get_head.return_value = 0
+        ctx.mysql_client.get_head.return_value = 0
 
         result = await EntityHandler._check_idempotency_new(ctx)
 
@@ -132,15 +132,15 @@ class TestEntityHandlerNew:
     async def test_create_revision_new_success(self) -> None:
         """Test _create_revision_new successful path."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
 
         handler = EntityHandler(state=mock_state)
 
-        mock_vitess.get_head.return_value = 5
-        mock_vitess.create_revision.return_value = True
+        mock_mysql.get_head.return_value = 5
+        mock_mysql.create_revision.return_value = True
 
         ctx = RevisionContext(
             entity_id="Q42",
@@ -148,7 +148,7 @@ class TestEntityHandlerNew:
             entity_type=EntityType.ITEM,
             edit_type=EditType.MANUAL_UPDATE,
             edit_summary="Test edit",
-            vitess_client=mock_vitess,
+            mysql_client=mock_mysql,
             s3_client=mock_s3,
         )
 
@@ -187,7 +187,7 @@ class TestEntityHandlerNew:
 
                         assert result.success is True
                         assert result.revision_id == 6
-                        mock_vitess.create_revision.assert_called_once_with(
+                        mock_mysql.create_revision.assert_called_once_with(
                             entity_id="Q42",
                             entity_data=mock_build.return_value,
                             revision_id=6,
@@ -199,16 +199,16 @@ class TestEntityHandlerNew:
     async def test_create_revision_new_conflict(self) -> None:
         """Test _create_revision_new when revision creation fails due to conflict."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
 
         handler = EntityHandler(state=mock_state)
 
-        mock_vitess.get_head.return_value = 5
-        mock_vitess.create_revision.return_value = False
-        mock_vitess.get_head.return_value = 6
+        mock_mysql.get_head.return_value = 5
+        mock_mysql.create_revision.return_value = False
+        mock_mysql.get_head.return_value = 6
 
         ctx = RevisionContext(
             entity_id="Q42",
@@ -216,7 +216,7 @@ class TestEntityHandlerNew:
             entity_type=EntityType.ITEM,
             edit_type=EditType.MANUAL_UPDATE,
             edit_summary="Test edit",
-            vitess_client=mock_vitess,
+            mysql_client=mock_mysql,
             s3_client=mock_s3,
             base_revision_id=5,
         )
@@ -251,20 +251,20 @@ class TestEntityHandlerNew:
     async def test_create_revision_new_exception(self) -> None:
         """Test _create_revision_new when an exception occurs."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
 
         handler = EntityHandler(state=mock_state)
 
-        mock_vitess.get_head.side_effect = Exception("DB connection failed")
+        mock_mysql.get_head.side_effect = Exception("DB connection failed")
 
         ctx = RevisionContext(
             entity_id="Q42",
             request_data={},
             entity_type=EntityType.ITEM,
-            vitess_client=mock_vitess,
+            mysql_client=mock_mysql,
             s3_client=mock_s3,
         )
 
@@ -468,9 +468,9 @@ class TestEntityHandlerNew:
     async def test_process_entity_revision_new_flow(self) -> None:
         """Test the full process_entity_revision_new flow with mocks."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
 
         handler = EntityHandler(state=mock_state)
@@ -502,8 +502,8 @@ class TestEntityHandlerNew:
             created_at="2023-01-01T12:00:00Z",
         )
 
-        mock_vitess.get_head.return_value = 0
-        mock_vitess.create_revision.return_value = True
+        mock_mysql.get_head.return_value = 0
+        mock_mysql.create_revision.return_value = True
         mock_s3.read_revision.return_value = s3_revision_data
 
         with patch.object(

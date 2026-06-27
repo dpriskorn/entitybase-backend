@@ -480,7 +480,7 @@ class TestStatementService:
         mock_snak_handler.store_snak.return_value = 999
         mock_stmt_repo = MagicMock()
         mock_stmt_repo.increment_ref_count.return_value = OperationResult(success=True)
-        service.state.vitess_client.statement_repository = mock_stmt_repo
+        service.state.mysql_client.statement_repository = mock_stmt_repo
         service.state.s3_client.read_statement.return_value = {"hash": 12345}
         mock_snak_handler_instance = mock_snak_handler
 
@@ -525,7 +525,7 @@ class TestStatementService:
         mock_snak_handler.store_snak.return_value = 999
         mock_stmt_repo = MagicMock()
         mock_stmt_repo.increment_ref_count.return_value = OperationResult(success=True)
-        service.state.vitess_client.statement_repository = mock_stmt_repo
+        service.state.mysql_client.statement_repository = mock_stmt_repo
         service.state.s3_client.read_statement.side_effect = Exception("Not found")
         service.state.s3_client.write_statement.return_value = None
 
@@ -604,7 +604,7 @@ class TestStatementService:
         mock_snak_handler.store_snak.return_value = 999
         mock_stmt_repo = MagicMock()
         mock_stmt_repo.increment_ref_count.return_value = OperationResult(success=False)
-        service.state.vitess_client.statement_repository = mock_stmt_repo
+        service.state.mysql_client.statement_repository = mock_stmt_repo
         service.state.s3_client.read_statement.return_value = {"hash": 12345}
 
         with (

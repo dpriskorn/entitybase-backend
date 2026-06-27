@@ -61,10 +61,10 @@ def validate_env_vars():
     import os
 
     required_vars = {
-        "VITESS_HOST": "Sql database host",
-        "VITESS_PORT": "Sql database port",
-        "VITESS_DATABASE": "Sql database name",
-        "VITESS_USER": "Sql database user",
+        "MYSQL_HOST": "Sql database host",
+        "MYSQL_PORT": "Sql database port",
+        "MYSQL_DATABASE": "Sql database name",
+        "MYSQL_USER": "Sql database user",
         "S3_ENDPOINT": "S3 storage endpoint URL",
         "S3_ACCESS_KEY": "S3 access key",
         "S3_SECRET_KEY": "S3 secret key",
@@ -104,7 +104,7 @@ def db_conn():
     start_time = time_module.time()
     logger.debug("=== db_conn fixture START ===")
     logger.debug(
-        f"Attempting to connect to: host='{settings.vitess_host}', port={settings.vitess_port}, user='{settings.vitess_user}', database='{settings.vitess_database}'"
+        f"Attempting to connect to: host='{settings.mysql_host}', port={settings.mysql_port}, user='{settings.mysql_user}', database='{settings.mysql_database}'"
     )
 
     # Wait for DB to be ready - optimized retry logic
@@ -117,11 +117,11 @@ def db_conn():
                 f"Attempt {attempt + 1}/{max_retries}: Connecting to database..."
             )
             conn = pymysql.connect(
-                host=settings.vitess_host,
-                port=settings.vitess_port,
-                user=settings.vitess_user,
-                password=settings.vitess_password,
-                database=settings.vitess_database,
+                host=settings.mysql_host,
+                port=settings.mysql_port,
+                user=settings.mysql_user,
+                password=settings.mysql_password,
+                database=settings.mysql_database,
                 connect_timeout=2,
             )
             logger.debug(
@@ -202,17 +202,17 @@ def db_cleanup(db_conn):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def create_tables(vitess_client):
+def create_tables(mysql_client):
     """Create database tables before running integration tests."""
     import time as time_module
 
     start_time = time_module.time()
     logger.debug("=== create_tables fixture START ===")
     try:
-        from models.infrastructure.vitess.repositories.schema import SchemaRepository
+        from models.infrastructure.mysql.repositories.schema import SchemaRepository
 
         schema_start = time_module.time()
-        schema_repository = SchemaRepository(vitess_client=vitess_client)
+        schema_repository = SchemaRepository(mysql_client=mysql_client)
         schema_repository.create_tables()
         logger.debug(
             f"Schema tables created in {(time_module.time() - schema_start):.2f}s"
@@ -229,11 +229,11 @@ def create_tables(vitess_client):
 
             fallback_start = time_module.time()
             conn = pymysql.connect(
-                host=settings.vitess_host,
-                port=settings.vitess_port,
-                user=settings.vitess_user,
-                password=settings.vitess_password,
-                database=settings.vitess_database,
+                host=settings.mysql_host,
+                port=settings.mysql_port,
+                user=settings.mysql_user,
+                password=settings.mysql_password,
+                database=settings.mysql_database,
                 connect_timeout=2,
             )
             with conn.cursor() as cursor:
@@ -295,37 +295,37 @@ def create_tables(vitess_client):
 
 
 @pytest.fixture(scope="session")
-def vitess_client():
-    """Create a real VitessClient connected to test database."""
+def mysql_client():
+    """Create a real MysqlClient connected to test database."""
     import time as time_module
 
     start_time = time_module.time()
-    logger.debug("=== vitess_client fixture START ===")
-    logger.debug(f"pytest:vitess_client: Running")
-    from models.infrastructure.vitess.client import VitessClient
-    from models.data.config.vitess import VitessConfig
+    logger.debug("=== mysql_client fixture START ===")
+    logger.debug(f"pytest:mysql_client: Running")
+    from models.infrastructure.mysql.client import MysqlClient
+    from models.data.config.mysql import MysqlConfig
 
     # Create a test-specific config with smaller pool for faster tests
-    vitess_config = VitessConfig(
-        host=settings.vitess_host,
-        port=settings.vitess_port,
-        database=settings.vitess_database,
-        user=settings.vitess_user,
-        password=settings.vitess_password,
+    mysql_config = MysqlConfig(
+        host=settings.mysql_host,
+        port=settings.mysql_port,
+        database=settings.mysql_database,
+        user=settings.mysql_user,
+        password=settings.mysql_password,
         pool_size=20,
         max_overflow=20,
         pool_timeout=5,
     )
     logger.debug(
-        f"Sql config: host='{vitess_config.host}', port={vitess_config.port}, database='{vitess_config.database}'"
+        f"Sql config: host='{mysql_config.host}', port={mysql_config.port}, database='{mysql_config.database}'"
     )
 
     client_start = time_module.time()
-    client = VitessClient(config=vitess_config)
-    logger.debug(f"VitessClient created in {(time_module.time() - client_start):.2f}s")
+    client = MysqlClient(config=mysql_config)
+    logger.debug(f"MysqlClient created in {(time_module.time() - client_start):.2f}s")
 
     logger.debug(
-        f"=== vitess_client fixture END total time: {(time_module.time() - start_time):.2f}s ==="
+        f"=== mysql_client fixture END total time: {(time_module.time() - start_time):.2f}s ==="
     )
     yield client
 
@@ -335,16 +335,16 @@ def vitess_client():
 @pytest.fixture(scope="function")
 def connection_manager():
     """Create a SqlConnectionManager for testing connection pool behavior."""
-    from models.infrastructure.vitess.connection import SqlConnectionManager
-    from models.data.config.vitess import VitessConfig
+    from models.infrastructure.mysql.connection import SqlConnectionManager
+    from models.data.config.mysql import MysqlConfig
 
     # Use settings config but with smaller timeouts for faster tests
-    test_config = VitessConfig(
-        host=settings.vitess_host,
-        port=settings.vitess_port,
-        database=settings.vitess_database,
-        user=settings.vitess_user,
-        password=settings.vitess_password,
+    test_config = MysqlConfig(
+        host=settings.mysql_host,
+        port=settings.mysql_port,
+        database=settings.mysql_database,
+        user=settings.mysql_user,
+        password=settings.mysql_password,
         pool_size=20,
         max_overflow=20,
         pool_timeout=5,
@@ -415,7 +415,7 @@ def create_s3_buckets(s3_config):
 
 
 @pytest.fixture(scope="session")
-def s3_client(s3_config, vitess_client):
+def s3_client(s3_config, mysql_client):
     """Create real MyS3Client connected to Minio."""
     import time as time_module
     from models.infrastructure.s3.client import MyS3Client
@@ -429,7 +429,7 @@ def s3_client(s3_config, vitess_client):
         attempt_start = time_module.time()
         try:
             logger.debug(f"Attempt {attempt + 1}/{max_retries}: Connecting to S3...")
-            client = MyS3Client(config=s3_config, vitess_client=vitess_client)
+            client = MyS3Client(config=s3_config, mysql_client=mysql_client)
             logger.debug(
                 f"pytest:s3_client: Connected to S3 at attempt {attempt + 1} in {(time_module.time() - attempt_start):.2f}s"
             )
@@ -453,7 +453,7 @@ def s3_client(s3_config, vitess_client):
 
 
 @pytest.fixture(scope="session", autouse=True)
-async def initialized_app(vitess_client, s3_client, create_s3_buckets):
+async def initialized_app(mysql_client, s3_client, create_s3_buckets):
     """Initialize the FastAPI app with state_handler for integration tests.
 
     This fixture ensures that app.state.state_handler is properly initialized

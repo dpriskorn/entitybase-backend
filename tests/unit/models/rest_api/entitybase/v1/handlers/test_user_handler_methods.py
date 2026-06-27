@@ -13,7 +13,7 @@ class TestUserHandlerMethods:
     def mock_state(self):
         """Create a mock state object."""
         state = MagicMock()
-        state.vitess_client = MagicMock()
+        state.mysql_client = MagicMock()
         state.user_change_stream_producer = None
         return state
 
@@ -30,8 +30,8 @@ class TestUserHandlerMethods:
         """Test create_user creates a new user."""
         from models.data.rest_api.v1.entitybase.request import UserCreateRequest
 
-        mock_state.vitess_client.user_repository.user_exists.return_value = False
-        mock_state.vitess_client.user_repository.create_user.return_value = MagicMock(
+        mock_state.mysql_client.user_repository.user_exists.return_value = False
+        mock_state.mysql_client.user_repository.create_user.return_value = MagicMock(
             success=True
         )
         request = UserCreateRequest(user_id=42)
@@ -46,7 +46,7 @@ class TestUserHandlerMethods:
         """Test create_user when user already exists."""
         from models.data.rest_api.v1.entitybase.request import UserCreateRequest
 
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
+        mock_state.mysql_client.user_repository.user_exists.return_value = True
         request = UserCreateRequest(user_id=42)
 
         result = await handler.create_user(request)
@@ -59,8 +59,8 @@ class TestUserHandlerMethods:
         """Test create_user when creation fails."""
         from models.data.rest_api.v1.entitybase.request import UserCreateRequest
 
-        mock_state.vitess_client.user_repository.user_exists.return_value = False
-        mock_state.vitess_client.user_repository.create_user.return_value = MagicMock(
+        mock_state.mysql_client.user_repository.user_exists.return_value = False
+        mock_state.mysql_client.user_repository.create_user.return_value = MagicMock(
             success=False, error="DB error"
         )
         request = UserCreateRequest(user_id=42)
@@ -73,8 +73,8 @@ class TestUserHandlerMethods:
     @pytest.mark.asyncio
     async def test_delete_user_success(self, handler, mock_state):
         """Test delete_user success."""
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
-        mock_state.vitess_client.user_repository.delete_user.return_value = MagicMock(
+        mock_state.mysql_client.user_repository.user_exists.return_value = True
+        mock_state.mysql_client.user_repository.delete_user.return_value = MagicMock(
             success=True
         )
 
@@ -83,7 +83,7 @@ class TestUserHandlerMethods:
     @pytest.mark.asyncio
     async def test_delete_user_not_found(self, handler, mock_state):
         """Test delete_user when user not found."""
-        mock_state.vitess_client.user_repository.user_exists.return_value = False
+        mock_state.mysql_client.user_repository.user_exists.return_value = False
 
         with pytest.raises(HTTPException) as exc_info:
             await handler.delete_user(999)
@@ -93,8 +93,8 @@ class TestUserHandlerMethods:
     @pytest.mark.asyncio
     async def test_delete_user_failure(self, handler, mock_state):
         """Test delete_user when deletion fails."""
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
-        mock_state.vitess_client.user_repository.delete_user.return_value = MagicMock(
+        mock_state.mysql_client.user_repository.user_exists.return_value = True
+        mock_state.mysql_client.user_repository.delete_user.return_value = MagicMock(
             success=False, error="DB error"
         )
 
@@ -108,7 +108,7 @@ class TestUserHandlerMethods:
         from models.data.rest_api.v1.entitybase.response import UserResponse
 
         user = UserResponse(user_id=1, created_at=datetime.now(timezone.utc))
-        mock_state.vitess_client.user_repository.get_user.return_value = user
+        mock_state.mysql_client.user_repository.get_user.return_value = user
 
         result = handler.get_user(1)
 
@@ -116,7 +116,7 @@ class TestUserHandlerMethods:
 
     def test_get_user_not_found(self, handler, mock_state):
         """Test get_user when user not found."""
-        mock_state.vitess_client.user_repository.get_user.return_value = None
+        mock_state.mysql_client.user_repository.get_user.return_value = None
 
         with pytest.raises(HTTPException) as exc_info:
             handler.get_user(999)
@@ -125,7 +125,7 @@ class TestUserHandlerMethods:
 
     def test_get_user_wrong_type(self, handler, mock_state):
         """Test get_user when repo returns wrong type."""
-        mock_state.vitess_client.user_repository.get_user.return_value = "not_a_user"
+        mock_state.mysql_client.user_repository.get_user.return_value = "not_a_user"
 
         with pytest.raises(HTTPException) as exc_info:
             handler.get_user(1)
@@ -137,8 +137,8 @@ class TestUserHandlerMethods:
         """Test toggle_watchlist enables watchlist."""
         from models.data.rest_api.v1.entitybase.request import WatchlistToggleRequest
 
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
-        mock_state.vitess_client.user_repository.enable_watchlist.return_value = (
+        mock_state.mysql_client.user_repository.user_exists.return_value = True
+        mock_state.mysql_client.user_repository.enable_watchlist.return_value = (
             MagicMock(success=True)
         )
         mock_request = WatchlistToggleRequest(enabled=True)
@@ -152,8 +152,8 @@ class TestUserHandlerMethods:
         """Test toggle_watchlist disables watchlist."""
         from models.data.rest_api.v1.entitybase.request import WatchlistToggleRequest
 
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
-        mock_state.vitess_client.user_repository.disable_watchlist.return_value = (
+        mock_state.mysql_client.user_repository.user_exists.return_value = True
+        mock_state.mysql_client.user_repository.disable_watchlist.return_value = (
             MagicMock(success=True)
         )
         mock_request = WatchlistToggleRequest(enabled=False)
@@ -167,7 +167,7 @@ class TestUserHandlerMethods:
         """Test toggle_watchlist when user not found."""
         from models.data.rest_api.v1.entitybase.request import WatchlistToggleRequest
 
-        mock_state.vitess_client.user_repository.user_exists.return_value = False
+        mock_state.mysql_client.user_repository.user_exists.return_value = False
         mock_request = WatchlistToggleRequest(enabled=True)
 
         with pytest.raises(HTTPException) as exc_info:
@@ -180,8 +180,8 @@ class TestUserHandlerMethods:
         """Test toggle_watchlist when repo fails."""
         from models.data.rest_api.v1.entitybase.request import WatchlistToggleRequest
 
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
-        mock_state.vitess_client.user_repository.enable_watchlist.return_value = (
+        mock_state.mysql_client.user_repository.user_exists.return_value = True
+        mock_state.mysql_client.user_repository.enable_watchlist.return_value = (
             MagicMock(success=False, error="DB error")
         )
         mock_request = WatchlistToggleRequest(enabled=True)
@@ -199,7 +199,7 @@ class TestUserHandlerMethods:
         mock_cursor.fetchone.return_value = (date(2024, 1, 1), 100, 50)
         mock_connection = MagicMock()
         mock_connection.cursor.return_value = mock_cursor
-        mock_state.vitess_client.connection_manager.acquire.return_value = (
+        mock_state.mysql_client.connection_manager.acquire.return_value = (
             mock_connection
         )
 
@@ -215,7 +215,7 @@ class TestUserHandlerMethods:
         mock_cursor.fetchone.return_value = None
         mock_connection = MagicMock()
         mock_connection.cursor.return_value = mock_cursor
-        mock_state.vitess_client.connection_manager.acquire.return_value = (
+        mock_state.mysql_client.connection_manager.acquire.return_value = (
             mock_connection
         )
 
@@ -317,7 +317,7 @@ class TestUserHandlerMethods:
         )
         mock_connection = MagicMock()
         mock_connection.cursor.return_value = mock_cursor
-        mock_state.vitess_client.connection_manager.acquire.return_value = (
+        mock_state.mysql_client.connection_manager.acquire.return_value = (
             mock_connection
         )
 
@@ -332,7 +332,7 @@ class TestUserHandlerMethods:
         mock_cursor.fetchone.return_value = None
         mock_connection = MagicMock()
         mock_connection.cursor.return_value = mock_cursor
-        mock_state.vitess_client.connection_manager.acquire.return_value = (
+        mock_state.mysql_client.connection_manager.acquire.return_value = (
             mock_connection
         )
 

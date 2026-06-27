@@ -87,9 +87,9 @@ class TestStateHandlerProperties:
 
         assert handler.s3_config == "s3_config"
 
-    def test_vitess_config(self) -> None:
+    def test_mysql_config(self) -> None:
         mock_settings = MagicMock()
-        mock_settings.get_vitess_config = "vitess_config"
+        mock_settings.get_mysql_config = "mysql_config"
         handler = StateHandler.model_construct(settings=mock_settings)
 
-        assert handler.vitess_config == "vitess_config"
+        assert handler.mysql_config == "mysql_config"

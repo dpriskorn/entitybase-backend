@@ -21,7 +21,7 @@ class EnumerationService(BaseModel):
     """
 
     worker_id: str
-    vitess_client: Any
+    mysql_client: Any
     range_manager: Any = Field(default=None, exclude=True)
 
     def model_post_init(self, context: Any) -> None:
@@ -33,7 +33,7 @@ class EnumerationService(BaseModel):
             "E": 50_000,
         }
         self.range_manager = IdRangeManager(
-            vitess_client=self.vitess_client, min_ids=min_ids
+            mysql_client=self.mysql_client, min_ids=min_ids
         )
         self.range_manager.set_worker_id(self.worker_id)
 

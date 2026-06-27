@@ -25,21 +25,21 @@ class TestStatementHandler:
         """Test _validate_entity_access with valid entity."""
         from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
 
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.get_head.return_value = 123
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.get_head.return_value = 123
 
         StatementHandler._validate_entity_access(mock_handler, "Q42")
 
-        mock_state.vitess_client.entity_exists.assert_called_once_with("Q42")
-        mock_state.vitess_client.get_head.assert_called_once_with("Q42")
+        mock_state.mysql_client.entity_exists.assert_called_once_with("Q42")
+        mock_state.mysql_client.get_head.assert_called_once_with("Q42")
 
-    def test_validate_entity_access_vitess_not_initialized(
+    def test_validate_entity_access_mysql_not_initialized(
         self, mock_handler, mock_state
     ):
         """Test _validate_entity_access when Sql is not initialized."""
         from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
 
-        mock_state.vitess_client = None
+        mock_state.mysql_client = None
 
         with pytest.raises(HTTPException) as exc_info:
             StatementHandler._validate_entity_access(mock_handler, "Q42")
@@ -50,7 +50,7 @@ class TestStatementHandler:
         """Test _validate_entity_access when entity doesn't exist."""
         from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
 
-        mock_state.vitess_client.entity_exists.return_value = False
+        mock_state.mysql_client.entity_exists.return_value = False
 
         with pytest.raises(HTTPException) as exc_info:
             StatementHandler._validate_entity_access(mock_handler, "Q999")
@@ -62,8 +62,8 @@ class TestStatementHandler:
         """Test _validate_entity_access when entity has no revisions."""
         from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
 
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.get_head.return_value = 0
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.get_head.return_value = 0
 
         with pytest.raises(HTTPException) as exc_info:
             StatementHandler._validate_entity_access(mock_handler, "Q42")
@@ -145,8 +145,8 @@ class TestStatementHandler:
         # Just verify that validation passes
         from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
 
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.get_head.return_value = 123
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.get_head.return_value = 123
 
         # This should not raise
         StatementHandler._validate_entity_access(mock_handler, "Q42")
@@ -160,8 +160,8 @@ class TestStatementHandler:
         # Similar - just verify validation works
         from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
 
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.get_head.return_value = 123
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.get_head.return_value = 123
 
         StatementHandler._validate_entity_access(mock_handler, "Q42")
 
@@ -440,11 +440,11 @@ class TestGetEntityProperties:
         handler = StatementHandler(state=mock_state)
         return handler
 
-    def test_get_entity_properties_vitess_not_initialized(
+    def test_get_entity_properties_mysql_not_initialized(
         self, mock_handler, mock_state
     ):
         """Test get_entity_properties raises 503 when Sql not initialized."""
-        mock_state.vitess_client = None
+        mock_state.mysql_client = None
 
         with pytest.raises(HTTPException) as exc_info:
             mock_handler.get_entity_properties("Q42")
@@ -453,7 +453,7 @@ class TestGetEntityProperties:
 
     def test_get_entity_properties_entity_not_found(self, mock_handler, mock_state):
         """Test get_entity_properties raises 404 when entity not found."""
-        mock_state.vitess_client.entity_exists.return_value = False
+        mock_state.mysql_client.entity_exists.return_value = False
 
         with pytest.raises(HTTPException) as exc_info:
             mock_handler.get_entity_properties("Q999")
@@ -462,8 +462,8 @@ class TestGetEntityProperties:
 
     def test_get_entity_properties_no_revisions(self, mock_handler, mock_state):
         """Test get_entity_properties raises 404 when entity has no revisions."""
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.get_head.return_value = 0
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.get_head.return_value = 0
 
         with pytest.raises(HTTPException) as exc_info:
             mock_handler.get_entity_properties("Q42")
@@ -472,11 +472,11 @@ class TestGetEntityProperties:
 
     def test_get_entity_properties_head_not_in_history(self, mock_handler, mock_state):
         """Test get_entity_properties raises 404 when head revision not in history."""
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.get_head.return_value = 5
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.get_head.return_value = 5
         mock_revision = MagicMock()
         mock_revision.revision_id = 3
-        mock_state.vitess_client.get_history.return_value = [mock_revision]
+        mock_state.mysql_client.get_history.return_value = [mock_revision]
 
         with pytest.raises(HTTPException) as exc_info:
             mock_handler.get_entity_properties("Q42")
@@ -485,11 +485,11 @@ class TestGetEntityProperties:
 
     def test_get_entity_properties_success(self, mock_handler, mock_state):
         """Test get_entity_properties success path."""
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.get_head.return_value = 5
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.get_head.return_value = 5
         mock_revision = MagicMock()
         mock_revision.revision_id = 5
-        mock_state.vitess_client.get_history.return_value = [mock_revision]
+        mock_state.mysql_client.get_history.return_value = [mock_revision]
         mock_revision_metadata = MagicMock()
         mock_revision_metadata.revision = {"properties": ["P31", "P569"]}
         mock_state.s3_client.read_full_revision.return_value = mock_revision_metadata
@@ -516,11 +516,11 @@ class TestGetEntityPropertyCounts:
         handler = StatementHandler(state=mock_state)
         return handler
 
-    def test_get_entity_property_counts_vitess_not_initialized(
+    def test_get_entity_property_counts_mysql_not_initialized(
         self, mock_handler, mock_state
     ):
         """Test get_entity_property_counts raises 503 when Sql not initialized."""
-        mock_state.vitess_client = None
+        mock_state.mysql_client = None
 
         with pytest.raises(HTTPException) as exc_info:
             mock_handler.get_entity_property_counts("Q42")
@@ -531,7 +531,7 @@ class TestGetEntityPropertyCounts:
         self, mock_handler, mock_state
     ):
         """Test get_entity_property_counts raises 404 when entity not found."""
-        mock_state.vitess_client.entity_exists.return_value = False
+        mock_state.mysql_client.entity_exists.return_value = False
 
         with pytest.raises(HTTPException) as exc_info:
             mock_handler.get_entity_property_counts("Q999")
@@ -540,8 +540,8 @@ class TestGetEntityPropertyCounts:
 
     def test_get_entity_property_counts_no_revisions(self, mock_handler, mock_state):
         """Test get_entity_property_counts raises 404 when entity has no revisions."""
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.get_head.return_value = 0
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.get_head.return_value = 0
 
         with pytest.raises(HTTPException) as exc_info:
             mock_handler.get_entity_property_counts("Q42")
@@ -550,8 +550,8 @@ class TestGetEntityPropertyCounts:
 
     def test_get_entity_property_counts_success(self, mock_handler, mock_state):
         """Test get_entity_property_counts success path."""
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.get_head.return_value = 5
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.get_head.return_value = 5
         mock_revision_metadata = MagicMock()
         mock_revision_metadata.revision = {"property_counts": {"P31": 5, "P569": 3}}
         mock_state.s3_client.read_full_revision.return_value = mock_revision_metadata
@@ -580,8 +580,8 @@ class TestGetEntityPropertyHashes:
 
     def test_get_entity_property_hashes_success(self, mock_handler, mock_state):
         """Test get_entity_property_hashes success path."""
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.get_head.return_value = 5
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.get_head.return_value = 5
         mock_revision_metadata = MagicMock()
         mock_revision_metadata.revision = {"statements": [100, 200, 300]}
         mock_state.s3_client.read_full_revision.return_value = mock_revision_metadata
@@ -595,8 +595,8 @@ class TestGetEntityPropertyHashes:
 
     def test_get_entity_property_hashes_no_matches(self, mock_handler, mock_state):
         """Test get_entity_property_hashes when no statements match."""
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.get_head.return_value = 5
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.get_head.return_value = 5
         mock_revision_metadata = MagicMock()
         mock_revision_metadata.revision = {"statements": [100]}
         mock_state.s3_client.read_full_revision.return_value = mock_revision_metadata
@@ -626,11 +626,11 @@ class TestGetMostUsedStatements:
         handler = StatementHandler(state=mock_state)
         return handler
 
-    def test_get_most_used_statements_vitess_not_initialized(
+    def test_get_most_used_statements_mysql_not_initialized(
         self, mock_handler, mock_state
     ):
         """Test get_most_used_statements raises 503 when Sql not initialized."""
-        mock_state.vitess_client = None
+        mock_state.mysql_client = None
 
         with pytest.raises(HTTPException) as exc_info:
             mock_handler.get_most_used_statements()
@@ -639,7 +639,7 @@ class TestGetMostUsedStatements:
 
     def test_get_most_used_statements_success(self, mock_handler, mock_state):
         """Test get_most_used_statements success path."""
-        mock_state.vitess_client.statement_repository.get_most_used.return_value = [
+        mock_state.mysql_client.statement_repository.get_most_used.return_value = [
             100,
             200,
             300,
@@ -648,7 +648,7 @@ class TestGetMostUsedStatements:
         result = mock_handler.get_most_used_statements(limit=50, min_ref_count=2)
 
         assert result.statements == [100, 200, 300]
-        mock_state.vitess_client.statement_repository.get_most_used.assert_called_once_with(
+        mock_state.mysql_client.statement_repository.get_most_used.assert_called_once_with(
             limit=50, min_ref_count=2
         )
 
@@ -677,11 +677,11 @@ class TestCleanupOrphanedStatements:
 
         return CleanupOrphanedRequest(older_than_days=30, limit=100)
 
-    def test_cleanup_orphaned_vitess_not_initialized(
+    def test_cleanup_orphaned_mysql_not_initialized(
         self, mock_handler, mock_state, sample_request
     ):
         """Test cleanup_orphaned_statements raises 503 when Sql not initialized."""
-        mock_state.vitess_client = None
+        mock_state.mysql_client = None
 
         with pytest.raises(HTTPException) as exc_info:
             mock_handler.cleanup_orphaned_statements(sample_request)
@@ -701,7 +701,7 @@ class TestCleanupOrphanedStatements:
 
     def test_cleanup_orphaned_success(self, mock_handler, mock_state, sample_request):
         """Test cleanup_orphaned_statements success path."""
-        mock_state.vitess_client.get_orphaned_statements.return_value = [100, 200]
+        mock_state.mysql_client.get_orphaned_statements.return_value = [100, 200]
 
         result = mock_handler.cleanup_orphaned_statements(sample_request)
 
@@ -710,20 +710,20 @@ class TestCleanupOrphanedStatements:
         assert result.errors == []
         mock_state.s3_client.delete_statement.assert_any_call(100)
         mock_state.s3_client.delete_statement.assert_any_call(200)
-        mock_state.vitess_client.delete_statement.assert_any_call(100)
-        mock_state.vitess_client.delete_statement.assert_any_call(200)
+        mock_state.mysql_client.delete_statement.assert_any_call(100)
+        mock_state.mysql_client.delete_statement.assert_any_call(200)
 
     def test_cleanup_orphaned_with_failures(
         self, mock_handler, mock_state, sample_request
     ):
         """Test cleanup_orphaned_statements when some deletions fail."""
-        mock_state.vitess_client.get_orphaned_statements.return_value = [100, 200, 300]
+        mock_state.mysql_client.get_orphaned_statements.return_value = [100, 200, 300]
         mock_state.s3_client.delete_statement.side_effect = [
             None,
             Exception("S3 error"),
             None,
         ]
-        mock_state.vitess_client.delete_statement.side_effect = [
+        mock_state.mysql_client.delete_statement.side_effect = [
             Exception("Sql error"),
             None,
             None,

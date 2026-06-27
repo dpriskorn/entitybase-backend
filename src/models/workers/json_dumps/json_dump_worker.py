@@ -32,10 +32,10 @@ except ImportError:
     S3ConnectionManager = None  # type: ignore
 
 try:
-    from models.infrastructure.vitess.client import VitessClient
+    from models.infrastructure.mysql.client import MysqlClient
     from models.infrastructure.sqlite.client import SqliteClient
 except ImportError:
-    VitessClient = None  # type: ignore
+    MysqlClient = None  # type: ignore
     SqliteClient = None  # type: ignore
 
 from models.workers.dump_types import DumpMetadata, EntityDumpRecord
@@ -57,7 +57,7 @@ class JsonDumpWorker(Worker):
         """Initialize clients for the worker lifespan."""
         logger.info("Initializing JSON Dump Worker")
 
-        if VitessClient is None and SqliteClient is None:
+        if MysqlClient is None and SqliteClient is None:
             raise RuntimeError("No database client available")
 
         if MyS3Client is None:
@@ -69,9 +69,9 @@ class JsonDumpWorker(Worker):
                 raise RuntimeError("SQLite client not available")
             self.db_client = SqliteClient(config=db_config)
         else:
-            if VitessClient is None:
+            if MysqlClient is None:
                 raise RuntimeError("database client not available")
-            self.db_client = VitessClient(config=db_config)
+            self.db_client = MysqlClient(config=db_config)
 
         s3_config = settings.get_s3_config
         s3_config.bucket = settings.s3_dump_bucket

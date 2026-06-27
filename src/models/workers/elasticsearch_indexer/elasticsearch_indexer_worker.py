@@ -15,7 +15,7 @@ from models.data.infrastructure.stream.consumer import EntityChangeEventData
 from models.data.rest_api.v1.entitybase.response import WorkerHealthCheckResponse
 from models.infrastructure.s3.client import MyS3Client
 from models.infrastructure.stream.consumer import StreamConsumerClient
-from models.infrastructure.vitess.client import VitessClient
+from models.infrastructure.mysql.client import MysqlClient
 from models.services.elasticsearch import (
     ElasticsearchClient,
     transform_to_elasticsearch,
@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 class ElasticsearchIndexerWorker(Worker):
     """Consumes entity changes from Kafka and indexes them to Elasticsearch."""
 
-    vitess_client: Optional[VitessClient] = Field(default=None, exclude=True)
+    mysql_client: Optional[MysqlClient] = Field(default=None, exclude=True)
     s3_client: Optional[MyS3Client] = Field(default=None, exclude=True)
     consumer: Optional[StreamConsumerClient] = Field(default=None, exclude=True)
     elasticsearch_client: Any = Field(default=None, exclude=True)
@@ -100,9 +100,9 @@ class ElasticsearchIndexerWorker(Worker):
         if not self.worker_enabled:
             return
 
-        vitess_config = settings.get_vitess_config
-        if vitess_config.host and vitess_config.port:
-            self.vitess_client = VitessClient(config=vitess_config)
+        mysql_config = settings.get_mysql_config
+        if mysql_config.host and mysql_config.port:
+            self.mysql_client = MysqlClient(config=mysql_config)
             logger.info("database client initialized")
         else:
             logger.warning(
@@ -139,8 +139,8 @@ class ElasticsearchIndexerWorker(Worker):
             await self.consumer.stop()
         if self.elasticsearch_client:
             self.elasticsearch_client.close()
-        if self.vitess_client and self.vitess_client.connection_manager:
-            self.vitess_client.connection_manager.disconnect()
+        if self.mysql_client and self.mysql_client.connection_manager:
+            self.mysql_client.connection_manager.disconnect()
         logger.debug("All clients cleaned up")
 
     async def run(self) -> None:

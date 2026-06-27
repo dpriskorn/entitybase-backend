@@ -96,7 +96,7 @@ class EntityDeleteHandler(Handler):
             revision_data
         )
 
-        revision_created = self.state.vitess_client.create_revision(
+        revision_created = self.state.mysql_client.create_revision(
             entity_id=entity_id,
             revision_id=new_revision_id,
             entity_data=revision_data,
@@ -106,7 +106,7 @@ class EntityDeleteHandler(Handler):
         if not revision_created:
             from models.rest_api.utils import raise_validation_error
 
-            current_head = self.state.vitess_client.get_head(entity_id)
+            current_head = self.state.mysql_client.get_head(entity_id)
             raise_validation_error(
                 f"Conflict: entity was modified by another edit. "
                 f"Expected base revision {head_revision_id}, but current revision is {current_head}. "

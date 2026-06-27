@@ -81,7 +81,7 @@ def mock_aiokafka():
 def mock_pymysql_connect():
     """Mock pymysql.connect to prevent real database connections in unit tests.
 
-    This patch ensures that VitessClient and related infrastructure components
+    This patch ensures that MysqlClient and related infrastructure components
     don't attempt to connect to a real MySQL database during unit testing.
     Integration tests should use the real database connection.
     """
@@ -96,14 +96,14 @@ def mock_pymysql_connect():
 
 
 @pytest.fixture
-def mock_vitess_connection_manager():
+def mock_mysql_connection_manager():
     """Mock SqlConnectionManager to prevent pool operations.
 
     This fixture patches the connect and acquire methods to return a mock connection,
     preventing the connection manager from attempting real database connections
     or pool operations during unit tests.
     """
-    from models.infrastructure.vitess.connection import SqlConnectionManager
+    from models.infrastructure.mysql.connection import SqlConnectionManager
 
     mock_connection = MagicMock()
     mock_cursor = MagicMock()

@@ -12,7 +12,7 @@ class TestStatementHandlerMethods:
     def mock_state(self):
         """Create a mock state object."""
         state = MagicMock()
-        state.vitess_client = MagicMock()
+        state.mysql_client = MagicMock()
         state.s3_client = MagicMock()
         return state
 
@@ -37,7 +37,7 @@ class TestStatementHandlerMethods:
 
     def test_get_entity_properties_not_found(self, handler, mock_state):
         """Test get_entity_properties raises 404 for nonexistent entity."""
-        mock_state.vitess_client.entity_exists.return_value = False
+        mock_state.mysql_client.entity_exists.return_value = False
 
         with pytest.raises(HTTPException) as exc_info:
             handler.get_entity_properties("Q99999")
@@ -46,8 +46,8 @@ class TestStatementHandlerMethods:
 
     def test_get_entity_properties_no_revisions(self, handler, mock_state):
         """Test get_entity_properties raises 404 when entity has no revisions."""
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.get_head.return_value = 0
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.get_head.return_value = 0
 
         with pytest.raises(HTTPException) as exc_info:
             handler.get_entity_properties("Q42")
@@ -56,7 +56,7 @@ class TestStatementHandlerMethods:
 
     def test_get_entity_property_counts_not_found(self, handler, mock_state):
         """Test get_entity_property_counts raises 404 for nonexistent entity."""
-        mock_state.vitess_client.entity_exists.return_value = False
+        mock_state.mysql_client.entity_exists.return_value = False
 
         with pytest.raises(HTTPException) as exc_info:
             handler.get_entity_property_counts("Q99999")
@@ -65,7 +65,7 @@ class TestStatementHandlerMethods:
 
     def test_get_entity_property_hashes_invalid_entity(self, handler, mock_state):
         """Test get_entity_property_hashes raises 404 for invalid entity."""
-        mock_state.vitess_client.entity_exists.return_value = False
+        mock_state.mysql_client.entity_exists.return_value = False
 
         with pytest.raises(HTTPException) as exc_info:
             handler.get_entity_property_hashes("Q99999", "P31")
@@ -77,7 +77,7 @@ class TestStatementHandlerMethods:
         from models.data.rest_api.v1.entitybase.request import CleanupOrphanedRequest
 
         mock_request = CleanupOrphanedRequest(older_than_days=30, limit=100)
-        mock_state.vitess_client.get_orphaned_statements.return_value = []
+        mock_state.mysql_client.get_orphaned_statements.return_value = []
 
         result = handler.cleanup_orphaned_statements(request=mock_request)
 
@@ -85,7 +85,7 @@ class TestStatementHandlerMethods:
 
     def test_get_most_used_statements(self, handler, mock_state):
         """Test get_most_used_statements returns results."""
-        mock_state.vitess_client.statement_repository.get_most_used.return_value = []
+        mock_state.mysql_client.statement_repository.get_most_used.return_value = []
 
         result = handler.get_most_used_statements(limit=10, min_ref_count=2)
 

@@ -27,14 +27,14 @@ class TestS3ClientStatements:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_statements = MagicMock()
-            client.vitess_statements.delete_statement.return_value = MagicMock(
+            client.mysql_statements = MagicMock()
+            client.mysql_statements.delete_statement.return_value = MagicMock(
                 success=True
             )
 
             client.delete_statement(12345)
 
-            client.vitess_statements.delete_statement.assert_called_once_with(12345)
+            client.mysql_statements.delete_statement.assert_called_once_with(12345)
 
     def test_delete_statement_not_configured(self):
         """Test delete_statement raises error when Sql not configured."""
@@ -71,14 +71,14 @@ class TestS3ClientStatements:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_statements = MagicMock()
-            client.vitess_statements.store_statement.return_value = MagicMock(
+            client.mysql_statements = MagicMock()
+            client.mysql_statements.store_statement.return_value = MagicMock(
                 success=True
             )
 
             client.write_statement(12345, {"statement": {"id": "Q1"}}, "1.0.0")
 
-            client.vitess_statements.store_statement.assert_called_once()
+            client.mysql_statements.store_statement.assert_called_once()
 
     def test_read_statement_success(self):
         """Test successful statement read."""
@@ -96,8 +96,8 @@ class TestS3ClientStatements:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_statements = MagicMock()
-            client.vitess_statements.load_statement.return_value = {"id": "statement1"}
+            client.mysql_statements = MagicMock()
+            client.mysql_statements.load_statement.return_value = {"id": "statement1"}
 
             result = client.read_statement(12345)
 
@@ -119,8 +119,8 @@ class TestS3ClientStatements:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_statements = MagicMock()
-            client.vitess_statements.load_statement.return_value = None
+            client.mysql_statements = MagicMock()
+            client.mysql_statements.load_statement.return_value = None
 
             with pytest.raises(Exception):
                 client.read_statement(12345)
@@ -141,8 +141,8 @@ class TestS3ClientStatements:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_statements = MagicMock()
-            client.vitess_statements.delete_statement.return_value = MagicMock(
+            client.mysql_statements = MagicMock()
+            client.mysql_statements.delete_statement.return_value = MagicMock(
                 success=False, error="Database error"
             )
 
@@ -184,8 +184,8 @@ class TestS3ClientStatements:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_statements = MagicMock()
-            client.vitess_statements.store_statement.return_value = MagicMock(
+            client.mysql_statements = MagicMock()
+            client.mysql_statements.store_statement.return_value = MagicMock(
                 success=False, error="Database error"
             )
 

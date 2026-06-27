@@ -167,14 +167,14 @@ class TestHashService:
             assert exc_info.value.status_code == 500
             assert "Failed to store statements" in str(exc_info.value.detail)
 
-    def test_hash_labels_with_vitess_config(self):
-        """Test hashing labels with vitess_config enabled."""
+    def test_hash_labels_with_mysql_config(self):
+        """Test hashing labels with mysql_config enabled."""
         state = MagicMock()
         s3_client = MagicMock()
-        vitess_client = MagicMock()
+        mysql_client = MagicMock()
         state.s3_client = s3_client
-        state.vitess_config = MagicMock()
-        state.vitess_client = vitess_client
+        state.mysql_config = MagicMock()
+        state.mysql_client = mysql_client
 
         mock_insert_result = MagicMock()
         mock_insert_result.success = True
@@ -207,12 +207,12 @@ class TestHashService:
                 s3_client.store_term_metadata.assert_called()
                 mock_terms_repo_instance.insert_term.assert_called()
 
-    def test_hash_labels_without_vitess_config(self):
-        """Test hashing labels when vitess_config is None returns empty."""
+    def test_hash_labels_without_mysql_config(self):
+        """Test hashing labels when mysql_config is None returns empty."""
         state = MagicMock()
         s3_client = MagicMock()
         state.s3_client = s3_client
-        state.vitess_config = None
+        state.mysql_config = None
 
         service = HashService(state=state)
 
@@ -228,9 +228,9 @@ class TestHashService:
         state = MagicMock()
         s3_client = MagicMock()
         state.s3_client = s3_client
-        state.vitess_config = MagicMock()
-        vitess_client = MagicMock()
-        state.vitess_client = vitess_client
+        state.mysql_config = MagicMock()
+        mysql_client = MagicMock()
+        state.mysql_client = mysql_client
 
         with patch(
             "models.rest_api.entitybase.v1.services.hash_service.TermsRepository"
@@ -249,14 +249,14 @@ class TestHashService:
 
                 assert "en" not in result.root
 
-    def test_hash_descriptions_with_vitess_config(self):
-        """Test hashing descriptions with vitess_config enabled."""
+    def test_hash_descriptions_with_mysql_config(self):
+        """Test hashing descriptions with mysql_config enabled."""
         state = MagicMock()
         s3_client = MagicMock()
-        vitess_client = MagicMock()
+        mysql_client = MagicMock()
         state.s3_client = s3_client
-        state.vitess_config = MagicMock()
-        state.vitess_client = vitess_client
+        state.mysql_config = MagicMock()
+        state.mysql_client = mysql_client
 
         mock_insert_result = MagicMock()
         mock_insert_result.success = True
@@ -282,12 +282,12 @@ class TestHashService:
                 s3_client.store_term_metadata.assert_called()
                 mock_terms_repo_instance.insert_term.assert_called()
 
-    def test_hash_descriptions_without_vitess_config(self):
-        """Test hashing descriptions when vitess_config is None returns empty."""
+    def test_hash_descriptions_without_mysql_config(self):
+        """Test hashing descriptions when mysql_config is None returns empty."""
         state = MagicMock()
         s3_client = MagicMock()
         state.s3_client = s3_client
-        state.vitess_config = None
+        state.mysql_config = None
 
         service = HashService(state=state)
 
@@ -303,9 +303,9 @@ class TestHashService:
         state = MagicMock()
         s3_client = MagicMock()
         state.s3_client = s3_client
-        state.vitess_config = MagicMock()
-        vitess_client = MagicMock()
-        state.vitess_client = vitess_client
+        state.mysql_config = MagicMock()
+        mysql_client = MagicMock()
+        state.mysql_client = mysql_client
 
         with patch(
             "models.rest_api.entitybase.v1.services.hash_service.TermsRepository"
@@ -324,14 +324,14 @@ class TestHashService:
 
                 assert "en" not in result.root
 
-    def test_hash_aliases_with_vitess_config(self):
-        """Test hashing aliases with vitess_config enabled."""
+    def test_hash_aliases_with_mysql_config(self):
+        """Test hashing aliases with mysql_config enabled."""
         state = MagicMock()
         s3_client = MagicMock()
-        vitess_client = MagicMock()
+        mysql_client = MagicMock()
         state.s3_client = s3_client
-        state.vitess_config = MagicMock()
-        state.vitess_client = vitess_client
+        state.mysql_config = MagicMock()
+        state.mysql_client = mysql_client
 
         mock_insert_result = MagicMock()
         mock_insert_result.success = True
@@ -357,12 +357,12 @@ class TestHashService:
                 assert len(result.root["en"]) == 2
                 s3_client.store_term_metadata.assert_called()
 
-    def test_hash_aliases_without_vitess_config(self):
-        """Test hashing aliases when vitess_config is None returns empty."""
+    def test_hash_aliases_without_mysql_config(self):
+        """Test hashing aliases when mysql_config is None returns empty."""
         state = MagicMock()
         s3_client = MagicMock()
         state.s3_client = s3_client
-        state.vitess_config = None
+        state.mysql_config = None
 
         service = HashService(state=state)
 
@@ -378,9 +378,9 @@ class TestHashService:
         state = MagicMock()
         s3_client = MagicMock()
         state.s3_client = s3_client
-        state.vitess_config = MagicMock()
-        vitess_client = MagicMock()
-        state.vitess_client = vitess_client
+        state.mysql_config = MagicMock()
+        mysql_client = MagicMock()
+        state.mysql_client = mysql_client
 
         with patch(
             "models.rest_api.entitybase.v1.services.hash_service.TermsRepository"
@@ -404,10 +404,10 @@ class TestHashService:
         """Test hashing all entity metadata."""
         state = MagicMock()
         s3_client = MagicMock()
-        vitess_client = MagicMock()
+        mysql_client = MagicMock()
         state.s3_client = s3_client
-        state.vitess_config = MagicMock()
-        state.vitess_client = vitess_client
+        state.mysql_config = MagicMock()
+        state.mysql_client = mysql_client
 
         mock_insert_result = MagicMock()
         mock_insert_result.success = True
@@ -464,10 +464,10 @@ class TestHashService:
         """Test hashing entity metadata with no sitelinks."""
         state = MagicMock()
         s3_client = MagicMock()
-        vitess_client = MagicMock()
+        mysql_client = MagicMock()
         state.s3_client = s3_client
-        state.vitess_config = MagicMock()
-        state.vitess_client = vitess_client
+        state.mysql_config = MagicMock()
+        state.mysql_client = mysql_client
 
         mock_insert_result = MagicMock()
         mock_insert_result.success = True

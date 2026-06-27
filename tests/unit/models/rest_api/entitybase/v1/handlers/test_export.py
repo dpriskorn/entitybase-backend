@@ -13,8 +13,8 @@ class TestExportHandler:
     @pytest.fixture
     def mock_state(self) -> MagicMock:
         state = MagicMock()
-        state.vitess_client.entity_exists.return_value = True
-        state.vitess_client.get_head.return_value = 5
+        state.mysql_client.entity_exists.return_value = True
+        state.mysql_client.get_head.return_value = 5
         state.s3_client.read_revision.return_value = MagicMock(
             revision={"labels": {}, "descriptions": {}}
         )
@@ -25,9 +25,9 @@ class TestExportHandler:
     def handler(self, mock_state: MagicMock) -> ExportHandler:
         return ExportHandler(state=mock_state)
 
-    def test_get_entity_data_turtle_vitess_not_initialized(self) -> None:
+    def test_get_entity_data_turtle_mysql_not_initialized(self) -> None:
         mock_state = MagicMock()
-        mock_state.vitess_client = None
+        mock_state.mysql_client = None
         handler = ExportHandler(state=mock_state)
 
         from fastapi import HTTPException
@@ -38,7 +38,7 @@ class TestExportHandler:
 
     def test_get_entity_data_turtle_entity_not_found(self) -> None:
         mock_state = MagicMock()
-        mock_state.vitess_client.entity_exists.return_value = False
+        mock_state.mysql_client.entity_exists.return_value = False
         handler = ExportHandler(state=mock_state)
 
         from fastapi import HTTPException
@@ -50,8 +50,8 @@ class TestExportHandler:
 
     def test_get_entity_data_turtle_no_revisions(self) -> None:
         mock_state = MagicMock()
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.get_head.return_value = 0
+        mock_state.mysql_client.entity_exists.return_value = True
+        mock_state.mysql_client.get_head.return_value = 0
         handler = ExportHandler(state=mock_state)
 
         from fastapi import HTTPException
@@ -96,5 +96,5 @@ class TestExportHandler:
             result = handler.get_entity_data_turtle("Q42")
 
         assert result.turtle == "<turtle>data</turtle>"
-        mock_state.vitess_client.entity_exists.assert_called_once_with("Q42")
-        mock_state.vitess_client.get_head.assert_called_once_with("Q42")
+        mock_state.mysql_client.entity_exists.assert_called_once_with("Q42")
+        mock_state.mysql_client.get_head.assert_called_once_with("Q42")

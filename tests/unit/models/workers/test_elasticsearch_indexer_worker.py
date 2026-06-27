@@ -45,7 +45,7 @@ class TestElasticsearchIndexerWorker:
         mock_settings.elasticsearch_password = ""
         mock_settings.elasticsearch_use_ssl = True
         mock_settings.elasticsearch_verify_certs = True
-        mock_settings.get_vitess_config = MagicMock(host="", port=0)
+        mock_settings.get_mysql_config = MagicMock(host="", port=0)
         mock_settings.get_s3_config = MagicMock(endpoint_url="")
 
         with patch(
@@ -76,7 +76,7 @@ class TestElasticsearchIndexerWorker:
         mock_settings.elasticsearch_password = ""
         mock_settings.elasticsearch_use_ssl = True
         mock_settings.elasticsearch_verify_certs = True
-        mock_settings.get_vitess_config = MagicMock(host="", port=0)
+        mock_settings.get_mysql_config = MagicMock(host="", port=0)
         mock_settings.get_s3_config = MagicMock(endpoint_url="")
         mock_settings.kafka_entitychange_json_topic = "entity_change"
         mock_settings.elasticsearch_consumer_group = "test-group"
@@ -117,7 +117,7 @@ class TestElasticsearchIndexerWorker:
         mock_settings.elasticsearch_password = ""
         mock_settings.elasticsearch_use_ssl = True
         mock_settings.elasticsearch_verify_certs = True
-        mock_settings.get_vitess_config = MagicMock(host="", port=0)
+        mock_settings.get_mysql_config = MagicMock(host="", port=0)
         mock_settings.get_s3_config = MagicMock(endpoint_url="")
 
         with patch(

@@ -134,19 +134,19 @@ class TestValidateStateClients:
         from models.rest_api.utils import validate_state_clients
 
         mock_state = MagicMock()
-        mock_state.vitess_client = MagicMock()
+        mock_state.mysql_client = MagicMock()
         mock_state.s3_client = MagicMock()
 
         validate_state_clients(mock_state)
         assert True  # No exception raised
 
-    def test_missing_vitess_client_raises_error(self):
-        """Test that missing vitess_client raises error."""
+    def test_missing_mysql_client_raises_error(self):
+        """Test that missing mysql_client raises error."""
         from unittest.mock import MagicMock
         from models.rest_api.utils import validate_state_clients
 
         mock_state = MagicMock()
-        del mock_state.vitess_client
+        del mock_state.mysql_client
 
         with pytest.raises(HTTPException) as exc_info:
             validate_state_clients(mock_state)

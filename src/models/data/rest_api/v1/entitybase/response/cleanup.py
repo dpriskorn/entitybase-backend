@@ -8,7 +8,7 @@ class CleanupOrphanedResponse(BaseModel):
 
     cleaned_count: int = Field(
         ...,
-        description="Number of statements cleaned up from S3 and Vitess",
+        description="Number of statements cleaned up from S3 and Mysql",
     )
     failed_count: int = Field(
         default=0,

@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, cast
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 if TYPE_CHECKING:
-    from models.infrastructure.vitess.repositories.user import UserRepository
+    from models.infrastructure.mysql.repositories.user import UserRepository
 
 from models.data.common.roles import UserRole
 from models.data.rest_api.v1.entitybase.request.auth import (
@@ -32,11 +32,11 @@ logger = logging.getLogger(__name__)
 auth_router = APIRouter(tags=["authentication"])
 
 
-def get_user_repository(state: Any) -> UserRepository:
+def get_user_repository(state: Any) -> "UserRepository":
     """Get user repository from app state."""
-    if not hasattr(state, "vitess_client") or not state.vitess_client:
+    if not hasattr(state, "mysql_client") or not state.mysql_client:
         raise_validation_error("Database not available", status_code=503)
-    return cast(UserRepository, state.vitess_client.user_repository)
+    return cast("UserRepository", state.mysql_client.user_repository)
 
 
 @auth_router.post("/auth/login", response_model=LoginResponse)

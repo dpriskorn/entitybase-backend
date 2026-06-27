@@ -17,7 +17,7 @@ class TestUserPreferencesHandlerGetPreferences:
     @pytest.fixture
     def mock_state(self) -> MagicMock:
         state = MagicMock()
-        state.vitess_client.user_repository.user_exists.return_value = True
+        state.mysql_client.user_repository.user_exists.return_value = True
         return state
 
     @pytest.fixture
@@ -26,7 +26,7 @@ class TestUserPreferencesHandlerGetPreferences:
 
     def test_get_preferences_user_not_found(self) -> None:
         mock_state = MagicMock()
-        mock_state.vitess_client.user_repository.user_exists.return_value = False
+        mock_state.mysql_client.user_repository.user_exists.return_value = False
         handler = UserPreferencesHandler(state=mock_state)
 
         from fastapi import HTTPException
@@ -38,7 +38,7 @@ class TestUserPreferencesHandlerGetPreferences:
     def test_get_preferences_success(
         self, handler: UserPreferencesHandler, mock_state: MagicMock
     ) -> None:
-        mock_state.vitess_client.user_repository.get_user_preferences.return_value = (
+        mock_state.mysql_client.user_repository.get_user_preferences.return_value = (
             MagicMock(
                 success=True,
                 data={"notification_limit": 100, "retention_hours": 48},
@@ -54,7 +54,7 @@ class TestUserPreferencesHandlerGetPreferences:
     def test_get_preferences_not_found_in_error(
         self, handler: UserPreferencesHandler, mock_state: MagicMock
     ) -> None:
-        mock_state.vitess_client.user_repository.get_user_preferences.return_value = (
+        mock_state.mysql_client.user_repository.get_user_preferences.return_value = (
             MagicMock(
                 success=False,
                 error="User preferences not found",
@@ -71,7 +71,7 @@ class TestUserPreferencesHandlerGetPreferences:
     def test_get_preferences_data_none(
         self, handler: UserPreferencesHandler, mock_state: MagicMock
     ) -> None:
-        mock_state.vitess_client.user_repository.get_user_preferences.return_value = (
+        mock_state.mysql_client.user_repository.get_user_preferences.return_value = (
             MagicMock(
                 success=True,
                 data=None,
@@ -87,7 +87,7 @@ class TestUserPreferencesHandlerGetPreferences:
     def test_get_preferences_data_not_dict(
         self, handler: UserPreferencesHandler, mock_state: MagicMock
     ) -> None:
-        mock_state.vitess_client.user_repository.get_user_preferences.return_value = (
+        mock_state.mysql_client.user_repository.get_user_preferences.return_value = (
             MagicMock(
                 success=True,
                 data="not a dict",
@@ -103,7 +103,7 @@ class TestUserPreferencesHandlerGetPreferences:
     def test_get_preferences_other_error(
         self, handler: UserPreferencesHandler, mock_state: MagicMock
     ) -> None:
-        mock_state.vitess_client.user_repository.get_user_preferences.return_value = (
+        mock_state.mysql_client.user_repository.get_user_preferences.return_value = (
             MagicMock(
                 success=False,
                 error="Database connection failed",
@@ -124,8 +124,8 @@ class TestUserPreferencesHandlerUpdatePreferences:
     @pytest.fixture
     def mock_state(self) -> MagicMock:
         state = MagicMock()
-        state.vitess_client.user_repository.user_exists.return_value = True
-        state.vitess_client.user_repository.update_user_preferences.return_value = (
+        state.mysql_client.user_repository.user_exists.return_value = True
+        state.mysql_client.user_repository.update_user_preferences.return_value = (
             MagicMock(success=True)
         )
         state.user_change_stream_producer = MagicMock()
@@ -139,7 +139,7 @@ class TestUserPreferencesHandlerUpdatePreferences:
     @pytest.mark.asyncio
     async def test_update_preferences_user_not_found(self) -> None:
         mock_state = MagicMock()
-        mock_state.vitess_client.user_repository.user_exists.return_value = False
+        mock_state.mysql_client.user_repository.user_exists.return_value = False
         handler = UserPreferencesHandler(state=mock_state)
 
         request = UserPreferencesRequest(notification_limit=100, retention_hours=48)
@@ -161,7 +161,7 @@ class TestUserPreferencesHandlerUpdatePreferences:
         assert result.user_id == 123
         assert result.notification_limit == 100
         assert result.retention_hours == 48
-        mock_state.vitess_client.user_repository.update_user_preferences.assert_called_once_with(
+        mock_state.mysql_client.user_repository.update_user_preferences.assert_called_once_with(
             user_id=123, notification_limit=100, retention_hours=48
         )
 
@@ -169,8 +169,8 @@ class TestUserPreferencesHandlerUpdatePreferences:
     async def test_update_preferences_failure(
         self, handler: UserPreferencesHandler, mock_state: MagicMock
     ) -> None:
-        mock_state.vitess_client.user_repository.update_user_preferences.return_value = MagicMock(
-            success=False, error="Update failed"
+        mock_state.mysql_client.user_repository.update_user_preferences.return_value = (
+            MagicMock(success=False, error="Update failed")
         )
         request = UserPreferencesRequest(notification_limit=100, retention_hours=48)
 

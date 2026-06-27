@@ -38,16 +38,16 @@ class TestCreateTables:
             dumped = worker.model_dump()
             assert "required_tables" in dumped
 
-    def test_vitess_config_property(self):
-        """Test vitess_config property returns settings config."""
+    def test_mysql_config_property(self):
+        """Test mysql_config property returns settings config."""
         with (
             patch("models.workers.create.create_tables.CreateTables.model_post_init"),
             patch("models.workers.create.create_tables.settings") as mock_settings,
         ):
-            mock_settings.get_vitess_config.host = "localhost"
+            mock_settings.get_mysql_config.host = "localhost"
             worker = CreateTables()
 
-            config = worker.vitess_config
+            config = worker.mysql_config
 
             assert config.host == "localhost"
 
@@ -68,10 +68,10 @@ class TestCreateTables:
             ),
             patch("models.workers.create.create_tables.settings") as mock_settings,
         ):
-            mock_settings.get_vitess_config.host = "localhost"
-            mock_settings.get_vitess_config.port = 3306
-            mock_settings.get_vitess_config.user = "root"
-            mock_settings.get_vitess_config.password = "pass"
+            mock_settings.get_mysql_config.host = "localhost"
+            mock_settings.get_mysql_config.port = 3306
+            mock_settings.get_mysql_config.user = "root"
+            mock_settings.get_mysql_config.password = "pass"
 
             worker.ensure_database_exists()
 
@@ -93,10 +93,10 @@ class TestCreateTables:
             ),
             patch("models.workers.create.create_tables.settings") as mock_settings,
         ):
-            mock_settings.get_vitess_config.host = "localhost"
-            mock_settings.get_vitess_config.port = 3306
-            mock_settings.get_vitess_config.user = "root"
-            mock_settings.get_vitess_config.password = "pass"
+            mock_settings.get_mysql_config.host = "localhost"
+            mock_settings.get_mysql_config.port = 3306
+            mock_settings.get_mysql_config.user = "root"
+            mock_settings.get_mysql_config.password = "pass"
 
             with pytest.raises(Exception, match="DB down"):
                 worker.ensure_database_exists()
@@ -112,14 +112,14 @@ class TestCreateTables:
                 "models.workers.create.create_tables.pymysql.connect"
             ) as mock_connect,
             patch("models.workers.create.create_tables.settings") as mock_settings,
-            patch("models.infrastructure.vitess.client.VitessClient"),
-            patch("models.infrastructure.vitess.repositories.schema.SchemaRepository"),
+            patch("models.infrastructure.mysql.client.MysqlClient"),
+            patch("models.infrastructure.mysql.repositories.schema.SchemaRepository"),
         ):
-            mock_settings.get_vitess_config.host = "localhost"
-            mock_settings.get_vitess_config.port = 3306
-            mock_settings.get_vitess_config.user = "root"
-            mock_settings.get_vitess_config.password = "pass"
-            mock_settings.get_vitess_config.database = "entitybase"
+            mock_settings.get_mysql_config.host = "localhost"
+            mock_settings.get_mysql_config.port = 3306
+            mock_settings.get_mysql_config.user = "root"
+            mock_settings.get_mysql_config.password = "pass"
+            mock_settings.get_mysql_config.database = "entitybase"
 
             mock_conn = MagicMock()
             mock_connect.return_value = mock_conn
@@ -143,11 +143,11 @@ class TestCreateTables:
             ) as mock_connect,
             patch("models.workers.create.create_tables.settings") as mock_settings,
         ):
-            mock_settings.get_vitess_config.host = "localhost"
-            mock_settings.get_vitess_config.port = 3306
-            mock_settings.get_vitess_config.user = "root"
-            mock_settings.get_vitess_config.password = "pass"
-            mock_settings.get_vitess_config.database = "entitybase"
+            mock_settings.get_mysql_config.host = "localhost"
+            mock_settings.get_mysql_config.port = 3306
+            mock_settings.get_mysql_config.user = "root"
+            mock_settings.get_mysql_config.password = "pass"
+            mock_settings.get_mysql_config.database = "entitybase"
 
             mock_conn = MagicMock()
             mock_connect.return_value = mock_conn
@@ -156,10 +156,10 @@ class TestCreateTables:
 
             with (
                 patch(
-                    "models.infrastructure.vitess.repositories.schema.SchemaRepository",
+                    "models.infrastructure.mysql.repositories.schema.SchemaRepository",
                     side_effect=Exception("Schema error"),
                 ),
-                patch("models.infrastructure.vitess.client.VitessClient"),
+                patch("models.infrastructure.mysql.client.MysqlClient"),
                 pytest.raises(ConnectionError),
             ):
                 await worker.ensure_tables_exist()
@@ -184,11 +184,11 @@ class TestCreateTables:
             ),
             patch("models.workers.create.create_tables.settings") as mock_settings,
         ):
-            mock_settings.get_vitess_config.host = "localhost"
-            mock_settings.get_vitess_config.port = 3306
-            mock_settings.get_vitess_config.user = "root"
-            mock_settings.get_vitess_config.password = "pass"
-            mock_settings.get_vitess_config.database = "entitybase"
+            mock_settings.get_mysql_config.host = "localhost"
+            mock_settings.get_mysql_config.port = 3306
+            mock_settings.get_mysql_config.user = "root"
+            mock_settings.get_mysql_config.password = "pass"
+            mock_settings.get_mysql_config.database = "entitybase"
 
             result = await worker.table_health_check()
 
@@ -233,11 +233,11 @@ class TestCreateTables:
             ),
             patch("models.workers.create.create_tables.settings") as mock_settings,
         ):
-            mock_settings.get_vitess_config.host = "localhost"
-            mock_settings.get_vitess_config.port = 3306
-            mock_settings.get_vitess_config.user = "root"
-            mock_settings.get_vitess_config.password = "pass"
-            mock_settings.get_vitess_config.database = "entitybase"
+            mock_settings.get_mysql_config.host = "localhost"
+            mock_settings.get_mysql_config.port = 3306
+            mock_settings.get_mysql_config.user = "root"
+            mock_settings.get_mysql_config.password = "pass"
+            mock_settings.get_mysql_config.database = "entitybase"
 
             result = await worker.table_health_check()
 
@@ -263,11 +263,11 @@ class TestCreateTables:
             ),
             patch("models.workers.create.create_tables.settings") as mock_settings,
         ):
-            mock_settings.get_vitess_config.host = "localhost"
-            mock_settings.get_vitess_config.port = 3306
-            mock_settings.get_vitess_config.user = "root"
-            mock_settings.get_vitess_config.password = "pass"
-            mock_settings.get_vitess_config.database = "entitybase"
+            mock_settings.get_mysql_config.host = "localhost"
+            mock_settings.get_mysql_config.port = 3306
+            mock_settings.get_mysql_config.user = "root"
+            mock_settings.get_mysql_config.password = "pass"
+            mock_settings.get_mysql_config.database = "entitybase"
 
             result = await worker.table_health_check()
 
@@ -288,11 +288,11 @@ class TestCreateTables:
             ),
             patch("models.workers.create.create_tables.settings") as mock_settings,
         ):
-            mock_settings.get_vitess_config.host = "localhost"
-            mock_settings.get_vitess_config.port = 3306
-            mock_settings.get_vitess_config.user = "root"
-            mock_settings.get_vitess_config.password = "pass"
-            mock_settings.get_vitess_config.database = "entitybase"
+            mock_settings.get_mysql_config.host = "localhost"
+            mock_settings.get_mysql_config.port = 3306
+            mock_settings.get_mysql_config.user = "root"
+            mock_settings.get_mysql_config.password = "pass"
+            mock_settings.get_mysql_config.database = "entitybase"
 
             result = await worker.table_health_check()
 

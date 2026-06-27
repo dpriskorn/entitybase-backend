@@ -31,10 +31,10 @@ except ImportError:
     S3ConnectionManager = None  # type: ignore
 
 try:
-    from models.infrastructure.vitess.client import VitessClient
+    from models.infrastructure.mysql.client import MysqlClient
     from models.infrastructure.sqlite.client import SqliteClient
 except ImportError:
-    VitessClient = None  # type: ignore
+    MysqlClient = None  # type: ignore
     SqliteClient = None  # type: ignore
 
 try:
@@ -52,7 +52,7 @@ from models.config.settings import settings
 from models.data.rest_api.v1.entitybase.response import WorkerHealthCheckResponse
 from models.infrastructure.s3.client import MyS3Client
 from models.infrastructure.s3.connection import S3ConnectionManager
-from models.infrastructure.vitess.client import VitessClient
+from models.infrastructure.mysql.client import MysqlClient
 from models.rdf_builder.converter import EntityConverter
 from models.rdf_builder.property_registry.registry import PropertyRegistry
 from models.rdf_builder.writers.triple import TripleWriters
@@ -76,7 +76,7 @@ class TtlDumpWorker(Worker):
         """Initialize clients for the worker lifespan."""
         logger.info("Initializing TTL Dump Worker")
 
-        if VitessClient is None and SqliteClient is None:
+        if MysqlClient is None and SqliteClient is None:
             raise RuntimeError("No database client available")
 
         if MyS3Client is None:
@@ -91,9 +91,9 @@ class TtlDumpWorker(Worker):
                 raise RuntimeError("SQLite client not available")
             self.db_client = SqliteClient(config=db_config)
         else:
-            if VitessClient is None:
+            if MysqlClient is None:
                 raise RuntimeError("database client not available")
-            self.db_client = VitessClient(config=db_config)
+            self.db_client = MysqlClient(config=db_config)
 
         s3_config = settings.get_s3_config
         s3_config.bucket = settings.s3_dump_bucket
@@ -105,7 +105,7 @@ class TtlDumpWorker(Worker):
         property_registry = load_property_registry(settings.property_registry_path)
         self.converter = EntityConverter(
             property_registry=property_registry,
-            vitess_client=self.db_client,
+            mysql_client=self.db_client,
             enable_deduplication=True,
         )
 

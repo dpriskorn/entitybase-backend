@@ -26,23 +26,23 @@ class TestBaseStatsWorker:
     """Unit tests for BaseStatsWorker."""
 
     def test_state_property_with_client(self):
-        """Test state property returns SimpleNamespace with vitess_client."""
+        """Test state property returns SimpleNamespace with mysql_client."""
         with patch("models.workers.base_stats_worker.BaseStatsWorker.model_post_init"):
-            worker = ConcreteStatsWorker(vitess_client="test-client")
+            worker = ConcreteStatsWorker(mysql_client="test-client")
 
         result = worker.state
 
         assert isinstance(result, SimpleNamespace)
-        assert result.vitess_client == "test-client"
+        assert result.mysql_client == "test-client"
 
     def test_state_property_without_client(self):
-        """Test state property with None vitess_client."""
+        """Test state property with None mysql_client."""
         with patch("models.workers.base_stats_worker.BaseStatsWorker.model_post_init"):
             worker = ConcreteStatsWorker()
 
         result = worker.state
 
-        assert result.vitess_client is None
+        assert result.mysql_client is None
 
     @pytest.mark.asyncio
     async def test_stop(self):
@@ -61,8 +61,8 @@ class TestBaseStatsWorker:
             patch.object(
                 ConcreteStatsWorker, "get_enabled_setting", return_value=False
             ),
-            patch("models.workers.vitess_worker.VitessClient"),
-            patch("models.workers.vitess_worker.settings"),
+            patch("models.workers.mysql_worker.MysqlClient"),
+            patch("models.workers.mysql_worker.settings"),
         ):
             worker = ConcreteStatsWorker()
 
@@ -134,8 +134,8 @@ class TestBaseStatsWorker:
             patch(
                 "models.workers.base_stats_worker.asyncio.sleep", new_callable=AsyncMock
             ) as mock_sleep,
-            patch("models.workers.vitess_worker.VitessClient"),
-            patch("models.workers.vitess_worker.settings"),
+            patch("models.workers.mysql_worker.MysqlClient"),
+            patch("models.workers.mysql_worker.settings"),
         ):
 
             async def stop_after_sleep(*args, **kwargs):
@@ -163,8 +163,8 @@ class TestBaseStatsWorker:
             patch(
                 "models.workers.base_stats_worker.asyncio.sleep", new_callable=AsyncMock
             ) as mock_sleep,
-            patch("models.workers.vitess_worker.VitessClient"),
-            patch("models.workers.vitess_worker.settings"),
+            patch("models.workers.mysql_worker.MysqlClient"),
+            patch("models.workers.mysql_worker.settings"),
         ):
             mock_computation.side_effect = [Exception("Computation error"), None]
 

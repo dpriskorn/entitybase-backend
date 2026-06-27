@@ -10,7 +10,7 @@ from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
 
 from models.config.settings import settings
-from models.infrastructure.vitess.client import VitessClient
+from models.infrastructure.mysql.client import MysqlClient
 
 
 class WatchlistAutoDisableWorker:
@@ -18,7 +18,7 @@ class WatchlistAutoDisableWorker:
 
     def __init__(self) -> None:
         self.logger = logging.getLogger(__name__)
-        self.vitess_client: VitessClient | None = None
+        self.mysql_client: MysqlClient | None = None
         # Configurable threshold
         self.disable_threshold_days = 30
 
@@ -27,8 +27,8 @@ class WatchlistAutoDisableWorker:
         """Lifespan context manager for startup/shutdown."""
         try:
             # Initialize client
-            vitess_config = settings.get_vitess_config
-            self.vitess_client = VitessClient(config=vitess_config)
+            mysql_config = settings.get_mysql_config
+            self.mysql_client = MysqlClient(config=mysql_config)
             self.logger.info("Watchlist auto-disable worker started")
             yield
         except Exception as e:
@@ -49,7 +49,7 @@ class WatchlistAutoDisableWorker:
             # Disable watchlists for inactive users
             for user_id in inactive_users:
                 try:
-                    self.vitess_client.user_repository.disable_watchlist(user_id)
+                    self.mysql_client.user_repository.disable_watchlist(user_id)
                     disabled_count += 1
                     self.logger.info(f"Disabled watchlist for inactive user {user_id}")
                 except Exception as e:
@@ -71,7 +71,7 @@ class WatchlistAutoDisableWorker:
         )
         inactive_users = []
 
-        cursor = self.vitess_client.cursor
+        cursor = self.mysql_client.cursor
         cursor.execute(
             """
             SELECT user_id FROM users

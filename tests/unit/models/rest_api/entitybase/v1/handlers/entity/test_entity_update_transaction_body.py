@@ -18,16 +18,16 @@ class TestEntityUpdateTransactionBody:
     async def test_update_with_transaction_s3_not_found(self) -> None:
         """Test update when S3 revision not found during processing."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
         mock_state.entity_change_stream_producer = AsyncMock()
 
-        mock_vitess.entity_exists.return_value = True
-        mock_vitess.is_entity_deleted.return_value = False
-        mock_vitess.is_entity_locked.return_value = False
-        mock_vitess.get_head.return_value = 2
+        mock_mysql.entity_exists.return_value = True
+        mock_mysql.is_entity_deleted.return_value = False
+        mock_mysql.is_entity_locked.return_value = False
+        mock_mysql.get_head.return_value = 2
 
         handler = EntityUpdateHandler(state=mock_state)
         modified_data = {"labels": {"en": {"language": "en", "value": "Test"}}}
@@ -56,16 +56,16 @@ class TestEntityUpdateTransactionBody:
     async def test_update_with_transaction_http_exception(self) -> None:
         """Test update when an HTTPException is raised during processing."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
         mock_state.entity_change_stream_producer = AsyncMock()
 
-        mock_vitess.entity_exists.return_value = True
-        mock_vitess.is_entity_deleted.return_value = False
-        mock_vitess.is_entity_locked.return_value = False
-        mock_vitess.get_head.return_value = 2
+        mock_mysql.entity_exists.return_value = True
+        mock_mysql.is_entity_deleted.return_value = False
+        mock_mysql.is_entity_locked.return_value = False
+        mock_mysql.get_head.return_value = 2
 
         handler = EntityUpdateHandler(state=mock_state)
         modified_data = {"labels": {"en": {"language": "en", "value": "Test"}}}
@@ -94,16 +94,16 @@ class TestEntityUpdateTransactionBody:
     async def test_update_with_transaction_generic_exception(self) -> None:
         """Test update when a generic exception is raised during processing."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
         mock_state.entity_change_stream_producer = AsyncMock()
 
-        mock_vitess.entity_exists.return_value = True
-        mock_vitess.is_entity_deleted.return_value = False
-        mock_vitess.is_entity_locked.return_value = False
-        mock_vitess.get_head.return_value = 2
+        mock_mysql.entity_exists.return_value = True
+        mock_mysql.is_entity_deleted.return_value = False
+        mock_mysql.is_entity_locked.return_value = False
+        mock_mysql.get_head.return_value = 2
 
         handler = EntityUpdateHandler(state=mock_state)
         modified_data = {"labels": {"en": {"language": "en", "value": "Test"}}}
@@ -131,16 +131,16 @@ class TestEntityUpdateTransactionBody:
     async def test_update_with_transaction_full_success(self) -> None:
         """Test successful update with full execution of _update_with_transaction body."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
         mock_state.entity_change_stream_producer = AsyncMock()
 
-        mock_vitess.entity_exists.return_value = True
-        mock_vitess.is_entity_deleted.return_value = False
-        mock_vitess.is_entity_locked.return_value = False
-        mock_vitess.get_head.return_value = 2
+        mock_mysql.entity_exists.return_value = True
+        mock_mysql.is_entity_deleted.return_value = False
+        mock_mysql.is_entity_locked.return_value = False
+        mock_mysql.get_head.return_value = 2
 
         handler = EntityUpdateHandler(state=mock_state)
         modified_data = {"labels": {"en": {"language": "en", "value": "Test"}}}
@@ -190,7 +190,7 @@ class TestEntityUpdateTransactionBody:
             mock_tx.process_statements.return_value = hash_result
             mock_tx.create_revision = AsyncMock(return_value=mock_response)
             mock_tx.publish_event = AsyncMock()
-            mock_vitess.user_repository.log_user_activity = AsyncMock(
+            mock_mysql.user_repository.log_user_activity = AsyncMock(
                 return_value=MagicMock(success=True)
             )
 
@@ -212,16 +212,16 @@ class TestEntityUpdateTransactionBody:
     async def test_update_with_transaction_user_activity_failure(self) -> None:
         """Test update handles user activity logging failure gracefully."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
         mock_state.entity_change_stream_producer = AsyncMock()
 
-        mock_vitess.entity_exists.return_value = True
-        mock_vitess.is_entity_deleted.return_value = False
-        mock_vitess.is_entity_locked.return_value = False
-        mock_vitess.get_head.return_value = 2
+        mock_mysql.entity_exists.return_value = True
+        mock_mysql.is_entity_deleted.return_value = False
+        mock_mysql.is_entity_locked.return_value = False
+        mock_mysql.get_head.return_value = 2
 
         handler = EntityUpdateHandler(state=mock_state)
         modified_data = {"labels": {"en": {"language": "en", "value": "Test"}}}
@@ -263,7 +263,7 @@ class TestEntityUpdateTransactionBody:
             mock_tx.process_statements.return_value = hash_result
             mock_tx.create_revision = AsyncMock(return_value=mock_response)
             mock_tx.publish_event = AsyncMock()
-            mock_vitess.user_repository.log_user_activity = AsyncMock(
+            mock_mysql.user_repository.log_user_activity = AsyncMock(
                 return_value=MagicMock(success=False, error="DB error")
             )
 
@@ -281,16 +281,16 @@ class TestEntityUpdateTransactionBody:
     async def test_update_with_transaction_no_user_id(self) -> None:
         """Test update when user_id is 0 (skips activity logging)."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
         mock_state.entity_change_stream_producer = AsyncMock()
 
-        mock_vitess.entity_exists.return_value = True
-        mock_vitess.is_entity_deleted.return_value = False
-        mock_vitess.is_entity_locked.return_value = False
-        mock_vitess.get_head.return_value = 2
+        mock_mysql.entity_exists.return_value = True
+        mock_mysql.is_entity_deleted.return_value = False
+        mock_mysql.is_entity_locked.return_value = False
+        mock_mysql.get_head.return_value = 2
 
         handler = EntityUpdateHandler(state=mock_state)
         modified_data = {"labels": {"en": {"language": "en", "value": "Test"}}}
@@ -341,4 +341,4 @@ class TestEntityUpdateTransactionBody:
             )
 
             assert result.id == "Q42"
-            mock_vitess.user_repository.log_user_activity.assert_not_called()
+            mock_mysql.user_repository.log_user_activity.assert_not_called()

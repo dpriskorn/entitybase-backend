@@ -19,7 +19,7 @@ class TestEntityStatusHandler:
     @pytest.fixture
     def mock_state(self) -> MagicMock:
         state = MagicMock()
-        state.vitess_client.user_repository.log_user_activity.return_value = MagicMock(
+        state.mysql_client.user_repository.log_user_activity.return_value = MagicMock(
             success=True
         )
         return state
@@ -174,12 +174,12 @@ class TestEntityStatusHandler:
     ) -> None:
         headers = EditHeaders(x_user_id=0, x_edit_summary="test")
         handler._log_activity(headers, "ENTITY_LOCK", "Q42")
-        mock_state.vitess_client.user_repository.log_user_activity.assert_not_called()
+        mock_state.mysql_client.user_repository.log_user_activity.assert_not_called()
 
     def test_log_activity_failure_logs_warning(
         self, handler: EntityStatusHandler, mock_state: MagicMock
     ) -> None:
-        mock_state.vitess_client.user_repository.log_user_activity.return_value = (
+        mock_state.mysql_client.user_repository.log_user_activity.return_value = (
             MagicMock(success=False, error="DB error")
         )
         headers = EditHeaders(x_user_id=123, x_edit_summary="test")

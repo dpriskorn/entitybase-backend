@@ -14,12 +14,12 @@ from models.data.rest_api.v1.entitybase.response.id_response import IdResponse
 from models.rest_api.entitybase.v1.services.enumeration_service import (
     EnumerationService,
 )
-from models.workers.notification_cleanup.main import VitessWorker
+from models.workers.notification_cleanup.main import MysqlWorker
 
 logger = logging.getLogger(__name__)
 
 
-class IdGeneratorWorker(VitessWorker):
+class IdGeneratorWorker(MysqlWorker):
     """Generates Wikibase entity IDs using range-based allocation."""
 
     enumeration_service: Any = None
@@ -49,8 +49,8 @@ class IdGeneratorWorker(VitessWorker):
     async def start(self) -> None:
         """Start the ID generation worker and begin the main processing loop.
 
-        Initializes VitessClient and EnumerationService with configuration from
-        environment variables (VITESS_HOST, VITESS_PORT, etc.). Runs a continuous
+        Initializes MysqlClient and EnumerationService with configuration from
+        environment variables (MYSQL_HOST, MYSQL_PORT, etc.). Runs a continuous
         loop monitoring ID range status every 60 seconds.
 
         Raises:
@@ -63,21 +63,21 @@ class IdGeneratorWorker(VitessWorker):
 
         try:
             # Initialize database client with default config
-            from models.data.config.vitess import VitessConfig
-            from models.infrastructure.vitess.client import VitessClient
+            from models.data.config.mysql import MysqlConfig
+            from models.infrastructure.mysql.client import MysqlClient
 
-            vitess_config = VitessConfig(
-                host=os.getenv("VITESS_HOST", "vitess"),
-                port=int(os.getenv("VITESS_PORT", "15309")),
-                database=os.getenv("VITESS_DATABASE", "page"),
-                user=os.getenv("VITESS_USER", "root"),
-                password=os.getenv("VITESS_PASSWORD", ""),
+            mysql_config = MysqlConfig(
+                host=os.getenv("MYSQL_HOST", "mysql"),
+                port=int(os.getenv("MYSQL_PORT", "15309")),
+                database=os.getenv("MYSQL_DATABASE", "page"),
+                user=os.getenv("MYSQL_USER", "root"),
+                password=os.getenv("MYSQL_PASSWORD", ""),
             )
-            self.vitess_client = VitessClient(config=vitess_config)
+            self.mysql_client = MysqlClient(config=mysql_config)
 
             # Initialize enumeration service
             self.enumeration_service = EnumerationService(
-                worker_id=self.worker_id, vitess_client=self.vitess_client
+                worker_id=self.worker_id, mysql_client=self.mysql_client
             )
 
             logger.info("ID Generator Worker initialized successfully")
@@ -114,7 +114,7 @@ class IdGeneratorWorker(VitessWorker):
         """
         logger.info("Shutting down ID Generator Worker")
 
-        if self.vitess_client:
+        if self.mysql_client:
             # Close database connections
             pass
 
@@ -211,7 +211,7 @@ async def main() -> None:
 
     Environment Variables:
         WORKER_ID: Unique worker identifier.
-        VITESS_HOST, VITESS_PORT, VITESS_DATABASE, VITESS_USER, VITESS_PASSWORD:
+        MYSQL_HOST, MYSQL_PORT, MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD:
         Database connection parameters.
         LOG_LEVEL: Logging level (DEBUG, INFO, WARNING, ERROR). Defaults to INFO.
     """

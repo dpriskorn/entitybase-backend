@@ -254,7 +254,7 @@ class StatementService(Service):
                 raise
 
         # Step 4: Insert into DB or increment ref_count
-        stmt_repo = self.state.vitess_client.statement_repository
+        stmt_repo = self.state.mysql_client.statement_repository
         inserted = stmt_repo.increment_ref_count(content_hash=context.statement_hash)
         if inserted.success:
             logger.debug(

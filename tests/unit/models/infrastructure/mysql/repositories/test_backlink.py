@@ -1,0 +1,163 @@
+"""Unit tests for BacklinkRepository."""
+
+from unittest.mock import MagicMock
+
+import pytest
+
+from models.data.infrastructure.mysql.records.backlink_entry import BacklinkRecord
+from models.infrastructure.mysql.repositories.backlink import BacklinkRepository
+
+
+class TestBacklinkRepository:
+    """Unit tests for BacklinkRepository."""
+
+    def test_insert_backlinks_empty(self):
+        """Test inserting empty backlinks list."""
+        mock_mysql_client = MagicMock()
+
+        repo = BacklinkRepository(mysql_client=mock_mysql_client)
+
+        result = repo.insert_backlinks([])
+
+        assert result.success is True
+
+    def test_get_backlinks_success(self):
+        """Test getting backlinks."""
+        mock_mysql_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
+        mock_cursor.fetchall.return_value = [(2, 123, "P31", "normal")]
+        mock_mysql_client.cursor = mock_cursor
+
+        repo = BacklinkRepository(mysql_client=mock_mysql_client)
+
+        result = repo.get_backlinks(1)
+
+        assert len(result) == 1
+        assert isinstance(result[0], BacklinkRecord)
+        assert result[0].referencing_internal_id == 2
+
+    def test_get_backlinks_empty(self):
+        """Test getting backlinks when none exist."""
+        mock_mysql_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
+        mock_cursor.fetchall.return_value = []
+        mock_mysql_client.cursor = mock_cursor
+
+        repo = BacklinkRepository(mysql_client=mock_mysql_client)
+
+        result = repo.get_backlinks(1)
+
+        assert result == []
+
+    def test_insert_backlink_statistics_success(self):
+        """Test successful statistics insertion."""
+        mock_mysql_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
+        mock_mysql_client.cursor = mock_cursor
+
+        repo = BacklinkRepository(mysql_client=mock_mysql_client)
+
+        repo.insert_backlink_statistics(
+            "2023-01-01", 100, 50, [{"id": "Q1", "count": 10}]
+        )
+
+        mock_cursor.execute.assert_called_once()
+
+    def test_insert_backlink_statistics_invalid_date(self):
+        """Test statistics insertion with invalid date."""
+        mock_mysql_client = MagicMock()
+
+        repo = BacklinkRepository(mysql_client=mock_mysql_client)
+
+        with pytest.raises(Exception):  # raise_validation_error
+            repo.insert_backlink_statistics("invalid", 100, 50, [])
+
+    def test_insert_backlink_statistics_negative_values(self):
+        """Test statistics insertion with negative values."""
+        mock_mysql_client = MagicMock()
+
+        repo = BacklinkRepository(mysql_client=mock_mysql_client)
+
+        with pytest.raises(Exception):
+            repo.insert_backlink_statistics("2023-01-01", -1, 50, [])
+
+    def test_get_backlinks_with_limit_offset(self):
+        """Test getting backlinks with limit and offset."""
+        mock_mysql_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
+        mock_cursor.fetchall.return_value = [(2, 456, "P31", "normal")]
+        mock_mysql_client.cursor = mock_cursor
+
+        repo = BacklinkRepository(mysql_client=mock_mysql_client)
+
+        result = repo.get_backlinks(1, limit=10, offset=5)
+
+        assert len(result) == 1
+        assert result[0].referencing_internal_id == 2
+
+    def test_insert_backlink_statistics_invalid_date_length(self):
+        """Test statistics insertion with invalid date length."""
+        mock_mysql_client = MagicMock()
+
+        repo = BacklinkRepository(mysql_client=mock_mysql_client)
+
+        with pytest.raises(Exception):
+            repo.insert_backlink_statistics("2023-01", 100, 50, [])
+
+    def test_insert_backlink_statistics_invalid_list(self):
+        """Test statistics insertion with invalid top_entities type."""
+        mock_mysql_client = MagicMock()
+
+        repo = BacklinkRepository(mysql_client=mock_mysql_client)
+
+        with pytest.raises(Exception):
+            # noinspection PyTypeChecker
+            repo.insert_backlink_statistics("2023-01-01", 100, 50, "not a list")
+
+    def test_delete_backlinks_for_entity_database_error(self):
+        """Test deletion with database error."""
+        mock_mysql_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
+        mock_cursor.execute.side_effect = Exception("DB error")
+        mock_mysql_client.cursor = mock_cursor
+
+        repo = BacklinkRepository(mysql_client=mock_mysql_client)
+
+    def test_insert_backlink_statistics_json_error(self):
+        """Test statistics insertion with JSON serialization error."""
+        mock_mysql_client = MagicMock()
+
+        repo = BacklinkRepository(mysql_client=mock_mysql_client)
+
+        # Create object that can't be JSON serialized
+        class NonSerializable:
+            pass
+
+        with pytest.raises(Exception):  # raise_validation_error
+            repo.insert_backlink_statistics("2023-01-01", 100, 50, [NonSerializable()])
+
+    def test_insert_backlink_statistics_database_error(self):
+        """Test statistics insertion with database error."""
+        mock_mysql_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
+        mock_cursor.execute.side_effect = Exception("Insert failed")
+        mock_mysql_client.cursor = mock_cursor
+
+        repo = BacklinkRepository(mysql_client=mock_mysql_client)
+
+        with pytest.raises(Exception) as exc_info:
+            repo.insert_backlink_statistics("2023-01-01", 100, 50, [{"id": "Q1"}])
+
+        assert "Insert failed" in str(exc_info.value)

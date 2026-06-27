@@ -15,7 +15,7 @@ from models.data.rest_api.v1.entitybase.response import (
 
 
 # noinspection PyUnusedLocal
-class MockVitessClient:
+class MockMysqlClient:
     """Mock Sql client for testing without database"""
 
     def __init__(self) -> None:
@@ -147,18 +147,16 @@ class MockS3Client:
 class RedirectService:
     """Mock RedirectService for testing"""
 
-    def __init__(
-        self, s3_client: MockS3Client, vitess_client: MockVitessClient
-    ) -> None:
+    def __init__(self, s3_client: MockS3Client, mysql_client: MockMysqlClient) -> None:
         self.s3 = s3_client
-        self.vitess = vitess_client
+        self.mysql = mysql_client
 
     def create_redirect(self, request: EntityRedirectRequest) -> EntityRedirectResponse:
-        vitess = self.vitess
+        mysql = self.mysql
         s3 = self.s3
 
-        from_internal_id = vitess.resolve_id(request.redirect_from_id)
-        to_internal_id = vitess.resolve_id(request.redirect_to_id)
+        from_internal_id = mysql.resolve_id(request.redirect_from_id)
+        to_internal_id = mysql.resolve_id(request.redirect_to_id)
 
         print(
             f"DEBUG: from_id={request.redirect_from_id}, to_id={request.redirect_to_id}"
@@ -175,20 +173,20 @@ class RedirectService:
         if from_internal_id == to_internal_id:
             raise HTTPException(status_code=400, detail="Cannot redirect to self")
 
-        existing_target = vitess.get_redirect_target(request.redirect_to_id)
+        existing_target = mysql.get_redirect_target(request.redirect_to_id)
         if existing_target is not None:
             raise HTTPException(status_code=409, detail="Redirect already exists")
 
-        if vitess.is_entity_deleted(request.redirect_from_id):
+        if mysql.is_entity_deleted(request.redirect_from_id):
             raise HTTPException(
                 status_code=423, detail="Source entity has been deleted"
             )
-        if vitess.is_entity_deleted(request.redirect_to_id):
+        if mysql.is_entity_deleted(request.redirect_to_id):
             raise HTTPException(
                 status_code=423, detail="Target entity has been deleted"
             )
 
-        if vitess.is_entity_locked(request.redirect_to_id) or vitess.is_entity_archived(
+        if mysql.is_entity_locked(request.redirect_to_id) or mysql.is_entity_archived(
             request.redirect_to_id
         ):
             raise HTTPException(
@@ -212,13 +210,13 @@ class RedirectService:
         redirect_revision_data["revision_id"] = 1
         redirect_revision_id = s3.write_entity_revision(data=redirect_revision_data)
 
-        vitess.create_redirect(
+        mysql.create_redirect(
             redirect_from_entity_id=request.redirect_from_id,
             redirect_to_entity_id=request.redirect_to_id,
             created_by=request.created_by,
         )
 
-        vitess.set_redirect_target(
+        mysql.set_redirect_target(
             entity_id=request.redirect_from_id,
             redirects_to_entity_id=request.redirect_to_id,
         )
@@ -235,22 +233,22 @@ class RedirectService:
     def revert_redirect(
         self, entity_id: str, revert_to_revision_id: int, edit_headers
     ) -> EntityResponse:
-        vitess = self.vitess
+        mysql = self.mysql
         s3 = self.s3
 
-        internal_id = vitess.resolve_id(entity_id)
+        internal_id = mysql.resolve_id(entity_id)
         if internal_id is None:
             raise HTTPException(status_code=404, detail="Entity not found")
 
-        current_redirect_target = vitess.get_redirect_target(entity_id)
+        current_redirect_target = mysql.get_redirect_target(entity_id)
 
         if current_redirect_target is None:
             raise HTTPException(status_code=404, detail="Entity is not a redirect")
 
-        if vitess.is_entity_deleted(entity_id):
+        if mysql.is_entity_deleted(entity_id):
             raise HTTPException(status_code=423, detail="Entity has been deleted")
 
-        if vitess.is_entity_locked(entity_id) or vitess.is_entity_archived(entity_id):
+        if mysql.is_entity_locked(entity_id) or mysql.is_entity_archived(entity_id):
             raise HTTPException(status_code=423, detail="Entity is locked or archived")
 
         target_revision = s3.read_full_revision(entity_id, revert_to_revision_id)
@@ -265,7 +263,7 @@ class RedirectService:
         new_revision_data["revision_id"] = 2
         new_revision_id = s3.write_entity_revision(data=new_revision_data)
 
-        vitess.set_redirect_target(
+        mysql.set_redirect_target(
             entity_id=entity_id,
             redirects_to_entity_id=None,
         )
@@ -281,20 +279,20 @@ class RedirectService:
 @pytest.fixture
 def redirect_service() -> RedirectService:
     """Fixture providing RedirectService with mock clients"""
-    vitess = MockVitessClient()
+    mysql = MockMysqlClient()
     s3 = MockS3Client()
 
     # Set up default Q42 entity for tests
-    vitess.resolved_ids["Q42"] = 42
+    mysql.resolved_ids["Q42"] = 42
 
-    return RedirectService(s3, vitess)
+    return RedirectService(s3, mysql)
 
 
 def test_revert_redirect_entity_not_redirect(redirect_service: RedirectService) -> None:
     """Test that reverting a non-redirect entity raises 404"""
-    vitess = redirect_service.vitess
+    mysql = redirect_service.mysql
 
-    vitess.resolved_ids["Q100"] = 100
+    mysql.resolved_ids["Q100"] = 100
 
     edit_headers = Mock()
     edit_headers.x_edit_summary = "Test revert"
@@ -314,12 +312,12 @@ def test_revert_redirect_entity_not_redirect(redirect_service: RedirectService) 
 
 def test_revert_redirect_entity_deleted(redirect_service: RedirectService) -> None:
     """Test that reverting a deleted entity raises 423"""
-    vitess = redirect_service.vitess
+    mysql = redirect_service.mysql
 
-    vitess.resolved_ids["Q100"] = 100
-    vitess.resolved_ids["Q42"] = 42
-    vitess.set_redirect_target("Q100", "Q42")  # Set up as redirect first
-    vitess.deleted_entities.add("Q100")
+    mysql.resolved_ids["Q100"] = 100
+    mysql.resolved_ids["Q42"] = 42
+    mysql.set_redirect_target("Q100", "Q42")  # Set up as redirect first
+    mysql.deleted_entities.add("Q100")
 
     edit_headers = Mock()
     edit_headers.x_edit_summary = "Test revert"
@@ -339,12 +337,12 @@ def test_revert_redirect_entity_deleted(redirect_service: RedirectService) -> No
 
 def test_revert_redirect_entity_locked(redirect_service: RedirectService) -> None:
     """Test that reverting a locked entity raises 423"""
-    vitess = redirect_service.vitess
+    mysql = redirect_service.mysql
 
-    vitess.resolved_ids["Q100"] = 100
-    vitess.resolved_ids["Q42"] = 42
-    vitess.set_redirect_target("Q100", "Q42")  # Set up as redirect first
-    vitess.locked_entities.add("Q100")
+    mysql.resolved_ids["Q100"] = 100
+    mysql.resolved_ids["Q42"] = 42
+    mysql.set_redirect_target("Q100", "Q42")  # Set up as redirect first
+    mysql.locked_entities.add("Q100")
 
     edit_headers = Mock()
     edit_headers.x_edit_summary = "Test revert"
@@ -364,12 +362,12 @@ def test_revert_redirect_entity_locked(redirect_service: RedirectService) -> Non
 
 def test_revert_redirect_entity_archived(redirect_service: RedirectService) -> None:
     """Test that reverting an archived entity raises 423"""
-    vitess = redirect_service.vitess
+    mysql = redirect_service.mysql
 
-    vitess.resolved_ids["Q100"] = 100
-    vitess.resolved_ids["Q42"] = 42
-    vitess.set_redirect_target("Q100", "Q42")  # Set up as redirect first
-    vitess.archived_entities.add("Q100")
+    mysql.resolved_ids["Q100"] = 100
+    mysql.resolved_ids["Q42"] = 42
+    mysql.set_redirect_target("Q100", "Q42")  # Set up as redirect first
+    mysql.archived_entities.add("Q100")
 
     edit_headers = Mock()
     edit_headers.x_edit_summary = "Test revert"

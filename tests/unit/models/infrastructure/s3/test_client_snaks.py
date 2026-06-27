@@ -28,8 +28,8 @@ class TestS3ClientSnaks:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_snaks = MagicMock()
-            client.vitess_snaks.store_snak.return_value = MagicMock(success=True)
+            client.mysql_snaks = MagicMock()
+            client.mysql_snaks.store_snak.return_value = MagicMock(success=True)
 
             snak_data = S3SnakData(
                 snak={"id": "s1"},
@@ -39,7 +39,7 @@ class TestS3ClientSnaks:
             )
             client.store_snak(12345, snak_data)
 
-            client.vitess_snaks.store_snak.assert_called_once()
+            client.mysql_snaks.store_snak.assert_called_once()
 
     def test_load_snak_success(self):
         """Test successful snak load."""
@@ -57,9 +57,9 @@ class TestS3ClientSnaks:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_snaks = MagicMock()
+            client.mysql_snaks = MagicMock()
 
-            client.vitess_snaks.load_snak.return_value = S3SnakData(
+            client.mysql_snaks.load_snak.return_value = S3SnakData(
                 snak={"id": "s1"},
                 hash=12345,
                 schema="1.0.0",
@@ -86,8 +86,8 @@ class TestS3ClientSnaks:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_snaks = MagicMock()
-            client.vitess_snaks.load_snaks_batch.return_value = [None, {"id": "s2"}]
+            client.mysql_snaks = MagicMock()
+            client.mysql_snaks.load_snaks_batch.return_value = [None, {"id": "s2"}]
 
             result = client.load_snaks_batch([111, 222])
 
@@ -134,8 +134,8 @@ class TestS3ClientSnaks:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_snaks = MagicMock()
-            client.vitess_snaks.store_snak.return_value = MagicMock(
+            client.mysql_snaks = MagicMock()
+            client.mysql_snaks.store_snak.return_value = MagicMock(
                 success=False, error="Database error"
             )
 
@@ -183,8 +183,8 @@ class TestS3ClientSnaks:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_snaks = MagicMock()
-            client.vitess_snaks.load_snak.return_value = None
+            client.mysql_snaks = MagicMock()
+            client.mysql_snaks.load_snak.return_value = None
 
             with pytest.raises(Exception):
                 client.load_snak(12345)

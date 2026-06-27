@@ -20,7 +20,7 @@ class TestItemCreateHandlerResolveEntityId:
 
     def test_resolve_entity_id_with_explicit_id_not_exists(self) -> None:
         mock_state = MagicMock()
-        mock_state.vitess_client.id_resolver.entity_exists.return_value = False
+        mock_state.mysql_client.id_resolver.entity_exists.return_value = False
         handler = ItemCreateHandler(state=mock_state)
 
         request = self._make_request("Q42")
@@ -28,13 +28,11 @@ class TestItemCreateHandlerResolveEntityId:
 
         assert result == "Q42"
         assert request.id == "Q42"
-        mock_state.vitess_client.id_resolver.entity_exists.assert_called_once_with(
-            "Q42"
-        )
+        mock_state.mysql_client.id_resolver.entity_exists.assert_called_once_with("Q42")
 
     def test_resolve_entity_id_with_explicit_id_exists(self) -> None:
         mock_state = MagicMock()
-        mock_state.vitess_client.id_resolver.entity_exists.return_value = True
+        mock_state.mysql_client.id_resolver.entity_exists.return_value = True
         handler = ItemCreateHandler(state=mock_state)
 
         request = self._make_request("Q42")
@@ -133,7 +131,7 @@ class TestItemCreateHandlerCreateEntity:
         from models.data.rest_api.v1.entitybase.response import StatementHashResult
 
         mock_state = MagicMock()
-        mock_state.vitess_client.id_resolver.entity_exists.return_value = False
+        mock_state.mysql_client.id_resolver.entity_exists.return_value = False
         handler = ItemCreateHandler(state=mock_state)
 
         mock_tx = MagicMock()
@@ -168,7 +166,7 @@ class TestItemCreateHandlerCreateEntity:
         from models.data.rest_api.v1.entitybase.response import StatementHashResult
 
         mock_state = MagicMock()
-        mock_state.vitess_client.id_resolver.entity_exists.return_value = False
+        mock_state.mysql_client.id_resolver.entity_exists.return_value = False
         handler = ItemCreateHandler(state=mock_state)
         mock_enum = MagicMock()
         mock_enum.get_next_entity_id.return_value = "Q999"
@@ -205,7 +203,7 @@ class TestItemCreateHandlerCreateEntity:
     @pytest.mark.asyncio
     async def test_create_entity_rollback_on_exception(self) -> None:
         mock_state = MagicMock()
-        mock_state.vitess_client.id_resolver.entity_exists.return_value = False
+        mock_state.mysql_client.id_resolver.entity_exists.return_value = False
         handler = ItemCreateHandler(state=mock_state)
 
         mock_tx = MagicMock()

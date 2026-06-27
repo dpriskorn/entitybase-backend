@@ -35,7 +35,7 @@ class TestEntityUpdateLexemeMixin:
     async def test_update_lexeme_entity_not_found(
         self, mixin: EntityUpdateLexemeMixin
     ) -> None:
-        mixin.state.vitess_client.entity_exists.return_value = False
+        mixin.state.mysql_client.entity_exists.return_value = False
         request = MagicMock(spec=LexemeUpdateRequest)
         edit_headers = EditHeaders(x_user_id=1, x_edit_summary="test")
         with pytest.raises(HTTPException) as exc_info:
@@ -46,8 +46,8 @@ class TestEntityUpdateLexemeMixin:
     async def test_update_lexeme_entity_deleted(
         self, mixin: EntityUpdateLexemeMixin
     ) -> None:
-        mixin.state.vitess_client.entity_exists.return_value = True
-        mixin.state.vitess_client.is_entity_deleted.return_value = True
+        mixin.state.mysql_client.entity_exists.return_value = True
+        mixin.state.mysql_client.is_entity_deleted.return_value = True
         request = MagicMock(spec=LexemeUpdateRequest)
         edit_headers = EditHeaders(x_user_id=1, x_edit_summary="test")
         with pytest.raises(HTTPException) as exc_info:
@@ -58,9 +58,9 @@ class TestEntityUpdateLexemeMixin:
     async def test_update_lexeme_entity_locked(
         self, mixin: EntityUpdateLexemeMixin
     ) -> None:
-        mixin.state.vitess_client.entity_exists.return_value = True
-        mixin.state.vitess_client.is_entity_deleted.return_value = False
-        mixin.state.vitess_client.is_entity_locked.return_value = True
+        mixin.state.mysql_client.entity_exists.return_value = True
+        mixin.state.mysql_client.is_entity_deleted.return_value = False
+        mixin.state.mysql_client.is_entity_locked.return_value = True
         request = MagicMock(spec=LexemeUpdateRequest)
         edit_headers = EditHeaders(x_user_id=1, x_edit_summary="test")
         with pytest.raises(HTTPException) as exc_info:
@@ -71,10 +71,10 @@ class TestEntityUpdateLexemeMixin:
     async def test_update_lexeme_success(self, mixin: EntityUpdateLexemeMixin) -> None:
         from models.data.rest_api.v1.entitybase.response import StatementHashResult
 
-        mixin.state.vitess_client.entity_exists.return_value = True
-        mixin.state.vitess_client.is_entity_deleted.return_value = False
-        mixin.state.vitess_client.is_entity_locked.return_value = False
-        mixin.state.vitess_client.get_head.return_value = 5
+        mixin.state.mysql_client.entity_exists.return_value = True
+        mixin.state.mysql_client.is_entity_deleted.return_value = False
+        mixin.state.mysql_client.is_entity_locked.return_value = False
+        mixin.state.mysql_client.get_head.return_value = 5
 
         mock_tx = MagicMock()
         mock_tx.process_lexeme_terms = MagicMock()
@@ -89,7 +89,7 @@ class TestEntityUpdateLexemeMixin:
 
         mock_activity_result = MagicMock()
         mock_activity_result.success = True
-        mixin.state.vitess_client.user_repository.log_user_activity = AsyncMock(
+        mixin.state.mysql_client.user_repository.log_user_activity = AsyncMock(
             return_value=mock_activity_result
         )
 
@@ -128,10 +128,10 @@ class TestEntityUpdateLexemeMixin:
     async def test_update_lexeme_s3_not_found_error(
         self, mixin: EntityUpdateLexemeMixin
     ) -> None:
-        mixin.state.vitess_client.entity_exists.return_value = True
-        mixin.state.vitess_client.is_entity_deleted.return_value = False
-        mixin.state.vitess_client.is_entity_locked.return_value = False
-        mixin.state.vitess_client.get_head.side_effect = S3NotFoundError("S3 error")
+        mixin.state.mysql_client.entity_exists.return_value = True
+        mixin.state.mysql_client.is_entity_deleted.return_value = False
+        mixin.state.mysql_client.is_entity_locked.return_value = False
+        mixin.state.mysql_client.get_head.side_effect = S3NotFoundError("S3 error")
 
         mock_tx = MagicMock()
         mock_tx.state = mixin.state
@@ -168,10 +168,10 @@ class TestEntityUpdateLexemeMixin:
     async def test_update_lexeme_http_exception_rollback(
         self, mixin: EntityUpdateLexemeMixin
     ) -> None:
-        mixin.state.vitess_client.entity_exists.return_value = True
-        mixin.state.vitess_client.is_entity_deleted.return_value = False
-        mixin.state.vitess_client.is_entity_locked.return_value = False
-        mixin.state.vitess_client.get_head.return_value = 5
+        mixin.state.mysql_client.entity_exists.return_value = True
+        mixin.state.mysql_client.is_entity_deleted.return_value = False
+        mixin.state.mysql_client.is_entity_locked.return_value = False
+        mixin.state.mysql_client.get_head.return_value = 5
 
         mock_tx = MagicMock()
         mock_tx.process_lexeme_terms = MagicMock()
@@ -211,10 +211,10 @@ class TestEntityUpdateLexemeMixin:
     async def test_update_lexeme_generic_exception_rollback(
         self, mixin: EntityUpdateLexemeMixin
     ) -> None:
-        mixin.state.vitess_client.entity_exists.return_value = True
-        mixin.state.vitess_client.is_entity_deleted.return_value = False
-        mixin.state.vitess_client.is_entity_locked.return_value = False
-        mixin.state.vitess_client.get_head.return_value = 5
+        mixin.state.mysql_client.entity_exists.return_value = True
+        mixin.state.mysql_client.is_entity_deleted.return_value = False
+        mixin.state.mysql_client.is_entity_locked.return_value = False
+        mixin.state.mysql_client.get_head.return_value = 5
 
         mock_tx = MagicMock()
         mock_tx.process_lexeme_terms = MagicMock()
@@ -254,10 +254,10 @@ class TestEntityUpdateLexemeMixin:
     ) -> None:
         from models.data.rest_api.v1.entitybase.response import StatementHashResult
 
-        mixin.state.vitess_client.entity_exists.return_value = True
-        mixin.state.vitess_client.is_entity_deleted.return_value = False
-        mixin.state.vitess_client.is_entity_locked.return_value = False
-        mixin.state.vitess_client.get_head.return_value = 5
+        mixin.state.mysql_client.entity_exists.return_value = True
+        mixin.state.mysql_client.is_entity_deleted.return_value = False
+        mixin.state.mysql_client.is_entity_locked.return_value = False
+        mixin.state.mysql_client.get_head.return_value = 5
 
         mock_tx = MagicMock()
         mock_tx.process_lexeme_terms = MagicMock()
@@ -272,7 +272,7 @@ class TestEntityUpdateLexemeMixin:
 
         mock_activity_result = MagicMock()
         mock_activity_result.success = True
-        mixin.state.vitess_client.user_repository.log_user_activity = AsyncMock(
+        mixin.state.mysql_client.user_repository.log_user_activity = AsyncMock(
             return_value=mock_activity_result
         )
 
@@ -300,4 +300,4 @@ class TestEntityUpdateLexemeMixin:
         ):
             await mixin.update_lexeme("L123", request, edit_headers)
 
-        mixin.state.vitess_client.user_repository.log_user_activity.assert_awaited_once()
+        mixin.state.mysql_client.user_repository.log_user_activity.assert_awaited_once()

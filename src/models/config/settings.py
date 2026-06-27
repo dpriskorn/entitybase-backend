@@ -13,7 +13,7 @@ from models.config.version import ENTITYBASE_VERSION
 if TYPE_CHECKING:
     from models.data.config.s3 import S3Config
     from models.data.config.sqlite import SqliteConfig
-    from models.data.config.vitess import VitessConfig
+    from models.data.config.mysql import MysqlConfig
 
 logger = logging.getLogger(__name__)
 
@@ -39,19 +39,19 @@ class Settings(BaseModel):
     s3_statement_version: str = "1.0.0"
     s3_schema_revision_version: str = "4.0.0"
 
-    # database type (sqlite or vitess)
+    # database type (sqlite or mysql)
     db_type: str = "sqlite"
     datadir: str = "data"
 
-    # vitess
-    vitess_host: str = ""
-    vitess_port: int = 0
-    vitess_database: str = ""
-    vitess_user: str = ""
-    vitess_password: str = ""
-    vitess_pool_size: int = 20
-    vitess_max_overflow: int = 20
-    vitess_pool_timeout: int = 30
+    # mysql
+    mysql_host: str = ""
+    mysql_port: int = 0
+    mysql_database: str = ""
+    mysql_user: str = ""
+    mysql_password: str = ""
+    mysql_pool_size: int = 20
+    mysql_max_overflow: int = 20
+    mysql_pool_timeout: int = 30
 
     # rdf
     wikibase_repository_name: str = "wikidata"
@@ -151,7 +151,7 @@ class Settings(BaseModel):
         """
         self._load_s3_config()
         self._load_database_config()
-        self._load_vitess_config()
+        self._load_mysql_config()
         self._load_entity_config()
         self._load_streaming_config()
         self._load_other_config()
@@ -191,14 +191,14 @@ class Settings(BaseModel):
         self.db_type = os.getenv("DB_TYPE", self.db_type)
         self.datadir = os.getenv("DATADIR", self.datadir)
 
-    def _load_vitess_config(self) -> None:
-        """Load Vitess configuration from environment variables."""
-        self.vitess_host = os.getenv("VITESS_HOST", self.vitess_host)
-        logger.debug(f"self.vitess_host: {self.vitess_host}")
-        self.vitess_port = int(os.getenv("VITESS_PORT", str(self.vitess_port)))
-        self.vitess_database = os.getenv("VITESS_DATABASE", self.vitess_database)
-        self.vitess_user = os.getenv("VITESS_USER", self.vitess_user)
-        self.vitess_password = os.getenv("VITESS_PASSWORD", self.vitess_password)
+    def _load_mysql_config(self) -> None:
+        """Load Mysql configuration from environment variables."""
+        self.mysql_host = os.getenv("MYSQL_HOST", self.mysql_host)
+        logger.debug(f"self.mysql_host: {self.mysql_host}")
+        self.mysql_port = int(os.getenv("MYSQL_PORT", str(self.mysql_port)))
+        self.mysql_database = os.getenv("MYSQL_DATABASE", self.mysql_database)
+        self.mysql_user = os.getenv("MYSQL_USER", self.mysql_user)
+        self.mysql_password = os.getenv("MYSQL_PASSWORD", self.mysql_password)
 
     def _load_entity_config(self) -> None:
         """Load entity version and API config from environment variables."""
@@ -451,31 +451,31 @@ class Settings(BaseModel):
         )
 
     @property
-    def get_vitess_config(self) -> "VitessConfig":
-        """Convert settings to Vitess configuration object.
+    def get_mysql_config(self) -> "MysqlConfig":
+        """Convert settings to Mysql configuration object.
 
         Returns:
-            VitessConfig object with the settings.
+            MysqlConfig object with the settings.
         """
-        from models.data.config.vitess import VitessConfig
+        from models.data.config.mysql import MysqlConfig
 
-        return VitessConfig(
-            host=self.vitess_host,
-            port=self.vitess_port,
-            database=self.vitess_database,
-            user=self.vitess_user,
-            password=self.vitess_password,
-            pool_size=self.vitess_pool_size,
-            max_overflow=self.vitess_max_overflow,
-            pool_timeout=self.vitess_pool_timeout,
+        return MysqlConfig(
+            host=self.mysql_host,
+            port=self.mysql_port,
+            database=self.mysql_database,
+            user=self.mysql_user,
+            password=self.mysql_password,
+            pool_size=self.mysql_pool_size,
+            max_overflow=self.mysql_max_overflow,
+            pool_timeout=self.mysql_pool_timeout,
         )
 
     @property
-    def get_db_config(self) -> "SqliteConfig | VitessConfig":
+    def get_db_config(self) -> "SqliteConfig | MysqlConfig":
         """Convert settings to database configuration object.
 
         Returns:
-            SqliteConfig or VitessConfig depending on db_type setting.
+            SqliteConfig or MysqlConfig depending on db_type setting.
         """
         if self.db_type == "sqlite":
             from models.data.config.sqlite import SqliteConfig
@@ -483,7 +483,7 @@ class Settings(BaseModel):
             return SqliteConfig(
                 datadir=Path(self.datadir),
             )
-        return self.get_vitess_config
+        return self.get_mysql_config
 
     @property
     def get_entity_change_stream_config(self) -> "StreamConfig":

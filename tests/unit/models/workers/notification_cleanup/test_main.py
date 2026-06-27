@@ -16,7 +16,7 @@ class TestNotificationCleanupWorker:
         assert worker.worker_id is not None
         assert worker.max_age_days == 30
         assert worker.max_per_user == 500
-        assert worker.vitess_client is None
+        assert worker.mysql_client is None
 
     def test_worker_initialization_custom_limits(self):
         """Test worker initialization with custom limits."""
@@ -41,11 +41,11 @@ class TestNotificationCleanupWorker:
         mock_connection_manager = MagicMock()
         mock_connection_manager.connection = mock_connection
 
-        mock_vitess_client = MagicMock()
-        mock_vitess_client.connection_manager = mock_connection_manager
+        mock_mysql_client = MagicMock()
+        mock_mysql_client.connection_manager = mock_connection_manager
 
         worker = NotificationCleanupWorker()
-        worker.vitess_client = mock_vitess_client
+        worker.mysql_client = mock_mysql_client
 
         await worker.run_cleanup()
 
@@ -69,11 +69,11 @@ class TestNotificationCleanupWorker:
         mock_connection_manager = MagicMock()
         mock_connection_manager.connection = mock_connection
 
-        mock_vitess_client = MagicMock()
-        mock_vitess_client.connection_manager = mock_connection_manager
+        mock_mysql_client = MagicMock()
+        mock_mysql_client.connection_manager = mock_connection_manager
 
         worker = NotificationCleanupWorker()
-        worker.vitess_client = mock_vitess_client
+        worker.mysql_client = mock_mysql_client
 
         await worker.run_cleanup()
 
@@ -91,11 +91,11 @@ class TestNotificationCleanupWorker:
         mock_connection_manager = MagicMock()
         mock_connection_manager.connection = mock_connection
 
-        mock_vitess_client = MagicMock()
-        mock_vitess_client.connection_manager = mock_connection_manager
+        mock_mysql_client = MagicMock()
+        mock_mysql_client.connection_manager = mock_connection_manager
 
         worker = NotificationCleanupWorker()
-        worker.vitess_client = mock_vitess_client
+        worker.mysql_client = mock_mysql_client
 
         cutoff_date = datetime.now(timezone.utc) - timedelta(days=30)
         deleted = worker._delete_old_notifications(cutoff_date)
@@ -118,11 +118,11 @@ class TestNotificationCleanupWorker:
         mock_connection_manager = MagicMock()
         mock_connection_manager.connection = mock_connection
 
-        mock_vitess_client = MagicMock()
-        mock_vitess_client.connection_manager = mock_connection_manager
+        mock_mysql_client = MagicMock()
+        mock_mysql_client.connection_manager = mock_connection_manager
 
         worker = NotificationCleanupWorker()
-        worker.vitess_client = mock_vitess_client
+        worker.mysql_client = mock_mysql_client
 
         deleted = worker._enforce_user_limits()
 
@@ -143,12 +143,12 @@ class TestNotificationCleanupWorker:
         mock_connection_manager = MagicMock()
         mock_connection_manager.connection = mock_connection
 
-        mock_vitess_client = MagicMock()
-        mock_vitess_client.connection_manager = mock_connection_manager
-        mock_vitess_client.cursor = mock_connection.cursor.return_value
+        mock_mysql_client = MagicMock()
+        mock_mysql_client.connection_manager = mock_connection_manager
+        mock_mysql_client.cursor = mock_connection.cursor.return_value
 
         worker = NotificationCleanupWorker()
-        worker.vitess_client = mock_vitess_client
+        worker.mysql_client = mock_mysql_client
 
         deleted = worker._enforce_user_limits()
 
@@ -172,12 +172,12 @@ class TestNotificationCleanupWorker:
         mock_connection_manager = MagicMock()
         mock_connection_manager.connection = mock_connection
 
-        mock_vitess_client = MagicMock()
-        mock_vitess_client.connection_manager = mock_connection_manager
-        mock_vitess_client.cursor = mock_connection.cursor.return_value
+        mock_mysql_client = MagicMock()
+        mock_mysql_client.connection_manager = mock_connection_manager
+        mock_mysql_client.cursor = mock_connection.cursor.return_value
 
         worker = NotificationCleanupWorker()
-        worker.vitess_client = mock_vitess_client
+        worker.mysql_client = mock_mysql_client
 
         deleted = worker._enforce_user_limits()
 

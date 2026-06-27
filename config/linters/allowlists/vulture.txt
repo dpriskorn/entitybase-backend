@@ -136,7 +136,7 @@ length
 server_name
 server_url
 s3
-vitess
+mysql
 details
 entitybase_version
 direct
@@ -203,7 +203,7 @@ sequence
 sequence_length
 topics
 topics_created
-# Vitess storage - unused methods kept for future use
+# Mysql storage - unused methods kept for future use
 _delete
 _get_ref_count
 delete_qualifier

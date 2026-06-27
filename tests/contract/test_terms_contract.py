@@ -13,7 +13,9 @@ sys.path.insert(0, "src")
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_label_response_schema(api_prefix: str) -> None:
+async def test_label_response_schema(
+    api_prefix: str, auth_headers: dict[str, str]
+) -> None:
     """Contract test: Label response has required fields."""
     from models.rest_api.main import app
 
@@ -22,7 +24,7 @@ async def test_label_response_schema(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]
@@ -33,7 +35,7 @@ async def test_label_response_schema(api_prefix: str) -> None:
             json={"language": "en", "value": "Test Label"},
             headers={
                 "X-Edit-Summary": "test",
-                "X-User-ID": "0",
+                **auth_headers,
                 "X-Base-Revision-ID": str(revision_id),
             },
         )
@@ -48,7 +50,9 @@ async def test_label_response_schema(api_prefix: str) -> None:
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_description_response_schema(api_prefix: str) -> None:
+async def test_description_response_schema(
+    api_prefix: str, auth_headers: dict[str, str]
+) -> None:
     """Contract test: Description response has required fields."""
     from models.rest_api.main import app
 
@@ -57,7 +61,7 @@ async def test_description_response_schema(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]
@@ -68,7 +72,7 @@ async def test_description_response_schema(api_prefix: str) -> None:
             json={"language": "en", "value": "Test Description"},
             headers={
                 "X-Edit-Summary": "test",
-                "X-User-ID": "0",
+                **auth_headers,
                 "X-Base-Revision-ID": str(revision_id),
             },
         )
@@ -85,7 +89,9 @@ async def test_description_response_schema(api_prefix: str) -> None:
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_aliases_response_schema(api_prefix: str) -> None:
+async def test_aliases_response_schema(
+    api_prefix: str, auth_headers: dict[str, str]
+) -> None:
     """Contract test: Aliases returns list of strings."""
     from models.rest_api.main import app
 
@@ -94,7 +100,7 @@ async def test_aliases_response_schema(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]
@@ -105,7 +111,7 @@ async def test_aliases_response_schema(api_prefix: str) -> None:
             json=["Test Alias"],
             headers={
                 "X-Edit-Summary": "test",
-                "X-User-ID": "0",
+                **auth_headers,
                 "X-Base-Revision-ID": str(revision_id),
             },
         )

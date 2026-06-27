@@ -14,9 +14,9 @@ COPY pyproject.toml /app/pyproject.toml
 COPY src/ ./
 ENV PYTHONPATH=/app
 ENV WORKER_ID=id-worker
-ENV VITESS_HOST=vitess
-ENV VITESS_PORT=15309
-ENV VITESS_DATABASE=page
-ENV VITESS_USER=root
+ENV MYSQL_HOST=mysql
+ENV MYSQL_PORT=15309
+ENV MYSQL_DATABASE=page
+ENV MYSQL_USER=root
 EXPOSE 8001
 CMD ["python", "-m", "models.workers.id_generation.id_generation_worker"]

@@ -129,8 +129,8 @@ get_schedule_setting
 get_user_stats
 get_watches
 mark_checked
-vitess_client
-vitess_config
+mysql_client
+mysql_config
 generate_unique_id
 _infer_entity_type_from_id
 disconnect
@@ -143,7 +143,7 @@ _generate_checksum
 list_entities_by_type
 _validate_user
 _get_kafka_brokers
-# Repository factory methods (duplicated across SQLite and Vitess implementations)
+# Repository factory methods (duplicated across SQLite and Mysql implementations)
 backlink_repository
 create_redirect
 create_revision
@@ -171,7 +171,7 @@ close
 delete_document
 get_document
 index_document
-# Vitess storage duplicate methods (intentional - same interface as S3 storage)
+# Mysql storage duplicate methods (intentional - same interface as S3 storage)
 exists
 load_statement
 store_statement

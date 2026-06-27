@@ -24,17 +24,17 @@ class TestEntityUpdateHandler:
     async def test_update_with_transaction_success(self) -> None:
         """Test successful update with transaction."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
         mock_user_repo = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
-        mock_vitess.user_repository = mock_user_repo
+        mock_mysql.user_repository = mock_user_repo
 
-        mock_vitess.entity_exists.return_value = True
-        mock_vitess.is_entity_deleted.return_value = False
-        mock_vitess.is_entity_locked.return_value = False
-        mock_vitess.get_head.return_value = 2
+        mock_mysql.entity_exists.return_value = True
+        mock_mysql.is_entity_deleted.return_value = False
+        mock_mysql.is_entity_locked.return_value = False
+        mock_mysql.get_head.return_value = 2
         mock_user_repo.log_user_activity.return_value = MagicMock(success=True)
 
         handler = EntityUpdateHandler(state=mock_state)
@@ -70,11 +70,11 @@ class TestEntityUpdateHandler:
     async def test_update_with_transaction_entity_not_found(self) -> None:
         """Test update when entity doesn't exist (404)."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = MagicMock()
 
-        mock_vitess.entity_exists.return_value = False
+        mock_mysql.entity_exists.return_value = False
 
         handler = EntityUpdateHandler(state=mock_state)
         modified_data = {}
@@ -93,13 +93,13 @@ class TestEntityUpdateHandler:
     async def test_update_with_transaction_entity_deleted(self) -> None:
         """Test update when entity is deleted (410)."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = MagicMock()
         mock_state.entity_change_stream_producer = AsyncMock()
 
-        mock_vitess.entity_exists.return_value = True
-        mock_vitess.is_entity_deleted.return_value = True
+        mock_mysql.entity_exists.return_value = True
+        mock_mysql.is_entity_deleted.return_value = True
 
         handler = EntityUpdateHandler(state=mock_state)
         modified_data = {}
@@ -118,14 +118,14 @@ class TestEntityUpdateHandler:
     async def test_update_with_transaction_entity_locked(self) -> None:
         """Test update when entity is locked (423)."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = MagicMock()
         mock_state.entity_change_stream_producer = AsyncMock()
 
-        mock_vitess.entity_exists.return_value = True
-        mock_vitess.is_entity_deleted.return_value = False
-        mock_vitess.is_entity_locked.return_value = True
+        mock_mysql.entity_exists.return_value = True
+        mock_mysql.is_entity_deleted.return_value = False
+        mock_mysql.is_entity_locked.return_value = True
 
         handler = EntityUpdateHandler(state=mock_state)
         modified_data = {}
@@ -145,11 +145,11 @@ class TestEntityUpdateHandler:
     async def test_update_label_success(self) -> None:
         """Test updating a label successfully."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = MagicMock()
-        mock_vitess.is_entity_deleted.return_value = False
-        mock_vitess.is_entity_locked.return_value = False
+        mock_mysql.is_entity_deleted.return_value = False
+        mock_mysql.is_entity_locked.return_value = False
 
         mock_entity = MagicMock()
         mock_entity.entity_data = MagicMock()
@@ -234,15 +234,15 @@ class TestEntityUpdateHandler:
     async def test_delete_label_success(self) -> None:
         """Test deleting a label successfully."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = MagicMock()
         mock_state.entity_change_stream_producer = AsyncMock()
 
-        mock_vitess.is_entity_deleted.return_value = False
-        mock_vitess.is_entity_locked.return_value = False
-        mock_vitess.get_head.return_value = 2
-        mock_vitess.user_repository.log_user_activity = AsyncMock(
+        mock_mysql.is_entity_deleted.return_value = False
+        mock_mysql.is_entity_locked.return_value = False
+        mock_mysql.get_head.return_value = 2
+        mock_mysql.user_repository.log_user_activity = AsyncMock(
             return_value=MagicMock(success=True)
         )
 
@@ -274,12 +274,12 @@ class TestEntityUpdateHandler:
     async def test_delete_label_idempotent(self) -> None:
         """Test delete_label is idempotent when label doesn't exist."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = MagicMock()
 
-        mock_vitess.is_entity_deleted.return_value = False
-        mock_vitess.is_entity_locked.return_value = False
+        mock_mysql.is_entity_deleted.return_value = False
+        mock_mysql.is_entity_locked.return_value = False
 
         mock_entity = MagicMock()
         mock_entity.entity_data = MagicMock()
@@ -311,11 +311,11 @@ class TestEntityUpdateHandler:
     async def test_update_description_success(self) -> None:
         """Test updating a description successfully."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = MagicMock()
-        mock_vitess.is_entity_deleted.return_value = False
-        mock_vitess.is_entity_locked.return_value = False
+        mock_mysql.is_entity_deleted.return_value = False
+        mock_mysql.is_entity_locked.return_value = False
 
         mock_entity = MagicMock()
         mock_entity.entity_data = MagicMock()
@@ -389,15 +389,15 @@ class TestEntityUpdateHandler:
     async def test_delete_description_success(self) -> None:
         """Test deleting a description successfully."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = MagicMock()
         mock_state.entity_change_stream_producer = AsyncMock()
 
-        mock_vitess.is_entity_deleted.return_value = False
-        mock_vitess.is_entity_locked.return_value = False
-        mock_vitess.get_head.return_value = 2
-        mock_vitess.user_repository.log_user_activity = AsyncMock(
+        mock_mysql.is_entity_deleted.return_value = False
+        mock_mysql.is_entity_locked.return_value = False
+        mock_mysql.get_head.return_value = 2
+        mock_mysql.user_repository.log_user_activity = AsyncMock(
             return_value=MagicMock(success=True)
         )
 
@@ -430,12 +430,12 @@ class TestEntityUpdateHandler:
     async def test_delete_description_idempotent(self) -> None:
         """Test delete_description is idempotent when description doesn't exist."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = MagicMock()
 
-        mock_vitess.is_entity_deleted.return_value = False
-        mock_vitess.is_entity_locked.return_value = False
+        mock_mysql.is_entity_deleted.return_value = False
+        mock_mysql.is_entity_locked.return_value = False
 
         mock_entity = MagicMock()
         mock_entity.entity_data = MagicMock()
@@ -467,11 +467,11 @@ class TestEntityUpdateHandler:
     async def test_update_aliases_success(self) -> None:
         """Test updating aliases successfully."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = MagicMock()
-        mock_vitess.is_entity_deleted.return_value = False
-        mock_vitess.is_entity_locked.return_value = False
+        mock_mysql.is_entity_deleted.return_value = False
+        mock_mysql.is_entity_locked.return_value = False
 
         mock_entity = MagicMock()
         mock_entity.entity_data = MagicMock()
@@ -529,11 +529,11 @@ class TestEntityUpdateHandler:
     async def test_update_sitelink_success(self) -> None:
         """Test updating a sitelink successfully."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = MagicMock()
-        mock_vitess.is_entity_deleted.return_value = False
-        mock_vitess.is_entity_locked.return_value = False
+        mock_mysql.is_entity_deleted.return_value = False
+        mock_mysql.is_entity_locked.return_value = False
 
         mock_entity = MagicMock()
         mock_entity.entity_data = MagicMock()
@@ -576,11 +576,11 @@ class TestEntityUpdateHandler:
     async def test_update_sitelink_existing(self) -> None:
         """Test updating an existing sitelink."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = MagicMock()
-        mock_vitess.is_entity_deleted.return_value = False
-        mock_vitess.is_entity_locked.return_value = False
+        mock_mysql.is_entity_deleted.return_value = False
+        mock_mysql.is_entity_locked.return_value = False
 
         mock_entity = MagicMock()
         mock_entity.entity_data = MagicMock()
@@ -639,11 +639,11 @@ class TestEntityUpdateHandler:
     async def test_delete_sitelink_success(self) -> None:
         """Test deleting a sitelink successfully."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = MagicMock()
-        mock_vitess.is_entity_deleted.return_value = False
-        mock_vitess.is_entity_locked.return_value = False
+        mock_mysql.is_entity_deleted.return_value = False
+        mock_mysql.is_entity_locked.return_value = False
 
         mock_entity = MagicMock()
         mock_entity.entity_data = MagicMock()
@@ -682,8 +682,8 @@ class TestEntityUpdateHandler:
     async def test_delete_sitelink_idempotent(self) -> None:
         """Test delete_sitelink is idempotent when sitelink doesn't exist."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_mysql = MagicMock()
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = MagicMock()
 
         mock_entity = MagicMock()

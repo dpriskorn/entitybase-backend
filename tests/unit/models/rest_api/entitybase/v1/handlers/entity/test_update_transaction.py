@@ -32,11 +32,11 @@ class TestUpdateTransaction:
     async def test_create_revision_success(self) -> None:
         """Test successful revision creation for update."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
-        mock_vitess.get_head.return_value = 1
+        mock_mysql.get_head.return_value = 1
 
         entity_id = "Q42"
         entity_type = EntityType.ITEM
@@ -70,18 +70,18 @@ class TestUpdateTransaction:
         assert result.revision_id == 2
         assert isinstance(result.entity_data, object)
 
-        mock_vitess.create_revision.assert_called_once()
+        mock_mysql.create_revision.assert_called_once()
         mock_s3.store_revision.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_create_revision_with_properties(self) -> None:
         """Test revision creation with multiple properties for update."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
-        mock_vitess.get_head.return_value = 1
+        mock_mysql.get_head.return_value = 1
 
         entity_id = "Q1"
         entity_type = EntityType.ITEM
@@ -116,7 +116,7 @@ class TestUpdateTransaction:
         assert result.id == entity_id
         assert result.revision_id == 2
 
-        call_args = mock_vitess.create_revision.call_args
+        call_args = mock_mysql.create_revision.call_args
         assert call_args[1]["entity_id"] == entity_id
         assert call_args[1]["revision_id"] == 2
         assert "properties" in call_args[1]["entity_data"].model_dump()
@@ -339,11 +339,11 @@ class TestUpdateTransaction:
     async def test_create_revision_conflict(self) -> None:
         """Test create_revision when CAS fails."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
-        mock_vitess.get_head.return_value = 1
+        mock_mysql.get_head.return_value = 1
 
         entity_id = "Q42"
         entity_type = EntityType.ITEM
@@ -367,8 +367,8 @@ class TestUpdateTransaction:
 
         transaction = UpdateTransaction(state=mock_state, entity_id=entity_id)
 
-        mock_vitess.create_revision.return_value = False
-        mock_vitess.get_head.return_value = 2
+        mock_mysql.create_revision.return_value = False
+        mock_mysql.get_head.return_value = 2
 
         with pytest.raises(HTTPException) as exc_info:
             await transaction.create_revision(
@@ -385,11 +385,11 @@ class TestUpdateTransaction:
     async def test_create_revision_with_hashes_success(self) -> None:
         """Test create_revision_with_hashes success."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
-        mock_vitess.get_head.return_value = 3
+        mock_mysql.get_head.return_value = 3
 
         entity_id = "Q1"
         entity_type = EntityType.ITEM
@@ -412,7 +412,7 @@ class TestUpdateTransaction:
             "lexical_category": "",
         }
 
-        mock_vitess.create_revision.return_value = True
+        mock_mysql.create_revision.return_value = True
 
         transaction = UpdateTransaction(state=mock_state, entity_id=entity_id)
 
@@ -431,11 +431,11 @@ class TestUpdateTransaction:
     async def test_create_revision_with_hashes_conflict(self) -> None:
         """Test create_revision_with_hashes when CAS fails."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
-        mock_vitess.get_head.return_value = 3
+        mock_mysql.get_head.return_value = 3
 
         entity_id = "Q1"
         entity_type = EntityType.ITEM
@@ -460,8 +460,8 @@ class TestUpdateTransaction:
             "lexical_category": "",
         }
 
-        mock_vitess.create_revision.return_value = False
-        mock_vitess.get_head.return_value = 4
+        mock_mysql.create_revision.return_value = False
+        mock_mysql.get_head.return_value = 4
 
         transaction = UpdateTransaction(state=mock_state, entity_id=entity_id)
 
@@ -547,26 +547,26 @@ class TestUpdateTransaction:
     def test_rollback_statement_ref_count_greater_than_zero(self) -> None:
         """Test _rollback_statement when ref_count > 0."""
         mock_state = MagicMock()
-        mock_state.vitess_client.get_ref_count.return_value = 3
+        mock_state.mysql_client.get_ref_count.return_value = 3
 
         transaction = UpdateTransaction(state=mock_state, entity_id="Q42")
 
         transaction._rollback_statement(100)
 
-        mock_state.vitess_client.decrement_ref_count.assert_called_once_with(100)
-        mock_state.vitess_client.get_ref_count.assert_called_once_with(100)
+        mock_state.mysql_client.decrement_ref_count.assert_called_once_with(100)
+        mock_state.mysql_client.get_ref_count.assert_called_once_with(100)
         mock_state.s3_client.delete_statement.assert_not_called()
 
     def test_rollback_statement_ref_count_zero(self) -> None:
         """Test _rollback_statement when ref_count reaches 0."""
         mock_state = MagicMock()
-        mock_state.vitess_client.get_ref_count.return_value = 0
+        mock_state.mysql_client.get_ref_count.return_value = 0
 
         transaction = UpdateTransaction(state=mock_state, entity_id="Q42")
 
         transaction._rollback_statement(200)
 
-        mock_state.vitess_client.decrement_ref_count.assert_called_once_with(200)
+        mock_state.mysql_client.decrement_ref_count.assert_called_once_with(200)
         mock_state.s3_client.delete_statement.assert_called_once_with(200)
 
     def test_rollback_form_representation_success(self) -> None:
@@ -627,7 +627,7 @@ class TestUpdateTransaction:
 
         transaction._rollback_revision("Q42", 5)
 
-        mock_state.vitess_client.delete_revision.assert_called_once_with("Q42", 5)
+        mock_state.mysql_client.delete_revision.assert_called_once_with("Q42", 5)
 
     @patch(
         "models.rest_api.entitybase.v1.utils.lexeme_term_processor.process_lexeme_terms"

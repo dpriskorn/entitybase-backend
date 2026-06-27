@@ -13,7 +13,9 @@ sys.path.insert(0, "src")
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_lock_response_schema(api_prefix: str) -> None:
+async def test_lock_response_schema(
+    api_prefix: str, auth_headers: dict[str, str]
+) -> None:
     """Contract test: Lock response contains required fields."""
     from models.rest_api.main import app
 
@@ -22,14 +24,14 @@ async def test_lock_response_schema(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]
 
         lock_resp = await client.post(
             f"{api_prefix}/entities/{entity_id}/lock",
-            headers={"X-Edit-Summary": "lock", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "lock", **auth_headers},
         )
         assert lock_resp.status_code == 200
         data = lock_resp.json()
@@ -43,7 +45,9 @@ async def test_lock_response_schema(api_prefix: str) -> None:
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_unlock_response_schema(api_prefix: str) -> None:
+async def test_unlock_response_schema(
+    api_prefix: str, auth_headers: dict[str, str]
+) -> None:
     """Contract test: Unlock response contains required fields."""
     from models.rest_api.main import app
 
@@ -52,19 +56,19 @@ async def test_unlock_response_schema(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]
 
         await client.post(
             f"{api_prefix}/entities/{entity_id}/lock",
-            headers={"X-Edit-Summary": "lock", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "lock", **auth_headers},
         )
 
         unlock_resp = await client.delete(
             f"{api_prefix}/entities/{entity_id}/lock",
-            headers={"X-Edit-Summary": "unlock", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "unlock", **auth_headers},
         )
         assert unlock_resp.status_code == 200
         data = unlock_resp.json()
@@ -78,7 +82,9 @@ async def test_unlock_response_schema(api_prefix: str) -> None:
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_archive_response_schema(api_prefix: str) -> None:
+async def test_archive_response_schema(
+    api_prefix: str, auth_headers: dict[str, str]
+) -> None:
     """Contract test: Archive response contains required fields."""
     from models.rest_api.main import app
 
@@ -87,14 +93,14 @@ async def test_archive_response_schema(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]
 
         archive_resp = await client.post(
             f"{api_prefix}/entities/{entity_id}/archive",
-            headers={"X-Edit-Summary": "archive", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "archive", **auth_headers},
         )
         assert archive_resp.status_code == 200
         data = archive_resp.json()
@@ -108,7 +114,9 @@ async def test_archive_response_schema(api_prefix: str) -> None:
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_unarchive_response_schema(api_prefix: str) -> None:
+async def test_unarchive_response_schema(
+    api_prefix: str, auth_headers: dict[str, str]
+) -> None:
     """Contract test: Unarchive response contains required fields."""
     from models.rest_api.main import app
 
@@ -117,19 +125,19 @@ async def test_unarchive_response_schema(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]
 
         await client.post(
             f"{api_prefix}/entities/{entity_id}/archive",
-            headers={"X-Edit-Summary": "archive", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "archive", **auth_headers},
         )
 
         unarchive_resp = await client.delete(
             f"{api_prefix}/entities/{entity_id}/archive",
-            headers={"X-Edit-Summary": "unarchive", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "unarchive", **auth_headers},
         )
         assert unarchive_resp.status_code == 200
         data = unarchive_resp.json()
@@ -143,7 +151,9 @@ async def test_unarchive_response_schema(api_prefix: str) -> None:
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_semi_protect_response_schema(api_prefix: str) -> None:
+async def test_semi_protect_response_schema(
+    api_prefix: str, auth_headers: dict[str, str]
+) -> None:
     """Contract test: Semi-protect response contains required fields."""
     from models.rest_api.main import app
 
@@ -152,14 +162,14 @@ async def test_semi_protect_response_schema(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]
 
         protect_resp = await client.post(
             f"{api_prefix}/entities/{entity_id}/semi-protect",
-            headers={"X-Edit-Summary": "semi-protect", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "semi-protect", **auth_headers},
         )
         assert protect_resp.status_code == 200
         data = protect_resp.json()
@@ -173,7 +183,9 @@ async def test_semi_protect_response_schema(api_prefix: str) -> None:
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_mass_edit_protect_response_schema(api_prefix: str) -> None:
+async def test_mass_edit_protect_response_schema(
+    api_prefix: str, auth_headers: dict[str, str]
+) -> None:
     """Contract test: Mass-edit-protect response contains required fields."""
     from models.rest_api.main import app
 
@@ -182,14 +194,14 @@ async def test_mass_edit_protect_response_schema(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]
 
         protect_resp = await client.post(
             f"{api_prefix}/entities/{entity_id}/mass-edit-protect",
-            headers={"X-Edit-Summary": "mass-edit-protect", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "mass-edit-protect", **auth_headers},
         )
         assert protect_resp.status_code == 200
         data = protect_resp.json()
@@ -206,7 +218,9 @@ async def test_mass_edit_protect_response_schema(api_prefix: str) -> None:
 @pytest.mark.xfail(
     reason="Contract test mock doesn't persist entity state between revisions"
 )
-async def test_status_idempotent_flag(api_prefix: str) -> None:
+async def test_status_idempotent_flag(
+    api_prefix: str, auth_headers: dict[str, str]
+) -> None:
     """Contract test: Idempotent flag is true when entity is already in target state."""
     from models.rest_api.main import app
 
@@ -215,20 +229,20 @@ async def test_status_idempotent_flag(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]
 
         first_lock_resp = await client.post(
             f"{api_prefix}/entities/{entity_id}/lock",
-            headers={"X-Edit-Summary": "lock", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "lock", **auth_headers},
         )
         assert first_lock_resp.status_code == 200
 
         lock_again_resp = await client.post(
             f"{api_prefix}/entities/{entity_id}/lock",
-            headers={"X-Edit-Summary": "lock again", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "lock again", **auth_headers},
         )
         assert lock_again_resp.status_code == 200
         data = lock_again_resp.json()

@@ -17,10 +17,10 @@ class TestLexemeCreateHandler:
     @pytest.fixture
     def mock_state(self) -> MagicMock:
         state = MagicMock()
-        state.vitess_client.entity_exists.return_value = False
-        state.vitess_client.register_entity.return_value = True
-        state.vitess_client.is_entity_deleted.return_value = False
-        state.vitess_client.user_repository.log_user_activity.return_value = MagicMock(
+        state.mysql_client.entity_exists.return_value = False
+        state.mysql_client.register_entity.return_value = True
+        state.mysql_client.is_entity_deleted.return_value = False
+        state.mysql_client.user_repository.log_user_activity.return_value = MagicMock(
             success=True
         )
         state.s3_client = MagicMock()

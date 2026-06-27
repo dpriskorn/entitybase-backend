@@ -94,25 +94,25 @@ class EntityUpdateHandler(
             f"_update_with_transaction: modified_data keys: {list(modified_data.keys())}"
         )
         logger.debug(
-            f"[_update_with_transaction] vitess_client={id(self.state.vitess_client)}, id_resolver={id(self.state.vitess_client.id_resolver)}"
+            f"[_update_with_transaction] mysql_client={id(self.state.mysql_client)}, id_resolver={id(self.state.mysql_client.id_resolver)}"
         )
 
-        if not self.state.vitess_client.entity_exists(entity_id):
+        if not self.state.mysql_client.entity_exists(entity_id):
             logger.warning(f"_update_with_transaction: entity not found: {entity_id}")
             raise_validation_error("Entity not found", status_code=404)
 
-        if self.state.vitess_client.is_entity_deleted(entity_id):
+        if self.state.mysql_client.is_entity_deleted(entity_id):
             logger.warning(f"_update_with_transaction: entity deleted: {entity_id}")
             raise_validation_error("Entity deleted", status_code=410)
 
-        if self.state.vitess_client.is_entity_locked(entity_id):
+        if self.state.mysql_client.is_entity_locked(entity_id):
             logger.warning(f"_update_with_transaction: entity locked: {entity_id}")
             raise_validation_error("Entity locked", status_code=423)
 
         tx = UpdateTransaction(state=self.state)
         tx.entity_id = entity_id
         try:
-            head_revision_id = tx.state.vitess_client.get_head(entity_id)
+            head_revision_id = tx.state.mysql_client.get_head(entity_id)
             logger.debug(
                 f"_update_with_transaction: head_revision_id={head_revision_id}"
             )
@@ -159,7 +159,7 @@ class EntityUpdateHandler(
 
             if edit_headers.x_user_id:
                 activity_result = await (
-                    self.state.vitess_client.user_repository.log_user_activity(
+                    self.state.mysql_client.user_repository.log_user_activity(
                         user_id=edit_headers.x_user_id,
                         activity_type=UserActivityType.ENTITY_EDIT,
                         entity_id=entity_id,

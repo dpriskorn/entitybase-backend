@@ -87,7 +87,7 @@ class EntityHandler(Handler):
             edit_summary=ctx.edit_headers.x_edit_summary,
             base_revision_id=ctx.edit_headers.x_base_revision_id,
             is_creation=ctx.is_creation,
-            vitess_client=self.state.vitess_client,
+            mysql_client=self.state.mysql_client,
             s3_client=self.state.s3_client,
             stream_producer=self.state.entity_change_stream_producer,
             validator=ctx.validator,
@@ -139,7 +139,7 @@ class EntityHandler(Handler):
         validation_service = EntityValidationService()
         return validation_service.validate_idempotency(
             ctx.entity_id,
-            ctx.vitess_client.get_head(ctx.entity_id),
+            ctx.mysql_client.get_head(ctx.entity_id),
             0,  # content_hash - need to calculate
         )
 
@@ -166,7 +166,7 @@ class EntityHandler(Handler):
         logger.info(f"_create_revision_new START: entity_id={ctx.entity_id}")
         try:
             # Get current head revision
-            head_revision_id = ctx.vitess_client.get_head(ctx.entity_id)
+            head_revision_id = ctx.mysql_client.get_head(ctx.entity_id)
             logger.debug(f"_create_revision_new: head_revision_id={head_revision_id}")
 
             # Calculate new revision ID
@@ -205,7 +205,7 @@ class EntityHandler(Handler):
             logger.debug(
                 f"_create_revision_new: creating revision in database for {ctx.entity_id}"
             )
-            revision_created = ctx.vitess_client.create_revision(
+            revision_created = ctx.mysql_client.create_revision(
                 entity_id=ctx.entity_id,
                 entity_data=revision_data,
                 revision_id=new_revision_id,
@@ -215,7 +215,7 @@ class EntityHandler(Handler):
             if not revision_created:
                 from models.rest_api.utils import raise_validation_error
 
-                current_head = ctx.vitess_client.get_head(ctx.entity_id)
+                current_head = ctx.mysql_client.get_head(ctx.entity_id)
                 raise_validation_error(
                     f"Conflict: entity was modified by another edit. "
                     f"Expected base revision {ctx.base_revision_id}, but current revision is {current_head}. "

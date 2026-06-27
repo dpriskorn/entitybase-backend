@@ -13,7 +13,7 @@ class TestThanksHandlerMethods:
     def mock_state(self):
         """Create a mock state object."""
         state = MagicMock()
-        state.vitess_client = MagicMock()
+        state.mysql_client = MagicMock()
         return state
 
     @pytest.fixture
@@ -42,7 +42,7 @@ class TestThanksHandlerMethods:
         """Test get_thanks_received raises 404 when user not found."""
         from models.data.rest_api.v1.entitybase.request import ThanksListRequest
 
-        mock_state.vitess_client.user_repository.user_exists.return_value = False
+        mock_state.mysql_client.user_repository.user_exists.return_value = False
         mock_request = ThanksListRequest(hours=24, limit=50, offset=0)
 
         with pytest.raises(HTTPException) as exc_info:
@@ -54,8 +54,8 @@ class TestThanksHandlerMethods:
         """Test get_thanks_received raises 500 when repo fails."""
         from models.data.rest_api.v1.entitybase.request import ThanksListRequest
 
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
-        mock_state.vitess_client.thanks_repository.get_thanks_received.return_value = (
+        mock_state.mysql_client.user_repository.user_exists.return_value = True
+        mock_state.mysql_client.thanks_repository.get_thanks_received.return_value = (
             MagicMock(success=False, error="DB error")
         )
         mock_request = ThanksListRequest(hours=24, limit=50, offset=0)
@@ -69,8 +69,8 @@ class TestThanksHandlerMethods:
         """Test get_thanks_received success path."""
         from models.data.rest_api.v1.entitybase.request import ThanksListRequest
 
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
-        mock_state.vitess_client.thanks_repository.get_thanks_received.return_value = (
+        mock_state.mysql_client.user_repository.user_exists.return_value = True
+        mock_state.mysql_client.thanks_repository.get_thanks_received.return_value = (
             MagicMock(
                 success=True,
                 data={
@@ -91,7 +91,7 @@ class TestThanksHandlerMethods:
         """Test get_thanks_sent raises 404 when user not found."""
         from models.data.rest_api.v1.entitybase.request import ThanksListRequest
 
-        mock_state.vitess_client.user_repository.user_exists.return_value = False
+        mock_state.mysql_client.user_repository.user_exists.return_value = False
         mock_request = ThanksListRequest(hours=24, limit=50, offset=0)
 
         with pytest.raises(HTTPException) as exc_info:
@@ -103,8 +103,8 @@ class TestThanksHandlerMethods:
         """Test get_thanks_sent raises 500 when repo fails."""
         from models.data.rest_api.v1.entitybase.request import ThanksListRequest
 
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
-        mock_state.vitess_client.thanks_repository.get_thanks_sent.return_value = (
+        mock_state.mysql_client.user_repository.user_exists.return_value = True
+        mock_state.mysql_client.thanks_repository.get_thanks_sent.return_value = (
             MagicMock(success=False, error="DB error")
         )
         mock_request = ThanksListRequest(hours=24, limit=50, offset=0)
@@ -118,8 +118,8 @@ class TestThanksHandlerMethods:
         """Test get_thanks_sent success path."""
         from models.data.rest_api.v1.entitybase.request import ThanksListRequest
 
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
-        mock_state.vitess_client.thanks_repository.get_thanks_sent.return_value = (
+        mock_state.mysql_client.user_repository.user_exists.return_value = True
+        mock_state.mysql_client.thanks_repository.get_thanks_sent.return_value = (
             MagicMock(
                 success=True,
                 data={
@@ -138,17 +138,17 @@ class TestThanksHandlerMethods:
 
     def test_send_thank_success(self, handler, mock_state, mock_thank_item):
         """Test send_thank success path."""
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
-        mock_state.vitess_client.thanks_repository.send_thank.return_value = MagicMock(
+        mock_state.mysql_client.user_repository.user_exists.return_value = True
+        mock_state.mysql_client.thanks_repository.send_thank.return_value = MagicMock(
             success=True
         )
-        mock_state.vitess_client.thanks_repository.get_revision_thanks.return_value = (
+        mock_state.mysql_client.thanks_repository.get_revision_thanks.return_value = (
             MagicMock(
                 success=True,
                 data=[mock_thank_item],
             )
         )
-        mock_state.vitess_client.user_repository.log_user_activity.return_value = (
+        mock_state.mysql_client.user_repository.log_user_activity.return_value = (
             MagicMock(success=True)
         )
 
@@ -159,7 +159,7 @@ class TestThanksHandlerMethods:
 
     def test_send_thank_user_not_found(self, handler, mock_state):
         """Test send_thank raises 404 when user not found."""
-        mock_state.vitess_client.user_repository.user_exists.return_value = False
+        mock_state.mysql_client.user_repository.user_exists.return_value = False
 
         with pytest.raises(HTTPException) as exc_info:
             handler.send_thank("Q1", 123, 999)
@@ -168,8 +168,8 @@ class TestThanksHandlerMethods:
 
     def test_send_thank_repo_failure(self, handler, mock_state):
         """Test send_thank raises 400 when repo fails."""
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
-        mock_state.vitess_client.thanks_repository.send_thank.return_value = MagicMock(
+        mock_state.mysql_client.user_repository.user_exists.return_value = True
+        mock_state.mysql_client.thanks_repository.send_thank.return_value = MagicMock(
             success=False, error="Already thanked"
         )
 
@@ -180,11 +180,11 @@ class TestThanksHandlerMethods:
 
     def test_send_thank_revision_thanks_failure(self, handler, mock_state):
         """Test send_thank raises 500 when revision thanks retrieval fails."""
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
-        mock_state.vitess_client.thanks_repository.send_thank.return_value = MagicMock(
+        mock_state.mysql_client.user_repository.user_exists.return_value = True
+        mock_state.mysql_client.thanks_repository.send_thank.return_value = MagicMock(
             success=True
         )
-        mock_state.vitess_client.thanks_repository.get_revision_thanks.return_value = (
+        mock_state.mysql_client.thanks_repository.get_revision_thanks.return_value = (
             MagicMock(success=False, error="DB error")
         )
 
@@ -195,11 +195,11 @@ class TestThanksHandlerMethods:
 
     def test_send_thank_no_thanks_data(self, handler, mock_state):
         """Test send_thank raises 500 when no thanks data returned."""
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
-        mock_state.vitess_client.thanks_repository.send_thank.return_value = MagicMock(
+        mock_state.mysql_client.user_repository.user_exists.return_value = True
+        mock_state.mysql_client.thanks_repository.send_thank.return_value = MagicMock(
             success=True
         )
-        mock_state.vitess_client.thanks_repository.get_revision_thanks.return_value = (
+        mock_state.mysql_client.thanks_repository.get_revision_thanks.return_value = (
             MagicMock(success=True, data=None)
         )
 
@@ -210,11 +210,11 @@ class TestThanksHandlerMethods:
 
     def test_send_thank_not_found_in_list(self, handler, mock_state):
         """Test send_thank raises 500 when created thank not found."""
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
-        mock_state.vitess_client.thanks_repository.send_thank.return_value = MagicMock(
+        mock_state.mysql_client.user_repository.user_exists.return_value = True
+        mock_state.mysql_client.thanks_repository.send_thank.return_value = MagicMock(
             success=True
         )
-        mock_state.vitess_client.thanks_repository.get_revision_thanks.return_value = (
+        mock_state.mysql_client.thanks_repository.get_revision_thanks.return_value = (
             MagicMock(
                 success=True,
                 data=[
@@ -237,17 +237,17 @@ class TestThanksHandlerMethods:
 
     def test_send_thank_log_failure(self, handler, mock_state, mock_thank_item):
         """Test send_thank handles log_user_activity failure."""
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
-        mock_state.vitess_client.thanks_repository.send_thank.return_value = MagicMock(
+        mock_state.mysql_client.user_repository.user_exists.return_value = True
+        mock_state.mysql_client.thanks_repository.send_thank.return_value = MagicMock(
             success=True
         )
-        mock_state.vitess_client.thanks_repository.get_revision_thanks.return_value = (
+        mock_state.mysql_client.thanks_repository.get_revision_thanks.return_value = (
             MagicMock(
                 success=True,
                 data=[mock_thank_item],
             )
         )
-        mock_state.vitess_client.user_repository.log_user_activity.return_value = (
+        mock_state.mysql_client.user_repository.log_user_activity.return_value = (
             MagicMock(success=False, error="Log failed")
         )
 

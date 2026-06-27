@@ -28,7 +28,7 @@ async def create_item(
 
     try:
         state = req.app.state.state_handler
-        if not hasattr(state, "vitess_client") or not hasattr(state, "validator"):
+        if not hasattr(state, "mysql_client") or not hasattr(state, "validator"):
             raise_validation_error("State handler not available", status_code=503)
         validator = req.app.state.state_handler.validator
         enumeration_service = req.app.state.state_handler.enumeration_service
