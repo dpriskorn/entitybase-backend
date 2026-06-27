@@ -91,8 +91,8 @@ class RedirectService(Service):
         redirect_from_id: str,
         redirect_to_id: str,
         edit_headers: EditHeaders,
-        user_id: int = 0,
         from_head_revision_id: int,
+        user_id: int = 0,
     ) -> tuple[RevisionData, int]:
         """Create revision data for redirect.
 

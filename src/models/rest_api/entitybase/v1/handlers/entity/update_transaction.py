@@ -236,9 +236,9 @@ class UpdateTransaction(EntityTransaction):
         entity_id: str,
         entity_type: Any,
         edit_headers: EditHeaders,
-        user_id: int = 0,
         existing_hashes: dict[str, Any],
         existing_revision: dict[str, Any],
+        user_id: int = 0,
     ) -> EntityResponse:
         """Create revision with pre-computed hashes (for single-term updates).
 

@@ -24,7 +24,8 @@ class TestEntityUpdateHandlerNewLabelMethods:
                 language_code="en",
                 language="fr",
                 value="Test",
-                edit_headers=EditHeaders(x_user_id=123, x_edit_summary="Test"),
+                edit_headers=EditHeaders(x_edit_summary="Test"),
+                user_id=123,
             )
 
 
