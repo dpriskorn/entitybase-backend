@@ -1,4 +1,4 @@
-"""Repository for managing thanks in Vitess."""
+"""Repository for managing thanks in database."""
 
 import logging
 
@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class ThanksRepository(Repository):
-    """Repository for managing thanks in Vitess."""
+    """Repository for managing thanks in database."""
 
     def send_thank(
         self, from_user_id: int, entity_id: str, revision_id: int
@@ -23,38 +23,38 @@ class ThanksRepository(Repository):
             f"Sending thank from user {from_user_id} for {entity_id}:{revision_id}"
         )
 
-        error = None
-        thank_id = None
-
+        result: OperationResult | None = None
         try:
             with self.vitess_client.cursor as cursor:
-                # Resolve entity_id to internal_id
                 internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
                 if not internal_id:
-                    error = "Entity not found"
+                    result = OperationResult(success=False, error="Entity not found")
                 else:
-                    # Get the user_id of the revision author
                     cursor.execute(
                         "SELECT user_id FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
                         (internal_id, revision_id),
                     )
                     row = cursor.fetchone()
                     if not row:
-                        error = "Revision not found"
+                        result = OperationResult(
+                            success=False, error="Revision not found"
+                        )
                     else:
                         to_user_id = row[0]
                         if to_user_id == from_user_id:
-                            error = "Cannot thank your own revision"
+                            result = OperationResult(
+                                success=False, error="Cannot thank your own revision"
+                            )
                         else:
-                            # Check for existing thank
                             cursor.execute(
                                 "SELECT id FROM user_thanks WHERE from_user_id = %s AND internal_entity_id = %s AND revision_id = %s",
                                 (from_user_id, internal_id, revision_id),
                             )
                             if cursor.fetchone():
-                                error = "Already thanked this revision"
+                                result = OperationResult(
+                                    success=False, error="Already thanked this revision"
+                                )
                             else:
-                                # Insert thank
                                 cursor.execute(
                                     "INSERT INTO user_thanks (from_user_id, to_user_id, internal_entity_id, revision_id) VALUES (%s, %s, %s, %s)",
                                     (
@@ -64,14 +64,14 @@ class ThanksRepository(Repository):
                                         revision_id,
                                     ),
                                 )
-                                thank_id = cursor.lastrowid
+                                result = OperationResult(
+                                    success=True, data=cursor.lastrowid
+                                )
         except Exception as e:
             logger.error(f"Error sending thank: {e}")
-            return OperationResult(success=False, error=str(e))
+            result = OperationResult(success=False, error=str(e))
 
-        if error:
-            return OperationResult(success=False, error=error)
-        return OperationResult(success=True, data=thank_id)
+        return result
 
     def get_thanks_received(
         self, user_id: int, hours: int = 24, limit: int = 50, offset: int = 0

@@ -102,7 +102,7 @@ class StatusService(Service):
     def validate_preconditions(self) -> None:
         """Validate that required services are initialized."""
         if self.vitess_client is None:
-            raise_validation_error("Vitess not initialized", status_code=503)
+            raise_validation_error("database not initialized", status_code=503)
 
         if self.state.s3_client is None:
             raise_validation_error("S3 not initialized", status_code=503)
@@ -257,6 +257,25 @@ class StatusService(Service):
         """Get the status string for the response."""
         return _STATUS_STRING_MAP.get(operation, "unspecified")
 
+    def _apply_status_operation(
+        self,
+        operation: StatusOperation,
+        current_state: dict[str, bool],
+    ) -> dict[str, bool]:
+        """Apply a status operation to current state flags.
+
+        Args:
+            operation: The status operation to apply
+            current_state: Current state flags
+
+        Returns:
+            Updated state flags
+        """
+        flag_name, flag_value = _STATUS_TARGET_MAP.get(operation, (None, None))
+        if flag_name and flag_value is not None:
+            current_state[flag_name] = flag_value
+        return current_state
+
     def _build_status_revision(
         self,
         params: RevisionParams,
@@ -269,33 +288,15 @@ class StatusService(Service):
         new_revision_id = params.new_revision_id
         operation = params.operation
 
-        current_state = current_revision.revision.get("state", {})
-        if current_state is None:
-            current_state = {}
+        current_state = current_revision.revision.get("state", {}) or {}
 
-        new_sp = current_state.get("sp", False)
-        new_locked = current_state.get("locked", False)
-        new_archived = current_state.get("archived", False)
-        new_dangling = current_state.get("dangling", False)
-        new_mep = current_state.get("mep", False)
+        new_state = self._apply_status_operation(operation, current_state.copy())
 
-        match operation:
-            case StatusOperation.LOCK:
-                new_locked = True
-            case StatusOperation.UNLOCK:
-                new_locked = False
-            case StatusOperation.ARCHIVE:
-                new_archived = True
-            case StatusOperation.UNARCHIVE:
-                new_archived = False
-            case StatusOperation.SEMI_PROTECT:
-                new_sp = True
-            case StatusOperation.UNSEMI_PROTECT:
-                new_sp = False
-            case StatusOperation.MASS_EDIT_PROTECT:
-                new_mep = True
-            case StatusOperation.MASS_EDIT_UNPROTECT:
-                new_mep = False
+        new_sp = new_state.get("sp", False)
+        new_locked = new_state.get("locked", False)
+        new_archived = new_state.get("archived", False)
+        new_dangling = new_state.get("dangling", False)
+        new_mep = new_state.get("mep", False)
 
         logger.debug(
             f"Status flags updated: sp={new_sp}, locked={new_locked}, "

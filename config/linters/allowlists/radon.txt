@@ -166,6 +166,7 @@ user_repository
 watchlist_repository
 # Intentionally duplicated for Elasticsearch and Meilisearch search backends
 _flatten_claims
+_extract_claim_value
 close
 delete_document
 get_document

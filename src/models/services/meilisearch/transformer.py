@@ -83,21 +83,31 @@ def _flatten_claims(claims: dict[str, Any]) -> FlattenedClaims:
             snaktype = mainsnak.get("snaktype", "value")
 
             if snaktype == "value":
-                if isinstance(value, dict):
-                    if "id" in value:
-                        values.append(value["id"])
-                    elif "entity-type" in value and "id" in value:
-                        values.append(value["id"])
-                    elif "time" in value:
-                        values.append(value["time"])
-                    elif "amount" in value:
-                        values.append(str(value["amount"]))
-                    else:
-                        values.append(str(value))
-                else:
-                    values.append(str(value))
+                extracted = _extract_claim_value(value)
+                if extracted is not None:
+                    values.append(extracted)
 
         if values:
             flat[prop_id] = values
 
     return FlattenedClaims(data=flat)
+
+
+def _extract_claim_value(value: Any) -> str | None:
+    """Extract a string value from a claim datavalue.
+
+    Args:
+        value: The datavalue value dict
+
+    Returns:
+        String representation of the value, or None if not extractable
+    """
+    if isinstance(value, dict):
+        if "id" in value:
+            return value["id"]
+        if "time" in value:
+            return value["time"]
+        if "amount" in value:
+            return str(value["amount"])
+        return str(value)
+    return str(value)

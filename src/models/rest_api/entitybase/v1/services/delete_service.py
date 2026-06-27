@@ -41,7 +41,7 @@ class DeleteService(Service):
     def validate_delete_preconditions(self) -> None:
         """Validate that required services are initialized."""
         if self.vitess_client is None:
-            raise_validation_error("Vitess not initialized", status_code=503)
+            raise_validation_error("database not initialized", status_code=503)
 
         if self.state.s3_client is None:
             raise_validation_error("S3 not initialized", status_code=503)
@@ -194,6 +194,28 @@ class DeleteService(Service):
                     f"Failed to decrement ref count for statement {statement_hash}: {e}"
                 )
 
+    def _decrement_and_delete_if_orphaned(
+        self,
+        terms_repo: TermsRepository,
+        hash_value: str,
+        term_type: str,
+    ) -> None:
+        """Decrement ref count and delete term if orphaned.
+
+        Args:
+            terms_repo: The terms repository
+            hash_value: Hash value to process
+            term_type: Type description for logging (e.g., 'label', 'description')
+        """
+        try:
+            result = terms_repo.decrement_ref_count(int(hash_value))
+            if result.success and result.data == 0:
+                terms_repo.delete_term(int(hash_value))
+        except Exception as e:
+            logger.warning(
+                f"Failed to decrement ref count for {term_type} {hash_value}: {e}"
+            )
+
     def decrement_term_references(
         self,
         labels_hashes: dict[str, str],
@@ -212,35 +234,16 @@ class DeleteService(Service):
         terms_repo = TermsRepository(vitess_client=self.vitess_client)
 
         for hash_value in labels_hashes.values():
-            try:
-                result = terms_repo.decrement_ref_count(int(hash_value))
-                if result.success and result.data == 0:
-                    terms_repo.delete_term(int(hash_value))
-            except Exception as e:
-                logger.warning(
-                    f"Failed to decrement ref count for label {hash_value}: {e}"
-                )
+            self._decrement_and_delete_if_orphaned(terms_repo, hash_value, "label")
 
         for hash_value in descriptions_hashes.values():
-            try:
-                result = terms_repo.decrement_ref_count(int(hash_value))
-                if result.success and result.data == 0:
-                    terms_repo.delete_term(int(hash_value))
-            except Exception as e:
-                logger.warning(
-                    f"Failed to decrement ref count for description {hash_value}: {e}"
-                )
+            self._decrement_and_delete_if_orphaned(
+                terms_repo, hash_value, "description"
+            )
 
         for alias_hashes in aliases_hashes.values():
             for hash_value in alias_hashes:
-                try:
-                    result = terms_repo.decrement_ref_count(int(hash_value))
-                    if result.success and result.data == 0:
-                        terms_repo.delete_term(int(hash_value))
-                except Exception as e:
-                    logger.warning(
-                        f"Failed to decrement ref count for alias {hash_value}: {e}"
-                    )
+                self._decrement_and_delete_if_orphaned(terms_repo, hash_value, "alias")
 
     def store_deletion_revision(
         self, revision_data: RevisionData
