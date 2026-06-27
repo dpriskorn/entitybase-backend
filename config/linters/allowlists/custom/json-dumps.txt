@@ -8,3 +8,5 @@ src/models/infrastructure/vitess/repositories/revision.py:229
 src/models/infrastructure/vitess/repositories/revision.py:321
 src/models/infrastructure/vitess/repositories/backlink.py:116
 src/models/workers/json_dumps/json_dump_worker.py:327
+src/models/infrastructure/vitess/repositories/user.py:525
+src/models/infrastructure/vitess/repositories/user.py:526
