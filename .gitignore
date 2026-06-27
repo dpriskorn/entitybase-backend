@@ -54,3 +54,9 @@ e2e.env
 requirements*.txt
 .python-version
 *.py,cover
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.DS_Store
+frontend/*.local

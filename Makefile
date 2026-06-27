@@ -1,4 +1,4 @@
-.PHONY: lint test test-fast coverage help ruff mypy radon vulture stop api-vps vps-reset docs docs-generate docs-build docs-serve check release push-release ci
+.PHONY: be-lint test test-fast coverage help ruff mypy radon vulture stop api-vps vps-reset docs docs-generate docs-build docs-serve check release push-release ci fe-lint fe-test fe-run be-tests
 
 help:
 	@echo "Available targets:"
@@ -11,7 +11,7 @@ help:
 	@echo "  make stop          - Stop docker and remove everything"
 	@echo "  make release       - Create tag locally (e.g., v2026.2.28)"
 	@echo "  make push-release - Create tag and push to trigger GitHub release workflow"
-	@echo "  make lint         - Run all linters"
+	@echo "  make be-lint         - Run all linters"
 	@echo "  make ruff         - Run ruff linter"
 	@echo "  make mypy         - Run mypy type checker"
 	@echo "  make radon        - Run radon complexity checker"
@@ -23,7 +23,7 @@ help:
 	@echo "  make lint-test-all - Run all lint + tests (unit -> E2E -> contract -> integration)"
 	@echo "  make lint-test-fast        - Run lint + fast tests (unit -> E2E -> contract)"
 	@echo "  make test-fast        - Run fast tests (unit -> E2E -> contract)"
-	@echo "  make tests        - Run all tests (unit -> E2E -> contract -> integration)"
+	@echo "  make be-tests        - Run all tests (unit -> E2E -> contract -> integration)"
 	@echo "  make test-unit   - Run unit tests only (fast feedback)"
 	@echo "  make test-e2e     - Run all e2e tests"
 	@echo "  make test-e2e-01 - Run e2e tests (basics)"
@@ -41,6 +41,9 @@ help:
 	@echo "  make test-unit-03 - Run unit tests (infrastructure, rdf_builder)"
 	@echo "  make test-unit-04 - Run unit tests (rest_api)"
 	@echo "  make coverage    - Run tests with coverage report"
+	@echo "  make fe-lint     - Run frontend linter (eslint/prettier)"
+	@echo "  make fe-test     - Run frontend tests (vitest)"
+	@echo "  make fe-run      - Run frontend dev server"
 
 check:
 	./scripts/shell/check-docker-services.sh
@@ -65,7 +68,7 @@ release:
 push-release:
 	make release && git push origin $$(cat .release_version | cut -d= -f2) && rm -f .release_version
 
-lint:
+be-lint:
 	./scripts/shell/run-linters.sh
 
 ruff:
@@ -138,13 +141,22 @@ test-integration-04:
 
 test-integration: check test-integration-01 test-integration-02 test-integration-03 test-integration-04
 
-tests: check test-unit test-e2e test-contract test-integration
+be-tests: check test-unit test-e2e test-contract test-integration
 
-lint-test-all: lint tests
+lint-test-all: be-lint be-tests
 
-lint-test-fast: lint test-unit-e2e-contract
+lint-test-fast: be-lint test-unit-e2e-contract
 
 test-fast: test-unit-e2e-contract
 
 coverage: check
 	./scripts/shell/run-coverage.sh
+
+fe-lint:
+	cd frontend && npm run lint
+
+fe-test:
+	cd frontend && npm run test
+
+fe-run:
+	cd frontend && npm run dev
