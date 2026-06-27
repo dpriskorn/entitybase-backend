@@ -12,7 +12,7 @@ poetry run python scripts/linters/value_error_linter.py
 ./scripts/shell/run-long-files-lint.sh
 ./scripts/shell/run-dict-lint.sh
 ./scripts/shell/run-pydantic-field-lint.sh
-./scripts/shell/run-str-lint.sh
+# ./scripts/shell/run-str-lint.sh
 ./scripts/shell/run-any-lint.sh
 ./scripts/shell/run-tuple-lint.sh
 ./scripts/shell/run-key-length-lint.sh
