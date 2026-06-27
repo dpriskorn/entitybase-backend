@@ -121,6 +121,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         state_handler = await _initialize_state_handler()
         await _create_s3_buckets(state_handler)
         await _create_database_tables(state_handler)
+        await _bootstrap_admin_user(state_handler)
         await _initialize_app_state(app_, state_handler)
         yield
     except Exception as e:
@@ -151,6 +152,37 @@ async def _create_database_tables(state_handler: StateHandler) -> None:
     except Exception as e:
         logger.warning(f"Could not create database tables on startup: {e}")
         logger.info("Tables will be created when first accessed or in tests")
+
+
+async def _bootstrap_admin_user(state_handler: StateHandler) -> None:
+    """Bootstrap admin user from environment variables if not exists."""
+    from models.rest_api.auth import get_env_bootstrap_config, hash_password
+    from models.data.common.roles import UserRole
+
+    config = get_env_bootstrap_config()
+    if config is None:
+        logger.debug("No admin bootstrap config found in environment")
+        return
+
+    user_repo = state_handler.vitess_client.user_repository
+
+    if user_repo.user_exists_by_username(config.admin_name):
+        logger.info(f"Admin user '{config.admin_name}' already exists, skipping bootstrap")
+        return
+
+    try:
+        password_hash = hash_password(config.admin_password)
+        result = user_repo.create_user_with_password(
+            username=config.admin_name,
+            password_hash=password_hash,
+            role=UserRole.ADMIN.value,
+        )
+        if result.success:
+            logger.info(f"Admin user '{config.admin_name}' created successfully")
+        else:
+            logger.warning(f"Failed to create admin user: {result.error}")
+    except Exception as e:
+        logger.warning(f"Could not bootstrap admin user: {e}")
 
 
 async def _create_s3_buckets(state_handler: StateHandler) -> None:

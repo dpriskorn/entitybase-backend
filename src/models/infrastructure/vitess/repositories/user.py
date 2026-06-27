@@ -1,10 +1,11 @@
-"""Repository for managing users in Vitess."""
+"""Repository for managing users in database."""
 
 import json
 import logging
-from typing import Any, List
+from typing import Any, List, Tuple
 
 from models.data.common import OperationResult
+from models.data.common.roles import UserRole
 from models.infrastructure.vitess.repository import Repository
 from models.data.rest_api.v1.entitybase.request import UserActivityType
 from models.data.rest_api.v1.entitybase.request.entity.context import (
@@ -20,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 class UserRepository(Repository):
-    """Repository for managing users in Vitess."""
+    """Repository for managing users in database."""
 
     def create_user(self, user_id: int) -> OperationResult:
         """Create a new user record if it does not exist (idempotent).
@@ -48,6 +49,153 @@ class UserRepository(Repository):
                 return OperationResult(success=True)
         except Exception as e:
             return OperationResult(success=False, error=str(e))
+
+    def create_user_with_password(
+        self,
+        username: str,
+        password_hash: str,
+        role: str,
+    ) -> OperationResult:
+        """Create a new user with username, password hash, and role.
+
+        Args:
+            username: Unique username for the user.
+            password_hash: Bcrypt password hash.
+            role: User role (admin or default).
+
+        Returns:
+            OperationResult with data containing (user_id, username) on success.
+        """
+        if role not in UserRole.values():
+            return OperationResult(success=False, error=f"Invalid role: {role}")
+
+        if not username or len(username) < 3:
+            return OperationResult(success=False, error="Username must be at least 3 characters")
+
+        logger.debug(f"Creating user with username: {username}, role: {role}")
+        try:
+            with self.vitess_client.cursor as cursor:
+                cursor.execute(
+                    """
+                    INSERT INTO users (username, password_hash, role)
+                    VALUES (%s, %s, %s)
+                    """,
+                    (username, password_hash, role),
+                )
+                user_id = cursor.lastrowid
+                logger.info(f"Created user: {username} with user_id: {user_id}")
+                return OperationResult(success=True, data={"user_id": user_id, "username": username})
+        except Exception as e:
+            error_msg = str(e)
+            if "Duplicate entry" in error_msg:
+                logger.warning(f"Username already exists: {username}")
+                return OperationResult(success=False, error="Username already exists")
+            logger.error(f"Failed to create user {username}: {error_msg}")
+            return OperationResult(success=False, error=error_msg)
+
+    def user_exists_by_username(self, username: str) -> bool:
+        """Check if a user exists by username."""
+        with self.vitess_client.cursor as cursor:
+            cursor.execute(
+                "SELECT 1 FROM users WHERE username = %s",
+                (username,),
+            )
+            return cursor.fetchone() is not None
+
+    def get_user_by_username(self, username: str) -> UserResponse | None:
+        """Get user data by username (without password hash)."""
+        with self.vitess_client.cursor as cursor:
+            cursor.execute(
+                """SELECT user_id, username, role, created_at, preferences
+                   FROM users WHERE username = %s""",
+                (username,),
+            )
+            row = cursor.fetchone()
+            if row:
+                try:
+                    return UserResponse(
+                        user_id=row[0],
+                        username=row[1],
+                        role=UserRole(row[2]),
+                        created_at=row[3],
+                        preferences=row[4],
+                    )
+                except Exception as e:
+                    logger.error(f"Failed to create UserResponse from row {row}: {e}")
+                    return None
+            return None
+
+    def verify_user_credentials(
+        self,
+        username: str,
+        password: str,
+    ) -> Tuple[bool, UserResponse | None]:
+        """Verify user credentials.
+
+        Args:
+            username: The username to verify.
+            password: The plaintext password to verify.
+
+        Returns:
+            Tuple of (success: bool, user: UserResponse | None).
+            If credentials are valid, returns (True, user).
+            If credentials are invalid, returns (False, None).
+        """
+        import bcrypt
+
+        with self.vitess_client.cursor as cursor:
+            cursor.execute(
+                """SELECT user_id, username, password_hash, role, created_at, preferences
+                   FROM users WHERE username = %s""",
+                (username,),
+            )
+            row = cursor.fetchone()
+            if row is None:
+                return False, None
+
+            stored_hash = row[2]
+            if bcrypt.checkpw(password.encode(), stored_hash.encode()):
+                try:
+                    user = UserResponse(
+                        user_id=row[0],
+                        username=row[1],
+                        role=UserRole(row[3]),
+                        created_at=row[4],
+                        preferences=row[5],
+                    )
+                    return True, user
+                except Exception as e:
+                    logger.error(f"Failed to create UserResponse: {e}")
+                    return False, None
+            return False, None
+
+    def get_user(self, user_id: int) -> UserResponse | None:
+        """Get user data by ID."""
+
+        with self.vitess_client.cursor as cursor:
+            cursor.execute(
+                """SELECT user_id, username, role, created_at, preferences
+                   FROM users WHERE user_id = %s""",
+                (user_id,),
+            )
+            row = cursor.fetchone()
+            if row:
+                try:
+                    user = UserResponse(
+                        user_id=row[0],
+                        username=row[1],
+                        role=UserRole(row[2]),
+                        created_at=row[3],
+                        preferences=row[4],
+                    )
+                    logger.debug(
+                        f"Successfully created UserResponse for user_id={user_id}"
+                    )
+                    return user
+                except Exception as e:
+                    logger.error(f"Failed to create UserResponse from row {row}: {e}")
+                    raise_validation_error(f"Invalid user data: {e}", status_code=400)
+            return None
 
     def delete_user(self, user_id: int) -> OperationResult:
         """Delete a user by ID (hard delete).
@@ -97,7 +245,8 @@ class UserRepository(Repository):
 
         with self.vitess_client.cursor as cursor:
             cursor.execute(
-                "SELECT user_id, created_at, preferences FROM users WHERE user_id = %s",
+                """SELECT user_id, username, role, created_at, preferences
+                   FROM users WHERE user_id = %s""",
                 (user_id,),
             )
             row = cursor.fetchone()
@@ -105,8 +254,10 @@ class UserRepository(Repository):
                 try:
                     user = UserResponse(
                         user_id=row[0],
-                        created_at=row[1],
-                        preferences=row[2],
+                        username=row[1],
+                        role=UserRole(row[2]),
+                        created_at=row[3],
+                        preferences=row[4],
                     )
                     logger.debug(
                         f"Successfully created UserResponse for user_id={user_id}"

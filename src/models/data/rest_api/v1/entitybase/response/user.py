@@ -4,12 +4,15 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
+from models.data.common.roles import UserRole
+
 
 class UserResponse(BaseModel):
-    """User model.
-    We intentionally don't have auth, nor store the usernames."""
+    """User model for API responses."""
 
     user_id: int = Field(..., description="Unique user identifier")
+    username: str = Field(..., description="Unique username")
+    role: UserRole = Field(..., description="User role")
     created_at: datetime = Field(..., description="Timestamp when user was created")
     preferences: dict | None = Field(
         default=None, description="User preferences dictionary"

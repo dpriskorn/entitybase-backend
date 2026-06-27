@@ -13,9 +13,9 @@ class SchemaRepository(Repository):
     def create_tables(self) -> None:
         """Create all required database tables."""
         logger.debug("Creating database tables")
-        logger.debug("Validating Vitess client and connection")
+        logger.debug("Validating database client and connection")
         if not self.vitess_client:
-            raise_validation_error(message="Vitess not initialized")
+            raise_validation_error(message="database not initialized")
         if not self.vitess_client.connection_manager:
             raise_validation_error(message="Connection manager not initialized")
         if not self.vitess_client.connection_manager.connection:
@@ -276,7 +276,10 @@ class SchemaRepository(Repository):
             cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS users (
-                    user_id BIGINT PRIMARY KEY,
+                    user_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+                    username VARCHAR(255) UNIQUE NOT NULL,
+                    password_hash VARCHAR(255) NOT NULL,
+                    role VARCHAR(20) NOT NULL DEFAULT 'default',
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     preferences JSON DEFAULT NULL,
                     watchlist_enabled BOOLEAN DEFAULT TRUE,
