@@ -2,6 +2,82 @@
 
 This file tracks architectural changes, feature additions, and modifications to entitybase-backend.
 
+## [2026-06-27] JWT Authentication System with Admin Bootstrap
+
+### Summary
+
+Added JWT-based authentication system to replace the legacy X-User-ID header. All POST and PATCH endpoints now require authenticated requests with Bearer tokens and X-Edit-Summary headers.
+
+### Changes
+
+1. **UserRole Enum** (`src/models/data/common/roles.py`):
+   - New enum with `ADMIN` and `DEFAULT` roles
+   - Provides type-safe role validation throughout codebase
+
+2. **Auth Module** (`src/models/rest_api/auth/`):
+   - `models.py` - User and AuthenticatedRequest Pydantic models
+   - `utils.py` - JWT token creation/decoding, bcrypt password hashing, env-based admin bootstrap
+   - `dependencies.py` - FastAPI dependencies: verify_auth, require_role, auth_to_edit_headers
+
+3. **Auth Endpoints** (`src/models/rest_api/entitybase/v1/routes/auth.py`):
+   - `POST /auth/login` - Returns JWT token (unauthenticated)
+   - `POST /auth/register` - Creates new user (admin only)
+   - `DELETE /auth/users/{user_id}` - Deletes user (admin or self)
+
+4. **Database Schema Updates**:
+   - Added `username`, `password_hash`, `role` columns to users table
+   - User IDs now auto-increment (removed from INSERT statements)
+   - Files: `schema.py` (vitess), `schema.py` (sqlite)
+
+5. **UserRepository Updates** (`vitess/repositories/user.py`):
+   - `create_user_with_password()` - Creates user with bcrypt-hashed password
+   - `get_user_by_username()` - Lookup by username
+   - `verify_user_credentials()` - Verify username/password, returns UserResponse
+   - `user_exists_by_username()` - Check if username exists
+
+6. **Removed X-User-ID Header** (`src/models/data/rest_api/v1/entitybase/request/headers.py`):
+   - Removed `x_user_id` field from EditHeaders
+   - User identity now determined by JWT token, not request header
+
+7. **Admin Bootstrap** (`src/models/rest_api/main.py`):
+   - On startup, reads `ADMIN_NAME` and `ADMIN_PASSWORD` from environment
+   - Creates admin user in database if not exists
+   - Uses bcrypt for secure password hashing
+
+8. **Environment Variables** (`.env`, `.env.example`):
+   - `ADMIN_NAME` - Initial admin username
+   - `ADMIN_PASSWORD` - Initial admin password
+   - `JWT_SECRET` - Secret key for JWT signing (change in production)
+
+### API Changes
+
+| Method | Path | Auth Required |
+|--------|------|---------------|
+| POST | `/v1/auth/login` | No |
+| POST | `/v1/auth/register` | Admin only |
+| DELETE | `/v1/auth/users/{user_id}` | Authenticated |
+| All POST/PATCH endpoints | Various | Bearer token + X-Edit-Summary |
+
+### Usage
+
+```bash
+# Login to get token
+curl -X POST /v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username": "admin", "password": "..."}'
+
+# Use token for authenticated requests
+curl -X POST /v1/entities/items \
+  -H "Authorization: Bearer <token>" \
+  -H "X-Edit-Summary: Creating new item"
+```
+
+### Backward Compatibility
+
+- **Breaking change**: All POST/PATCH endpoints now require Bearer token
+- **Removed**: X-User-ID header is no longer used
+- **Migration**: Existing users must re-authenticate via login endpoint
+
 ## [2026-04-08] Meilisearch Integration and Search API Refactoring
 
 ### Summary
