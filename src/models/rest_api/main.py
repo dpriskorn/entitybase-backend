@@ -188,8 +188,15 @@ async def _create_s3_buckets(state_handler: StateHandler) -> None:
 
     try:
         logger.info("Creating S3 buckets if they don't exist...")
+        endpoint = s3_config.endpoint_url
+        if endpoint.startswith("http://"):
+            endpoint = endpoint[7:]
+        elif endpoint.startswith("https://"):
+            endpoint = endpoint[8:]
+        if "/" in endpoint:
+            endpoint = endpoint.split("/")[0]
         client = Minio(
-            s3_config.endpoint_url,
+            endpoint,
             access_key=s3_config.access_key,
             secret_key=s3_config.secret_key,
             secure=False,

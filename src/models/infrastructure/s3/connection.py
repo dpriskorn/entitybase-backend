@@ -21,8 +21,15 @@ class S3ConnectionManager(ConnectionManager):
     def connect(self) -> None:
         """Establish S3 client connection."""
         if self.minio_client is None:
+            endpoint = self.config.endpoint_url
+            if endpoint.startswith("http://"):
+                endpoint = endpoint[7:]
+            elif endpoint.startswith("https://"):
+                endpoint = endpoint[8:]
+            if "/" in endpoint:
+                endpoint = endpoint.split("/")[0]
             self.minio_client = Minio(
-                self.config.endpoint_url,
+                endpoint,
                 access_key=self.config.access_key,
                 secret_key=self.config.secret_key,
                 secure=False,

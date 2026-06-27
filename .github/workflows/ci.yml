@@ -159,7 +159,7 @@ jobs:
       # === E2E TESTS ===
       - name: Run e2e tests (01 - basics)
         env:
-          S3_ENDPOINT: http://localhost:9000
+          S3_ENDPOINT: localhost:9000
           S3_ACCESS_KEY: fakekey
           S3_SECRET_KEY: fakesecret
           S3_BUCKET: testbucket
@@ -170,7 +170,7 @@ jobs:
 
       - name: Run e2e tests (02 - terms)
         env:
-          S3_ENDPOINT: http://localhost:9000
+          S3_ENDPOINT: localhost:9000
           S3_ACCESS_KEY: fakekey
           S3_SECRET_KEY: fakesecret
           S3_BUCKET: testbucket
@@ -181,7 +181,7 @@ jobs:
 
       - name: Run e2e tests (03 - user features)
         env:
-          S3_ENDPOINT: http://localhost:9000
+          S3_ENDPOINT: localhost:9000
           S3_ACCESS_KEY: fakekey
           S3_SECRET_KEY: fakesecret
           S3_BUCKET: testbucket
@@ -192,7 +192,7 @@ jobs:
 
       - name: Run e2e tests (04 - advanced)
         env:
-          S3_ENDPOINT: http://localhost:9000
+          S3_ENDPOINT: localhost:9000
           S3_ACCESS_KEY: fakekey
           S3_SECRET_KEY: fakesecret
           S3_BUCKET: testbucket
@@ -204,7 +204,7 @@ jobs:
       # === CONTRACT TESTS ===
       - name: Run contract tests
         env:
-          S3_ENDPOINT: http://localhost:9000
+          S3_ENDPOINT: localhost:9000
           S3_ACCESS_KEY: fakekey
           S3_SECRET_KEY: fakesecret
           S3_BUCKET: testbucket
@@ -215,7 +215,7 @@ jobs:
       # === INTEGRATION TESTS ===
       - name: Run integration tests (01 - first 50)
         env:
-          S3_ENDPOINT: http://localhost:9000
+          S3_ENDPOINT: localhost:9000
           S3_ACCESS_KEY: fakekey
           S3_SECRET_KEY: fakesecret
           S3_BUCKET: testbucket
@@ -226,7 +226,7 @@ jobs:
 
       - name: Run integration tests (02 - mid 50)
         env:
-          S3_ENDPOINT: http://localhost:9000
+          S3_ENDPOINT: localhost:9000
           S3_ACCESS_KEY: fakekey
           S3_SECRET_KEY: fakesecret
           S3_BUCKET: testbucket
@@ -237,7 +237,7 @@ jobs:
 
       - name: Run integration tests (03 - late 50a)
         env:
-          S3_ENDPOINT: http://localhost:9000
+          S3_ENDPOINT: localhost:9000
           S3_ACCESS_KEY: fakekey
           S3_SECRET_KEY: fakesecret
           S3_BUCKET: testbucket
@@ -248,7 +248,7 @@ jobs:
 
       - name: Run integration tests (04 - late 50b)
         env:
-          S3_ENDPOINT: http://localhost:9000
+          S3_ENDPOINT: localhost:9000
           S3_ACCESS_KEY: fakekey
           S3_SECRET_KEY: fakesecret
           S3_BUCKET: testbucket

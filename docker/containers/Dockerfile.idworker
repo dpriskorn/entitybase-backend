@@ -3,7 +3,9 @@ WORKDIR /app
 RUN apk add --no-cache gcc musl-dev libffi-dev openssl-dev
 COPY pyproject.toml poetry.lock ./
 RUN pip install --no-cache-dir poetry \
-    && POETRY_VIRTUALENVS_CREATE=false poetry install --no-root --no-interaction --only idworker
+    && POETRY_VIRTUALENVS_CREATE=false poetry install --no-root --no-interaction --only idworker \
+    && poetry cache clear pypi --all || true \
+    && rm -rf /root/.cache/*
 
 FROM python:3.13-alpine
 WORKDIR /app

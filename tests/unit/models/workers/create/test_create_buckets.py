@@ -107,7 +107,7 @@ class TestCreateBuckets:
 
             mock_minio = MagicMock()
             mock_minio.bucket_exists.return_value = False
-            mock_minio.make_bucket.side_effect = S3Error("Internal Error", "make_bucket")
+            mock_minio.make_bucket.side_effect = S3Error("Internal Error", "make_bucket", "req_id", "host_id")
 
             with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
                 mock_minio_class.return_value = mock_minio
@@ -125,7 +125,7 @@ class TestCreateBuckets:
             worker.required_buckets = ["error-bucket"]
 
             mock_minio = MagicMock()
-            mock_minio.bucket_exists.side_effect = S3Error("Internal Error", "head_bucket")
+            mock_minio.bucket_exists.side_effect = S3Error("Internal Error", "head_bucket", "req_id", "host_id")
 
             with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
                 mock_minio_class.return_value = mock_minio
@@ -204,8 +204,8 @@ class TestCreateBuckets:
             worker.required_buckets = ["missing-bucket"]
 
             mock_minio = MagicMock()
-            mock_minio.list_objects.side_effect = S3Error("NoSuchBucket", "list_objects")
-            mock_minio.remove_bucket.side_effect = S3Error("NoSuchBucket", "remove_bucket")
+            mock_minio.list_objects.side_effect = S3Error("NoSuchBucket", "list_objects", "req_id", "host_id")
+            mock_minio.remove_bucket.side_effect = S3Error("NoSuchBucket", "remove_bucket", "req_id", "host_id")
 
             with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
                 mock_minio_class.return_value = mock_minio
@@ -224,7 +224,7 @@ class TestCreateBuckets:
 
             mock_minio = MagicMock()
             mock_minio.list_objects.return_value = []
-            mock_minio.remove_bucket.side_effect = S3Error("AccessDenied", "remove_bucket")
+            mock_minio.remove_bucket.side_effect = S3Error("AccessDenied", "remove_bucket", "req_id", "host_id")
 
             with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
                 mock_minio_class.return_value = mock_minio
@@ -261,7 +261,7 @@ class TestCreateBuckets:
             worker.required_buckets = ["unhealthy-bucket"]
 
             mock_minio = MagicMock()
-            mock_minio.bucket_exists.side_effect = S3Error("Forbidden", "bucket_exists")
+            mock_minio.bucket_exists.side_effect = S3Error("Forbidden", "bucket_exists", "req_id", "host_id")
 
             with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
                 mock_minio_class.return_value = mock_minio
@@ -301,7 +301,7 @@ class TestCreateBuckets:
             worker.required_buckets = ["fail-bucket"]
 
             mock_minio = MagicMock()
-            mock_minio.bucket_exists.side_effect = S3Error("Forbidden", "bucket_exists")
+            mock_minio.bucket_exists.side_effect = S3Error("Forbidden", "bucket_exists", "req_id", "host_id")
 
             with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
                 mock_minio_class.return_value = mock_minio

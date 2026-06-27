@@ -25,8 +25,8 @@ class TestS3ClientDisconnect:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            mock_connection_manager.boto_client = "some_client"
+            mock_connection_manager.minio_client = "some_client"
 
             client.disconnect()
 
-            assert mock_connection_manager.boto_client is None
+            assert mock_connection_manager.minio_client is None

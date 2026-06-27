@@ -64,8 +64,15 @@ class CreateBuckets(BaseModel):
             f"Creating S3 client with endpoint={self.rustfs_endpoint}, "
             f"access_key={self.rustfs_access_key[:4]}..."
         )
+        endpoint = self.rustfs_endpoint
+        if endpoint.startswith("http://"):
+            endpoint = endpoint[7:]
+        elif endpoint.startswith("https://"):
+            endpoint = endpoint[8:]
+        if "/" in endpoint:
+            endpoint = endpoint.split("/")[0]
         self.s3_client = Minio(
-            self.rustfs_endpoint,
+            endpoint,
             access_key=self.rustfs_access_key,
             secret_key=self.rustfs_secret_key,
             secure=False,
