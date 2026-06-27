@@ -1,12 +1,11 @@
-.PHONY: be-lint be-test-fast be-coverage help stop api-vps vps-reset docs docs-generate docs-build docs-serve check release push-release ci fe-lint fe-test fe-run be-tests be-test-unit be-test-e2e be-test-contract be-test-integration
+.PHONY: be-lint be-test-fast be-coverage help stop docs docs-generate docs-build docs-serve check release push-release ci fe-lint fe-test fe-run be-tests be-test-unit be-test-e2e be-test-contract be-test-integration
 
 help:
 	@echo "Available targets:"
 	@echo "  make check         - Check if Docker services are running"
 	@echo "  make api           - Run docker compose up and start the API locally using uvicorn with reload enabled"
 	@echo "  make api-no-cache  - Run docker compose up with --no-cache (force rebuild all layers)"
-	@echo "  make api-vps       - Run API on VPS (simplified, no rebuild, no docs generation)"
-	@echo "  make vps-reset     - Stop all containers, remove volumes, and restart API (for daily cleanup)"
+
 	@echo "  make ci            - Run CI simulation locally (mimics GitHub CI workflow)"
 	@echo "  make stop          - Stop docker and remove everything"
 	@echo "  make release       - Create tag locally (e.g., v2026.2.28)"
@@ -16,8 +15,8 @@ help:
 	@echo "  make docs-build   - Build static documentation site (uses zensical)"
 	@echo "  make docs-serve   - Serve documentation locally with live reload (uses zensical)"
 	@echo "  make docs         - Run docs-generate + docs-build + docs-serve"
-	@echo "  make lint-test-all - Run all lint + tests (unit -> E2E -> contract -> integration)"
-	@echo "  make lint-test-fast        - Run lint + fast tests (unit -> E2E -> contract)"
+	@echo "  make be-lint-test-all - Run all lint + tests (unit -> E2E -> contract -> integration)"
+	@echo "  make be-lint-test-fast        - Run lint + fast tests (unit -> E2E -> contract)"
 	@echo "  make be-test-fast        - Run fast tests (unit -> E2E -> contract)"
 	@echo "  make be-tests        - Run all tests (unit -> E2E -> contract -> integration)"
 	@echo "  make be-test-unit   - Run unit tests only (fast feedback)"
@@ -43,14 +42,6 @@ help:
 
 check:
 	./scripts/shell/check-docker-services.sh
-
-api-vps:
-	./scripts/shell/run-api-vps.sh
-
-vps-reset:
-	@echo "🔄 Resetting VPS (stop + api-vps)..."
-	make stop
-	make api-vps
 
 ci:
 	./scripts/shell/run-ci-local.sh
