@@ -5,6 +5,7 @@ import logging
 from botocore.exceptions import ClientError  # type: ignore[import-untyped]
 from typing import Any, cast
 
+from models.data.infrastructure.s3.statement import StatementData
 from models.rest_api.entitybase.v1.handler import Handler
 from models.data.rest_api.v1.entitybase.request import CleanupOrphanedRequest
 from models.data.rest_api.v1.entitybase.request import StatementBatchRequest
@@ -31,7 +32,7 @@ class StatementHandler(Handler):
         statement_dict: dict[str, Any],
         snak_handler: SnakHandler,
         content_hash: int,
-    ) -> dict[str, Any]:
+    ) -> StatementData:
         """Reconstruct mainsnak from hash reference in statement.
 
         Args:
@@ -40,7 +41,7 @@ class StatementHandler(Handler):
             content_hash: Statement content hash for logging
 
         Returns:
-            Statement dict with reconstructed mainsnak
+            Statement data with reconstructed mainsnak
         """
         mainsnak_hash = self._extract_mainsnak_hash(statement_dict["mainsnak"])
 
@@ -54,7 +55,7 @@ class StatementHandler(Handler):
             logger.warning(
                 f"Snak {mainsnak_hash} not found for statement {content_hash}"
             )
-        return statement_dict
+        return StatementData(**statement_dict)
 
     def _extract_mainsnak_hash(self, mainsnak_input: Any) -> int:
         """Extract mainsnak hash from statement mainsnak field.
