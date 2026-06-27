@@ -58,8 +58,16 @@ const handleLogin = async () => {
     localStorage.setItem('access_token', response.access_token)
     router.push('/dashboard')
   } catch (err: unknown) {
-    const errorObj = err as { response?: { data?: { detail?: string } } }
-    error.value = errorObj.response?.data?.detail || 'Invalid username or password'
+    const errorObj = err as { response?: { data?: { detail?: string } }; message?: string; code?: string }
+    if (errorObj.response?.data?.detail) {
+      error.value = errorObj.response.data.detail
+    } else if (errorObj.code === 'ECONNABORTED' || errorObj.message?.includes('timeout')) {
+      error.value = 'Connection timeout. Please try again.'
+    } else if (!errorObj.response) {
+      error.value = 'Unable to connect to server. Please check your connection.'
+    } else {
+      error.value = 'Invalid username or password'
+    }
   } finally {
     loading.value = false
   }

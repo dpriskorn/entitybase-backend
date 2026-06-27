@@ -276,6 +276,49 @@ describe('LoginView', () => {
 
       expect(mockLocalStorage.setItem).not.toHaveBeenCalled()
     })
+
+    it('should show connection error on network failure', async () => {
+      vi.mocked(authService.login).mockRejectedValue({
+        code: 'ECONNABORTED',
+        message: 'timeout of 30000ms exceeded'
+      })
+
+      const wrapper = mount(LoginView, {
+        global: {
+          stubs: { 'router-view': true }
+        }
+      })
+
+      await wrapper.find('input#username').setValue('baduser')
+      await wrapper.find('input#password').setValue('wrongpass')
+      await wrapper.find('form').trigger('submit')
+
+      await flushPromises()
+
+      expect(wrapper.find('.error-message').exists()).toBe(true)
+      expect(wrapper.find('.error-message').text()).toBe('Connection timeout. Please try again.')
+    })
+
+    it('should show server unavailable on no response', async () => {
+      vi.mocked(authService.login).mockRejectedValue({
+        message: 'Network Error'
+      })
+
+      const wrapper = mount(LoginView, {
+        global: {
+          stubs: { 'router-view': true }
+        }
+      })
+
+      await wrapper.find('input#username').setValue('baduser')
+      await wrapper.find('input#password').setValue('wrongpass')
+      await wrapper.find('form').trigger('submit')
+
+      await flushPromises()
+
+      expect(wrapper.find('.error-message').exists()).toBe(true)
+      expect(wrapper.find('.error-message').text()).toBe('Unable to connect to server. Please check your connection.')
+    })
   })
 
   describe('Loading state', () => {
