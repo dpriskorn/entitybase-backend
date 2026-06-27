@@ -108,8 +108,7 @@ class CreateBuckets(BaseModel):
             except S3Error as e:
                 results[bucket] = f"error: {e.code}"
                 logger.error(
-                    f"Error checking bucket {bucket}: {e.code} - "
-                    f"response: {e}"
+                    f"Error checking bucket {bucket}: {e.code} - response: {e}"
                 )
             except Exception as e:
                 results[bucket] = f"unexpected_error: {e}"

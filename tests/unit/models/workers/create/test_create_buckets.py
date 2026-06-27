@@ -70,7 +70,9 @@ class TestCreateBuckets:
             mock_minio = MagicMock()
             mock_minio.bucket_exists.return_value = True
 
-            with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
+            with patch(
+                "models.workers.create.create_buckets.Minio"
+            ) as mock_minio_class:
                 mock_minio_class.return_value = mock_minio
                 result = await worker.ensure_buckets_exist()
 
@@ -89,7 +91,9 @@ class TestCreateBuckets:
             mock_minio = MagicMock()
             mock_minio.bucket_exists.return_value = False
 
-            with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
+            with patch(
+                "models.workers.create.create_buckets.Minio"
+            ) as mock_minio_class:
                 mock_minio_class.return_value = mock_minio
                 result = await worker.ensure_buckets_exist()
 
@@ -111,7 +115,9 @@ class TestCreateBuckets:
                 None, "make_bucket", "Internal Error", None, "req_id", "host_id"
             )
 
-            with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
+            with patch(
+                "models.workers.create.create_buckets.Minio"
+            ) as mock_minio_class:
                 mock_minio_class.return_value = mock_minio
                 result = await worker.ensure_buckets_exist()
 
@@ -131,7 +137,9 @@ class TestCreateBuckets:
                 None, "head_bucket", "Internal Error", None, "req_id", "host_id"
             )
 
-            with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
+            with patch(
+                "models.workers.create.create_buckets.Minio"
+            ) as mock_minio_class:
                 mock_minio_class.return_value = mock_minio
                 result = await worker.ensure_buckets_exist()
 
@@ -149,7 +157,9 @@ class TestCreateBuckets:
             mock_minio = MagicMock()
             mock_minio.bucket_exists.side_effect = ValueError("Unexpected")
 
-            with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
+            with patch(
+                "models.workers.create.create_buckets.Minio"
+            ) as mock_minio_class:
                 mock_minio_class.return_value = mock_minio
                 result = await worker.ensure_buckets_exist()
 
@@ -167,7 +177,9 @@ class TestCreateBuckets:
             mock_minio = MagicMock()
             mock_minio.list_objects.return_value = []
 
-            with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
+            with patch(
+                "models.workers.create.create_buckets.Minio"
+            ) as mock_minio_class:
                 mock_minio_class.return_value = mock_minio
                 result = await worker.cleanup_buckets()
 
@@ -191,7 +203,9 @@ class TestCreateBuckets:
             mock_minio = MagicMock()
             mock_minio.list_objects.return_value = [mock_obj, mock_obj2]
 
-            with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
+            with patch(
+                "models.workers.create.create_buckets.Minio"
+            ) as mock_minio_class:
                 mock_minio_class.return_value = mock_minio
                 result = await worker.cleanup_buckets()
 
@@ -215,7 +229,9 @@ class TestCreateBuckets:
                 None, "remove_bucket", "NoSuchBucket", None, "req_id", "host_id"
             )
 
-            with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
+            with patch(
+                "models.workers.create.create_buckets.Minio"
+            ) as mock_minio_class:
                 mock_minio_class.return_value = mock_minio
                 result = await worker.cleanup_buckets()
 
@@ -236,7 +252,9 @@ class TestCreateBuckets:
                 None, "remove_bucket", "AccessDenied", None, "req_id", "host_id"
             )
 
-            with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
+            with patch(
+                "models.workers.create.create_buckets.Minio"
+            ) as mock_minio_class:
                 mock_minio_class.return_value = mock_minio
                 result = await worker.cleanup_buckets()
 
@@ -254,7 +272,9 @@ class TestCreateBuckets:
             mock_minio = MagicMock()
             mock_minio.bucket_exists.return_value = True
 
-            with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
+            with patch(
+                "models.workers.create.create_buckets.Minio"
+            ) as mock_minio_class:
                 mock_minio_class.return_value = mock_minio
                 result = await worker.bucket_health_check()
 
@@ -271,9 +291,13 @@ class TestCreateBuckets:
             worker.required_buckets = ["unhealthy-bucket"]
 
             mock_minio = MagicMock()
-            mock_minio.bucket_exists.side_effect = S3Error(None, "bucket_exists", "Forbidden", None, "req_id", "host_id")
+            mock_minio.bucket_exists.side_effect = S3Error(
+                None, "bucket_exists", "Forbidden", None, "req_id", "host_id"
+            )
 
-            with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
+            with patch(
+                "models.workers.create.create_buckets.Minio"
+            ) as mock_minio_class:
                 mock_minio_class.return_value = mock_minio
                 result = await worker.bucket_health_check()
 
@@ -293,7 +317,9 @@ class TestCreateBuckets:
             mock_minio = MagicMock()
             mock_minio.bucket_exists.return_value = True
 
-            with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
+            with patch(
+                "models.workers.create.create_buckets.Minio"
+            ) as mock_minio_class:
                 mock_minio_class.return_value = mock_minio
                 result = await worker.run_setup()
 
@@ -311,9 +337,13 @@ class TestCreateBuckets:
             worker.required_buckets = ["fail-bucket"]
 
             mock_minio = MagicMock()
-            mock_minio.bucket_exists.side_effect = S3Error(None, "bucket_exists", "Forbidden", None, "req_id", "host_id")
+            mock_minio.bucket_exists.side_effect = S3Error(
+                None, "bucket_exists", "Forbidden", None, "req_id", "host_id"
+            )
 
-            with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
+            with patch(
+                "models.workers.create.create_buckets.Minio"
+            ) as mock_minio_class:
                 mock_minio_class.return_value = mock_minio
                 result = await worker.run_setup()
 
@@ -332,7 +362,9 @@ class TestCreateBuckets:
             )
             worker.required_buckets = []
 
-            with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
+            with patch(
+                "models.workers.create.create_buckets.Minio"
+            ) as mock_minio_class:
                 mock_minio_class.return_value = MagicMock()
                 _ = worker.get_s3_client()
                 mock_minio_class.assert_called_once_with(

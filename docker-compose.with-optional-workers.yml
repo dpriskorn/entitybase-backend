@@ -1,0 +1,644 @@
+# Entitybase Docker Orchestration
+#
+# Ports:
+#   rustfs:    9000 (API), 9001 (console)
+#   redpanda:  9092 (Kafka), 9644 (admin)
+#   backend:   8080
+#   kafka2sse-be:  8888
+#   kafka2sse-fe:  8889
+#   orchestrator-fe: 8080
+#   backend:   8080
+#   entitybase-frontend: 8081
+#
+# Usage:
+#   docker compose up -d              # Core services only
+#   docker compose --profile workers up -d  # Include workers
+
+services:
+  rustfs:
+    image: rustfs/rustfs:1.0.0-beta.8
+    container_name: rustfs
+    restart: unless-stopped
+    user: "1000:1000"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ./data/rustfs:/data
+    environment:
+      - RUSTFS_ROOT_USER=${RUSTFS_ROOT_USER:-fakekey}
+      - RUSTFS_ROOT_PASSWORD=${RUSTFS_ROOT_PASSWORD:-fakesecret}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    mem_limit: 512m
+    cpus: 0.5
+    networks:
+      - entitybase-network
+    profiles:
+      - core
+      - workers
+
+  valkey:
+    image: valkey/valkey:alpine
+    container_name: valkey
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - entitybase-network
+    ports:
+      - "6379:6379"
+    profiles:
+      - core
+      - workers
+
+  redpanda:
+    image: redpandadata/redpanda:v25.3.6
+    container_name: redpanda
+    command:
+      - redpanda
+      - start
+      - --overprovisioned
+      - --smp 1
+      - --memory 256M
+      - --reserve-memory 0M
+      - --node-id 0
+      - --check=false
+      - --kafka-addr PLAINTEXT://0.0.0.0:9092
+      - --advertise-kafka-addr PLAINTEXT://redpanda:9092
+      # - --logger-log-level=warn  # Invalid for redpanda v25.3.6
+    environment:
+      - KAFKA_RETENTION_BYTES=${REDPANDA_RETENTION_BYTES:-10485760}
+      - KAFKA_RETENTION_MS=${REDPANDA_RETENTION_MS:-3600000}
+      - KAFKA_LOG_SEGMENT_BYTES=${REDPANDA_LOG_SEGMENT_BYTES:-10485760}
+      - REDPANDA_LOG_SEGMENT_MAX_BYTES=${REDPANDA_LOG_SEGMENT_BYTES:-10485760}
+      # - RPK_LOG=warn  # May be invalid for redpanda v25.3.6
+    # ports:
+    #   - "9092:9092"
+    #   - "9644:9644"
+    healthcheck:
+      test: ["CMD-SHELL", "rpk cluster health | grep -q 'Healthy:.*true'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    mem_limit: 256m
+    cpus: 0.25
+    networks:
+      - entitybase-network
+    user: ${REDPANDA_USER}
+    volumes:
+      - ${VOLUMES_PATH}/redpanda-data:/var/lib/redpanda/data
+    profiles:
+      - core
+      - workers
+
+  redpanda-console:
+    image: redpandadata/console:latest
+    container_name: redpanda-console
+    ports:
+      - "8084:8080"
+    environment:
+      KAFKA_BROKERS: redpanda:9092
+    depends_on:
+      - redpanda
+    networks:
+      - entitybase-network
+    profiles:
+      - core
+      - workers
+
+  # Setup jobs (run once, then exit)
+  create-buckets:
+    container_name: create-buckets
+    image: entitybase-backend-create-buckets:latest
+    environment:
+      RUSTFS_ENDPOINT: http://rustfs:9000
+      RUSTFS_ACCESS_KEY: ${RUSTFS_ROOT_USER:-fakekey}
+      RUSTFS_SECRET_KEY: ${RUSTFS_ROOT_PASSWORD:-fakesecret}
+    depends_on:
+      rustfs:
+        condition: service_healthy
+    command: python -m models.workers.create buckets setup
+    profiles:
+      - core
+      - workers
+    mem_limit: 512m
+    cpus: 0.5
+    networks:
+      - entitybase-network
+
+  create-topics:
+    container_name: create-topics
+    image: entitybase-backend-create-topics:latest
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    command: python -m models.workers.create topics setup
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      KAFKA_ENTITY_CHANGE_TOPIC: ${KAFKA_ENTITY_CHANGE_TOPIC:-entity_change}
+      KAFKA_INCREMENTAL_RDF_TOPIC: ${KAFKA_INCREMENTAL_RDF_TOPIC:-incremental_rdf_diff}
+    profiles:
+      - core
+      - workers
+    mem_limit: 512m
+    cpus: 0.5
+    networks:
+      - entitybase-network
+
+  entitybase-api:
+    container_name: entitybase-api
+    image: entitybase-api:latest
+    ports:
+      - "8083:8080"
+    environment:
+      - VERSION=${VERSION_ENTITYBASE_BACKEND}
+      - S3_ENDPOINT=http://rustfs:9000
+      - S3_ACCESS_KEY=${RUSTFS_ROOT_USER:-fakekey}
+      - S3_SECRET_KEY=${RUSTFS_ROOT_PASSWORD:-fakesecret}
+      - S3_BUCKET=entitybase
+      - STREAMING_ENABLED=true
+      - STREAMING_BACKEND=redpanda
+      - KAFKA_BOOTSTRAP_SERVERS=redpanda:9092
+      - KAFKA_ENTITYCHANGE_JSON_TOPIC=${KAFKA_ENTITY_CHANGE_TOPIC:-entity_change}
+      - KAFKA_ENTITY_DIFF_TOPIC=${KAFKA_ENTITY_DIFF_TOPIC:-entity_diff}
+      - KAFKA_USERCHANGE_JSON_TOPIC=user_change
+      - KAFKA_ENDORSEMENT_TOPIC=endorsement
+      - KAFKA_THANKS_TOPIC=thanks
+      - ELASTICSEARCH_ENABLED=${ELASTICSEARCH_ENABLED:-false}
+      - MEILISEARCH_ENABLED=${MEILISEARCH_ENABLED:-false}
+      - ID_WORKER_ENABLED=${ID_WORKER_ENABLED:-false}
+      - JSON_WORKER_ENABLED=${JSON_WORKER_ENABLED:-false}
+      - TTL_WORKER_ENABLED=${TTL_WORKER_ENABLED:-false}
+      - STATS_WORKER_ENABLED=${STATS_WORKER_ENABLED:-false}
+      - PURGE_WORKER_ENABLED=${PURGE_WORKER_ENABLED:-false}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    depends_on:
+      create-topics:
+        condition: service_completed_successfully
+      rustfs:
+        condition: service_healthy
+    command: python -m models.rest_api.main
+    # Long start_period needed to initialize redpanda producers when STREAMING_ENABLED=true
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 100s
+    profiles:
+      - core
+      - workers
+    mem_limit: 1g
+    cpus: 1.0
+    networks:
+      - entitybase-network
+
+  kafka2sse-backend:
+    container_name: kafka2sse-backend
+    image: kafka2sse-backend:latest
+    ports:
+      - "8888:8888"
+    environment:
+      - KAFKA_BROKERS=redpanda:9092
+      - VALKEY_HOST=valkey
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - VERSION=${VERSION_KAFKA2SSE_BACKEND}
+    depends_on:
+      redpanda:
+        condition: service_healthy
+      valkey:
+        condition: service_healthy
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:8888/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
+    profiles:
+      - core
+      - workers
+    mem_limit: 512m
+    cpus: 0.5
+    networks:
+      - entitybase-network
+
+  kafka2sse-frontend:
+    container_name: kafka2sse-frontend
+    image: kafka2sse-frontend:latest
+    ports:
+      - "8889:8889"
+    environment:
+      - KAFKA2SSE_BACKEND_URL=${KAFKA2SSE_BACKEND_URL}
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:8889/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    profiles:
+      - core
+      - workers
+    mem_limit: 512m
+    cpus: 0.5
+    networks:
+      - entitybase-network
+
+  orchestrator-frontend:
+    container_name: orchestrator-frontend
+    image: entitybase-orchestrator-frontend:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_HOST: ${VITE_HOST:-localhost}
+        VITE_APP_VERSION: ${VERSION_ORCHESTRATOR_FRONTEND:-latest}
+    ports:
+      - "8080:8083"
+    profiles:
+      - core
+      - workers
+    depends_on:
+      rustfs:
+        condition: service_healthy
+      redpanda:
+        condition: service_healthy
+      entitybase-api:
+        condition: service_started
+      kafka2sse-backend:
+        condition: service_healthy
+      kafka2sse-frontend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8083/health.html"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    mem_limit: 256m
+    cpus: 0.25
+    networks:
+      - entitybase-network
+
+  meilisearch:
+    image: getmeili/meilisearch:latest
+    container_name: meilisearch
+    environment:
+      MEILI_ENV: development
+      MEILI_MASTER_KEY: "${MEILISEARCH_MASTER_KEY:-}"
+    ports:
+      - "7700:7700"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:7700/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    mem_limit: 256m
+    cpus: 0.25
+    networks:
+      - entitybase-network
+    volumes:
+      - ${VOLUMES_PATH}/meilisearch-data:/meili_data
+    profiles:
+      - meilisearch
+
+  # Workers (optional)
+  json-dump-worker:
+    container_name: json-dump-worker
+    image: entitybase-backend-json-worker:latest
+    ports:
+      - "8011:8002"
+    environment:
+      WORKER_ID: json_dump_worker_1
+      S3_ENDPOINT: http://rustfs:9000
+      S3_ACCESS_KEY: ${RUSTFS_ROOT_USER:-fakekey}
+      S3_SECRET_KEY: ${RUSTFS_ROOT_PASSWORD:-fakesecret}
+      S3_DUMP_BUCKET: wikibase-dumps
+      JSON_DUMP_ENABLED: "true"
+      JSON_DUMP_SCHEDULE: "0 2 * * 0"
+    depends_on:
+      create-buckets:
+        condition: service_completed_successfully
+      rustfs:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    profiles:
+      - workers
+    command: ["python", "-m", "models.workers.json_dumps.json_dump_worker"]
+    mem_limit: 1g
+    cpus: 0.5
+    networks:
+      - entitybase-network
+
+  ttl-dump-worker:
+    container_name: ttl-dump-worker
+    image: entitybase-backend-ttl-worker:latest
+    ports:
+      - "8003:8003"
+    environment:
+      WORKER_ID: ttl_dump_worker_1
+      S3_ENDPOINT: http://rustfs:9000
+      S3_ACCESS_KEY: ${RUSTFS_ROOT_USER:-fakekey}
+      S3_SECRET_KEY: ${RUSTFS_ROOT_PASSWORD:-fakesecret}
+      S3_DUMP_BUCKET: wikibase-dumps
+      TTL_DUMP_ENABLED: "true"
+      TTL_DUMP_SCHEDULE: "0 3 * * 0"
+    depends_on:
+      create-buckets:
+        condition: service_completed_successfully
+      rustfs:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:8003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    profiles:
+      - workers
+    command: ["python", "-m", "models.workers.ttl_dumps.ttl_dump_worker"]
+    mem_limit: 1g
+    cpus: 0.5
+    networks:
+      - entitybase-network
+
+  backlink-stats-worker:
+    container_name: backlink-stats-worker
+    image: entitybase-backend-stats-worker:latest
+    ports:
+      - "8004:8004"
+    environment:
+      WORKER_ID: backlink_stats_worker_1
+      BACKLINK_STATS_ENABLED: "true"
+      BACKLINK_STATS_SCHEDULE: "0 2 * * *"
+      BACKLINK_STATS_TOP_LIMIT: "100"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:8004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    profiles:
+      - workers
+    command: ["python", "-m", "models.workers.backlink_statistics"]
+    mem_limit: 512m
+    cpus: 0.25
+    networks:
+      - entitybase-network
+
+  general-stats-worker:
+    container_name: general-stats-worker
+    image: entitybase-backend-stats-worker:latest
+    ports:
+      - "8005:8005"
+    environment:
+      WORKER_ID: general_stats_worker_1
+      GENERAL_STATS_ENABLED: "true"
+      GENERAL_STATS_SCHEDULE: "0 2 * * *"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:8005/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    profiles:
+      - workers
+    command: ["python", "-m", "models.workers.general_stats"]
+    mem_limit: 512m
+    cpus: 0.25
+    networks:
+      - entitybase-network
+
+  user-stats-worker:
+    container_name: user-stats-worker
+    image: entitybase-backend-stats-worker:latest
+    ports:
+      - "8006:8006"
+    environment:
+      WORKER_ID: user_stats_worker_1
+      USER_STATS_ENABLED: "true"
+      USER_STATS_SCHEDULE: "0 2 * * *"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:8006/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    profiles:
+      - workers
+    command: ["python", "-m", "models.workers.user_stats"]
+    mem_limit: 512m
+    cpus: 0.25
+    networks:
+      - entitybase-network
+
+  # Search workers
+  elasticsearch-indexer-worker:
+    container_name: elasticsearch-indexer-worker
+    image: entitybase-backend-elasticsearch-worker:latest
+    ports:
+      - "8007:8007"
+    environment:
+      WORKER_ID: elasticsearch_indexer_worker_1
+      S3_ENDPOINT: http://rustfs:9000
+      S3_ACCESS_KEY: ${RUSTFS_ROOT_USER:-fakekey}
+      S3_SECRET_KEY: ${RUSTFS_ROOT_PASSWORD:-fakesecret}
+      ELASTICSEARCH_ENABLED: "${ELASTICSEARCH_ENABLED:-false}"
+      ELASTICSEARCH_HOST: elasticsearch
+      ELASTICSEARCH_PORT: 9200
+      ELASTICSEARCH_INDEX: entitybase
+      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      KAFKA_ENTITYCHANGE_JSON_TOPIC: ${KAFKA_ENTITY_CHANGE_TOPIC:-entity_change}
+      ELASTICSEARCH_CONSUMER_GROUP: entitybase-elasticsearch-indexer
+    depends_on:
+      create-topics:
+        condition: service_completed_successfully
+      rustfs:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:8007/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    profiles:
+      - elastic
+
+    command: ["python", "-m", "models.workers.elasticsearch_indexer"]
+    mem_limit: 1g
+    cpus: 0.5
+    networks:
+      - entitybase-network
+
+  meilisearch-indexer-worker:
+    container_name: meilisearch-indexer-worker
+    image: entitybase-backend-meilisearch-worker:latest
+    ports:
+      - "8009:8009"
+    environment:
+      WORKER_ID: meilisearch_indexer_worker_1
+      S3_ENDPOINT: http://rustfs:9000
+      S3_ACCESS_KEY: ${RUSTFS_ROOT_USER:-fakekey}
+      S3_SECRET_KEY: ${RUSTFS_ROOT_PASSWORD:-fakesecret}
+      MEILISEARCH_ENABLED: "${MEILISEARCH_ENABLED:-false}"
+      MEILISEARCH_HOST: meilisearch
+      MEILISEARCH_PORT: 7700
+      MEILISEARCH_INDEX: entitybase
+      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      KAFKA_ENTITYCHANGE_JSON_TOPIC: ${KAFKA_ENTITY_CHANGE_TOPIC:-entity_change}
+      MEILISEARCH_CONSUMER_GROUP: entitybase-meilisearch-indexer
+    depends_on:
+      create-topics:
+        condition: service_completed_successfully
+      rustfs:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:8009/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    profiles:
+      - meilisearch
+
+    command: ["python", "-m", "models.workers.meilisearch_indexer"]
+    mem_limit: 1g
+    cpus: 0.5
+    networks:
+      - entitybase-network
+
+  # Search services - Elastic
+  elasticsearch:
+    container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.4
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    mem_limit: 1g
+    cpus: 1.0
+    networks:
+      - entitybase-network
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    profiles:
+      - elastic
+
+  purge-worker:
+    container_name: purge-worker
+    image: entitybase-backend-purge-worker:latest
+    ports:
+      - "8008:8008"
+    environment:
+      WORKER_ID: purge_worker_1
+      S3_ENDPOINT: http://rustfs:9000
+      S3_ACCESS_KEY: ${RUSTFS_ROOT_USER:-fakekey}
+      S3_SECRET_KEY: ${RUSTFS_ROOT_PASSWORD:-fakesecret}
+      PURGE_ENABLED: "true"
+      PURGE_SCHEDULE: "0 0 * * *"
+      LOG_LEVEL: INFO
+    depends_on:
+      rustfs:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:8008/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    command: ["python", "-m", "models.workers.purge.purge_worker"]
+    mem_limit: 512m
+    cpus: 0.25
+    networks:
+      - entitybase-network
+    profiles:
+      - workers
+
+  incremental-rdf-worker:
+    container_name: incremental-rdf-worker
+    image: entitybase-backend-incremental-rdf-worker:latest
+    ports:
+      - "8010:8010"
+    environment:
+      WORKER_ID: incremental_rdf_worker_1
+      S3_ENDPOINT: http://rustfs:9000
+      S3_ACCESS_KEY: ${RUSTFS_ROOT_USER:-fakekey}
+      S3_SECRET_KEY: ${RUSTFS_ROOT_PASSWORD:-fakesecret}
+      INCREMENTAL_RDF_ENABLED: "${INCREMENTAL_RDF_ENABLED:-false}"
+      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      KAFKA_ENTITYCHANGE_JSON_TOPIC: ${KAFKA_ENTITY_CHANGE_TOPIC:-entity_change}
+      KAFKA_INCREMENTAL_RDF_TOPIC: ${KAFKA_INCREMENTAL_RDF_TOPIC:-incremental_rdf_diff}
+    depends_on:
+      entitybase-api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:8010/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    command: ["python", "-m", "models.workers.incremental_rdf"]
+    mem_limit: 1g
+    cpus: 0.5
+    networks:
+      - entitybase-network
+    profiles:
+      - workers
+
+  entitybase-frontend:
+    container_name: entitybase-frontend
+    build:
+      context: ./libs/entitybase-backend/frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    profiles:
+      - core
+      - workers
+    depends_on:
+      entitybase-api:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8081/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    mem_limit: 256m
+    cpus: 0.25
+    networks:
+      - entitybase-network
+
+networks:
+  entitybase-network:
+    name: entitybase-network
+
+volumes:
+  redpanda-data:
+  meilisearch-data:
