@@ -140,7 +140,7 @@ jobs:
       - name: Wait for rustfs
         timeout-minutes: 2
         run: |
-          until curl -f http://localhost:9000; do
+          until curl -sf http://localhost:9000/health; do
             echo "Waiting for rustfs..."
             sleep 2
           done
