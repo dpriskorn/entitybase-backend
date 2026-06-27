@@ -17,17 +17,21 @@ class TestThanksRepository:
         mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
-        mock_cursor.fetchone.side_effect = [(456,), None]  # author, no existing thank
+        mock_cursor.fetchone.side_effect = [
+            (456,),  # author
+            None,  # no existing thank
+            (789, 111, 456, "Q1", 1, "2023-01-01"),  # created thank
+        ]
         mock_cursor.lastrowid = 789
         mock_mysql_client.cursor = mock_cursor
         mock_mysql_client.id_resolver = mock_id_resolver
 
         repo = ThanksRepository(mysql_client=mock_mysql_client)
 
-        result = repo.send_thank(111, "Q1", 1)
+        result = repo.send_thank_and_get(111, "Q1", 1)
 
         assert result.success is True
-        assert result.data == 789
+        assert result.data.id == 789
 
     def test_send_thank_entity_not_found(self):
         """Test sending thank when entity not found."""
@@ -38,7 +42,7 @@ class TestThanksRepository:
 
         repo = ThanksRepository(mysql_client=mock_mysql_client)
 
-        result = repo.send_thank(111, "Q999", 1)
+        result = repo.send_thank_and_get(111, "Q999", 1)
 
         assert result.success is False
         assert "Entity not found" in result.error
@@ -57,7 +61,7 @@ class TestThanksRepository:
 
         repo = ThanksRepository(mysql_client=mock_mysql_client)
 
-        result = repo.send_thank(111, "Q1", 1)
+        result = repo.send_thank_and_get(111, "Q1", 1)
 
         assert result.success is False
         assert "Revision not found" in result.error
@@ -76,7 +80,7 @@ class TestThanksRepository:
 
         repo = ThanksRepository(mysql_client=mock_mysql_client)
 
-        result = repo.send_thank(111, "Q1", 1)
+        result = repo.send_thank_and_get(111, "Q1", 1)
 
         assert result.success is False
         assert "Cannot thank your own revision" in result.error
@@ -95,10 +99,10 @@ class TestThanksRepository:
 
         repo = ThanksRepository(mysql_client=mock_mysql_client)
 
-        result = repo.send_thank(111, "Q1", 1)
+        result = repo.send_thank_and_get(111, "Q1", 1)
 
         assert result.success is False
-        assert "Already thanked" in result.error
+        assert "Already thanked this revision" in result.error
 
     def test_send_thank_invalid_params(self):
         """Test sending thank with invalid parameters."""
@@ -106,7 +110,7 @@ class TestThanksRepository:
 
         repo = ThanksRepository(mysql_client=mock_mysql_client)
 
-        result = repo.send_thank(0, "Q1", 1)
+        result = repo.send_thank_and_get(0, "Q1", 1)
 
         assert result.success is False
         assert "Invalid parameters" in result.error
@@ -207,10 +211,10 @@ class TestThanksRepository:
 
         repo = ThanksRepository(mysql_client=mock_mysql_client)
 
-        result = repo.send_thank(111, "Q1", 1)
+        result = repo.send_thank_and_get(111, "Q1", 1)
 
         assert result.success is False
-        assert "Already thanked" in result.error
+        assert "Already thanked this revision" in result.error
 
     def test_send_thank_database_error(self):
         """Test sending thank with database error."""
@@ -223,7 +227,7 @@ class TestThanksRepository:
 
         repo = ThanksRepository(mysql_client=mock_mysql_client)
 
-        result = repo.send_thank(111, "Q1", 1)
+        result = repo.send_thank_and_get(111, "Q1", 1)
 
         assert result.success is False
         assert "DB error" in result.error
@@ -290,7 +294,7 @@ class TestThanksRepository:
 
         repo = ThanksRepository(mysql_client=mock_mysql_client)
 
-        repo.send_thank(111, "Q1", 1)
+        repo.send_thank_and_get(111, "Q1", 1)
 
         assert "Sending thank from user 111 for Q1:1" in caplog.text
 

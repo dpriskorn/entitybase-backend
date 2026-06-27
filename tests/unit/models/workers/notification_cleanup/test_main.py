@@ -16,7 +16,7 @@ class TestNotificationCleanupWorker:
         assert worker.worker_id is not None
         assert worker.max_age_days == 30
         assert worker.max_per_user == 500
-        assert worker.mysql_client is None
+        assert worker.db_client is None
 
     def test_worker_initialization_custom_limits(self):
         """Test worker initialization with custom limits."""
@@ -45,7 +45,7 @@ class TestNotificationCleanupWorker:
         mock_mysql_client.connection_manager = mock_connection_manager
 
         worker = NotificationCleanupWorker()
-        worker.mysql_client = mock_mysql_client
+        worker.db_client = mock_mysql_client
 
         await worker.run_cleanup()
 
@@ -73,7 +73,7 @@ class TestNotificationCleanupWorker:
         mock_mysql_client.connection_manager = mock_connection_manager
 
         worker = NotificationCleanupWorker()
-        worker.mysql_client = mock_mysql_client
+        worker.db_client = mock_mysql_client
 
         await worker.run_cleanup()
 
@@ -95,7 +95,7 @@ class TestNotificationCleanupWorker:
         mock_mysql_client.connection_manager = mock_connection_manager
 
         worker = NotificationCleanupWorker()
-        worker.mysql_client = mock_mysql_client
+        worker.db_client = mock_mysql_client
 
         cutoff_date = datetime.now(timezone.utc) - timedelta(days=30)
         deleted = worker._delete_old_notifications(cutoff_date)
@@ -122,7 +122,7 @@ class TestNotificationCleanupWorker:
         mock_mysql_client.connection_manager = mock_connection_manager
 
         worker = NotificationCleanupWorker()
-        worker.mysql_client = mock_mysql_client
+        worker.db_client = mock_mysql_client
 
         deleted = worker._enforce_user_limits()
 
@@ -148,7 +148,7 @@ class TestNotificationCleanupWorker:
         mock_mysql_client.cursor = mock_connection.cursor.return_value
 
         worker = NotificationCleanupWorker()
-        worker.mysql_client = mock_mysql_client
+        worker.db_client = mock_mysql_client
 
         deleted = worker._enforce_user_limits()
 
@@ -177,7 +177,7 @@ class TestNotificationCleanupWorker:
         mock_mysql_client.cursor = mock_connection.cursor.return_value
 
         worker = NotificationCleanupWorker()
-        worker.mysql_client = mock_mysql_client
+        worker.db_client = mock_mysql_client
 
         deleted = worker._enforce_user_limits()
 

@@ -18,7 +18,7 @@ class TestJsonDumpWorker:
         worker = JsonDumpWorker()
         assert worker.worker_id is not None
         assert worker.running is False
-        assert worker.mysql_client is None
+        assert worker.db_client is None
         assert worker.s3_client is None
 
     @pytest.mark.asyncio
@@ -40,7 +40,7 @@ class TestJsonDumpWorker:
             ),
         ):
             async with worker.lifespan():
-                assert worker.mysql_client is not None
+                assert worker.db_client is not None
                 assert worker.s3_client is not None
 
     @pytest.mark.asyncio
@@ -103,7 +103,7 @@ class TestJsonDumpWorker:
         mock_mysql_client.cursor.__exit__ = MagicMock(return_value=False)
 
         worker = JsonDumpWorker()
-        worker.mysql_client = mock_mysql_client
+        worker.db_client = mock_mysql_client
 
         entities = await worker._fetch_all_entities()
 
@@ -141,7 +141,7 @@ class TestJsonDumpWorker:
             mock_settings.json_dump_batch_size = 1000
 
             worker = JsonDumpWorker()
-            worker.mysql_client = mock_mysql_client
+            worker.db_client = mock_mysql_client
 
             entities = await worker._fetch_entities_for_week(week_start, week_end)
 

@@ -18,7 +18,7 @@ class TestBacklinkStatisticsWorker:
 
     def test_get_enabled_setting(self):
         """Test getting enabled setting."""
-        worker = BacklinkStatisticsWorker(mysql_client=MagicMock())
+        worker = BacklinkStatisticsWorker()
         assert worker.get_enabled_setting() == settings.backlink_stats_worker_enabled
 
     def test_get_schedule_setting(self):
@@ -27,19 +27,19 @@ class TestBacklinkStatisticsWorker:
             "models.workers.backlink_statistics.backlink_statistics_worker.settings"
         ) as mock_settings:
             mock_settings.backlink_stats_schedule = "daily"
-            worker = BacklinkStatisticsWorker(mysql_client=MagicMock())
+            worker = BacklinkStatisticsWorker()
             assert worker.get_schedule_setting() == "daily"
 
     @pytest.mark.asyncio
     async def test_run_daily_computation_success(self):
         """Test successful daily computation."""
-        mock_mysql_client = MagicMock()
+        mock_db_client = MagicMock()
         mock_service = MagicMock()
         mock_service.compute_daily_stats.return_value = MagicMock(
             total_backlinks=100, unique_entities_with_backlinks=50
         )
 
-        worker = BacklinkStatisticsWorker(mysql_client=mock_mysql_client)
+        worker = BacklinkStatisticsWorker.model_construct(db_client=mock_db_client)
         worker._store_statistics = AsyncMock()
 
         with (
@@ -66,23 +66,23 @@ class TestBacklinkStatisticsWorker:
             assert worker.last_run is not None
 
     @pytest.mark.asyncio
-    async def test_run_daily_computation_no_mysql_client(self):
+    async def test_run_daily_computation_no_db_client(self):
         """Test daily computation with no mysql client."""
-        worker = BacklinkStatisticsWorker(mysql_client=None)
+        worker = BacklinkStatisticsWorker()
 
         with patch(
             "models.workers.backlink_statistics.backlink_statistics_worker.logger"
         ) as mock_logger:
             await worker.run_daily_computation()
 
-            mock_logger.error.assert_called_once_with("Sql client not initialized")
+            mock_logger.error.assert_called_once_with("Database client not initialized")
 
     @pytest.mark.asyncio
     async def test_run_daily_computation_exception(self):
         """Test daily computation with exception."""
-        mock_mysql_client = MagicMock()
+        mock_db_client = MagicMock()
 
-        worker = BacklinkStatisticsWorker(mysql_client=mock_mysql_client)
+        worker = BacklinkStatisticsWorker.model_construct(db_client=mock_db_client)
 
         with (
             patch(
@@ -100,12 +100,12 @@ class TestBacklinkStatisticsWorker:
             mock_logger.error.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_store_statistics_with_mysql_client(self):
+    async def test_store_statistics_with_db_client(self):
         """Test storing statistics with mysql client."""
-        mock_mysql_client = MagicMock()
-        mock_mysql_client.backlink_repository = MagicMock()
+        mock_db_client = MagicMock()
+        mock_db_client.backlink_repository = MagicMock()
 
-        worker = BacklinkStatisticsWorker(mysql_client=mock_mysql_client)
+        worker = BacklinkStatisticsWorker.model_construct(db_client=mock_db_client)
 
         stats = BacklinkStatisticsData(
             total_backlinks=100,
@@ -122,4 +122,4 @@ class TestBacklinkStatisticsWorker:
 
             await worker._store_statistics(stats)
 
-            mock_mysql_client.backlink_repository.insert_backlink_statistics.assert_called_once()
+            mock_db_client.backlink_repository.insert_backlink_statistics.assert_called_once()

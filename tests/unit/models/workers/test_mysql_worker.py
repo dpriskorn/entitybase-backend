@@ -15,10 +15,10 @@ class TestMysqlWorker:
     def test_mysql_worker_initialization_defaults(self):
         """Test MysqlWorker initialization with default values."""
         mock_worker = create_autospec(MysqlWorker, instance=True)
-        mock_worker.mysql_client = None
+        mock_worker.db_client = None
         mock_worker.running = False
 
-        assert mock_worker.mysql_client is None
+        assert mock_worker.db_client is None
         assert mock_worker.running is False
 
     def test_mysql_worker_inherits_from_worker(self):

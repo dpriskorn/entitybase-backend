@@ -73,11 +73,11 @@ class IdGeneratorWorker(MysqlWorker):
                 user=os.getenv("MYSQL_USER", "root"),
                 password=os.getenv("MYSQL_PASSWORD", ""),
             )
-            self.mysql_client = MysqlClient(config=mysql_config)
+            self.db_client = MysqlClient(config=mysql_config)
 
             # Initialize enumeration service
             self.enumeration_service = EnumerationService(
-                worker_id=self.worker_id, mysql_client=self.mysql_client
+                worker_id=self.worker_id, mysql_client=self.db_client
             )
 
             logger.info("ID Generator Worker initialized successfully")
@@ -114,7 +114,7 @@ class IdGeneratorWorker(MysqlWorker):
         """
         logger.info("Shutting down ID Generator Worker")
 
-        if self.mysql_client:
+        if self.db_client:
             # Close database connections
             pass
 

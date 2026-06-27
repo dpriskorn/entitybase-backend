@@ -15,24 +15,24 @@ class TestUserStatsWorker:
 
     def test_get_enabled_setting(self):
         """Test getting enabled setting."""
-        worker = UserStatsWorker(mysql_client=MagicMock())
+        worker = UserStatsWorker()
         assert worker.get_enabled_setting() == settings.user_stats_worker_enabled
 
     def test_get_schedule_setting(self):
         """Test getting schedule setting."""
-        worker = UserStatsWorker(mysql_client=MagicMock())
+        worker = UserStatsWorker()
         assert worker.get_schedule_setting() == settings.user_stats_schedule
 
     @pytest.mark.asyncio
     async def test_run_daily_computation_success(self):
         """Test successful daily computation."""
-        mock_mysql_client = MagicMock()
+        mock_db_client = MagicMock()
         mock_service = MagicMock()
         mock_service.compute_daily_stats.return_value = MagicMock(
             total_users=100, active_users=50
         )
 
-        worker = UserStatsWorker(mysql_client=mock_mysql_client)
+        worker = UserStatsWorker.model_construct(db_client=mock_db_client)
         worker._store_statistics = AsyncMock()
 
         with (
@@ -59,21 +59,21 @@ class TestUserStatsWorker:
             assert worker.last_run is not None
 
     @pytest.mark.asyncio
-    async def test_run_daily_computation_no_mysql_client(self):
+    async def test_run_daily_computation_no_db_client(self):
         """Test daily computation with no mysql client."""
-        worker = UserStatsWorker(mysql_client=None)
+        worker = UserStatsWorker()
 
         with patch("models.workers.user_stats.user_stats_worker.logger") as mock_logger:
             await worker.run_daily_computation()
 
-            mock_logger.error.assert_called_once_with("Sql client not initialized")
+            mock_logger.error.assert_called_once_with("Database client not initialized")
 
     @pytest.mark.asyncio
     async def test_run_daily_computation_exception(self):
         """Test daily computation with exception."""
-        mock_mysql_client = MagicMock()
+        mock_db_client = MagicMock()
 
-        worker = UserStatsWorker(mysql_client=mock_mysql_client)
+        worker = UserStatsWorker.model_construct(db_client=mock_db_client)
 
         with (
             patch(
@@ -89,12 +89,12 @@ class TestUserStatsWorker:
             mock_logger.error.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_store_statistics_with_mysql_client(self):
+    async def test_store_statistics_with_db_client(self):
         """Test storing statistics with mysql client."""
-        mock_mysql_client = MagicMock()
-        mock_mysql_client.user_repository = MagicMock()
+        mock_db_client = MagicMock()
+        mock_db_client.user_repository = MagicMock()
 
-        worker = UserStatsWorker(mysql_client=mock_mysql_client)
+        worker = UserStatsWorker.model_construct(db_client=mock_db_client)
 
         stats = UserStatsData(
             total_users=100,
@@ -106,12 +106,12 @@ class TestUserStatsWorker:
 
             await worker._store_statistics(stats)
 
-            mock_mysql_client.user_repository.insert_user_statistics.assert_called_once()
+            mock_db_client.user_repository.insert_user_statistics.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_store_statistics_no_mysql_client(self):
+    async def test_store_statistics_no_db_client(self):
         """Test storing statistics without mysql client returns early."""
-        worker = UserStatsWorker(mysql_client=None)
+        worker = UserStatsWorker()
 
         await worker._store_statistics(MagicMock())
 

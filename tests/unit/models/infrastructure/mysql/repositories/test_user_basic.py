@@ -108,7 +108,7 @@ class TestUserRepositoryBasic:
         mock_cursor = MagicMock()
         mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
         mock_cursor.__exit__ = MagicMock(return_value=False)
-        mock_cursor.fetchone.return_value = (123, "2023-01-01", {"theme": "dark"})
+        mock_cursor.fetchone.return_value = (123, "testuser", "default", "2023-01-01", {"theme": "dark"})
         mock_mysql_client.cursor = mock_cursor
 
         repo = UserRepository(mysql_client=mock_mysql_client)
@@ -117,6 +117,7 @@ class TestUserRepositoryBasic:
 
         assert result is not None
         assert result.user_id == 123
+        assert result.username == "testuser"
         assert result.preferences == {"theme": "dark"}
 
     def test_get_user_not_found(self):
@@ -156,7 +157,7 @@ class TestUserRepositoryBasic:
         mock_cursor = MagicMock()
         mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
         mock_cursor.__exit__ = MagicMock(return_value=False)
-        mock_cursor.fetchone.return_value = (123, "2023-01-01", "invalid_json")
+        mock_cursor.fetchone.return_value = (123, "testuser", "invalid_role", "2023-01-01", {"theme": "dark"})
         mock_mysql_client.cursor = mock_cursor
 
         repo = UserRepository(mysql_client=mock_mysql_client)

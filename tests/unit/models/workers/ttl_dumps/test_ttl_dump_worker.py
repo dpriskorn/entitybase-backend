@@ -18,7 +18,7 @@ class TestTtlDumpWorker:
         worker = TtlDumpWorker()
         assert worker.worker_id is not None
         assert worker.running is False
-        assert worker.mysql_client is None
+        assert worker.db_client is None
         assert worker.s3_client is None
         assert worker.converter is None
 
@@ -54,7 +54,7 @@ class TestTtlDumpWorker:
             )
 
             async with worker.lifespan():
-                assert worker.mysql_client is not None
+                assert worker.db_client is not None
                 assert worker.s3_client is not None
                 assert worker.converter is not None
 
@@ -114,7 +114,7 @@ class TestTtlDumpWorker:
         mock_mysql_client.cursor.__exit__ = MagicMock(return_value=False)
 
         worker = TtlDumpWorker()
-        worker.mysql_client = mock_mysql_client
+        worker.db_client = mock_mysql_client
 
         entities = await worker._fetch_all_entities()
 
@@ -152,7 +152,7 @@ class TestTtlDumpWorker:
             mock_settings.ttl_dump_batch_size = 1000
 
             worker = TtlDumpWorker()
-            worker.mysql_client = mock_mysql_client
+            worker.db_client = mock_mysql_client
 
             entities = await worker._fetch_entities_for_week(week_start, week_end)
 

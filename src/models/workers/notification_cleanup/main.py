@@ -49,7 +49,7 @@ class NotificationCleanupWorker(MysqlWorker):
         try:
             # Initialize client
             mysql_config = settings.get_mysql_config
-            self.mysql_client = MysqlClient(config=mysql_config)
+            self.db_client = MysqlClient(config=mysql_config)
             logger.info("Notification cleanup worker started")
             yield
         except Exception as e:
@@ -88,9 +88,9 @@ class NotificationCleanupWorker(MysqlWorker):
 
     def _delete_old_notifications(self, cutoff_date: datetime) -> int:
         """Delete notifications older than cutoff date."""
-        if self.mysql_client is None:
+        if self.db_client is None:
             raise RuntimeError("database client not initialized")
-        with self.mysql_client.cursor as cursor:
+        with self.db_client.cursor as cursor:
             cursor.execute(
                 "DELETE FROM user_notifications WHERE event_timestamp < %s",
                 (cutoff_date.isoformat() + "Z",),
@@ -102,9 +102,9 @@ class NotificationCleanupWorker(MysqlWorker):
         total_deleted = 0
 
         # Get users with excess notifications
-        if self.mysql_client is None:
+        if self.db_client is None:
             raise RuntimeError("database client not initialized")
-        with self.mysql_client.cursor as cursor:
+        with self.db_client.cursor as cursor:
             # Find users with too many notifications
             cursor.execute(
                 """
