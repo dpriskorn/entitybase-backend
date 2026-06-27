@@ -26,6 +26,13 @@ class TermUpdateContext(BaseModel):
     value: str = Field(..., description="Term value")
 
 
+class AliasContext(BaseModel):
+    """Context for alias update operations."""
+
+    language_code: str = Field(..., description="Language code")
+    aliases: list[str] = Field(..., description="List of alias values")
+
+
 class GeneralStatisticsContext(BaseModel):
     """Context for general statistics insertion."""
 
