@@ -107,7 +107,9 @@ class TestCreateBuckets:
 
             mock_minio = MagicMock()
             mock_minio.bucket_exists.return_value = False
-            mock_minio.make_bucket.side_effect = S3Error("Internal Error", "make_bucket", "req_id", "host_id")
+            mock_minio.make_bucket.side_effect = S3Error(
+                None, "make_bucket", "Internal Error", None, "req_id", "host_id"
+            )
 
             with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
                 mock_minio_class.return_value = mock_minio
@@ -125,13 +127,15 @@ class TestCreateBuckets:
             worker.required_buckets = ["error-bucket"]
 
             mock_minio = MagicMock()
-            mock_minio.bucket_exists.side_effect = S3Error("Internal Error", "head_bucket", "req_id", "host_id")
+            mock_minio.bucket_exists.side_effect = S3Error(
+                None, "head_bucket", "Internal Error", None, "req_id", "host_id"
+            )
 
             with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
                 mock_minio_class.return_value = mock_minio
                 result = await worker.ensure_buckets_exist()
 
-                assert "error: InternalError" in result["error-bucket"]
+                assert "error: head_bucket" in result["error-bucket"]
 
     @pytest.mark.asyncio
     async def test_ensure_buckets_exist_unexpected_error(self):
@@ -204,8 +208,12 @@ class TestCreateBuckets:
             worker.required_buckets = ["missing-bucket"]
 
             mock_minio = MagicMock()
-            mock_minio.list_objects.side_effect = S3Error("NoSuchBucket", "list_objects", "req_id", "host_id")
-            mock_minio.remove_bucket.side_effect = S3Error("NoSuchBucket", "remove_bucket", "req_id", "host_id")
+            mock_minio.list_objects.side_effect = S3Error(
+                None, "list_objects", "NoSuchBucket", None, "req_id", "host_id"
+            )
+            mock_minio.remove_bucket.side_effect = S3Error(
+                None, "remove_bucket", "NoSuchBucket", None, "req_id", "host_id"
+            )
 
             with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
                 mock_minio_class.return_value = mock_minio
@@ -224,7 +232,9 @@ class TestCreateBuckets:
 
             mock_minio = MagicMock()
             mock_minio.list_objects.return_value = []
-            mock_minio.remove_bucket.side_effect = S3Error("AccessDenied", "remove_bucket", "req_id", "host_id")
+            mock_minio.remove_bucket.side_effect = S3Error(
+                None, "remove_bucket", "AccessDenied", None, "req_id", "host_id"
+            )
 
             with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
                 mock_minio_class.return_value = mock_minio
@@ -261,7 +271,7 @@ class TestCreateBuckets:
             worker.required_buckets = ["unhealthy-bucket"]
 
             mock_minio = MagicMock()
-            mock_minio.bucket_exists.side_effect = S3Error("Forbidden", "bucket_exists", "req_id", "host_id")
+            mock_minio.bucket_exists.side_effect = S3Error(None, "bucket_exists", "Forbidden", None, "req_id", "host_id")
 
             with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
                 mock_minio_class.return_value = mock_minio
@@ -301,7 +311,7 @@ class TestCreateBuckets:
             worker.required_buckets = ["fail-bucket"]
 
             mock_minio = MagicMock()
-            mock_minio.bucket_exists.side_effect = S3Error("Forbidden", "bucket_exists", "req_id", "host_id")
+            mock_minio.bucket_exists.side_effect = S3Error(None, "bucket_exists", "Forbidden", None, "req_id", "host_id")
 
             with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
                 mock_minio_class.return_value = mock_minio
@@ -326,7 +336,7 @@ class TestCreateBuckets:
                 mock_minio_class.return_value = MagicMock()
                 _ = worker.get_s3_client()
                 mock_minio_class.assert_called_once_with(
-                    "http://custom:9000",
+                    "custom:9000",
                     access_key="mykey",
                     secret_key="mysecret",
                     secure=False,

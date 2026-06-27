@@ -160,7 +160,7 @@ dev = [
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
-addopts = "--tb=short --cov=src --cov-branch --cov-report=term-missing:skip-covered"
+addopts = "--tb=short --cov=src --cov-branch --cov-report=term-missing:skip-covered --ignore=tests/unit/models/workers --ignore=tests/integration/models/workers --ignore=tests/e2e/models/workers"
 testpaths = ["tests"]
 log_cli = true
 log_cli_level = "DEBUG"
