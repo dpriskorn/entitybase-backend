@@ -14,6 +14,7 @@ from models.data.rest_api.v1.entitybase.request import LexemeUpdateRequest
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
 from models.data.rest_api.v1.entitybase.request.entity.context import (
+    EditOperationContext,
     EventPublishContext,
 )
 from models.data.rest_api.v1.entitybase.response import EntityResponse
@@ -95,8 +96,10 @@ class EntityUpdateLexemeMixin(BaseModel):
                 entity_id=entity_id,
                 request_data=prepared,
                 entity_type=EntityType(request.type),
-                edit_headers=edit_headers,
-                user_id=user_id,
+                edit_operation_context=EditOperationContext(
+                    edit_headers=edit_headers,
+                    user_id=user_id,
+                ),
                 hash_result=hash_result,
             )
 

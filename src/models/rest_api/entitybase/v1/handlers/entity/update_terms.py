@@ -10,6 +10,7 @@ from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
 from models.data.rest_api.v1.entitybase.request.entity.context import (
+    EditOperationContext,
     TermUpdateContext,
     EventPublishContext,
 )
@@ -80,8 +81,11 @@ class EntityUpdateTermsMixin(BaseModel):
             entity_id,
             entity_dict,
             entity_type,
-            edit_headers,
-            validator,
+            edit_operation_context=EditOperationContext(
+                edit_headers=edit_headers,
+                user_id=user_id,
+            ),
+            validator=validator,
         )
 
     async def delete_label(
@@ -331,8 +335,11 @@ class EntityUpdateTermsMixin(BaseModel):
             entity_id,
             entity_dict,
             entity_type,
-            edit_headers,
-            validator,
+            edit_operation_context=EditOperationContext(
+                edit_headers=edit_headers,
+                user_id=user_id,
+            ),
+            validator=validator,
         )
 
     async def delete_description(
@@ -387,8 +394,7 @@ class EntityUpdateTermsMixin(BaseModel):
         entity_id: str,
         language_code: str,
         aliases: list[str],
-        edit_headers: EditHeaders,
-        user_id: int = 0,
+        edit_operation_context: EditOperationContext,
         validator: Any | None = None,
     ) -> EntityResponse:
         """Replace all aliases for a language."""
@@ -424,8 +430,8 @@ class EntityUpdateTermsMixin(BaseModel):
             entity_id,
             entity_dict,
             entity_type,
-            edit_headers,
-            validator,
+            edit_operation_context=edit_operation_context,
+            validator=validator,
         )
 
     async def add_alias(
@@ -433,8 +439,7 @@ class EntityUpdateTermsMixin(BaseModel):
         entity_id: str,
         language_code: str,
         alias: str,
-        edit_headers: EditHeaders,
-        user_id: int = 0,
+        edit_operation_context: EditOperationContext,
         validator: Any | None = None,
     ) -> EntityResponse:
         """Add a single alias to the existing list for a language.
@@ -497,8 +502,8 @@ class EntityUpdateTermsMixin(BaseModel):
                 entity_type=entity_type,
                 updated_hashes=updated_hashes,
                 existing_revision=current_entity.entity_data.revision,
-                edit_headers=edit_headers,
-                user_id=user_id,
+                edit_headers=edit_operation_context.edit_headers,
+                user_id=edit_operation_context.user_id,
             ),
         )
 
