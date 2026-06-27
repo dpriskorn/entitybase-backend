@@ -43,7 +43,7 @@ class TestEntityReadHandler:
             handler.get_entity("Q42")
 
     def test_get_entity_vitess_not_initialized(self) -> None:
-        """Test entity retrieval when Vitess client is not initialized."""
+        """Test entity retrieval when Sql client is not initialized."""
         mock_state = MagicMock()
         mock_state.vitess_client = None
 
@@ -135,13 +135,13 @@ class TestEntityReadHandler:
             handler.get_entity_history("Q999")
 
     def test_get_entity_history_vitess_failure(self) -> None:
-        """Test entity history retrieval when Vitess fails."""
+        """Test entity history retrieval when Sql fails."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
         mock_state.vitess_client = mock_vitess
 
         mock_vitess.entity_exists.return_value = True
-        mock_vitess.get_entity_history.side_effect = Exception("Vitess query failed")
+        mock_vitess.get_entity_history.side_effect = Exception("Sql query failed")
 
         handler = EntityReadHandler(state=mock_state)
 
@@ -289,7 +289,7 @@ class TestEntityReadHandler:
         mock_s3.read_revision.assert_called_once_with("Q42", 1)
 
     def test_get_entity_history_vitess_not_initialized(self) -> None:
-        """Test entity history retrieval when Vitess client is not initialized."""
+        """Test entity history retrieval when Sql client is not initialized."""
         mock_state = MagicMock()
         mock_state.vitess_client = None
 

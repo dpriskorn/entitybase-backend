@@ -28,7 +28,7 @@ class TestDeleteService:
         assert True  # No exception raised
 
     def test_validate_delete_preconditions_vitess_none(self) -> None:
-        """Test validating delete preconditions when Vitess is None."""
+        """Test validating delete preconditions when Sql is None."""
         from fastapi import HTTPException
 
         mock_state = MagicMock()

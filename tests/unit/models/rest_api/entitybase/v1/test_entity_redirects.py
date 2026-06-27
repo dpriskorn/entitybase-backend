@@ -16,7 +16,7 @@ from models.data.rest_api.v1.entitybase.response import (
 
 # noinspection PyUnusedLocal
 class MockVitessClient:
-    """Mock Vitess client for testing without database"""
+    """Mock Sql client for testing without database"""
 
     def __init__(self) -> None:
         self.resolved_ids: dict[str, int] = {}

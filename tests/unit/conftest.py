@@ -97,13 +97,13 @@ def mock_pymysql_connect():
 
 @pytest.fixture
 def mock_vitess_connection_manager():
-    """Mock VitessConnectionManager to prevent pool operations.
+    """Mock SqlConnectionManager to prevent pool operations.
 
     This fixture patches the connect and acquire methods to return a mock connection,
     preventing the connection manager from attempting real database connections
     or pool operations during unit tests.
     """
-    from models.infrastructure.vitess.connection import VitessConnectionManager
+    from models.infrastructure.vitess.connection import SqlConnectionManager
 
     mock_connection = MagicMock()
     mock_cursor = MagicMock()
@@ -115,9 +115,9 @@ def mock_vitess_connection_manager():
     mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
     mock_cursor.__exit__ = MagicMock(return_value=None)
 
-    with patch.object(VitessConnectionManager, "connect", return_value=mock_connection):
+    with patch.object(SqlConnectionManager, "connect", return_value=mock_connection):
         with patch.object(
-            VitessConnectionManager, "acquire", return_value=mock_connection
+            SqlConnectionManager, "acquire", return_value=mock_connection
         ):
             yield mock_connection, mock_cursor
 

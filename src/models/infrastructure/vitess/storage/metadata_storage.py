@@ -15,17 +15,17 @@ class MetadataVitessStorage(Repository):
     table_name: str = "metadata_content"
 
     def store_lemma(self, content_hash: int, value: str) -> OperationResult[None]:
-        """Store lemma in Vitess."""
+        """Store lemma in database."""
         return self.store_metadata(content_hash, "lemma", value)
 
     def store_form_representation(
         self, content_hash: int, value: str
     ) -> OperationResult[None]:
-        """Store form representation in Vitess."""
+        """Store form representation in database."""
         return self.store_metadata(content_hash, "form_representation", value)
 
     def store_sense_gloss(self, content_hash: int, value: str) -> OperationResult[None]:
-        """Store sense gloss in Vitess."""
+        """Store sense gloss in database."""
         return self.store_metadata(content_hash, "sense_gloss", value)
 
     def load_lemmas_batch(self, hashes: list[int]) -> list[str | None]:
@@ -46,7 +46,7 @@ class MetadataVitessStorage(Repository):
         content_type: str,
         value: str,
     ) -> OperationResult[None]:
-        """Store metadata (label, description, alias) in Vitess."""
+        """Store metadata (label, description, alias) in database."""
         logger.debug(
             f"[METADATA_VITESS_STORE] hash={content_hash}, type={content_type}"
         )
@@ -70,7 +70,7 @@ class MetadataVitessStorage(Repository):
         content_hash: int,
         content_type: str,
     ) -> str | None:
-        """Load metadata from Vitess."""
+        """Load metadata from database."""
         logger.debug(f"[METADATA_VITESS_LOAD] hash={content_hash}, type={content_type}")
         try:
             with self.vitess_client.cursor as cursor:
@@ -124,7 +124,7 @@ class SitelinkVitessStorage(Repository):
         content_hash: int,
         title: str,
     ) -> OperationResult[None]:
-        """Store sitelink in Vitess."""
+        """Store sitelink in database."""
         logger.debug(f"[SITELINK_VITESS_STORE] hash={content_hash}")
         try:
             with self.vitess_client.cursor as cursor:
@@ -142,7 +142,7 @@ class SitelinkVitessStorage(Repository):
             return OperationResult(success=False, error=str(e))
 
     def load_sitelink(self, content_hash: int) -> str | None:
-        """Load sitelink from Vitess."""
+        """Load sitelink from database."""
         logger.debug(f"[SITELINK_VITESS_LOAD] hash={content_hash}")
         try:
             with self.vitess_client.cursor as cursor:

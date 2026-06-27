@@ -43,10 +43,10 @@ def validate_e2e_env_vars():
     preventing long retry loops and confusing connection errors.
     """
     required_vars = {
-        "VITESS_HOST": "Vitess database host",
-        "VITESS_PORT": "Vitess database port",
-        "VITESS_DATABASE": "Vitess database name",
-        "VITESS_USER": "Vitess database user",
+        "VITESS_HOST": "Sql database host",
+        "VITESS_PORT": "Sql database port",
+        "VITESS_DATABASE": "Sql database name",
+        "VITESS_USER": "Sql database user",
     }
 
     missing_vars = []
@@ -220,7 +220,7 @@ def initialized_app(vitess_client, s3_client, create_s3_buckets):
     # Inject pre-configured test clients instead of creating new ones
     state_handler.cached_vitess_client = vitess_client
     state_handler.cached_s3_client = s3_client
-    logger.debug("Injected test Vitess and S3 clients into StateHandler")
+    logger.debug("Injected test Sql and S3 clients into StateHandler")
 
     logger.debug("StateHandler created, calling start()...")
     state_handler.start()

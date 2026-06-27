@@ -94,7 +94,7 @@ class TestS3ClientReferences:
             assert result[0] is None
 
     def test_store_reference_not_configured(self):
-        """Test store_reference raises error when Vitess not configured."""
+        """Test store_reference raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -143,7 +143,7 @@ class TestS3ClientReferences:
                 client.store_reference(12345, ref_data)
 
     def test_load_reference_not_configured(self):
-        """Test load_reference raises error when Vitess not configured."""
+        """Test load_reference raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -184,7 +184,7 @@ class TestS3ClientReferences:
                 client.load_reference(12345)
 
     def test_load_references_batch_not_configured(self):
-        """Test load_references_batch raises error when Vitess not configured."""
+        """Test load_references_batch raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",

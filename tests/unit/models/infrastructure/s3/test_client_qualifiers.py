@@ -93,7 +93,7 @@ class TestS3ClientQualifiers:
             assert len(result) == 2
 
     def test_store_qualifier_not_configured(self):
-        """Test store_qualifier raises error when Vitess not configured."""
+        """Test store_qualifier raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -142,7 +142,7 @@ class TestS3ClientQualifiers:
                 client.store_qualifier(12345, qual_data)
 
     def test_load_qualifier_not_configured(self):
-        """Test load_qualifier raises error when Vitess not configured."""
+        """Test load_qualifier raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -183,7 +183,7 @@ class TestS3ClientQualifiers:
                 client.load_qualifier(12345)
 
     def test_load_qualifiers_batch_not_configured(self):
-        """Test load_qualifiers_batch raises error when Vitess not configured."""
+        """Test load_qualifiers_batch raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",

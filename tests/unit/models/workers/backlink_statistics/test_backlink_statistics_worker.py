@@ -75,7 +75,7 @@ class TestBacklinkStatisticsWorker:
         ) as mock_logger:
             await worker.run_daily_computation()
 
-            mock_logger.error.assert_called_once_with("Vitess client not initialized")
+            mock_logger.error.assert_called_once_with("Sql client not initialized")
 
     @pytest.mark.asyncio
     async def test_run_daily_computation_exception(self):

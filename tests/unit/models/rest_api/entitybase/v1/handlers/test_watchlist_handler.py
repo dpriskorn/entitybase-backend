@@ -23,8 +23,8 @@ class TestWatchlistHandler:
         self.state.vitess_client.watchlist_repository.remove_watch.return_value = (
             MagicMock(success=True)
         )
-        self.state.vitess_client.watchlist_repository.remove_watch_by_id.return_value = (
-            MagicMock(success=True)
+        self.state.vitess_client.watchlist_repository.remove_watch_by_id.return_value = MagicMock(
+            success=True
         )
         self.state.vitess_client.watchlist_repository.get_user_watchlist.return_value = []
         self.state.vitess_client.watchlist_repository.get_watches_for_user.return_value = []
@@ -132,8 +132,8 @@ class TestWatchlistHandler:
 
     def test_remove_watch_by_id_success(self):
         """Test remove_watch_by_id success."""
-        self.state.vitess_client.watchlist_repository.remove_watch_by_id.return_value = (
-            MagicMock(success=True)
+        self.state.vitess_client.watchlist_repository.remove_watch_by_id.return_value = MagicMock(
+            success=True
         )
         response = self.handler.remove_watch_by_id(123, 1)
 
@@ -154,8 +154,8 @@ class TestWatchlistHandler:
         """Test remove_watch_by_id when repository returns error."""
         from fastapi import HTTPException
 
-        self.state.vitess_client.watchlist_repository.remove_watch_by_id.return_value = (
-            MagicMock(success=False, error="Watch not found")
+        self.state.vitess_client.watchlist_repository.remove_watch_by_id.return_value = MagicMock(
+            success=False, error="Watch not found"
         )
 
         with pytest.raises(HTTPException) as exc_info:
@@ -176,7 +176,9 @@ class TestWatchlistHandler:
         """Test get_watches when watchlist is disabled."""
         from fastapi import HTTPException
 
-        self.state.vitess_client.user_repository.is_watchlist_enabled.return_value = False
+        self.state.vitess_client.user_repository.is_watchlist_enabled.return_value = (
+            False
+        )
 
         with pytest.raises(HTTPException) as exc_info:
             self.handler.get_watches(123)
@@ -197,7 +199,9 @@ class TestWatchlistHandler:
         """Test get_notifications when watchlist is disabled."""
         from fastapi import HTTPException
 
-        self.state.vitess_client.user_repository.is_watchlist_enabled.return_value = False
+        self.state.vitess_client.user_repository.is_watchlist_enabled.return_value = (
+            False
+        )
 
         with pytest.raises(HTTPException) as exc_info:
             self.handler.get_notifications(123)

@@ -20,7 +20,7 @@ def _check_client_status(client: Any, client_name: str) -> str:
     """Check if a client is connected and healthy.
 
     Args:
-        client: Client instance (S3 or Vitess)
+        client: Client instance (S3 or database)
         client_name: Name of the client for logging
 
     Returns:
@@ -96,7 +96,7 @@ def health_check_endpoint(response: Response, req: Request) -> HealthCheckRespon
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
         return _build_error_response("starting", timestamp)
 
-    logger.debug("Checking connection status for S3 and Vitess")
+    logger.debug("Checking connection status for S3 and database")
 
     if not hasattr(state, "vitess_client") or not hasattr(state, "s3_client"):
         logger.debug(
@@ -106,7 +106,7 @@ def health_check_endpoint(response: Response, req: Request) -> HealthCheckRespon
         return _build_error_response("unavailable", timestamp)
 
     s3_status = _check_client_status(state.s3_client, "S3")
-    vitess_status = _check_client_status(state.vitess_client, "Vitess")
+    vitess_status = _check_client_status(state.vitess_client, "database")
 
     settings = state.settings
     producers = {

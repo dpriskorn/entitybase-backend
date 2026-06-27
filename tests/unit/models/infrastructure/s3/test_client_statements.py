@@ -37,7 +37,7 @@ class TestS3ClientStatements:
             client.vitess_statements.delete_statement.assert_called_once_with(12345)
 
     def test_delete_statement_not_configured(self):
-        """Test delete_statement raises error when Vitess not configured."""
+        """Test delete_statement raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -150,7 +150,7 @@ class TestS3ClientStatements:
                 client.delete_statement(12345)
 
     def test_write_statement_not_configured(self):
-        """Test write_statement raises error when Vitess not configured."""
+        """Test write_statement raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -193,7 +193,7 @@ class TestS3ClientStatements:
                 client.write_statement(12345, {"statement": {"id": "Q1"}}, "1.0.0")
 
     def test_read_statement_not_configured(self):
-        """Test read_statement raises error when Vitess not configured."""
+        """Test read_statement raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",

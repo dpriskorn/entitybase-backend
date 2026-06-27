@@ -394,7 +394,7 @@ class TestEntityConverter:
         mock_load_redirects.assert_called_once_with("Q42", temp_dir)
 
     def test_fetch_redirects_vitess_client(self) -> None:
-        """Test fetching redirects from Vitess client."""
+        """Test fetching redirects from Sql client."""
         property_registry = PropertyRegistry(properties={})
         mock_vitess = MagicMock()
         converter = EntityConverter(
@@ -409,14 +409,14 @@ class TestEntityConverter:
         mock_vitess.get_incoming_redirects.assert_called_once_with("Q42")
 
     def test_fetch_redirects_vitess_exception(self) -> None:
-        """Test fetching redirects when Vitess throws exception."""
+        """Test fetching redirects when Sql throws exception."""
         property_registry = PropertyRegistry(properties={})
         mock_vitess = MagicMock()
         converter = EntityConverter(
             property_registry=property_registry, vitess_client=mock_vitess
         )
 
-        mock_vitess.get_incoming_redirects.side_effect = Exception("Vitess error")
+        mock_vitess.get_incoming_redirects.side_effect = Exception("Sql error")
 
         result = converter._fetch_redirects("Q42")
 

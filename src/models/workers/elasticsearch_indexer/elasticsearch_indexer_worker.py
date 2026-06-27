@@ -96,17 +96,17 @@ class ElasticsearchIndexerWorker(Worker):
         )
 
     async def _initialize_storage_clients(self) -> None:
-        """Initialize S3 and Vitess clients."""
+        """Initialize S3 and database clients."""
         if not self.worker_enabled:
             return
 
         vitess_config = settings.get_vitess_config
         if vitess_config.host and vitess_config.port:
             self.vitess_client = VitessClient(config=vitess_config)
-            logger.info("Vitess client initialized")
+            logger.info("database client initialized")
         else:
             logger.warning(
-                "Vitess not configured, worker cannot fetch revision metadata"
+                "database not configured, worker cannot fetch revision metadata"
             )
 
         s3_config = settings.get_s3_config

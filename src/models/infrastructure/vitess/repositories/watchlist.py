@@ -1,4 +1,4 @@
-"""Repository for managing watchlists in Vitess."""
+"""Repository for managing watchlists in database."""
 
 import json
 import logging
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class WatchlistRepository(Repository):
-    """Repository for managing watchlists in Vitess."""
+    """Repository for managing watchlists in database."""
 
     def get_entity_watch_count(self, user_id: int) -> int:
         """Get count of entity watches (whole entity, no properties) for user."""

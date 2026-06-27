@@ -3,7 +3,7 @@
 import logging
 from typing import Any
 
-from fastapi import APIRouter, Body, Query, Request, Response
+from fastapi import APIRouter, Body, Depends, Query, Request, Response
 
 from models.data.common import OperationResult
 from models.data.rest_api.v1.entitybase.request import AddPropertyRequest
@@ -69,6 +69,8 @@ from models.rest_api.entitybase.v1.endpoints.base import (
     get_backlink_handler,
 )
 from models.infrastructure.s3.exceptions import S3NotFoundError
+from models.rest_api.auth.dependencies import auth_to_edit_headers, verify_auth
+from models.rest_api.auth.models import AuthenticatedRequest
 
 logger = logging.getLogger(__name__)
 
@@ -217,14 +219,14 @@ async def delete_entity(  # type: ignore[no-any-return]
 async def lock_entity(
     entity_id: str,
     req: Request,
-    headers: EditHeadersType,
+    auth: AuthenticatedRequest = Depends(verify_auth),
     request: EntityStatusRequest = Body(default_factory=EntityStatusRequest),
 ) -> EntityStatusResponse:
     """Lock an entity from edits."""
     state = req.app.state.state_handler
     validate_state_clients(state)
     handler = EntityStatusHandler(state=state)
-    return handler.lock(entity_id, request, edit_headers=headers)
+    return handler.lock(entity_id, request, edit_headers=auth_to_edit_headers(auth))
 
 
 @router.delete("/entities/{entity_id}/lock", response_model=EntityStatusResponse)
@@ -245,14 +247,14 @@ async def unlock_entity(
 async def archive_entity(
     entity_id: str,
     req: Request,
-    headers: EditHeadersType,
+    auth: AuthenticatedRequest = Depends(verify_auth),
     request: EntityStatusRequest = Body(default_factory=EntityStatusRequest),
 ) -> EntityStatusResponse:
     """Archive an entity."""
     state = req.app.state.state_handler
     validate_state_clients(state)
     handler = EntityStatusHandler(state=state)
-    return handler.archive(entity_id, request, edit_headers=headers)
+    return handler.archive(entity_id, request, edit_headers=auth_to_edit_headers(auth))
 
 
 @router.delete("/entities/{entity_id}/archive", response_model=EntityStatusResponse)
@@ -273,6 +275,7 @@ async def unarchive_entity(
 async def semi_protect_entity(
     entity_id: str,
     req: Request,
+    auth: AuthenticatedRequest = Depends(verify_auth),
     request: EntityStatusRequest = Body(default_factory=EntityStatusRequest),
 ) -> EntityStatusResponse:
     """Semi-protect an entity."""
@@ -303,6 +306,7 @@ async def unsemi_protect_entity(
 async def mass_edit_protect_entity(
     entity_id: str,
     req: Request,
+    auth: AuthenticatedRequest = Depends(verify_auth),
     request: EntityStatusRequest = Body(default_factory=EntityStatusRequest),
 ) -> EntityStatusResponse:
     """Add mass edit protection to an entity."""
@@ -378,14 +382,14 @@ async def add_entity_property(
     property_id: str,
     request: AddPropertyRequest,
     req: Request,
-    headers: EditHeadersType,
+    auth: AuthenticatedRequest = Depends(verify_auth),
 ) -> OperationResult[RevisionIdResult]:
     """Add claims for a single property to an entity."""
     state = req.app.state.state_handler
     validate_state_clients(state)
     handler = EntityStatementService(state=state)
     result = await handler.add_property(
-        entity_id, property_id, request, edit_headers=headers
+        entity_id, property_id, request, edit_headers=auth_to_edit_headers(auth)
     )
     if not isinstance(result, OperationResult):
         raise_validation_error("Invalid response type", status_code=500)
@@ -400,13 +404,13 @@ async def add_entity_statement(
     entity_id: str,
     request: AddStatementRequest,
     req: Request,
-    headers: EditHeadersType,
+    auth: AuthenticatedRequest = Depends(verify_auth),
 ) -> OperationResult[RevisionIdResult]:
     """Add a single statement to an entity."""
     state = req.app.state.state_handler
     validate_state_clients(state)
     handler = EntityStatementService(state=state)
-    result = await handler.add_statement(entity_id, request, edit_headers=headers)
+    result = await handler.add_statement(entity_id, request, edit_headers=auth_to_edit_headers(auth))
     if not isinstance(result, OperationResult):
         raise_validation_error("Invalid response type", status_code=500)
     return result
@@ -446,7 +450,7 @@ async def patch_entity_statement(
     statement_hash: str,
     request: PatchStatementRequest,
     req: Request,
-    headers: EditHeadersType,
+    auth: AuthenticatedRequest = Depends(verify_auth),
 ) -> OperationResult[RevisionIdResult]:
     """Replace a statement by hash with new claim data."""
     state = req.app.state.state_handler
@@ -456,7 +460,7 @@ async def patch_entity_statement(
         entity_id,
         statement_hash,
         request,
-        headers,
+        auth_to_edit_headers(auth),
     )
     if not isinstance(result, OperationResult):
         raise_validation_error("Invalid response type", status_code=500)
@@ -511,7 +515,7 @@ async def get_entity_sitelink(entity_id: str, site: str, req: Request) -> Siteli
     badges = sitelink_hash_data.get("badges", [])
     logger.debug(f"Sitelink hash data: title_hash={title_hash}, badges={badges}")
 
-    # Load from Vitess (not S3-based MetadataStorage)
+    # Load from database (not S3-based MetadataStorage)
     title = state.s3_client.load_sitelink_metadata(title_hash)
 
     return SitelinkData(title=title, badges=badges)
@@ -526,7 +530,7 @@ async def post_entity_sitelink(
     site: str,
     sitelink_data: SitelinkData,
     req: Request,
-    headers: EditHeadersType,
+    auth: AuthenticatedRequest = Depends(verify_auth),
 ) -> OperationResult[RevisionIdResult]:
     """Add a new sitelink for an entity."""
     logger.debug(
@@ -553,7 +557,7 @@ async def post_entity_sitelink(
     )
     result = await update_handler.update_sitelink(
         ctx,
-        headers,
+        auth_to_edit_headers(auth),
         state.validator,
     )
 

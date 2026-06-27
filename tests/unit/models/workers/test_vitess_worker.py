@@ -1,20 +1,20 @@
-"""Unit tests for VitessWorker base class."""
+"""Unit tests for SqlWorker base class."""
 
 from unittest.mock import Mock, create_autospec
 
 import pytest
 
-from models.workers.vitess_worker import VitessWorker
+from models.workers.vitess_worker import SqlWorker
 from models.workers.worker import Worker
 
 
 @pytest.mark.unit
-class TestVitessWorker:
-    """Tests for VitessWorker base class."""
+class TestSqlWorker:
+    """Tests for SqlWorker base class."""
 
     def test_vitess_worker_initialization_defaults(self):
-        """Test VitessWorker initialization with default values."""
-        mock_worker = create_autospec(VitessWorker, instance=True)
+        """Test SqlWorker initialization with default values."""
+        mock_worker = create_autospec(SqlWorker, instance=True)
         mock_worker.vitess_client = None
         mock_worker.running = False
 
@@ -22,11 +22,11 @@ class TestVitessWorker:
         assert mock_worker.running is False
 
     def test_vitess_worker_inherits_from_worker(self):
-        """Test that VitessWorker inherits from Worker."""
-        assert issubclass(VitessWorker, Worker)
+        """Test that SqlWorker inherits from Worker."""
+        assert issubclass(SqlWorker, Worker)
 
     def test_vitess_worker_is_pydantic_model(self):
-        """Test that VitessWorker is a Pydantic model."""
+        """Test that SqlWorker is a Pydantic model."""
         from pydantic import BaseModel
 
-        assert issubclass(VitessWorker, BaseModel)
+        assert issubclass(SqlWorker, BaseModel)

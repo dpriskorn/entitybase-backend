@@ -312,7 +312,7 @@ class UpdateTransaction(EntityTransaction):
         content_hash = MetadataExtractor.hash_string(revision_json)
         logger.debug(f"Content hash: {content_hash}")
 
-        logger.debug("Creating revision in Vitess")
+        logger.debug("Creating revision in database")
         expected_revision_id = edit_headers.x_base_revision_id
         revision_created = self.state.vitess_client.create_revision(
             entity_id=entity_id,

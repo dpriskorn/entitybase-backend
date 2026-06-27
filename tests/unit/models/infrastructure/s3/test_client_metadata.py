@@ -131,7 +131,7 @@ class TestS3ClientMetadata:
             assert result == "Main_Page"
 
     def test_load_sitelink_metadata_not_configured(self):
-        """Test load_sitelink_metadata raises error when Vitess not configured."""
+        """Test load_sitelink_metadata raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -197,7 +197,7 @@ class TestS3ClientMetadata:
             client.vitess_metadata.delete_metadata.assert_called_once()
 
     def test_delete_metadata_not_configured(self):
-        """Test delete_metadata raises error when Vitess not configured."""
+        """Test delete_metadata raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -240,7 +240,7 @@ class TestS3ClientMetadata:
                 client.delete_metadata(MetadataType.LABELS, 12345)
 
     def test_store_term_metadata_not_configured(self):
-        """Test store_term_metadata raises error when Vitess not configured."""
+        """Test store_term_metadata raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -283,7 +283,7 @@ class TestS3ClientMetadata:
                 client.store_term_metadata("Test", 12345, "labels")
 
     def test_load_metadata_not_configured(self):
-        """Test load_metadata raises error when Vitess not configured."""
+        """Test load_metadata raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -302,7 +302,7 @@ class TestS3ClientMetadata:
                 client.load_metadata(MetadataType.LABELS, 12345)
 
     def test_store_sitelink_metadata_not_configured(self):
-        """Test store_sitelink_metadata raises error when Vitess not configured."""
+        """Test store_sitelink_metadata raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",

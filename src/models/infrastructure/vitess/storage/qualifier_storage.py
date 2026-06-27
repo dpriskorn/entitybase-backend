@@ -20,7 +20,7 @@ class QualifierVitessStorage(BaseVitessStorage):
         content_hash: int,
         qualifier_data: S3QualifierData,
     ) -> OperationResult[None]:
-        """Store qualifier in Vitess."""
+        """Store qualifier in database."""
         logger.debug(f"[QUAL_VITESS_STORE] hash={content_hash}")
         data = {
             "qualifier": qualifier_data.qualifier,
@@ -35,7 +35,7 @@ class QualifierVitessStorage(BaseVitessStorage):
         return result
 
     def load_qualifier(self, content_hash: int) -> S3QualifierData | None:
-        """Load qualifier from Vitess."""
+        """Load qualifier from database."""
         logger.debug(f"[QUAL_VITESS_LOAD] hash={content_hash}")
         data = self._load(content_hash)
         if data is None:

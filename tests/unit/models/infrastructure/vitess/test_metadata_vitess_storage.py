@@ -1,17 +1,17 @@
-"""Unit tests for MetadataVitessStorage and SitelinkVitessStorage."""
+"""Unit tests for MetadataSqlStorage and SitelinkSqlStorage."""
 
 from unittest.mock import MagicMock
 
 import pytest
 
 from models.infrastructure.vitess.storage.metadata_storage import (
-    MetadataVitessStorage,
-    SitelinkVitessStorage,
+    MetadataSqlStorage,
+    SitelinkSqlStorage,
 )
 
 
-class TestMetadataVitessStorage:
-    """Unit tests for MetadataVitessStorage class."""
+class TestMetadataSqlStorage:
+    """Unit tests for MetadataSqlStorage class."""
 
     @pytest.fixture
     def mock_vitess_client(self):
@@ -24,7 +24,7 @@ class TestMetadataVitessStorage:
 
     def test_store_metadata(self, mock_vitess_client):
         """Test storing metadata."""
-        storage = MetadataVitessStorage(vitess_client=mock_vitess_client)
+        storage = MetadataSqlStorage(vitess_client=mock_vitess_client)
 
         result = storage.store_metadata(12345, "label", "Test Label")
 
@@ -34,7 +34,7 @@ class TestMetadataVitessStorage:
 
     def test_store_metadata_error(self, mock_vitess_client):
         """Test storing metadata with error."""
-        storage = MetadataVitessStorage(vitess_client=mock_vitess_client)
+        storage = MetadataSqlStorage(vitess_client=mock_vitess_client)
         mock_cursor = mock_vitess_client.cursor.__enter__.return_value
         mock_cursor.execute.side_effect = Exception("Database error")
 
@@ -45,7 +45,7 @@ class TestMetadataVitessStorage:
 
     def test_load_metadata_found(self, mock_vitess_client):
         """Test loading metadata that exists."""
-        storage = MetadataVitessStorage(vitess_client=mock_vitess_client)
+        storage = MetadataSqlStorage(vitess_client=mock_vitess_client)
         mock_cursor = mock_vitess_client.cursor.__enter__.return_value
         mock_cursor.fetchone.return_value = ("Test Label",)
 
@@ -55,7 +55,7 @@ class TestMetadataVitessStorage:
 
     def test_load_metadata_not_found(self, mock_vitess_client):
         """Test loading metadata that doesn't exist."""
-        storage = MetadataVitessStorage(vitess_client=mock_vitess_client)
+        storage = MetadataSqlStorage(vitess_client=mock_vitess_client)
         mock_cursor = mock_vitess_client.cursor.__enter__.return_value
         mock_cursor.fetchone.return_value = None
 
@@ -65,7 +65,7 @@ class TestMetadataVitessStorage:
 
     def test_load_metadata_error(self, mock_vitess_client):
         """Test loading metadata with error."""
-        storage = MetadataVitessStorage(vitess_client=mock_vitess_client)
+        storage = MetadataSqlStorage(vitess_client=mock_vitess_client)
         mock_cursor = mock_vitess_client.cursor.__enter__.return_value
         mock_cursor.execute.side_effect = Exception("Database error")
 
@@ -75,7 +75,7 @@ class TestMetadataVitessStorage:
 
     def test_delete_metadata(self, mock_vitess_client):
         """Test deleting metadata."""
-        storage = MetadataVitessStorage(vitess_client=mock_vitess_client)
+        storage = MetadataSqlStorage(vitess_client=mock_vitess_client)
 
         result = storage.delete_metadata(12345, "label")
 
@@ -85,7 +85,7 @@ class TestMetadataVitessStorage:
 
     def test_delete_metadata_error(self, mock_vitess_client):
         """Test deleting metadata with error."""
-        storage = MetadataVitessStorage(vitess_client=mock_vitess_client)
+        storage = MetadataSqlStorage(vitess_client=mock_vitess_client)
         mock_cursor = mock_vitess_client.cursor.__enter__.return_value
         mock_cursor.execute.side_effect = Exception("Database error")
 
@@ -95,7 +95,7 @@ class TestMetadataVitessStorage:
 
     def test_load_lemmas_batch(self, mock_vitess_client):
         """Test loading lemmas batch."""
-        storage = MetadataVitessStorage(vitess_client=mock_vitess_client)
+        storage = MetadataSqlStorage(vitess_client=mock_vitess_client)
         mock_cursor = mock_vitess_client.cursor.__enter__.return_value
         mock_cursor.fetchone.side_effect = [("Lemma1",), ("Lemma2",), None]
 
@@ -105,7 +105,7 @@ class TestMetadataVitessStorage:
 
     def test_load_form_representations_batch(self, mock_vitess_client):
         """Test loading form representations batch."""
-        storage = MetadataVitessStorage(vitess_client=mock_vitess_client)
+        storage = MetadataSqlStorage(vitess_client=mock_vitess_client)
         mock_cursor = mock_vitess_client.cursor.__enter__.return_value
         mock_cursor.fetchone.side_effect = [("Form1",), ("Form2",), None]
 
@@ -115,7 +115,7 @@ class TestMetadataVitessStorage:
 
     def test_load_sense_glosses_batch(self, mock_vitess_client):
         """Test loading sense glosses batch."""
-        storage = MetadataVitessStorage(vitess_client=mock_vitess_client)
+        storage = MetadataSqlStorage(vitess_client=mock_vitess_client)
         mock_cursor = mock_vitess_client.cursor.__enter__.return_value
         mock_cursor.fetchone.side_effect = [("Gloss1",), ("Gloss2",), None]
 
@@ -124,8 +124,8 @@ class TestMetadataVitessStorage:
         assert result == ["Gloss1", "Gloss2", None]
 
 
-class TestSitelinkVitessStorage:
-    """Unit tests for SitelinkVitessStorage class."""
+class TestSitelinkSqlStorage:
+    """Unit tests for SitelinkSqlStorage class."""
 
     @pytest.fixture
     def mock_vitess_client(self):
@@ -138,7 +138,7 @@ class TestSitelinkVitessStorage:
 
     def test_store_sitelink(self, mock_vitess_client):
         """Test storing sitelink."""
-        storage = SitelinkVitessStorage(vitess_client=mock_vitess_client)
+        storage = SitelinkSqlStorage(vitess_client=mock_vitess_client)
 
         result = storage.store_sitelink(12345, "Main_Page")
 
@@ -148,7 +148,7 @@ class TestSitelinkVitessStorage:
 
     def test_store_sitelink_error(self, mock_vitess_client):
         """Test storing sitelink with error."""
-        storage = SitelinkVitessStorage(vitess_client=mock_vitess_client)
+        storage = SitelinkSqlStorage(vitess_client=mock_vitess_client)
         mock_cursor = mock_vitess_client.cursor.__enter__.return_value
         mock_cursor.execute.side_effect = Exception("Database error")
 
@@ -159,7 +159,7 @@ class TestSitelinkVitessStorage:
 
     def test_load_sitelink_found(self, mock_vitess_client):
         """Test loading sitelink that exists."""
-        storage = SitelinkVitessStorage(vitess_client=mock_vitess_client)
+        storage = SitelinkSqlStorage(vitess_client=mock_vitess_client)
         mock_cursor = mock_vitess_client.cursor.__enter__.return_value
         mock_cursor.fetchone.return_value = ("Main_Page",)
 
@@ -169,7 +169,7 @@ class TestSitelinkVitessStorage:
 
     def test_load_sitelink_not_found(self, mock_vitess_client):
         """Test loading sitelink that doesn't exist."""
-        storage = SitelinkVitessStorage(vitess_client=mock_vitess_client)
+        storage = SitelinkSqlStorage(vitess_client=mock_vitess_client)
         mock_cursor = mock_vitess_client.cursor.__enter__.return_value
         mock_cursor.fetchone.return_value = None
 
@@ -179,7 +179,7 @@ class TestSitelinkVitessStorage:
 
     def test_load_sitelink_error(self, mock_vitess_client):
         """Test loading sitelink with error."""
-        storage = SitelinkVitessStorage(vitess_client=mock_vitess_client)
+        storage = SitelinkSqlStorage(vitess_client=mock_vitess_client)
         mock_cursor = mock_vitess_client.cursor.__enter__.return_value
         mock_cursor.execute.side_effect = Exception("Database error")
 
@@ -189,7 +189,7 @@ class TestSitelinkVitessStorage:
 
     def test_delete_sitelink(self, mock_vitess_client):
         """Test deleting sitelink."""
-        storage = SitelinkVitessStorage(vitess_client=mock_vitess_client)
+        storage = SitelinkSqlStorage(vitess_client=mock_vitess_client)
 
         result = storage.delete_sitelink(12345)
 
@@ -199,7 +199,7 @@ class TestSitelinkVitessStorage:
 
     def test_delete_sitelink_error(self, mock_vitess_client):
         """Test deleting sitelink with error."""
-        storage = SitelinkVitessStorage(vitess_client=mock_vitess_client)
+        storage = SitelinkSqlStorage(vitess_client=mock_vitess_client)
         mock_cursor = mock_vitess_client.cursor.__enter__.return_value
         mock_cursor.execute.side_effect = Exception("Database error")
 

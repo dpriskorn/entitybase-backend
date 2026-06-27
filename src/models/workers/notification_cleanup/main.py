@@ -89,7 +89,7 @@ class NotificationCleanupWorker(VitessWorker):
     def _delete_old_notifications(self, cutoff_date: datetime) -> int:
         """Delete notifications older than cutoff date."""
         if self.vitess_client is None:
-            raise RuntimeError("Vitess client not initialized")
+            raise RuntimeError("database client not initialized")
         with self.vitess_client.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 "DELETE FROM user_notifications WHERE event_timestamp < %s",
@@ -103,7 +103,7 @@ class NotificationCleanupWorker(VitessWorker):
 
         # Get users with excess notifications
         if self.vitess_client is None:
-            raise RuntimeError("Vitess client not initialized")
+            raise RuntimeError("database client not initialized")
         with self.vitess_client.cursor as cursor:
             # Find users with too many notifications
             cursor.execute(

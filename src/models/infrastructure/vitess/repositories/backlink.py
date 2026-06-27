@@ -1,4 +1,4 @@
-"""Repository for managing entity backlinks in Vitess."""
+"""Repository for managing entity backlinks in database."""
 
 import json
 import logging
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class BacklinkRepository(Repository):
-    """Repository for managing entity backlinks in Vitess."""
+    """Repository for managing entity backlinks in database."""
 
     def insert_backlinks(
         self, backlinks: list[tuple[int, int, int, str, str]]

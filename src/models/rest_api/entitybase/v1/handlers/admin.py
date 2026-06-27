@@ -29,7 +29,7 @@ class AdminHandler(Handler):
             f"edit_type={edit_type}, limit={limit}, offset={offset}"
         )
         if self.state.vitess_client is None:
-            raise_validation_error("Vitess not initialized", status_code=503)
+            raise_validation_error("database not initialized", status_code=503)
 
         if not entity_type and not status and not edit_type:
             raise_validation_error(
@@ -83,7 +83,7 @@ class AdminHandler(Handler):
             f"limit={limit}, offset={offset}"
         )
         if self.state.vitess_client is None:
-            raise_validation_error("Vitess not initialized", status_code=503)
+            raise_validation_error("database not initialized", status_code=503)
 
         return cast(
             list[str],
@@ -110,7 +110,7 @@ class AdminHandler(Handler):
     #         f"get_raw_revision called for entity {entity_id}, revision {revision_id}"
     #     )
     #     if self.state.vitess_client is None:
-    #         raise_validation_error("Vitess not initialized", status_code=503)
+    #         raise_validation_error("database not initialized", status_code=503)
     #
     #     # Check if entity exists and get history
     #     if not self.state.vitess_client.entity_exists(entity_id):

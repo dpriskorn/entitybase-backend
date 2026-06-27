@@ -61,10 +61,10 @@ def validate_env_vars():
     import os
 
     required_vars = {
-        "VITESS_HOST": "Vitess database host",
-        "VITESS_PORT": "Vitess database port",
-        "VITESS_DATABASE": "Vitess database name",
-        "VITESS_USER": "Vitess database user",
+        "VITESS_HOST": "Sql database host",
+        "VITESS_PORT": "Sql database port",
+        "VITESS_DATABASE": "Sql database name",
+        "VITESS_USER": "Sql database user",
         "S3_ENDPOINT": "S3 storage endpoint URL",
         "S3_ACCESS_KEY": "S3 access key",
         "S3_SECRET_KEY": "S3 secret key",
@@ -317,7 +317,7 @@ def vitess_client():
         pool_timeout=5,
     )
     logger.debug(
-        f"Vitess config: host='{vitess_config.host}', port={vitess_config.port}, database='{vitess_config.database}'"
+        f"Sql config: host='{vitess_config.host}', port={vitess_config.port}, database='{vitess_config.database}'"
     )
 
     client_start = time_module.time()
@@ -334,8 +334,8 @@ def vitess_client():
 
 @pytest.fixture(scope="function")
 def connection_manager():
-    """Create a VitessConnectionManager for testing connection pool behavior."""
-    from models.infrastructure.vitess.connection import VitessConnectionManager
+    """Create a SqlConnectionManager for testing connection pool behavior."""
+    from models.infrastructure.vitess.connection import SqlConnectionManager
     from models.data.config.vitess import VitessConfig
 
     # Use settings config but with smaller timeouts for faster tests
@@ -349,7 +349,7 @@ def connection_manager():
         max_overflow=20,
         pool_timeout=5,
     )
-    manager = VitessConnectionManager(config=test_config)
+    manager = SqlConnectionManager(config=test_config)
     yield manager
     manager.disconnect()
 

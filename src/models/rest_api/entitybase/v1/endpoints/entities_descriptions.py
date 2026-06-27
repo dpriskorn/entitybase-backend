@@ -2,7 +2,10 @@
 
 import logging
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
+
+from models.rest_api.auth.dependencies import auth_to_edit_headers, verify_auth
+from models.rest_api.auth.models import AuthenticatedRequest
 
 from models.data.rest_api.v1.entitybase.request.headers import EditHeadersType
 from models.data.rest_api.v1.entitybase.request import TermUpdateRequest
@@ -130,13 +133,14 @@ async def add_entity_description(
     language_code: str,
     request: TermUpdateRequest,
     req: Request,
-    headers: EditHeadersType,
+    auth: AuthenticatedRequest = Depends(verify_auth),
 ) -> TermHashResponse:
     """Add a new description to entity for language (alias for PUT)."""
     logger.info(
         f"📝 DESCRIPTION ADD: Starting description add for entity={entity_id}, language={language_code}"
     )
 
+    headers = auth_to_edit_headers(auth)
     state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator
 

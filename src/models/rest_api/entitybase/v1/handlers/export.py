@@ -24,7 +24,7 @@ class ExportHandler(Handler):
         logger.debug(f"Exporting entity {entity_id} to Turtle format")
 
         if self.state.vitess_client is None:
-            raise_validation_error("Vitess not initialized", status_code=503)
+            raise_validation_error("database not initialized", status_code=503)
 
         if not self.state.vitess_client.entity_exists(entity_id):
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)

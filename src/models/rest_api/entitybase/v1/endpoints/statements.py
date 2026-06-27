@@ -3,8 +3,10 @@
 import logging
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
+from models.rest_api.auth.dependencies import verify_auth
+from models.rest_api.auth.models import AuthenticatedRequest
 from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
 
 logger = logging.getLogger(__name__)
@@ -107,7 +109,9 @@ def get_statement(content_hash: int, req: Request) -> StatementResponse:
 
 @router.post("/statements/cleanup-orphaned", response_model=CleanupOrphanedResponse)
 def cleanup_orphaned_statements(
-    request: CleanupOrphanedRequest, req: Request
+    request: CleanupOrphanedRequest,
+    req: Request,
+    auth: AuthenticatedRequest = Depends(verify_auth),
 ) -> CleanupOrphanedResponse:
     """Clean up orphaned statements that are no longer referenced."""
     state = req.app.state.state_handler

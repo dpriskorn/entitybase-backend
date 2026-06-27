@@ -205,7 +205,7 @@ class TestEntityDeleteHandler:
 
     @pytest.mark.asyncio
     async def test_delete_vitess_not_initialized(self) -> None:
-        """Test delete when Vitess client is not initialized."""
+        """Test delete when Sql client is not initialized."""
         mock_state = MagicMock()
         mock_state.vitess_client = None
         mock_state.s3_client = MagicMock()

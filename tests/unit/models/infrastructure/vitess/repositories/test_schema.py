@@ -16,7 +16,7 @@ class TestSchemaRepository:
 
         from fastapi import HTTPException
 
-        with pytest.raises(HTTPException, match="Vitess not initialized"):
+        with pytest.raises(HTTPException, match="Sql not initialized"):
             repo.create_tables()
 
     def test_create_tables_no_connection(self):

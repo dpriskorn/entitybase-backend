@@ -49,7 +49,7 @@ class TestEntityUpdateTermsMixin:
     def test_decrement_term_ref_count_deletes_when_zero(
         self, mock_terms_repo_class
     ) -> None:
-        """Test that term is Vitess and S3 deleted when ref_count hits 0."""
+        """Test that term is Sql and S3 deleted when ref_count hits 0."""
         mixin, mock_vitess, mock_s3 = self._create_mixin_with_mocks()
 
         mock_terms_repo = MagicMock()

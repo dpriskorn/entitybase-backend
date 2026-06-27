@@ -94,7 +94,7 @@ class TestS3ClientSnaks:
             assert len(result) == 2
 
     def test_store_snak_not_configured(self):
-        """Test store_snak raises error when Vitess not configured."""
+        """Test store_snak raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -149,7 +149,7 @@ class TestS3ClientSnaks:
                 client.store_snak(12345, snak_data)
 
     def test_load_snak_not_configured(self):
-        """Test load_snak raises error when Vitess not configured."""
+        """Test load_snak raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -190,7 +190,7 @@ class TestS3ClientSnaks:
                 client.load_snak(12345)
 
     def test_load_snaks_batch_not_configured(self):
-        """Test load_snaks_batch raises error when Vitess not configured."""
+        """Test load_snaks_batch raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",

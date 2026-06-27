@@ -36,7 +36,7 @@ class TestStatementHandler:
     def test_validate_entity_access_vitess_not_initialized(
         self, mock_handler, mock_state
     ):
-        """Test _validate_entity_access when Vitess is not initialized."""
+        """Test _validate_entity_access when Sql is not initialized."""
         from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
 
         mock_state.vitess_client = None
@@ -443,7 +443,7 @@ class TestGetEntityProperties:
     def test_get_entity_properties_vitess_not_initialized(
         self, mock_handler, mock_state
     ):
-        """Test get_entity_properties raises 503 when Vitess not initialized."""
+        """Test get_entity_properties raises 503 when Sql not initialized."""
         mock_state.vitess_client = None
 
         with pytest.raises(HTTPException) as exc_info:
@@ -519,7 +519,7 @@ class TestGetEntityPropertyCounts:
     def test_get_entity_property_counts_vitess_not_initialized(
         self, mock_handler, mock_state
     ):
-        """Test get_entity_property_counts raises 503 when Vitess not initialized."""
+        """Test get_entity_property_counts raises 503 when Sql not initialized."""
         mock_state.vitess_client = None
 
         with pytest.raises(HTTPException) as exc_info:
@@ -629,7 +629,7 @@ class TestGetMostUsedStatements:
     def test_get_most_used_statements_vitess_not_initialized(
         self, mock_handler, mock_state
     ):
-        """Test get_most_used_statements raises 503 when Vitess not initialized."""
+        """Test get_most_used_statements raises 503 when Sql not initialized."""
         mock_state.vitess_client = None
 
         with pytest.raises(HTTPException) as exc_info:
@@ -680,7 +680,7 @@ class TestCleanupOrphanedStatements:
     def test_cleanup_orphaned_vitess_not_initialized(
         self, mock_handler, mock_state, sample_request
     ):
-        """Test cleanup_orphaned_statements raises 503 when Vitess not initialized."""
+        """Test cleanup_orphaned_statements raises 503 when Sql not initialized."""
         mock_state.vitess_client = None
 
         with pytest.raises(HTTPException) as exc_info:
@@ -724,7 +724,7 @@ class TestCleanupOrphanedStatements:
             None,
         ]
         mock_state.vitess_client.delete_statement.side_effect = [
-            Exception("Vitess error"),
+            Exception("Sql error"),
             None,
             None,
         ]

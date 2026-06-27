@@ -82,7 +82,7 @@ class TestStatusService:
 
         with pytest.raises(Exception) as exc_info:
             service.validate_preconditions()
-        assert "Vitess not initialized" in str(exc_info.value)
+        assert "Sql not initialized" in str(exc_info.value)
 
     def test_validate_preconditions_s3_none(self):
         """Test validate_preconditions raises when s3 is None."""

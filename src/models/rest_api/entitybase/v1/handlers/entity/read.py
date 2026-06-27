@@ -38,14 +38,14 @@ class EntityReadHandler(Handler):
             HTTPException 503: Vitess or S3 not initialized
 
         Notes:
-            - Checks entity exists in Vitess first
+            - Checks entity exists in database first
             - Gets head revision ID from database
             - Fetches revision data from S3
             - Returns 404 if entity is marked as deleted in state
         """
         logger.debug(f"get_entity({entity_id}) called")
         if self.state.vitess_client is None:
-            raise_validation_error("Vitess not initialized", status_code=503)
+            raise_validation_error("database not initialized", status_code=503)
 
         if self.state.s3_client is None:
             raise_validation_error("S3 not initialized", status_code=503)
@@ -117,7 +117,7 @@ class EntityReadHandler(Handler):
             List of EntityHistoryEntry objects
         """
         if self.state.vitess_client is None:
-            raise_validation_error("Vitess not initialized", status_code=503)
+            raise_validation_error("database not initialized", status_code=503)
 
         if not self.state.vitess_client.entity_exists(entity_id):
             raise_validation_error("Entity not found", status_code=404)

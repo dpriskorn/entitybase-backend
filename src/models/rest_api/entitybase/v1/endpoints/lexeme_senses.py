@@ -2,7 +2,7 @@
 
 import logging
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 from models.data.rest_api.v1.entitybase.request import (
     AddStatementRequest,
@@ -28,6 +28,8 @@ from models.rest_api.entitybase.v1.endpoints.lexeme_utils import (
 )
 
 from models.data.rest_api.v1.entitybase.request.headers import EditHeadersType
+from models.rest_api.auth.dependencies import auth_to_edit_headers, verify_auth
+from models.rest_api.auth.models import AuthenticatedRequest
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +57,7 @@ async def create_lexeme_sense(
     lexeme_id: str,
     request: SenseCreateRequest,
     req: Request,
-    headers: EditHeadersType,
+    auth: AuthenticatedRequest = Depends(verify_auth),
 ) -> EntityResponse:
     """Create a new sense for a lexeme."""
     logger.debug(f"Creating sense for lexeme {lexeme_id}")
@@ -97,6 +99,7 @@ async def create_lexeme_sense(
         id=lexeme_id, type="lexeme", **current_entity.entity_data.revision
     )
 
+    headers = auth_to_edit_headers(auth)
     return await update_handler.update_lexeme(
         lexeme_id,
         update_request,
@@ -165,7 +168,7 @@ async def add_sense_gloss(
     langcode: str,
     request: TermUpdateRequest,
     req: Request,
-    headers: EditHeadersType,
+    auth: AuthenticatedRequest = Depends(verify_auth),
 ) -> TermHashResponse:
     """Add a new sense gloss for a language."""
     logger.debug(f"Adding gloss for sense {sense_id}, language {langcode}")
@@ -213,6 +216,7 @@ async def add_sense_gloss(
         id=lexeme_id, type="lexeme", **current_entity.entity_data.revision
     )
 
+    headers = auth_to_edit_headers(auth)
     await update_handler.update_lexeme(
         lexeme_id,
         update_request,
@@ -411,7 +415,7 @@ async def add_sense_statement(
     sense_id: str,
     request: AddStatementRequest,
     req: Request,
-    headers: EditHeadersType,
+    auth: AuthenticatedRequest = Depends(verify_auth),
 ) -> EntityResponse:
     """Add a statement to a sense."""
     logger.debug(f"Adding statement to sense {sense_id}")
@@ -453,6 +457,7 @@ async def add_sense_statement(
         id=lexeme_id, type="lexeme", **current_entity.entity_data.revision
     )
 
+    headers = auth_to_edit_headers(auth)
     return await update_handler.update_lexeme(
         lexeme_id,
         update_request,

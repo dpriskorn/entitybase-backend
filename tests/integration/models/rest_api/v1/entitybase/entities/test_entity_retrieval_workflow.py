@@ -7,7 +7,7 @@ sys.path.insert(0, "src")
 
 def test_entity_retrieval_with_metadata_deduplication(vitess_client, s3_client):
     """Test full entity retrieval with metadata deduplication"""
-    # This would require real data in Vitess/S3
+    # This would require real data in Sql/S3
     # For now, placeholder
     pass
 

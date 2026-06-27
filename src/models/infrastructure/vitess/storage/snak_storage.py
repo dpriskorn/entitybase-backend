@@ -20,7 +20,7 @@ class SnakVitessStorage(BaseVitessStorage):
         content_hash: int,
         snak_data: S3SnakData,
     ) -> OperationResult[None]:
-        """Store snak in Vitess."""
+        """Store snak in database."""
         logger.debug(f"[SNAK_VITESS_STORE] hash={content_hash}")
         data = {
             "snak": snak_data.snak,
@@ -36,7 +36,7 @@ class SnakVitessStorage(BaseVitessStorage):
         return result
 
     def load_snak(self, content_hash: int) -> S3SnakData | None:
-        """Load snak from Vitess."""
+        """Load snak from database."""
         logger.debug(f"[SNAK_VITESS_LOAD] hash={content_hash}")
         data = self._load(content_hash)
         if data is None:

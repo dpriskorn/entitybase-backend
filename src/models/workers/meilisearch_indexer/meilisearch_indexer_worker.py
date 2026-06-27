@@ -96,17 +96,17 @@ class MeilisearchIndexerWorker(Worker):
         )
 
     async def _initialize_storage_clients(self) -> None:
-        """Initialize S3 and Vitess clients."""
+        """Initialize S3 and database clients."""
         if not self.worker_enabled:
             return
 
         vitess_config = settings.get_vitess_config
         if vitess_config.host and vitess_config.port:
             self.vitess_client = VitessClient(config=vitess_config)
-            logger.info("Vitess client initialized")
+            logger.info("database client initialized")
         else:
             logger.warning(
-                "Vitess not configured, worker cannot fetch revision metadata"
+                "database not configured, worker cannot fetch revision metadata"
             )
 
         s3_config = settings.get_s3_config
@@ -192,7 +192,7 @@ class MeilisearchIndexerWorker(Worker):
         """Handle entity change (create/update)."""
         if not self.s3_client or not self.vitess_client or not self.meilisearch_client:
             logger.warning(
-                "S3, Vitess, or Meilisearch client not available, skipping indexing"
+                "S3, database, or Meilisearch client not available, skipping indexing"
             )
             return
 
@@ -221,7 +221,7 @@ class MeilisearchIndexerWorker(Worker):
         """Fetch entity data from S3."""
         if not self.s3_client or not self.vitess_client:
             logger.warning(
-                f"Cannot fetch entity {entity_id}: S3 or Vitess client not available"
+                f"Cannot fetch entity {entity_id}: S3 or database client not available"
             )
             return None
 

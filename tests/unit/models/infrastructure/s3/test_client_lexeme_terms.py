@@ -165,7 +165,7 @@ class TestS3ClientLexemeTerms:
             assert result == ["gloss1", "gloss2"]
 
     def test_store_lemma_not_configured(self):
-        """Test store_lemma raises error when Vitess not configured."""
+        """Test store_lemma raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -208,7 +208,7 @@ class TestS3ClientLexemeTerms:
                 client.store_lemma("test lemma", 12345)
 
     def test_store_form_representation_not_configured(self):
-        """Test store_form_representation raises error when Vitess not configured."""
+        """Test store_form_representation raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -251,7 +251,7 @@ class TestS3ClientLexemeTerms:
                 client.store_form_representation("test form", 12345)
 
     def test_store_sense_gloss_not_configured(self):
-        """Test store_sense_gloss raises error when Vitess not configured."""
+        """Test store_sense_gloss raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -294,7 +294,7 @@ class TestS3ClientLexemeTerms:
                 client.store_sense_gloss("test gloss", 12345)
 
     def test_load_lemmas_batch_not_configured(self):
-        """Test load_lemmas_batch raises error when Vitess not configured."""
+        """Test load_lemmas_batch raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -313,7 +313,7 @@ class TestS3ClientLexemeTerms:
                 client.load_lemmas_batch([111, 222])
 
     def test_load_form_representations_batch_not_configured(self):
-        """Test load_form_representations_batch raises error when Vitess not configured."""
+        """Test load_form_representations_batch raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -332,7 +332,7 @@ class TestS3ClientLexemeTerms:
                 client.load_form_representations_batch([111, 222])
 
     def test_load_sense_glosses_batch_not_configured(self):
-        """Test load_sense_glosses_batch raises error when Vitess not configured."""
+        """Test load_sense_glosses_batch raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",

@@ -10,7 +10,7 @@ from models.infrastructure.client import Client
 from models.data.config.vitess import VitessConfig
 from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.infrastructure.vitess.connection import (
-    VitessConnectionManager,
+    SqlConnectionManager,
     CursorContextManager,
 )
 from models.infrastructure.vitess.id_resolver import IdResolver
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 class VitessClient(Client):
     """Vitess database client for entity operations with connection pooling."""
 
-    connection_manager: Optional[VitessConnectionManager] = Field(
+    connection_manager: Optional[SqlConnectionManager] = Field(
         default=None, init=False, exclude=True
     )
     id_resolver: Optional[IdResolver] = Field(default=None, init=False, exclude=True)
@@ -34,9 +34,9 @@ class VitessClient(Client):
         logger.debug(
             f"Initializing VitessClient with host='{self.config.host}', port={self.config.port}, database='{self.config.database}', user='{self.config.user}', password_length={len(self.config.password)}"
         )
-        logger.debug("Creating VitessConnectionManager...")
-        self.connection_manager = VitessConnectionManager(config=self.config)
-        logger.debug("VitessConnectionManager created, calling connect()...")
+        logger.debug("Creating SqlConnectionManager...")
+        self.connection_manager = SqlConnectionManager(config=self.config)
+        logger.debug("SqlConnectionManager created, calling connect()...")
         self.connection_manager.connect()
         logger.debug("Connection established, creating IdResolver...")
         self.id_resolver = IdResolver(vitess_client=self)

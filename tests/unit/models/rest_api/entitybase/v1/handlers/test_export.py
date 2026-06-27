@@ -31,6 +31,7 @@ class TestExportHandler:
         handler = ExportHandler(state=mock_state)
 
         from fastapi import HTTPException
+
         with pytest.raises(HTTPException) as exc_info:
             handler.get_entity_data_turtle("Q42")
         assert exc_info.value.status_code == 503
@@ -41,6 +42,7 @@ class TestExportHandler:
         handler = ExportHandler(state=mock_state)
 
         from fastapi import HTTPException
+
         with pytest.raises(HTTPException) as exc_info:
             handler.get_entity_data_turtle("Q42")
         assert exc_info.value.status_code == 404
@@ -53,30 +55,43 @@ class TestExportHandler:
         handler = ExportHandler(state=mock_state)
 
         from fastapi import HTTPException
+
         with pytest.raises(HTTPException) as exc_info:
             handler.get_entity_data_turtle("Q42")
         assert exc_info.value.status_code == 404
         assert "no revisions" in exc_info.value.detail
 
-    def test_get_entity_data_turtle_s3_not_found(self, handler: ExportHandler, mock_state: MagicMock) -> None:
+    def test_get_entity_data_turtle_s3_not_found(
+        self, handler: ExportHandler, mock_state: MagicMock
+    ) -> None:
         mock_state.s3_client.read_revision.side_effect = S3NotFoundError("Not found")
 
         from fastapi import HTTPException
+
         with pytest.raises(HTTPException) as exc_info:
             handler.get_entity_data_turtle("Q42")
         assert exc_info.value.status_code == 404
         assert "not found" in exc_info.value.detail
 
-    def test_get_entity_data_turtle_success(self, handler: ExportHandler, mock_state: MagicMock) -> None:
-        from models.rest_api.entitybase.v1.services.rdf_service import serialize_entity_to_turtle
+    def test_get_entity_data_turtle_success(
+        self, handler: ExportHandler, mock_state: MagicMock
+    ) -> None:
+        from models.rest_api.entitybase.v1.services.rdf_service import (
+            serialize_entity_to_turtle,
+        )
 
         mock_state.s3_client.read_revision.return_value = MagicMock(
-            revision={"labels": {"en": "test"}, "descriptions": {}, "aliases": {}, "claims": []}
+            revision={
+                "labels": {"en": "test"},
+                "descriptions": {},
+                "aliases": {},
+                "claims": [],
+            }
         )
 
         with patch(
             "models.rest_api.entitybase.v1.handlers.export.serialize_entity_to_turtle",
-            return_value="<turtle>data</turtle>"
+            return_value="<turtle>data</turtle>",
         ):
             result = handler.get_entity_data_turtle("Q42")
 

@@ -323,7 +323,7 @@ class EntityStatementService(Service):
             )
             logger.debug("Storing revision to S3")
             self.state.s3_client.store_revision(content_hash, s3_revision_data)
-            logger.debug("Creating revision in Vitess")
+            logger.debug("Creating revision in database")
             revision_created = self.state.vitess_client.create_revision(
                 entity_id=entity_id,
                 entity_data=revision_data,

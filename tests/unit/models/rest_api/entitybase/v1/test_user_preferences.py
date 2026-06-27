@@ -23,7 +23,7 @@ class TestUserPreferencesHandler:
 
     @pytest.fixture
     def mock_vitess_client(self) -> MagicMock:
-        """Mock Vitess client"""
+        """Mock Sql client"""
         client = MagicMock()
         client.user_repository = MagicMock()
         return client

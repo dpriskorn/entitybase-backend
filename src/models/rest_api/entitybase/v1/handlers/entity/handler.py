@@ -203,7 +203,7 @@ class EntityHandler(Handler):
             logger.debug(f"_create_revision_new: content_hash={content_hash}")
 
             logger.debug(
-                f"_create_revision_new: creating revision in Vitess for {ctx.entity_id}"
+                f"_create_revision_new: creating revision in database for {ctx.entity_id}"
             )
             revision_created = ctx.vitess_client.create_revision(
                 entity_id=ctx.entity_id,

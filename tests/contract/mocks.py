@@ -2,7 +2,7 @@
 
 This module provides mock implementations of VitessClient, S3Client, and StateHandler
 for use in contract tests. These mocks simulate the real clients without requiring
-external services (Vitess, S3).
+external services (Sql, S3).
 """
 
 import sys
@@ -19,7 +19,7 @@ class MockHistoryEntry:
 
 
 class MockConnectionManager:
-    """Mock Vitess connection manager."""
+    """Mock Sql connection manager."""
 
     def __init__(self) -> None:
         self._cursor = MockCursor()
@@ -342,7 +342,7 @@ class TestStateHandler:
     """Test StateHandler that uses mock clients.
 
     This class mimics the StateHandler interface but uses pre-configured
-    mock clients instead of real Vitess/S3 connections.
+    mock clients instead of real Sql/S3 connections.
     """
 
     model_config = {"arbitrary_types_allowed": True}

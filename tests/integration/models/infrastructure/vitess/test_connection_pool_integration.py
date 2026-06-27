@@ -1,4 +1,4 @@
-"""Integration tests for Vitess connection pool with real MySQL database."""
+"""Integration tests for Sql connection pool with real MySQL database."""
 
 import logging
 import time
@@ -7,7 +7,7 @@ import pytest
 
 from models.config.settings import settings
 from models.data.config.vitess import VitessConfig
-from models.infrastructure.vitess.connection import VitessConnectionManager
+from models.infrastructure.vitess.connection import SqlConnectionManager
 
 logger = logging.getLogger(__name__)
 
@@ -23,8 +23,8 @@ def test_timer():
 
 
 @pytest.fixture(scope="function")
-def connection_manager() -> VitessConnectionManager:
-    """Create a VitessConnectionManager for testing."""
+def connection_manager() -> SqlConnectionManager:
+    """Create a SqlConnectionManager for testing."""
     test_config = VitessConfig(
         host=settings.vitess_host,
         port=settings.vitess_port,
@@ -35,7 +35,7 @@ def connection_manager() -> VitessConnectionManager:
         max_overflow=20,
         pool_timeout=5,
     )
-    manager = VitessConnectionManager(config=test_config)
+    manager = SqlConnectionManager(config=test_config)
     yield manager
     manager.disconnect()
 

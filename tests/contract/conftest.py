@@ -1,7 +1,7 @@
 """Pytest configuration for contract tests.
 
 Contract tests validate API response schemas without requiring external services.
-They use mock clients to simulate the Vitess and S3 backends.
+They use mock clients to simulate the Sql and S3 backends.
 """
 
 import logging
@@ -37,7 +37,7 @@ def initialized_app():
 
     This fixture ensures app.state.state_handler is set to a TestStateHandler
     before tests run, preventing 503 errors from StartupMiddleware.
-    Uses mocks to avoid requiring external services (Vitess, S3).
+    Uses mocks to avoid requiring external services (Sql, S3).
     """
     from models.rest_api.main import app
     from tests.contract.mocks import create_test_state_handler

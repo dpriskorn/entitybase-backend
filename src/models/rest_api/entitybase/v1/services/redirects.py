@@ -166,7 +166,7 @@ class RedirectService(Service):
             from_head_revision_id,
         )
 
-        logger.debug("Creating revision in Vitess")
+        logger.debug("Creating revision in database")
         revision_created = self.vitess_client.create_revision(
             entity_id=request.redirect_from_id,
             revision_id=redirect_revision_data.revision_id,

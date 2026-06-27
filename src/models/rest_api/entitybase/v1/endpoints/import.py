@@ -2,7 +2,10 @@
 
 import logging
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
+
+from models.rest_api.auth.dependencies import auth_to_edit_headers, verify_auth
+from models.rest_api.auth.models import AuthenticatedRequest
 
 from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
 
@@ -10,7 +13,6 @@ logger = logging.getLogger(__name__)
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.rest_api.entitybase.v1.handlers.entity.create import EntityCreateHandler
 from models.rest_api.entitybase.v1.handlers.state import StateHandler
-from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.rest_api.utils import raise_validation_error
 
 import_router = APIRouter(tags=["import"])
@@ -24,6 +26,7 @@ import_router = APIRouter(tags=["import"])
 async def import_entity(
     request: EntityCreateRequest,
     req: Request,
+    auth: AuthenticatedRequest = Depends(verify_auth),
 ) -> EntityResponse:
     """Import a single entity of any type.
 
@@ -55,15 +58,14 @@ async def import_entity(
     - 400: Validation error
     """
     logger.debug(f"Importing entity: {request.id} of type {request.type}")
+    headers = auth_to_edit_headers(auth)
     state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator
 
     logger.debug("Creating entity handler")
     handler = EntityCreateHandler(state=state)
 
-    edit_headers = EditHeaders.model_validate(
-        {"X-User-ID": 0, "X-Edit-Summary": "Bulk import"}
-    )
+    edit_headers = headers
 
     if request.type == "lexeme":
         logger.debug("Validating lexeme has at least one lemma")

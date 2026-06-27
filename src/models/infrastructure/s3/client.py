@@ -120,7 +120,7 @@ class MyS3Client(Client):
     def read_revision(self, entity_id: str, revision_id: int) -> S3RevisionData:
         """Read S3 object and return parsed JSON."""
         if self.vitess_client is None:
-            raise_validation_error("Vitess client not configured", status_code=503)
+            raise_validation_error("database client not configured", status_code=503)
         vitess_client = cast(Any, self.vitess_client)
         internal_id = vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
@@ -137,7 +137,7 @@ class MyS3Client(Client):
     write_entity_revision = write_revision
 
     def delete_statement(self, content_hash: int) -> None:
-        """Delete statement from Vitess storage."""
+        """Delete statement from database storage."""
         if not hasattr(self, "vitess_statements") or not self.vitess_statements:
             raise_validation_error("Vitess storage not configured", status_code=503)
         result = self.vitess_statements.delete_statement(content_hash)
@@ -173,7 +173,7 @@ class MyS3Client(Client):
             raise_validation_error("Storage service unavailable", status_code=503)
 
     def read_statement(self, content_hash: int) -> "StatementResponse":
-        """Read statement snapshot from Vitess."""
+        """Read statement snapshot from database."""
         logger.debug(f"[CLIENT_READ_STMT] content_hash={content_hash}")
         if not hasattr(self, "vitess_statements") or not self.vitess_statements:
             raise_validation_error("Vitess storage not configured", status_code=503)
@@ -186,7 +186,7 @@ class MyS3Client(Client):
         raise_validation_error(f"Statement not found: {content_hash}", status_code=404)
 
     def delete_metadata(self, metadata_type: MetadataType, content_hash: int) -> None:
-        """Delete metadata content from Vitess when ref_count reaches 0."""
+        """Delete metadata content from database when ref_count reaches 0."""
         if not hasattr(self, "vitess_metadata") or not self.vitess_metadata:
             raise_validation_error("Vitess storage not configured", status_code=503)
         content_type = metadata_type.value
@@ -197,7 +197,7 @@ class MyS3Client(Client):
     def store_term_metadata(
         self, term: str, content_hash: int, content_type: str = "labels"
     ) -> None:
-        """Store term metadata in Vitess."""
+        """Store term metadata in database."""
         if not hasattr(self, "vitess_metadata") or not self.vitess_metadata:
             raise_validation_error("Vitess storage not configured", status_code=503)
         result = self.vitess_metadata.store_metadata(content_hash, content_type, term)
@@ -205,7 +205,7 @@ class MyS3Client(Client):
             raise_validation_error("Storage service unavailable", status_code=503)
 
     def store_sitelink_metadata(self, title: str, content_hash: int) -> None:
-        """Store sitelink metadata in Vitess."""
+        """Store sitelink metadata in database."""
         if not hasattr(self, "vitess_sitelinks") or not self.vitess_sitelinks:
             raise_validation_error("Vitess storage not configured", status_code=503)
         result = self.vitess_sitelinks.store_sitelink(content_hash, title)
@@ -213,7 +213,7 @@ class MyS3Client(Client):
             raise_validation_error("Storage service unavailable", status_code=503)
 
     def load_sitelink_metadata(self, content_hash: int) -> str:
-        """Load sitelink metadata from Vitess."""
+        """Load sitelink metadata from database."""
         if not hasattr(self, "vitess_sitelinks") or not self.vitess_sitelinks:
             raise_validation_error("Vitess storage not configured", status_code=503)
         result = self.vitess_sitelinks.load_sitelink(content_hash)
@@ -226,7 +226,7 @@ class MyS3Client(Client):
     def load_metadata(
         self, metadata_type: MetadataType, content_hash: int
     ) -> LoadResponse | None:
-        """Load metadata by type from Vitess."""
+        """Load metadata by type from database."""
         if not hasattr(self, "vitess_metadata") or not self.vitess_metadata:
             raise_validation_error("Vitess storage not configured", status_code=503)
         content_type = metadata_type.value
@@ -240,7 +240,7 @@ class MyS3Client(Client):
     def store_reference(
         self, content_hash: int, reference_data: S3ReferenceData
     ) -> None:
-        """Store a reference by its content hash in Vitess."""
+        """Store a reference by its content hash in database."""
         if not hasattr(self, "vitess_references") or not self.vitess_references:
             raise_validation_error("Vitess storage not configured", status_code=503)
         result = self.vitess_references.store_reference(content_hash, reference_data)
@@ -248,7 +248,7 @@ class MyS3Client(Client):
             raise_validation_error("Storage service unavailable", status_code=503)
 
     def load_reference(self, content_hash: int) -> S3ReferenceData:
-        """Load a reference by its content hash from Vitess."""
+        """Load a reference by its content hash from database."""
         if not hasattr(self, "vitess_references") or not self.vitess_references:
             raise_validation_error("Vitess storage not configured", status_code=503)
         result = self.vitess_references.load_reference(content_hash)
@@ -261,7 +261,7 @@ class MyS3Client(Client):
     def load_references_batch(
         self, content_hashes: list[int]
     ) -> list[S3ReferenceData | None]:
-        """Load multiple references by their content hashes from Vitess."""
+        """Load multiple references by their content hashes from database."""
         if not hasattr(self, "vitess_references") or not self.vitess_references:
             raise_validation_error("Vitess storage not configured", status_code=503)
         return cast(
@@ -272,7 +272,7 @@ class MyS3Client(Client):
     def store_qualifier(
         self, content_hash: int, qualifier_data: S3QualifierData
     ) -> None:
-        """Store a qualifier by its content hash in Vitess."""
+        """Store a qualifier by its content hash in database."""
         if not hasattr(self, "vitess_qualifiers") or not self.vitess_qualifiers:
             raise_validation_error("Vitess storage not configured", status_code=503)
         result = self.vitess_qualifiers.store_qualifier(content_hash, qualifier_data)
@@ -280,7 +280,7 @@ class MyS3Client(Client):
             raise_validation_error("Storage service unavailable", status_code=503)
 
     def load_qualifier(self, content_hash: int) -> S3QualifierData:
-        """Load a qualifier by its content hash from Vitess."""
+        """Load a qualifier by its content hash from database."""
         if not hasattr(self, "vitess_qualifiers") or not self.vitess_qualifiers:
             raise_validation_error("Vitess storage not configured", status_code=503)
         result = self.vitess_qualifiers.load_qualifier(content_hash)
@@ -293,7 +293,7 @@ class MyS3Client(Client):
     def load_qualifiers_batch(
         self, content_hashes: list[int]
     ) -> list[S3QualifierData | None]:
-        """Load multiple qualifiers by their content hashes from Vitess."""
+        """Load multiple qualifiers by their content hashes from database."""
         if not hasattr(self, "vitess_qualifiers") or not self.vitess_qualifiers:
             raise_validation_error("Vitess storage not configured", status_code=503)
         return cast(
@@ -302,7 +302,7 @@ class MyS3Client(Client):
         )
 
     def store_snak(self, content_hash: int, snak_data: S3SnakData) -> None:
-        """Store a snak by its content hash in Vitess."""
+        """Store a snak by its content hash in database."""
         if not hasattr(self, "vitess_snaks") or not self.vitess_snaks:
             raise_validation_error("Vitess storage not configured", status_code=503)
         result = self.vitess_snaks.store_snak(content_hash, snak_data)
@@ -310,7 +310,7 @@ class MyS3Client(Client):
             raise_validation_error("Storage service unavailable", status_code=503)
 
     def load_snak(self, content_hash: int) -> S3SnakData:
-        """Load a snak by its content hash from Vitess."""
+        """Load a snak by its content hash from database."""
         if not hasattr(self, "vitess_snaks") or not self.vitess_snaks:
             raise_validation_error("Vitess storage not configured", status_code=503)
         result = self.vitess_snaks.load_snak(content_hash)
@@ -319,7 +319,7 @@ class MyS3Client(Client):
         return cast(S3SnakData, result)
 
     def load_snaks_batch(self, content_hashes: list[int]) -> list[S3SnakData | None]:
-        """Load multiple snaks by their content hashes from Vitess."""
+        """Load multiple snaks by their content hashes from database."""
         if not hasattr(self, "vitess_snaks") or not self.vitess_snaks:
             raise_validation_error("Vitess storage not configured", status_code=503)
         return cast(
@@ -338,7 +338,7 @@ class MyS3Client(Client):
             raise_validation_error("S3 storage service unavailable", status_code=503)
 
     def store_lemma(self, text: str, content_hash: int) -> None:
-        """Store lemma text in Vitess."""
+        """Store lemma text in database."""
         if not hasattr(self, "vitess_metadata") or not self.vitess_metadata:
             raise_validation_error("Vitess storage not initialized", status_code=503)
         result = self.vitess_metadata.store_lemma(content_hash, text)
@@ -356,7 +356,7 @@ class MyS3Client(Client):
         return cast(S3RevisionData, self.revisions.load_revision(content_hash))
 
     def store_form_representation(self, text: str, content_hash: int) -> None:
-        """Store form representation text in Vitess."""
+        """Store form representation text in database."""
         if not hasattr(self, "vitess_metadata") or not self.vitess_metadata:
             raise_validation_error("Vitess storage not initialized", status_code=503)
         result = self.vitess_metadata.store_form_representation(content_hash, text)
@@ -366,7 +366,7 @@ class MyS3Client(Client):
             )
 
     def store_sense_gloss(self, text: str, content_hash: int) -> None:
-        """Store sense gloss text in Vitess."""
+        """Store sense gloss text in database."""
         if not hasattr(self, "vitess_metadata") or not self.vitess_metadata:
             raise_validation_error("Vitess storage not initialized", status_code=503)
         result = self.vitess_metadata.store_sense_gloss(content_hash, text)

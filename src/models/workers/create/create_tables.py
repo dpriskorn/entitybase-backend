@@ -64,7 +64,7 @@ class CreateTables(BaseModel):
 
     @property
     def vitess_config(self) -> Any:
-        """Get Vitess configuration."""
+        """Get database configuration."""
         config = settings.get_vitess_config
         logger.debug(
             f"VitessConfig loaded: host='{config.host}', port={config.port}, database='{config.database}', user='{config.user}', password_length={len(config.password)}"

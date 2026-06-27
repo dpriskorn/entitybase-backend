@@ -95,20 +95,20 @@ def _flatten_claims(claims: dict[str, Any]) -> FlattenedClaims:
     return FlattenedClaims(data=flat)
 
 
-def _extract_claim_value(value: Any) -> str | None:
+def _extract_claim_value(value: Any) -> str:
     """Extract a string value from a claim datavalue.
 
     Args:
         value: The datavalue value dict
 
     Returns:
-        String representation of the value, or None if not extractable
+        String representation of the value, or empty string if not extractable
     """
     if isinstance(value, dict):
         if "id" in value:
-            return value["id"]
+            return str(value["id"]) if value["id"] is not None else ""
         if "time" in value:
-            return value["time"]
+            return str(value["time"]) if value["time"] is not None else ""
         if "amount" in value:
             return str(value["amount"])
         return str(value)

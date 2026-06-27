@@ -10,7 +10,7 @@ from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
 
 @pytest.fixture
 def repository(vitess_client):
-    """Create HeadRepository instance with real Vitess client."""
+    """Create HeadRepository instance with real Sql client."""
     return HeadRepository(vitess_client=vitess_client)
 
 

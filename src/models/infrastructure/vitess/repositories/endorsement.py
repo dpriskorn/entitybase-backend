@@ -1,4 +1,4 @@
-"""Repository for managing statement endorsements in Vitess."""
+"""Repository for managing statement endorsements in database."""
 
 import logging
 from typing import List
@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class EndorsementRepository(Repository):
-    """Repository for managing statement endorsements in Vitess."""
+    """Repository for managing statement endorsements in database."""
 
     def create_endorsement(self, user_id: int, statement_hash: int) -> OperationResult:
         """Create an endorsement for a statement."""

@@ -431,7 +431,7 @@ class EntityUpdateTermsMixin(BaseModel):
         Uses hash-direct approach:
         1. Hash the new alias
         2. Check against existing alias hashes (no S3 read needed)
-        3. Store the new alias in S3/Vitess
+        3. Store the new alias in S3/database
         4. Create new revision with updated hash list
         """
         from models.internal_representation.metadata_extractor import MetadataExtractor

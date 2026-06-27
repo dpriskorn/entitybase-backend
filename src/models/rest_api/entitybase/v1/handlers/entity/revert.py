@@ -260,7 +260,7 @@ class EntityRevertHandler(Handler):
         logger.debug("Storing revision to S3")
         self.state.s3_client.store_revision(content_hash, s3_revision_data)
 
-        logger.debug("Inserting revision in Vitess")
+        logger.debug("Inserting revision in database")
         revision_created = self.state.vitess_client.insert_revision(
             entity_id,
             new_revision_id,

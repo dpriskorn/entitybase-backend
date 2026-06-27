@@ -62,7 +62,7 @@ class IdGeneratorWorker(VitessWorker):
         logger.info(f"Starting ID Generator Worker {self.worker_id}")
 
         try:
-            # Initialize Vitess client with default config
+            # Initialize database client with default config
             from models.data.config.vitess import VitessConfig
             from models.infrastructure.vitess.client import VitessClient
 

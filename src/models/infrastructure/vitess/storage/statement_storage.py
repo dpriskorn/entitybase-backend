@@ -20,7 +20,7 @@ class StatementVitessStorage(BaseVitessStorage):
         content_hash: int,
         statement_data: dict[str, Any],
     ) -> OperationResult[None]:
-        """Store statement in Vitess."""
+        """Store statement in database."""
         logger.debug(f"[STMT_VITESS_STORE] hash={content_hash}")
         result = self._store(content_hash, statement_data)
         if result.success:
@@ -30,7 +30,7 @@ class StatementVitessStorage(BaseVitessStorage):
         return result
 
     def load_statement(self, content_hash: int) -> StatementResponse | None:
-        """Load statement from Vitess."""
+        """Load statement from database."""
         logger.debug(f"[STMT_VITESS_LOAD] hash={content_hash}")
         data = self._load(content_hash)
         if data is None:

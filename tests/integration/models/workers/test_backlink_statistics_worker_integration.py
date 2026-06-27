@@ -16,7 +16,7 @@ class TestBacklinkStatisticsWorkerIntegration:
 
     @pytest.fixture
     def mock_vitess_client(self) -> MagicMock:
-        """Mock Vitess client with backlink repository"""
+        """Mock Sql client with backlink repository"""
         client = MagicMock()
         client.backlink_repository = MagicMock()
         return client

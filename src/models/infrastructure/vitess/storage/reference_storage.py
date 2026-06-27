@@ -20,7 +20,7 @@ class ReferenceVitessStorage(BaseVitessStorage):
         content_hash: int,
         reference_data: S3ReferenceData,
     ) -> OperationResult[None]:
-        """Store reference in Vitess."""
+        """Store reference in database."""
         logger.debug(f"[REF_VITESS_STORE] hash={content_hash}")
         data = {
             "reference": reference_data.reference,
@@ -35,7 +35,7 @@ class ReferenceVitessStorage(BaseVitessStorage):
         return result
 
     def load_reference(self, content_hash: int) -> S3ReferenceData | None:
-        """Load reference from Vitess."""
+        """Load reference from database."""
         logger.debug(f"[REF_VITESS_LOAD] hash={content_hash}")
         data = self._load(content_hash)
         if data is None:

@@ -72,7 +72,7 @@ class HashService(Service):
         self,
         labels: dict[str, Any],
     ) -> LabelsHashes:
-        """Hash label values, store in S3 and Vitess."""
+        """Hash label values, store in S3 and database."""
         hashes = {}
         logger.debug(
             f"hash_labels: vitess_config={self.state.vitess_config is not None}, vitess_client={self.vitess_client is not None}"
@@ -98,7 +98,7 @@ class HashService(Service):
         self,
         descriptions: dict[str, Any],
     ) -> DescriptionsHashes:
-        """Hash description values, store in S3 and Vitess."""
+        """Hash description values, store in S3 and database."""
         hashes = {}
         if self.state.vitess_config:
             terms_repo = TermsRepository(vitess_client=self.vitess_client)
@@ -117,7 +117,7 @@ class HashService(Service):
         self,
         aliases: dict[str, Any],
     ) -> AliasesHashes:
-        """Hash alias values, store in S3 and Vitess."""
+        """Hash alias values, store in S3 and database."""
         hashes = {}
         if self.state.vitess_config:
             terms_repo = TermsRepository(vitess_client=self.vitess_client)

@@ -58,7 +58,7 @@ class IncrementalRDFWorker(Worker):
             logger.info("IncrementalRDFWorker stopped")
 
     async def _initialize_clients(self) -> None:
-        """Initialize Kafka consumer, producer, Vitess and S3 clients."""
+        """Initialize Kafka consumer, producer, database and S3 clients."""
         kafka_brokers = self._get_kafka_brokers()
 
         if kafka_brokers:
@@ -102,17 +102,17 @@ class IncrementalRDFWorker(Worker):
         )
 
     async def _initialize_storage_clients(self) -> None:
-        """Initialize Vitess and S3 clients."""
+        """Initialize database and S3 clients."""
         if not self.worker_enabled:
             return
 
         vitess_config = settings.get_vitess_config
         if vitess_config.host and vitess_config.port:
             self.vitess_client = VitessClient(config=vitess_config)
-            logger.info("Vitess client initialized")
+            logger.info("database client initialized")
         else:
             logger.warning(
-                "Vitess not configured, worker cannot fetch revision metadata"
+                "database not configured, worker cannot fetch revision metadata"
             )
 
         s3_config = settings.get_s3_config

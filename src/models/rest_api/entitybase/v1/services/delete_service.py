@@ -27,6 +27,7 @@ from models.data.rest_api.v1.entitybase.request import (
 )
 from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.infrastructure.stream.event import EntityChangeEvent
+from models.infrastructure.vitess.repositories.terms import TermsRepository
 from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.rest_api.entitybase.v1.service import Service
 from models.rest_api.utils import raise_validation_error
@@ -229,8 +230,6 @@ class DeleteService(Service):
             descriptions_hashes: Dict of language -> hash for descriptions
             aliases_hashes: Dict of language -> list of hashes for aliases
         """
-        from models.infrastructure.vitess.repositories.terms import TermsRepository
-
         terms_repo = TermsRepository(vitess_client=self.vitess_client)
 
         for hash_value in labels_hashes.values():

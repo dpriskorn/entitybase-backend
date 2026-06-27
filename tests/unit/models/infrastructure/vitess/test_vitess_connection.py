@@ -2,12 +2,12 @@
 
 from unittest.mock import MagicMock, patch
 
-from models.infrastructure.vitess.connection import VitessConnectionManager
+from models.infrastructure.vitess.connection import SqlConnectionManager
 from models.data.config.vitess import VitessConfig
 
 
-class TestVitessConnectionManager:
-    """Unit tests for VitessConnectionManager."""
+class TestSqlConnectionManager:
+    """Unit tests for SqlConnectionManager."""
 
     def setup_method(self):
         """Set up test fixtures."""
@@ -21,7 +21,7 @@ class TestVitessConnectionManager:
 
     def test_healthy_connection_check_success(self):
         """Test healthy connection check success."""
-        manager = VitessConnectionManager(config=self.config)
+        manager = SqlConnectionManager(config=self.config)
 
         mock_connection = MagicMock()
         mock_cursor = MagicMock()
@@ -39,7 +39,7 @@ class TestVitessConnectionManager:
 
     def test_healthy_connection_connects_and_performs_check(self):
         """Test healthy connection connects and performs check."""
-        manager = VitessConnectionManager(config=self.config)
+        manager = SqlConnectionManager(config=self.config)
         manager.connection = None
 
         with patch(
@@ -59,7 +59,7 @@ class TestVitessConnectionManager:
 
     def test_disconnect_when_connection_exists(self):
         """Test disconnecting when connection exists."""
-        manager = VitessConnectionManager(config=self.config)
+        manager = SqlConnectionManager(config=self.config)
         mock_connection = MagicMock()
         manager.connection = mock_connection
 
@@ -70,7 +70,7 @@ class TestVitessConnectionManager:
 
     def test_disconnect_clears_semaphore(self):
         """Test that disconnect properly clears the semaphore."""
-        manager = VitessConnectionManager(config=self.config)
+        manager = SqlConnectionManager(config=self.config)
 
         manager.disconnect()
 

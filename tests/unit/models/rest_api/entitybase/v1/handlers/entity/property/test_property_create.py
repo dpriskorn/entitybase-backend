@@ -6,7 +6,9 @@ import pytest
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
 from models.data.rest_api.v1.entitybase.response import EntityResponse
-from models.rest_api.entitybase.v1.handlers.entity.property.create import PropertyCreateHandler
+from models.rest_api.entitybase.v1.handlers.entity.property.create import (
+    PropertyCreateHandler,
+)
 
 
 class TestPropertyCreateHandler:
@@ -22,7 +24,9 @@ class TestPropertyCreateHandler:
         mock_state.vitess_client.entity_exists.return_value = False
         mock_state.vitess_client.register_entity.return_value = True
         mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.user_repository.log_user_activity.return_value = MagicMock(success=True)
+        mock_state.vitess_client.user_repository.log_user_activity.return_value = (
+            MagicMock(success=True)
+        )
 
         handler = PropertyCreateHandler(state=mock_state)
 
@@ -36,7 +40,10 @@ class TestPropertyCreateHandler:
 
         edit_headers = EditHeaders(x_user_id=123, x_edit_summary="test")
 
-        with patch('models.rest_api.entitybase.v1.handlers.entity.create.EntityCreateHandler.process_entity_revision_new', new_callable=AsyncMock) as mock_process:
+        with patch(
+            "models.rest_api.entitybase.v1.handlers.entity.create.EntityCreateHandler.process_entity_revision_new",
+            new_callable=AsyncMock,
+        ) as mock_process:
             mock_process.return_value = mock_response
             result = await handler.create_entity(request, edit_headers)
 
@@ -53,7 +60,9 @@ class TestPropertyCreateHandler:
         mock_state.vitess_client.entity_exists.return_value = False
         mock_state.vitess_client.register_entity.return_value = True
         mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.user_repository.log_user_activity.return_value = MagicMock(success=True)
+        mock_state.vitess_client.user_repository.log_user_activity.return_value = (
+            MagicMock(success=True)
+        )
 
         handler = PropertyCreateHandler(state=mock_state)
         handler.enumeration_service = MagicMock()
@@ -69,10 +78,15 @@ class TestPropertyCreateHandler:
 
         edit_headers = EditHeaders(x_user_id=123, x_edit_summary="test")
 
-        with patch('models.rest_api.entitybase.v1.handlers.entity.create.EntityCreateHandler.process_entity_revision_new', new_callable=AsyncMock) as mock_process:
+        with patch(
+            "models.rest_api.entitybase.v1.handlers.entity.create.EntityCreateHandler.process_entity_revision_new",
+            new_callable=AsyncMock,
+        ) as mock_process:
             mock_process.return_value = mock_response
             result = await handler.create_entity(request, edit_headers)
 
         assert result == mock_response
         mock_process.assert_called_once()
-        handler.enumeration_service.get_next_entity_id.assert_called_once_with("property")
+        handler.enumeration_service.get_next_entity_id.assert_called_once_with(
+            "property"
+        )

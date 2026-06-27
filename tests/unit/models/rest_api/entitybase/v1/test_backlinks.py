@@ -12,7 +12,7 @@ pytestmark = pytest.mark.unit
 class TestBacklinkHandler:
     @pytest.fixture
     def mock_vitess(self) -> MagicMock:
-        """Mock Vitess client"""
+        """Mock Sql client"""
         client = MagicMock()
         client.id_resolver = MagicMock()
         client.get_backlinks = MagicMock()

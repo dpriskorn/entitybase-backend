@@ -39,9 +39,13 @@ class TestEntityStatusHandler:
         )
 
     def test_lock(self, handler: EntityStatusHandler, mock_state: MagicMock) -> None:
-        with patch("models.rest_api.entitybase.v1.handlers.entity.status.StatusService") as MockStatusService:
+        with patch(
+            "models.rest_api.entitybase.v1.handlers.entity.status.StatusService"
+        ) as MockStatusService:
             mock_service = MockStatusService.return_value
-            mock_service.change_status.return_value = self._make_status_response("locked")
+            mock_service.change_status.return_value = self._make_status_response(
+                "locked"
+            )
 
             request = EntityStatusRequest(edit_summary="locking")
             result = handler.lock("Q42", request, self._make_edit_headers())
@@ -51,9 +55,13 @@ class TestEntityStatusHandler:
             mock_service.change_status.assert_called_once()
 
     def test_unlock(self, handler: EntityStatusHandler, mock_state: MagicMock) -> None:
-        with patch("models.rest_api.entitybase.v1.handlers.entity.status.StatusService") as MockStatusService:
+        with patch(
+            "models.rest_api.entitybase.v1.handlers.entity.status.StatusService"
+        ) as MockStatusService:
             mock_service = MockStatusService.return_value
-            mock_service.change_status.return_value = self._make_status_response("unlocked")
+            mock_service.change_status.return_value = self._make_status_response(
+                "unlocked"
+            )
 
             request = EntityStatusRequest(edit_summary="unlocking")
             result = handler.unlock("Q42", request, self._make_edit_headers())
@@ -62,9 +70,13 @@ class TestEntityStatusHandler:
             mock_service.change_status.assert_called_once()
 
     def test_archive(self, handler: EntityStatusHandler, mock_state: MagicMock) -> None:
-        with patch("models.rest_api.entitybase.v1.handlers.entity.status.StatusService") as MockStatusService:
+        with patch(
+            "models.rest_api.entitybase.v1.handlers.entity.status.StatusService"
+        ) as MockStatusService:
             mock_service = MockStatusService.return_value
-            mock_service.change_status.return_value = self._make_status_response("archived")
+            mock_service.change_status.return_value = self._make_status_response(
+                "archived"
+            )
 
             request = EntityStatusRequest(edit_summary="locking")
             result = handler.archive("Q42", request, self._make_edit_headers())
@@ -72,10 +84,16 @@ class TestEntityStatusHandler:
             assert result.status == "archived"
             mock_service.change_status.assert_called_once()
 
-    def test_unarchive(self, handler: EntityStatusHandler, mock_state: MagicMock) -> None:
-        with patch("models.rest_api.entitybase.v1.handlers.entity.status.StatusService") as MockStatusService:
+    def test_unarchive(
+        self, handler: EntityStatusHandler, mock_state: MagicMock
+    ) -> None:
+        with patch(
+            "models.rest_api.entitybase.v1.handlers.entity.status.StatusService"
+        ) as MockStatusService:
             mock_service = MockStatusService.return_value
-            mock_service.change_status.return_value = self._make_status_response("unarchived")
+            mock_service.change_status.return_value = self._make_status_response(
+                "unarchived"
+            )
 
             request = EntityStatusRequest(edit_summary="unlocking")
             result = handler.unarchive("Q42", request, self._make_edit_headers())
@@ -83,10 +101,16 @@ class TestEntityStatusHandler:
             assert result.status == "unarchived"
             mock_service.change_status.assert_called_once()
 
-    def test_semi_protect(self, handler: EntityStatusHandler, mock_state: MagicMock) -> None:
-        with patch("models.rest_api.entitybase.v1.handlers.entity.status.StatusService") as MockStatusService:
+    def test_semi_protect(
+        self, handler: EntityStatusHandler, mock_state: MagicMock
+    ) -> None:
+        with patch(
+            "models.rest_api.entitybase.v1.handlers.entity.status.StatusService"
+        ) as MockStatusService:
             mock_service = MockStatusService.return_value
-            mock_service.change_status.return_value = self._make_status_response("semi_protected")
+            mock_service.change_status.return_value = self._make_status_response(
+                "semi_protected"
+            )
 
             request = EntityStatusRequest(edit_summary="locking")
             result = handler.semi_protect("Q42", request)
@@ -94,10 +118,16 @@ class TestEntityStatusHandler:
             assert result.status == "semi_protected"
             mock_service.change_status.assert_called_once()
 
-    def test_unsemi_protect(self, handler: EntityStatusHandler, mock_state: MagicMock) -> None:
-        with patch("models.rest_api.entitybase.v1.handlers.entity.status.StatusService") as MockStatusService:
+    def test_unsemi_protect(
+        self, handler: EntityStatusHandler, mock_state: MagicMock
+    ) -> None:
+        with patch(
+            "models.rest_api.entitybase.v1.handlers.entity.status.StatusService"
+        ) as MockStatusService:
             mock_service = MockStatusService.return_value
-            mock_service.change_status.return_value = self._make_status_response("unprotected")
+            mock_service.change_status.return_value = self._make_status_response(
+                "unprotected"
+            )
 
             request = EntityStatusRequest(edit_summary="unlocking")
             result = handler.unsemi_protect("Q42", request)
@@ -105,10 +135,16 @@ class TestEntityStatusHandler:
             assert result.status == "unprotected"
             mock_service.change_status.assert_called_once()
 
-    def test_mass_edit_protect(self, handler: EntityStatusHandler, mock_state: MagicMock) -> None:
-        with patch("models.rest_api.entitybase.v1.handlers.entity.status.StatusService") as MockStatusService:
+    def test_mass_edit_protect(
+        self, handler: EntityStatusHandler, mock_state: MagicMock
+    ) -> None:
+        with patch(
+            "models.rest_api.entitybase.v1.handlers.entity.status.StatusService"
+        ) as MockStatusService:
             mock_service = MockStatusService.return_value
-            mock_service.change_status.return_value = self._make_status_response("mass_edit_protected")
+            mock_service.change_status.return_value = self._make_status_response(
+                "mass_edit_protected"
+            )
 
             request = EntityStatusRequest(edit_summary="locking")
             result = handler.mass_edit_protect("Q42", request)
@@ -116,10 +152,16 @@ class TestEntityStatusHandler:
             assert result.id == "Q42"
             mock_service.change_status.assert_called_once()
 
-    def test_mass_edit_unprotect(self, handler: EntityStatusHandler, mock_state: MagicMock) -> None:
-        with patch("models.rest_api.entitybase.v1.handlers.entity.status.StatusService") as MockStatusService:
+    def test_mass_edit_unprotect(
+        self, handler: EntityStatusHandler, mock_state: MagicMock
+    ) -> None:
+        with patch(
+            "models.rest_api.entitybase.v1.handlers.entity.status.StatusService"
+        ) as MockStatusService:
             mock_service = MockStatusService.return_value
-            mock_service.change_status.return_value = self._make_status_response("unprotected")
+            mock_service.change_status.return_value = self._make_status_response(
+                "unprotected"
+            )
 
             request = EntityStatusRequest(edit_summary="unlocking")
             result = handler.mass_edit_unprotect("Q42", request)
@@ -127,14 +169,18 @@ class TestEntityStatusHandler:
             assert result.id == "Q42"
             mock_service.change_status.assert_called_once()
 
-    def test_log_activity_user_not_logged(self, handler: EntityStatusHandler, mock_state: MagicMock) -> None:
+    def test_log_activity_user_not_logged(
+        self, handler: EntityStatusHandler, mock_state: MagicMock
+    ) -> None:
         headers = EditHeaders(x_user_id=0, x_edit_summary="test")
         handler._log_activity(headers, "ENTITY_LOCK", "Q42")
         mock_state.vitess_client.user_repository.log_user_activity.assert_not_called()
 
-    def test_log_activity_failure_logs_warning(self, handler: EntityStatusHandler, mock_state: MagicMock) -> None:
-        mock_state.vitess_client.user_repository.log_user_activity.return_value = MagicMock(
-            success=False, error="DB error"
+    def test_log_activity_failure_logs_warning(
+        self, handler: EntityStatusHandler, mock_state: MagicMock
+    ) -> None:
+        mock_state.vitess_client.user_repository.log_user_activity.return_value = (
+            MagicMock(success=False, error="DB error")
         )
         headers = EditHeaders(x_user_id=123, x_edit_summary="test")
         handler._log_activity(headers, "ENTITY_LOCK", "Q42")

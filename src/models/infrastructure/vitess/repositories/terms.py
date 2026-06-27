@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class TermsRepository(Repository):
-    """Repository for managing deduplicated terms (labels and aliases) in Vitess."""
+    """Repository for managing deduplicated terms (labels and aliases) in database."""
 
     def insert_term(
         self, hash_value: int, term: str, term_type: str

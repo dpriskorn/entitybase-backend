@@ -273,7 +273,7 @@ class StatementService(Service):
         validator: JsonSchemaValidator | None = None,
         schema_version: str | None = None,
     ) -> OperationResult:
-        """Deduplicate and store statements in Vitess and S3 (S3-first approach).
+        """Deduplicate and store statements in database and S3 (S3-first approach).
 
         For each statement:
         1. Validate statement against schema (if validator provided)

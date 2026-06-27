@@ -14,7 +14,7 @@ from models.data.config.vitess import VitessConfig
 logger = logging.getLogger(__name__)
 
 
-class VitessConnectionManager(BaseModel):
+class SqlConnectionManager(BaseModel):
     """Vitess connection manager with connection pooling support."""
 
     config: VitessConfig
@@ -29,7 +29,7 @@ class VitessConnectionManager(BaseModel):
     def model_post_init(self, context: Any) -> None:
         """Initialize the connection pool."""
         logger.debug(
-            f"Creating VitessConnectionManager with config: host='{self.config.host}', port={self.config.port}, database='{self.config.database}', user='{self.config.user}', password_length={len(self.config.password)}"
+            f"Creating SqlConnectionManager with config: host='{self.config.host}', port={self.config.port}, database='{self.config.database}', user='{self.config.user}', password_length={len(self.config.password)}"
         )
         self.pool = queue.Queue(maxsize=self.config.pool_size)
         self.connection_semaphore = threading.Semaphore(
@@ -280,7 +280,7 @@ class VitessConnectionManager(BaseModel):
 class CursorContextManager:
     """Context manager for database cursors that properly handles connection lifecycle."""
 
-    def __init__(self, connection_manager: VitessConnectionManager):
+    def __init__(self, connection_manager: SqlConnectionManager):
         self.connection_manager = connection_manager
         self.connection: Connection | None = None
         self.cursor: Any | None = None

@@ -1,6 +1,6 @@
 """Thanks-related routes."""
 
-from fastapi import APIRouter, Header, Query, Request
+from fastapi import APIRouter, Depends, Query, Request
 
 from models.rest_api.entitybase.v1.handlers.thanks import ThanksHandler
 from models.data.rest_api.v1.entitybase.request.thanks import ThanksListRequest
@@ -8,6 +8,8 @@ from models.data.rest_api.v1.entitybase.response import (
     ThankResponse,
     ThanksListResponse,
 )
+from models.rest_api.auth.dependencies import verify_auth
+from models.rest_api.auth.models import AuthenticatedRequest
 from models.rest_api.utils import raise_validation_error, validate_state_clients
 
 
@@ -22,14 +24,14 @@ def send_thank_endpoint(
     req: Request,
     entity_id: str,
     revision_id: int,
-    user_id: int = Header(..., alias="X-User-ID"),
+    auth: AuthenticatedRequest = Depends(verify_auth),
 ) -> ThankResponse:
     """Send a thank for a specific revision."""
     state = req.app.state.state_handler
     validate_state_clients(state)
 
     handler = ThanksHandler(state=state)
-    result = handler.send_thank(entity_id, revision_id, user_id)
+    result = handler.send_thank(entity_id, revision_id, auth.user.user_id)
     if not isinstance(result, ThankResponse):
         raise_validation_error("Invalid response type", status_code=500)
     return result
