@@ -12,10 +12,13 @@ logger = logging.getLogger(__name__)
 class ThanksRepository(Repository):
     """Repository for managing thanks in database."""
 
-    def send_thank(
+    def send_thank_and_get(
         self, from_user_id: int, entity_id: str, revision_id: int
     ) -> OperationResult:
-        """Send a thank for a revision."""
+        """Send a thank for a revision and return the created thank item.
+
+        This avoids the round-trip pattern of send-then-re-fetch.
+        """
         if from_user_id <= 0 or not entity_id or revision_id <= 0:
             return OperationResult(success=False, error="Invalid parameters")
 
@@ -64,9 +67,36 @@ class ThanksRepository(Repository):
                                         revision_id,
                                     ),
                                 )
-                                result = OperationResult(
-                                    success=True, data=cursor.lastrowid
+                                thank_id = cursor.lastrowid
+                                cursor.execute(
+                                    """
+                                    SELECT t.id, t.from_user_id, t.to_user_id, m.entity_id, t.revision_id, t.created_at
+                                    FROM user_thanks t
+                                    JOIN entity_id_mapping m ON t.internal_entity_id = m.internal_id
+                                    WHERE t.id = %s
+                                    """,
+                                    (thank_id,),
                                 )
+                                row = cursor.fetchone()
+                                if row:
+                                    thank_item = ThankItem(
+                                        id=row[0],
+                                        from_user_id=row[1],
+                                        to_user_id=row[2],
+                                        entity_id=row[3],
+                                        revision_id=row[4],
+                                        created_at=row[5],
+                                    )
+                                    logger.debug(
+                                        f"Created thank {thank_item.id} for revision {entity_id}:{revision_id}"
+                                    )
+                                    result = OperationResult(
+                                        success=True, data=thank_item
+                                    )
+                                else:
+                                    result = OperationResult(
+                                        success=False, error="Failed to retrieve created thank"
+                                    )
         except Exception as e:
             logger.error(f"Error sending thank: {e}")
             result = OperationResult(success=False, error=str(e))
