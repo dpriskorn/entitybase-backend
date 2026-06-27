@@ -68,7 +68,7 @@ export const authService = {
 
 export const statsService = {
   getGeneralStats: async (): Promise<GeneralStats> => {
-    const response = await api.get<GeneralStats>('/stats/general')
+    const response = await api.get<GeneralStats>('/stats')
     return response.data
   }
 }
