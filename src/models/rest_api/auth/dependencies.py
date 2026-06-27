@@ -1,8 +1,8 @@
 """FastAPI authentication dependencies."""
 
 import logging
-from collections.abc import Callable
-from typing import Annotated
+from collections.abc import Callable, Coroutine
+from typing import Annotated, Any
 
 from fastapi import Depends, Header, HTTPException, status
 
@@ -73,7 +73,7 @@ async def verify_auth(
 
 def require_role(
     *roles: UserRole,
-) -> Callable[[AuthenticatedRequest], AuthenticatedRequest]:
+) -> Callable[[AuthenticatedRequest], Coroutine[Any, Any, AuthenticatedRequest]]:
     """Dependency factory for role-based access control.
 
     Usage:

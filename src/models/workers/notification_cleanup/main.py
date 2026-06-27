@@ -90,7 +90,7 @@ class NotificationCleanupWorker(MysqlWorker):
         """Delete notifications older than cutoff date."""
         if self.mysql_client is None:
             raise RuntimeError("database client not initialized")
-        with self.mysql_client.connection_manager.connection.cursor() as cursor:
+        with self.mysql_client.cursor as cursor:
             cursor.execute(
                 "DELETE FROM user_notifications WHERE event_timestamp < %s",
                 (cutoff_date.isoformat() + "Z",),
