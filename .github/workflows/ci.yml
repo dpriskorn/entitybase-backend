@@ -42,7 +42,7 @@ jobs:
   be-unit-01:
     runs-on: ubuntu-latest
     needs: be-lint
-    timeout-minutes: 10
+    timeout-minutes: 5
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -60,7 +60,7 @@ jobs:
   be-unit-02:
     runs-on: ubuntu-latest
     needs: be-lint
-    timeout-minutes: 10
+    timeout-minutes: 5
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -78,7 +78,7 @@ jobs:
   be-unit-03:
     runs-on: ubuntu-latest
     needs: be-lint
-    timeout-minutes: 10
+    timeout-minutes: 5
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -96,7 +96,7 @@ jobs:
   be-unit-04:
     runs-on: ubuntu-latest
     needs: be-lint
-    timeout-minutes: 10
+    timeout-minutes: 5
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -210,7 +210,7 @@ jobs:
           S3_BUCKET: testbucket
           REST_API_URL: http://localhost:8000
         run: poetry run pytest tests/contract/ -v -m contract --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append --junitxml=junit.xml -o junit_family=legacy
-        timeout-minutes: 10
+        timeout-minutes: 5
 
       # === INTEGRATION TESTS ===
       - name: Run integration tests (01 - first 50)
@@ -222,7 +222,7 @@ jobs:
           REST_API_URL: http://localhost:8000
           STREAMING_ENABLED: "false"
         run: poetry run pytest tests/integration -k "test_app or test_id_resolver or test_connection_pool" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
-        timeout-minutes: 10
+        timeout-minutes: 5
 
       - name: Run integration tests (02 - mid 50)
         env:
@@ -233,7 +233,7 @@ jobs:
           REST_API_URL: http://localhost:8000
           STREAMING_ENABLED: "false"
         run: poetry run pytest tests/integration -k "test_watchlist or test_entity_deletion or test_item_terms" -m "not requires_kafka" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
-        timeout-minutes: 10
+        timeout-minutes: 5
 
       - name: Run integration tests (03 - late 50a)
         env:
@@ -244,7 +244,7 @@ jobs:
           REST_API_URL: http://localhost:8000
           STREAMING_ENABLED: "false"
         run: poetry run pytest tests/integration -k "test_json_import or test_lexeme or test_entity_base or test_json_parser or test_rest_api" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
-        timeout-minutes: 10
+        timeout-minutes: 5
 
       - name: Run integration tests (04 - late 50b)
         env:
@@ -255,7 +255,7 @@ jobs:
           REST_API_URL: http://localhost:8000
           STREAMING_ENABLED: "false"
         run: poetry run pytest tests/integration -k "test_cas_update or test_create_revision or test_create_with_cas or test_entity_history or test_entity_retrieval or test_get_content_hash or test_get_head_revision or test_hard_delete or test_insert_revision or test_read_revision or test_soft_delete" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
-        timeout-minutes: 10
+        timeout-minutes: 5
 
       - name: Upload total coverage to Codecov
         uses: codecov/codecov-action@v5
