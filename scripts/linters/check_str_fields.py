@@ -78,7 +78,13 @@ def check_file(file_path: Path, allowlist: set[str]) -> list[tuple[str, int, str
                         )
                     )
                 # Look for str | None (union type)
-                elif "str | None" in line and not "Field(default=None)" in line:
+                # Skip FastAPI Header() dependency annotations - they use Annotated[..., Header()] = None
+                # which is not a Pydantic Field and cannot be replaced with Field(default="")
+                elif (
+                    "str | None" in line
+                    and not "Field(default=None)" in line
+                    and not ("Annotated[" in line and "Header(" in line)
+                ):
                     violations.append(
                         (
                             str(file_path),
