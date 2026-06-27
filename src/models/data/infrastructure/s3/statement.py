@@ -20,7 +20,6 @@ class StatementData(BaseModel):
     qualifiers: Any = None
     references: Any = None
     qualifiers_order: list[str] | None = None
-    references_hash: int | None = None
 
 
 class S3Statement(BaseModel):
