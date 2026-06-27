@@ -48,6 +48,11 @@ class CreateBuckets(BaseModel):
         # noinspection PyPep8
         from models.config.settings import settings
 
+        logger.info(
+            f"CreateBuckets init: endpoint={self.rustfs_endpoint}, "
+            f"access_key={self.rustfs_access_key[:4]}..., "
+            f"env_RUSTFS_ENDPOINT={os.getenv('RUSTFS_ENDPOINT')}"
+        )
         self.required_buckets: List[str] = [
             settings.s3_revisions_bucket,
             settings.s3_dump_bucket,
@@ -59,12 +64,14 @@ class CreateBuckets(BaseModel):
             f"Creating S3 client with endpoint={self.rustfs_endpoint}, "
             f"access_key={self.rustfs_access_key[:4]}..."
         )
-        return _boto3.client(
+        client = _boto3.client(
             "s3",
             endpoint_url=self.rustfs_endpoint,
             aws_access_key_id=self.rustfs_access_key,
             aws_secret_access_key=self.rustfs_secret_key,
         )
+        logger.debug(f"S3 client created, verifying connection...")
+        return client
 
     def get_s3_client(self) -> Any:
         """Get S3 client, creating it if necessary."""
