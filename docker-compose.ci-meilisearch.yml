@@ -1,6 +1,6 @@
 services:
   rustfs:
-    image: ghcr.io/so9q/rustfs:1.0.0-beta.8
+    image: rustfs/rustfs:1.0.0-beta.8
     container_name: rustfs
     ports:
       - "9000:9000"
@@ -8,10 +8,11 @@ services:
       RUSTFS_USER: fakekey
       RUSTFS_PASSWORD: fakesecret
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
+      test: ["CMD-SHELL", "curl -sf http://localhost:9000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     mem_limit: 512m
     cpus: 0.5
 
