@@ -199,7 +199,7 @@ class TestEntityRevertHandlerCreateRevisionData:
         edit_headers = EditHeaders(x_edit_summary="Revert")
 
         result = await handler._create_revision_data(
-            "Q42", target_data, 11, edit_headers
+            "Q42", target_data, 11, edit_headers, user_id=123
         )
 
         assert result.revision_id == 11
@@ -356,7 +356,7 @@ class TestEntityRevertHandlerPublishChangeEvent:
             "models.rest_api.entitybase.v1.handlers.entity.revert.settings"
         ) as mock_settings:
             mock_settings.streaming_enabled = True
-            await handler._publish_change_event("Q42", 11, 5, edit_headers)
+            await handler._publish_change_event("Q42", 11, 5, edit_headers, 123)
 
         mock_producer.publish.assert_awaited_once()
         published_event = mock_producer.publish.call_args[0][0]
@@ -455,7 +455,7 @@ class TestEntityRevertHandlerRevertEntity:
         mock_read_s3.assert_called_once_with("Q42", 3)
         mock_head.assert_called_once_with(42)
         mock_store.assert_called_once()
-        mock_publish.assert_called_once_with("Q42", 11, 10, edit_headers)
+        mock_publish.assert_called_once_with("Q42", 11, 10, edit_headers, user_id=123)
 
     @pytest.mark.asyncio
     async def test_revert_entity_logs_user_activity_success(self) -> None:

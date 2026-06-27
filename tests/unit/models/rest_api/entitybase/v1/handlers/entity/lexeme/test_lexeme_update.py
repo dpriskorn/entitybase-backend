@@ -298,6 +298,6 @@ class TestEntityUpdateLexemeMixin:
             "models.rest_api.entitybase.v1.handlers.entity.update_lexeme.UpdateTransaction",
             return_value=mock_tx,
         ):
-            await mixin.update_lexeme("L123", request, edit_headers)
+            await mixin.update_lexeme("L123", request, edit_headers, user_id=123)
 
         mixin.state.mysql_client.user_repository.log_user_activity.assert_awaited_once()

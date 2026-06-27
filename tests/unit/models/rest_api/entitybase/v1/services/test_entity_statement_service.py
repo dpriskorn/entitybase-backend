@@ -754,6 +754,7 @@ class TestEntityStatementService:
             entity_id="Q1",
             head_revision_id=41,
             edit_headers=edit_headers,
+            user_id=5,
         )
 
         assert result == 42

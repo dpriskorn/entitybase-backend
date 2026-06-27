@@ -26,10 +26,10 @@ class TestThanksHandlerMethods:
 
     @pytest.fixture
     def mock_thank_item(self):
-        """Create a mock thank item."""
-        from models.data.infrastructure.mysql.records.thanks import ThankItem
+        """Create a mock thank item response."""
+        from models.data.rest_api.v1.entitybase.response import ThankItemResponse
 
-        return ThankItem(
+        return ThankItemResponse(
             id=1,
             from_user_id=42,
             to_user_id=7,

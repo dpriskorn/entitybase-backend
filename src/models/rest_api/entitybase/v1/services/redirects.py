@@ -166,8 +166,8 @@ class RedirectService(Service):
             request.redirect_from_id,
             request.redirect_to_id,
             edit_headers,
-            user_id,
             from_head_revision_id,
+            user_id,
         )
 
         logger.debug("Creating revision in database")

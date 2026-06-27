@@ -411,7 +411,7 @@ class TestDeleteService:
         assert True  # No exception raised
 
     # decrement_term_references
-    @patch("models.infrastructure.mysql.repositories.terms.TermsRepository")
+    @patch("models.rest_api.entitybase.v1.services.delete_service.TermsRepository")
     def test_decrement_term_references_success(self, mock_terms_repo_class) -> None:
         """Test decrementing term references for labels, descriptions, aliases."""
         mock_state = MagicMock()
@@ -435,7 +435,7 @@ class TestDeleteService:
         assert mock_terms_repo.decrement_ref_count.call_count == 4
         mock_terms_repo.delete_term.assert_not_called()
 
-    @patch("models.infrastructure.mysql.repositories.terms.TermsRepository")
+    @patch("models.rest_api.entitybase.v1.services.delete_service.TermsRepository")
     def test_decrement_term_references_deletes_orphaned(
         self, mock_terms_repo_class
     ) -> None:
@@ -461,7 +461,7 @@ class TestDeleteService:
         mock_terms_repo.decrement_ref_count.assert_called_once_with(12345)
         mock_terms_repo.delete_term.assert_called_once_with(12345)
 
-    @patch("models.infrastructure.mysql.repositories.terms.TermsRepository")
+    @patch("models.rest_api.entitybase.v1.services.delete_service.TermsRepository")
     def test_decrement_term_references_descriptions_exception(
         self, mock_terms_repo_class
     ) -> None:
@@ -483,7 +483,7 @@ class TestDeleteService:
 
         assert True  # No exception raised
 
-    @patch("models.infrastructure.mysql.repositories.terms.TermsRepository")
+    @patch("models.rest_api.entitybase.v1.services.delete_service.TermsRepository")
     def test_decrement_term_references_aliases_exception(
         self, mock_terms_repo_class
     ) -> None:
@@ -505,7 +505,7 @@ class TestDeleteService:
 
         assert True  # No exception raised
 
-    @patch("models.infrastructure.mysql.repositories.terms.TermsRepository")
+    @patch("models.rest_api.entitybase.v1.services.delete_service.TermsRepository")
     def test_decrement_term_references_descriptions_deletes_orphaned(
         self, mock_terms_repo_class
     ) -> None:
@@ -531,7 +531,7 @@ class TestDeleteService:
         mock_terms_repo.decrement_ref_count.assert_called_once_with(12345)
         mock_terms_repo.delete_term.assert_called_once_with(12345)
 
-    @patch("models.infrastructure.mysql.repositories.terms.TermsRepository")
+    @patch("models.rest_api.entitybase.v1.services.delete_service.TermsRepository")
     def test_decrement_term_references_aliases_deletes_orphaned(
         self, mock_terms_repo_class
     ) -> None:
@@ -557,7 +557,7 @@ class TestDeleteService:
         mock_terms_repo.decrement_ref_count.assert_called_once_with(12345)
         mock_terms_repo.delete_term.assert_called_once_with(12345)
 
-    @patch("models.infrastructure.mysql.repositories.terms.TermsRepository")
+    @patch("models.rest_api.entitybase.v1.services.delete_service.TermsRepository")
     def test_decrement_term_references_handles_failure(
         self, mock_terms_repo_class
     ) -> None:
