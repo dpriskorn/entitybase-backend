@@ -439,8 +439,7 @@ class EntityUpdateTermsMixin(BaseModel):
     async def add_alias(
         self,
         entity_id: str,
-        language_code: str,
-        alias: str,
+        context: AliasContext,
         edit_operation_context: EditOperationContext,
         validator: Any | None = None,
     ) -> EntityResponse:
@@ -455,8 +454,9 @@ class EntityUpdateTermsMixin(BaseModel):
         from models.internal_representation.metadata_extractor import MetadataExtractor
         from models.infrastructure.mysql.repositories.terms import TermsRepository
 
+        alias = context.aliases[0] if context.aliases else ""
         logger.debug(
-            f"Adding alias '{alias}' for entity {entity_id}, language {language_code}"
+            f"Adding alias '{alias}' for entity {entity_id}, language {context.language_code}"
         )
 
         entity_type = infer_entity_type_from_id(entity_id)
@@ -474,15 +474,15 @@ class EntityUpdateTermsMixin(BaseModel):
 
         existing_hashes = current_entity.entity_data.revision.get("hashes", {})
         aliases_hashes = existing_hashes.get("aliases", {})
-        existing_alias_hashes = list(aliases_hashes.get(language_code, []))
+        existing_alias_hashes = list(aliases_hashes.get(context.language_code, []))
 
         new_alias_hash = MetadataExtractor.hash_string(alias)
         if new_alias_hash in existing_alias_hashes:
             logger.warning(
-                f"Alias '{alias}' already exists for entity {entity_id}, language {language_code}"
+                f"Alias '{alias}' already exists for entity {entity_id}, language {context.language_code}"
             )
             raise_validation_error(
-                f"Alias '{alias}' already exists for language {language_code}",
+                f"Alias '{alias}' already exists for language {context.language_code}",
                 status_code=409,
             )
 
@@ -493,7 +493,7 @@ class EntityUpdateTermsMixin(BaseModel):
 
         updated_alias_hashes = existing_alias_hashes + [new_alias_hash]
         updated_aliases_hashes = dict(aliases_hashes)
-        updated_aliases_hashes[language_code] = updated_alias_hashes
+        updated_aliases_hashes[context.language_code] = updated_alias_hashes
 
         updated_hashes = dict(existing_hashes)
         updated_hashes["aliases"] = updated_aliases_hashes
