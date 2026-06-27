@@ -19,4 +19,5 @@ if [ -n "$frontend_files" ]; then
     echo "Changes detected in frontend/. Running fe-lint..."
     echo "$frontend_files"
     make fe-lint
+    make fe-tests
 fi
