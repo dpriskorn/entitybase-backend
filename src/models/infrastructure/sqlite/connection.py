@@ -60,6 +60,10 @@ class SqliteCursorWrapper(Base):
     def rowcount(self) -> int:
         return self._cursor.rowcount
 
+    @property
+    def lastrowid(self) -> int | None:
+        return self._cursor.lastrowid
+
     def __iter__(self) -> Any:
         return iter(self._cursor.fetchall())
 
@@ -88,6 +92,22 @@ class SqliteCursorContextManager(Base):
             except Exception as e:
                 logger.warning(f"Error closing SQLite cursor: {e}")
         return False
+
+
+class SqliteConnectionWrapper(Base):
+    """Wrapper for SQLite connection to provide MySQL-compatible interface.
+
+    This wrapper provides a cursor() method that returns a SqliteCursorWrapper,
+    allowing existing code using connection.cursor() to work with SQLite.
+    """
+
+    def __init__(self, connection_manager: "SqliteConnectionManager") -> None:
+        self.connection_manager = connection_manager
+        super().__init__()
+
+    def cursor(self) -> SqliteCursorWrapper:
+        """Create a cursor wrapper around the SQLite connection."""
+        return self.connection_manager.cursor()
 
 
 class SqliteConnectionManager(ConnectionManager):
@@ -137,6 +157,24 @@ class SqliteConnectionManager(ConnectionManager):
         if self.conn is None:
             raise RuntimeError("Failed to establish SQLite connection")
         return SqliteCursorWrapper(self.conn.cursor())
+
+    def acquire(self) -> SqliteConnectionWrapper:
+        """Acquire a connection wrapper for MySQL-compatible interface.
+
+        Returns a SqliteConnectionWrapper that provides a cursor() method,
+        allowing existing code using connection.cursor() to work with SQLite.
+        """
+        if self.conn is None:
+            self.connect()
+        return SqliteConnectionWrapper(connection_manager=self)
+
+    def release(self, connection: Any = None) -> None:
+        """Release a connection back to the pool.
+
+        For SQLite, this is a no-op since there's no connection pool.
+        The connection remains open for reuse.
+        """
+        pass
 
     def disconnect(self) -> None:
         """Close the SQLite connection."""
