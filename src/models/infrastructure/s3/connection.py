@@ -48,7 +48,7 @@ class S3ConnectionManager(ConnectionManager):
         try:
             self.connect()
             if self.minio_client is not None:
-                return self.minio_client.bucket_exists(self.config.bucket)
+                return bool(self.minio_client.bucket_exists(self.config.bucket))
             return False
         except Exception as e:
             logger.error(e)
