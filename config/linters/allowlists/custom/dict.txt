@@ -23,4 +23,5 @@ src/models/rest_api/entitybase/v1/routes/resolve.py:196
 src/models/rest_api/main.py:296
 src/models/rest_api/main.py:300
 src/models/rest_api/entitybase/v1/services/status_service.py:260
+src/models/rest_api/main.py:316
 src/models/rest_api/main.py:332
