@@ -13,20 +13,11 @@ sys.path.insert(0, "src")
 
 from models.config.settings import settings
 
-aws_loggers = [
-    "botocore",
-    "boto3",
+minio_loggers = [
     "urllib3",
-    "s3transfer",
-    "botocore.hooks",
-    "botocore.retryhandler",
-    "botocore.utils",
-    "botocore.parsers",
-    "botocore.endpoint",
-    "botocore.auth",
 ]
 
-for logger_name in aws_loggers:
+for logger_name in minio_loggers:
     logging.getLogger(logger_name).setLevel(logging.INFO)
 logger = logging.getLogger(__name__)
 

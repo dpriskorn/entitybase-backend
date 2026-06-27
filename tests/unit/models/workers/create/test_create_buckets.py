@@ -2,7 +2,7 @@
 
 import pytest
 from unittest.mock import MagicMock, AsyncMock, patch
-from botocore.exceptions import ClientError
+from minio.error import S3Error
 
 from models.workers.create.create_buckets import (
     CreateBuckets,
@@ -42,8 +42,6 @@ class TestCreateBuckets:
             "models.workers.create.create_buckets.CreateBuckets.model_post_init"
         ):
             worker = CreateBuckets()
-            # The model_post_init sets required_buckets from settings
-            # Just verify the attribute can be set
             worker.required_buckets = ["test-bucket"]
             assert "test-bucket" in worker.required_buckets
 
@@ -69,16 +67,15 @@ class TestCreateBuckets:
             worker = CreateBuckets()
             worker.required_buckets = ["test-bucket"]
 
-            mock_s3 = MagicMock()
-            mock_s3.head_bucket.return_value = None
+            mock_minio = MagicMock()
+            mock_minio.bucket_exists.return_value = True
 
-            with patch("models.workers.create.create_buckets._boto3") as mock_boto3:
-                mock_boto3.client.return_value = mock_s3
-
+            with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
+                mock_minio_class.return_value = mock_minio
                 result = await worker.ensure_buckets_exist()
 
                 assert result["test-bucket"] == "exists"
-                mock_s3.head_bucket.assert_called_once_with(Bucket="test-bucket")
+                mock_minio.bucket_exists.assert_called_once_with("test-bucket")
 
     @pytest.mark.asyncio
     async def test_ensure_buckets_exist_bucket_created(self):
@@ -89,17 +86,15 @@ class TestCreateBuckets:
             worker = CreateBuckets()
             worker.required_buckets = ["new-bucket"]
 
-            mock_s3 = MagicMock()
-            error_response = {"Error": {"Code": "404", "Message": "Not Found"}}
-            mock_s3.head_bucket.side_effect = ClientError(error_response, "HeadBucket")
+            mock_minio = MagicMock()
+            mock_minio.bucket_exists.return_value = False
 
-            with patch("models.workers.create.create_buckets._boto3") as mock_boto3:
-                mock_boto3.client.return_value = mock_s3
-
+            with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
+                mock_minio_class.return_value = mock_minio
                 result = await worker.ensure_buckets_exist()
 
                 assert result["new-bucket"] == "created"
-                mock_s3.create_bucket.assert_called_once_with(Bucket="new-bucket")
+                mock_minio.make_bucket.assert_called_once_with("new-bucket")
 
     @pytest.mark.asyncio
     async def test_ensure_buckets_exist_create_failure(self):
@@ -110,39 +105,33 @@ class TestCreateBuckets:
             worker = CreateBuckets()
             worker.required_buckets = ["fail-bucket"]
 
-            mock_s3 = MagicMock()
-            not_found_response = {"Error": {"Code": "404", "Message": "Not Found"}}
-            mock_s3.head_bucket.side_effect = ClientError(
-                not_found_response, "HeadBucket"
-            )
-            mock_s3.create_bucket.side_effect = Exception("Create failed")
+            mock_minio = MagicMock()
+            mock_minio.bucket_exists.return_value = False
+            mock_minio.make_bucket.side_effect = S3Error("Internal Error", "make_bucket")
 
-            with patch("models.workers.create.create_buckets._boto3") as mock_boto3:
-                mock_boto3.client.return_value = mock_s3
-
+            with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
+                mock_minio_class.return_value = mock_minio
                 result = await worker.ensure_buckets_exist()
 
                 assert "create_failed" in result["fail-bucket"]
 
     @pytest.mark.asyncio
-    async def test_ensure_buckets_exist_other_client_error(self):
-        """Test ensure_buckets_exist with other ClientError."""
+    async def test_ensure_buckets_exist_other_s3_error(self):
+        """Test ensure_buckets_exist with other S3Error."""
         with patch(
             "models.workers.create.create_buckets.CreateBuckets.model_post_init"
         ):
             worker = CreateBuckets()
             worker.required_buckets = ["error-bucket"]
 
-            mock_s3 = MagicMock()
-            error_response = {"Error": {"Code": "500", "Message": "Internal Error"}}
-            mock_s3.head_bucket.side_effect = ClientError(error_response, "HeadBucket")
+            mock_minio = MagicMock()
+            mock_minio.bucket_exists.side_effect = S3Error("Internal Error", "head_bucket")
 
-            with patch("models.workers.create.create_buckets._boto3") as mock_boto3:
-                mock_boto3.client.return_value = mock_s3
-
+            with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
+                mock_minio_class.return_value = mock_minio
                 result = await worker.ensure_buckets_exist()
 
-                assert "error: 500" in result["error-bucket"]
+                assert "error: InternalError" in result["error-bucket"]
 
     @pytest.mark.asyncio
     async def test_ensure_buckets_exist_unexpected_error(self):
@@ -153,12 +142,11 @@ class TestCreateBuckets:
             worker = CreateBuckets()
             worker.required_buckets = ["unexpected-bucket"]
 
-            mock_s3 = MagicMock()
-            mock_s3.head_bucket.side_effect = ValueError("Unexpected")
+            mock_minio = MagicMock()
+            mock_minio.bucket_exists.side_effect = ValueError("Unexpected")
 
-            with patch("models.workers.create.create_buckets._boto3") as mock_boto3:
-                mock_boto3.client.return_value = mock_s3
-
+            with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
+                mock_minio_class.return_value = mock_minio
                 result = await worker.ensure_buckets_exist()
 
                 assert "unexpected_error" in result["unexpected-bucket"]
@@ -172,12 +160,11 @@ class TestCreateBuckets:
             worker = CreateBuckets()
             worker.required_buckets = ["cleanup-bucket"]
 
-            mock_s3 = MagicMock()
-            mock_s3.list_objects_v2.return_value = {}
+            mock_minio = MagicMock()
+            mock_minio.list_objects.return_value = []
 
-            with patch("models.workers.create.create_buckets._boto3") as mock_boto3:
-                mock_boto3.client.return_value = mock_s3
-
+            with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
+                mock_minio_class.return_value = mock_minio
                 result = await worker.cleanup_buckets()
 
                 assert result["cleanup-bucket"] == "deleted"
@@ -191,21 +178,21 @@ class TestCreateBuckets:
             worker = CreateBuckets()
             worker.required_buckets = ["bucket-with-objects"]
 
-            mock_s3 = MagicMock()
-            mock_s3.list_objects_v2.return_value = {
-                "Contents": [
-                    {"Key": "object1"},
-                    {"Key": "object2"},
-                ]
-            }
+            mock_obj = MagicMock()
+            mock_obj.object_name = "object1"
 
-            with patch("models.workers.create.create_buckets._boto3") as mock_boto3:
-                mock_boto3.client.return_value = mock_s3
+            mock_obj2 = MagicMock()
+            mock_obj2.object_name = "object2"
 
+            mock_minio = MagicMock()
+            mock_minio.list_objects.return_value = [mock_obj, mock_obj2]
+
+            with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
+                mock_minio_class.return_value = mock_minio
                 result = await worker.cleanup_buckets()
 
                 assert result["bucket-with-objects"] == "deleted"
-                assert mock_s3.delete_object.call_count == 2
+                assert mock_minio.remove_object.call_count == 2
 
     @pytest.mark.asyncio
     async def test_cleanup_buckets_not_found(self):
@@ -216,15 +203,12 @@ class TestCreateBuckets:
             worker = CreateBuckets()
             worker.required_buckets = ["missing-bucket"]
 
-            mock_s3 = MagicMock()
-            error_response = {"Error": {"Code": "NoSuchBucket", "Message": "Not Found"}}
-            mock_s3.list_objects_v2.side_effect = ClientError(
-                error_response, "ListObjectsV2"
-            )
+            mock_minio = MagicMock()
+            mock_minio.list_objects.side_effect = S3Error("NoSuchBucket", "list_objects")
+            mock_minio.remove_bucket.side_effect = S3Error("NoSuchBucket", "remove_bucket")
 
-            with patch("models.workers.create.create_buckets._boto3") as mock_boto3:
-                mock_boto3.client.return_value = mock_s3
-
+            with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
+                mock_minio_class.return_value = mock_minio
                 result = await worker.cleanup_buckets()
 
                 assert result["missing-bucket"] == "not_found"
@@ -238,16 +222,12 @@ class TestCreateBuckets:
             worker = CreateBuckets()
             worker.required_buckets = ["delete-fail-bucket"]
 
-            mock_s3 = MagicMock()
-            mock_s3.list_objects_v2.return_value = {}
-            error_response = {"Error": {"Code": "AccessDenied", "Message": "Denied"}}
-            mock_s3.delete_bucket.side_effect = ClientError(
-                error_response, "DeleteBucket"
-            )
+            mock_minio = MagicMock()
+            mock_minio.list_objects.return_value = []
+            mock_minio.remove_bucket.side_effect = S3Error("AccessDenied", "remove_bucket")
 
-            with patch("models.workers.create.create_buckets._boto3") as mock_boto3:
-                mock_boto3.client.return_value = mock_s3
-
+            with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
+                mock_minio_class.return_value = mock_minio
                 result = await worker.cleanup_buckets()
 
                 assert "delete_failed" in result["delete-fail-bucket"]
@@ -261,12 +241,11 @@ class TestCreateBuckets:
             worker = CreateBuckets()
             worker.required_buckets = ["healthy-bucket"]
 
-            mock_s3 = MagicMock()
-            mock_s3.head_bucket.return_value = None
+            mock_minio = MagicMock()
+            mock_minio.bucket_exists.return_value = True
 
-            with patch("models.workers.create.create_buckets._boto3") as mock_boto3:
-                mock_boto3.client.return_value = mock_s3
-
+            with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
+                mock_minio_class.return_value = mock_minio
                 result = await worker.bucket_health_check()
 
                 assert result["overall_status"] == "healthy"
@@ -281,13 +260,11 @@ class TestCreateBuckets:
             worker = CreateBuckets()
             worker.required_buckets = ["unhealthy-bucket"]
 
-            mock_s3 = MagicMock()
-            error_response = {"Error": {"Code": "403", "Message": "Forbidden"}}
-            mock_s3.head_bucket.side_effect = ClientError(error_response, "HeadBucket")
+            mock_minio = MagicMock()
+            mock_minio.bucket_exists.side_effect = S3Error("Forbidden", "bucket_exists")
 
-            with patch("models.workers.create.create_buckets._boto3") as mock_boto3:
-                mock_boto3.client.return_value = mock_s3
-
+            with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
+                mock_minio_class.return_value = mock_minio
                 result = await worker.bucket_health_check()
 
                 assert result["overall_status"] == "unhealthy"
@@ -303,12 +280,11 @@ class TestCreateBuckets:
             worker = CreateBuckets()
             worker.required_buckets = ["setup-bucket"]
 
-            mock_s3 = MagicMock()
-            mock_s3.head_bucket.return_value = None
+            mock_minio = MagicMock()
+            mock_minio.bucket_exists.return_value = True
 
-            with patch("models.workers.create.create_buckets._boto3") as mock_boto3:
-                mock_boto3.client.return_value = mock_s3
-
+            with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
+                mock_minio_class.return_value = mock_minio
                 result = await worker.run_setup()
 
                 assert result["setup_status"] == "completed"
@@ -324,13 +300,11 @@ class TestCreateBuckets:
             worker = CreateBuckets()
             worker.required_buckets = ["fail-bucket"]
 
-            mock_s3 = MagicMock()
-            error_response = {"Error": {"Code": "403", "Message": "Forbidden"}}
-            mock_s3.head_bucket.side_effect = ClientError(error_response, "HeadBucket")
+            mock_minio = MagicMock()
+            mock_minio.bucket_exists.side_effect = S3Error("Forbidden", "bucket_exists")
 
-            with patch("models.workers.create.create_buckets._boto3") as mock_boto3:
-                mock_boto3.client.return_value = mock_s3
-
+            with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
+                mock_minio_class.return_value = mock_minio
                 result = await worker.run_setup()
 
                 assert result["setup_status"] == "failed"
@@ -348,16 +322,14 @@ class TestCreateBuckets:
             )
             worker.required_buckets = []
 
-            with patch("models.workers.create.create_buckets._boto3") as mock_boto3:
-                mock_boto3.client.return_value = MagicMock()
+            with patch("models.workers.create.create_buckets.Minio") as mock_minio_class:
+                mock_minio_class.return_value = MagicMock()
                 _ = worker.get_s3_client()
-                mock_boto3.client.assert_called_once_with(
-                    "s3",
-                    endpoint_url="http://custom:9000",
-                    aws_access_key_id="mykey",
-                    aws_secret_access_key="mysecret",
-                    config=mock.ANY,
-                    region_name="us-east-1",
+                mock_minio_class.assert_called_once_with(
+                    "http://custom:9000",
+                    access_key="mykey",
+                    secret_key="mysecret",
+                    secure=False,
                 )
 
 

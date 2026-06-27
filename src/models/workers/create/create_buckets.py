@@ -5,9 +5,8 @@ import os
 import sys
 from typing import Any, Dict, List, TypedDict
 
-import boto3 as _boto3  # noqa  # type: ignore[import-untyped]
-from botocore.config import Config  # type: ignore[import-untyped]
-from botocore.exceptions import ClientError  # type: ignore[import-untyped]
+from minio import Minio
+from minio.error import S3Error
 from pydantic import BaseModel, Field
 
 
@@ -61,25 +60,18 @@ class CreateBuckets(BaseModel):
 
     def _create_s3_client(self) -> Any:
         """Create S3 client with shared credentials for all buckets."""
-        from models.data.infrastructure.s3.adressing import S3Adressing
-
         logger.info(
             f"Creating S3 client with endpoint={self.rustfs_endpoint}, "
             f"access_key={self.rustfs_access_key[:4]}..."
         )
-        client = _boto3.client(
-            "s3",
-            endpoint_url=self.rustfs_endpoint,
-            aws_access_key_id=self.rustfs_access_key,
-            aws_secret_access_key=self.rustfs_secret_key,
-            config=Config(
-                signature_version="s3v4",
-                s3=S3Adressing().model_dump(),
-            ),
-            region_name="us-east-1",
+        self.s3_client = Minio(
+            self.rustfs_endpoint,
+            access_key=self.rustfs_access_key,
+            secret_key=self.rustfs_secret_key,
+            secure=False,
         )
-        logger.debug(f"S3 client created, verifying connection...")
-        return client
+        logger.debug("S3 client created, verifying connection...")
+        return self.s3_client
 
     def get_s3_client(self) -> Any:
         """Get S3 client, creating it if necessary."""
@@ -93,30 +85,25 @@ class CreateBuckets(BaseModel):
 
         for bucket in self.required_buckets:
             try:
-                # Check if bucket exists
-                self.get_s3_client().head_bucket(Bucket=bucket)
-                results[bucket] = "exists"
-                logger.info(f"Bucket already exists: {bucket}")
-            except ClientError as e:
-                # Handle AWS/MinIO client errors
-                error_code = e.response["Error"]["Code"]
-                if error_code in {"404", "NoSuchBucket"}:
-                    # Bucket doesn't exist, create it
+                if self.get_s3_client().bucket_exists(bucket):
+                    results[bucket] = "exists"
+                    logger.info(f"Bucket already exists: {bucket}")
+                else:
                     try:
-                        self.get_s3_client().create_bucket(Bucket=bucket)
+                        self.get_s3_client().make_bucket(bucket)
                         results[bucket] = "created"
                         logger.info(f"Created bucket: {bucket}")
-                    except Exception as create_error:
+                    except S3Error as create_error:
                         results[bucket] = f"create_failed: {create_error}"
                         logger.error(
                             f"Failed to create bucket {bucket}: {create_error}"
                         )
-                else:
-                    results[bucket] = f"error: {error_code}"
-                    logger.error(
-                        f"Error checking bucket {bucket}: {error_code} - "
-                        f"response: {e.response}"
-                    )
+            except S3Error as e:
+                results[bucket] = f"error: {e.code}"
+                logger.error(
+                    f"Error checking bucket {bucket}: {e.code} - "
+                    f"response: {e}"
+                )
             except Exception as e:
                 results[bucket] = f"unexpected_error: {e}"
                 logger.error(f"Unexpected error with bucket {bucket}: {e}")
@@ -129,26 +116,24 @@ class CreateBuckets(BaseModel):
 
         for bucket in self.required_buckets:
             try:
-                # Delete all objects in bucket first
-                objects = self.get_s3_client().list_objects_v2(Bucket=bucket)
-                if "Contents" in objects:
-                    for obj in objects["Contents"]:
-                        self.get_s3_client().delete_object(
-                            Bucket=bucket, Key=obj["Key"]
-                        )
-
-                # Delete the bucket
-                self.get_s3_client().delete_bucket(Bucket=bucket)
-                results[bucket] = "deleted"
-                logger.info(f"Deleted bucket: {bucket}")
-            except ClientError as e:
-                error_code = e.response["Error"]["Code"]
-                if error_code == "NoSuchBucket":
-                    results[bucket] = "not_found"
-                    logger.info(f"Bucket does not exist: {bucket}")
-                else:
-                    results[bucket] = f"delete_failed: {error_code}"
-                    logger.error(f"Failed to delete bucket {bucket}: {error_code}")
+                client = self.get_s3_client()
+                try:
+                    objects = client.list_objects(bucket)
+                    for obj in objects:
+                        client.remove_object(bucket, obj.object_name)
+                except S3Error:
+                    pass
+                try:
+                    client.remove_bucket(bucket)
+                    results[bucket] = "deleted"
+                    logger.info(f"Deleted bucket: {bucket}")
+                except S3Error as e:
+                    if e.code == "NoSuchBucket":
+                        results[bucket] = "not_found"
+                        logger.info(f"Bucket does not exist: {bucket}")
+                    else:
+                        results[bucket] = f"delete_failed: {e.code}"
+                        logger.error(f"Failed to delete bucket {bucket}: {e.code}")
             except Exception as e:
                 results[bucket] = f"unexpected_error: {e}"
                 logger.error(f"Unexpected error deleting bucket {bucket}: {e}")
@@ -165,19 +150,25 @@ class CreateBuckets(BaseModel):
 
         for bucket in self.required_buckets:
             try:
-                self.get_s3_client().head_bucket(Bucket=bucket)
-                health_status["buckets"][bucket] = {
-                    "status": "accessible",
-                    "accessible": True,
-                }
-            except ClientError as e:
-                error_code = e.response["Error"]["Code"]
+                if self.get_s3_client().bucket_exists(bucket):
+                    health_status["buckets"][bucket] = {
+                        "status": "accessible",
+                        "accessible": True,
+                    }
+                else:
+                    health_status["buckets"][bucket] = {
+                        "status": "not_found",
+                        "accessible": False,
+                    }
+                    health_status["issues"].append(f"Bucket {bucket}: not_found")
+                    health_status["overall_status"] = "unhealthy"
+            except S3Error as e:
                 health_status["buckets"][bucket] = {
                     "status": "error",
-                    "error_code": error_code,
+                    "error_code": e.code,
                     "accessible": False,
                 }
-                health_status["issues"].append(f"Bucket {bucket}: {error_code}")
+                health_status["issues"].append(f"Bucket {bucket}: {e.code}")
                 health_status["overall_status"] = "unhealthy"
 
         return health_status

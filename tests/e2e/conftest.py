@@ -157,39 +157,33 @@ def s3_config():
 @pytest.fixture(scope="session", autouse=True)
 def create_s3_buckets(s3_config):
     """Create S3 buckets before running E2E tests."""
-    import boto3
-    from botocore.exceptions import ClientError
+    from minio import Minio
+    from minio.error import S3Error
     from models.config.settings import settings
 
     required_buckets = [
         settings.s3_revisions_bucket,
     ]
 
-    s3 = boto3.client(
-        "s3",
-        endpoint_url=s3_config.endpoint_url,
-        aws_access_key_id=s3_config.access_key,
-        aws_secret_access_key=s3_config.secret_key,
+    s3 = Minio(
+        s3_config.endpoint_url,
+        access_key=s3_config.access_key,
+        secret_key=s3_config.secret_key,
+        secure=False,
     )
 
     created_count = 0
     for bucket in required_buckets:
         try:
-            s3.head_bucket(Bucket=bucket)
-            logger.debug(f"Bucket already exists: {bucket}")
-        except ClientError as e:
-            error_code = e.response.get("Error", {}).get("Code")
-            if error_code in {"404", "NoSuchBucket"}:
-                try:
-                    s3.create_bucket(Bucket=bucket)
-                    logger.debug(f"Created bucket: {bucket}")
-                    created_count += 1
-                except Exception as create_error:
-                    logger.error(f"Failed to create bucket {bucket}: {create_error}")
-                    raise
+            if s3.bucket_exists(bucket):
+                logger.debug(f"Bucket already exists: {bucket}")
             else:
-                logger.error(f"Error checking bucket {bucket}: {error_code}")
-                raise
+                s3.make_bucket(bucket)
+                logger.debug(f"Created bucket: {bucket}")
+                created_count += 1
+        except S3Error as e:
+            logger.error(f"Error creating bucket {bucket}: {e}")
+            raise
 
     print(
         f"S3 buckets ready: {len(required_buckets)} buckets ({created_count} created)"

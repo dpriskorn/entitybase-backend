@@ -3,8 +3,6 @@
 import logging
 from typing import TYPE_CHECKING, Any, List, Optional, cast
 
-from boto3.session import Session as BotoSession  # noqa  # type: ignore[import-untyped]
-from botocore.exceptions import ClientError  # type: ignore[import-untyped]
 from pydantic import Field
 
 from models.data.infrastructure.s3 import (
@@ -391,5 +389,5 @@ class MyS3Client(Client):
     def disconnect(self) -> None:
         """Disconnect from S3 and release resources."""
         if self.connection_manager is not None:
-            self.connection_manager.boto_client = None
+            self.connection_manager.minio_client = None
             logger.info("S3Client disconnected")

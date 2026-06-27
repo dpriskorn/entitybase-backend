@@ -3,11 +3,9 @@
 import logging
 from typing import Any
 
-import boto3  # type: ignore[import-untyped]
-from botocore.config import Config  # type: ignore[import-untyped]
+from minio import Minio
 from pydantic import Field
 
-from models.data.infrastructure.s3.adressing import S3Adressing
 from models.infrastructure.connection import ConnectionManager
 from models.data.config.s3 import S3Config
 
@@ -18,21 +16,16 @@ class S3ConnectionManager(ConnectionManager):
     """Handles S3 connection and healthcheck."""
 
     config: S3Config
-    boto_client: Any = Field(default=None, exclude=True)
+    minio_client: Any = Field(default=None, exclude=True)
 
     def connect(self) -> None:
         """Establish S3 client connection."""
-        if self.boto_client is None:
-            self.boto_client = boto3.client(
-                "s3",
-                endpoint_url=self.config.endpoint_url,
-                aws_access_key_id=self.config.access_key,
-                aws_secret_access_key=self.config.secret_key,
-                config=Config(
-                    signature_version="s3v4",
-                    s3=S3Adressing().model_dump(),  # type: ignore[arg-type]
-                ),
-                region_name="us-east-1",
+        if self.minio_client is None:
+            self.minio_client = Minio(
+                self.config.endpoint_url,
+                access_key=self.config.access_key,
+                secret_key=self.config.secret_key,
+                secure=False,
             )
 
     @property
@@ -47,9 +40,8 @@ class S3ConnectionManager(ConnectionManager):
         logger.debug(self.config.model_dump(mode="json"))
         try:
             self.connect()
-            if self.boto_client is not None:
-                self.boto_client.head_bucket(Bucket=self.config.bucket)  # type: ignore[attr-defined]
-                return True
+            if self.minio_client is not None:
+                return self.minio_client.bucket_exists(self.config.bucket)
             return False
         except Exception as e:
             logger.error(e)

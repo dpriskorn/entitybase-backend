@@ -14,13 +14,13 @@ os.environ["TEST_DATA_DIR"] = str(Path(__file__).parent.parent.parent / "test_da
 
 # Mock S3 and DB before importing app to prevent connection attempts
 with (
-    patch("boto3.client") as mock_boto_client,
+    patch("minio.Minio") as mock_minio_client,
     patch("pymysql.connect") as mock_db_connect,
 ):
     mock_client = MagicMock()
-    mock_boto_client.return_value = mock_client
-    mock_client.head_bucket.return_value = None  # Assume bucket exists
-    mock_client.create_bucket.return_value = None
+    mock_minio_client.return_value = mock_client
+    mock_client.bucket_exists.return_value = True  # Assume bucket exists
+    mock_client.make_bucket.return_value = None
     mock_conn = MagicMock()
     mock_db_connect.return_value = mock_conn
     from models.rest_api.main import app

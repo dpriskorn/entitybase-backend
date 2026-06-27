@@ -2,7 +2,7 @@
 
 import logging
 
-from botocore.exceptions import ClientError  # type: ignore[import-untyped]
+from minio.error import S3Error  # type: ignore[import-untyped]
 from typing import Any, cast
 
 from models.data.infrastructure.s3.statement import StatementData
@@ -156,7 +156,7 @@ class StatementHandler(Handler):
                         created_at=statement_data.created_at,
                     )
                 )
-            except (ClientError, Exception) as e:
+            except (S3Error, Exception) as e:
                 logger.warning(
                     f"[STMT_GET_BATCH] Failed to load statement hash={content_hash}: "
                     f"error={type(e).__name__}: {e}"

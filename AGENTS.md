@@ -26,7 +26,7 @@ For domain-specific guidance, see these AGENTS.md files:
 ### Python Version and Dependencies
 - **Python**: >= 3.13, < 4.0
 - **Package Manager**: Poetry
-- **Key Dependencies**: FastAPI, Pydantic v2, boto3, uvicorn, rdflib
+- **Key Dependencies**: FastAPI, Pydantic v2, minio, uvicorn, rdflib
 
 ### Imports
 ```python

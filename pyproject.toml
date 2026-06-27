@@ -12,12 +12,11 @@ requires-python = ">=3.13,<4.0"
 dependencies = [
     "aiohttp (>=3.13.0,<4.0.0)",
     "aiokafka (>=0.11.0,<1.0.0)",
-    "boto3 (>=1.42.17,<2.0.0)",
     "cryptography (>=46.0.0,<47.0.0)",
     "fastapi (>=0.135.3,<0.136.0)",
     "jsonschema (>=4.23.0,<5.0.0)",
     "meilisearch (>=0.40.0,<0.41.0)",
-    "mypy-boto3-s3 (>=1.42.21,<2.0.0)",
+    "minio (>=7.2.0,<8.0.0)",
     "opensearch-py (>=3.0.0,<4.0.0)",
     "pydantic (>=2.12.5,<3.0.0)",
     "pydantic-settings (>=2.12.0,<3.0.0)",
@@ -52,25 +51,25 @@ idworker = [
     "uvicorn",
 ]
 stats-worker = [
-    "boto3",
     "cryptography",
     "fastapi",
+    "minio",
     "pydantic",
     "pymysql",
     "uvicorn",
 ]
 json-worker = [
-    "boto3",
     "cryptography",
     "fastapi",
+    "minio",
     "pydantic",
     "pymysql",
     "uvicorn",
 ]
 ttl-worker = [
-    "boto3",
     "cryptography",
     "fastapi",
+    "minio",
     "pydantic",
     "pymysql",
     "rdflib",
@@ -78,18 +77,18 @@ ttl-worker = [
     "uvicorn",
 ]
 purge-worker = [
-    "boto3",
     "cryptography",
     "fastapi",
+    "minio",
     "pydantic",
     "pymysql",
     "uvicorn",
 ]
 incremental-rdf-worker = [
     "aiokafka",
-    "boto3",
     "cryptography",
     "fastapi",
+    "minio",
     "pydantic",
     "pyld",
     "pymysql",
@@ -100,12 +99,11 @@ incremental-rdf-worker = [
 api = [
     "aiohttp",
     "aiokafka",
-    "boto3",
     "cryptography",
     "fastapi",
     "jsonschema",
     "meilisearch",
-    "mypy-boto3-s3",
+    "minio",
     "opensearch-py",
     "pydantic",
     "pydantic-settings",
@@ -120,7 +118,7 @@ api = [
     "wikibaseintegrator @ git+https://github.com/dpriskorn/WikibaseIntegrator.git@fix-hash",
 ]
 create-buckets = [
-    "boto3",
+    "minio",
     "pydantic",
 ]
 create-tables = [
@@ -147,16 +145,14 @@ dev = [
     "httpx (>=0.28.0,<1.0.0)",
     "httpie (>=3.2.4,<4.0.0)",
     "vulture (>=2.14,<3.0)",
-    "moto[s3] (>=5.0.0,<6.0.0)",
+    "moto (>=5.0.0,<6.0.0)",
     "mypy (>=1.15.0,<2.0.0)",
     "ruff (>=0.15.9,<0.16.0)",
     "radon (>=6.0.1,<7.0.0)",
     "types-pyyaml (>=6.0.12.20250915,<7.0.0.0)",
     "types-requests (>=2.32.4.20260107,<3.0.0.0)",
-    "types-boto3 (>=1.0.0,<2.0.0)",
     "types-jsonschema (>=4.26.0.20260109,<5.0.0.0)",
     "beartype (>=0.22.9,<0.23.0)",
-    "boto3-stubs (>=1.42.30,<2.0.0)",
     "types-pymysql (>=1.1.0.20251220,<2.0.0.0)",
     "mkdocs-material (>=9.7.2,<10.0.0)",
     "zensical (>=0.0.23,<0.0.24)",

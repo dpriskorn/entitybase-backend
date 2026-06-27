@@ -53,19 +53,6 @@ LOGGING_CONFIG = {
 # We let uvicorn handle all logging
 # logging.config.dictConfig(LOGGING_CONFIG)
 
-aws_loggers = [
-    "botocore",
-    "boto3",
-    "urllib3",
-    "s3transfer",
-    "botocore.hooks",
-    "botocore.retryhandler",
-    "botocore.utils",
-    "botocore.parsers",
-    "botocore.endpoint",
-    "botocore.auth",
-]
-
 aiokafka_loggers = [
     "aiokafka.conn",
     "aiokafka.consumer.group_coordinator",
@@ -74,9 +61,6 @@ aiokafka_loggers = [
     "aiokafka.coordinator.assignor",
     "aiokafka.coordinator.heartbeat",
 ]
-
-for logger_name in aws_loggers:
-    logging.getLogger(logger_name).setLevel(logging.INFO)
 
 for logger_name in aiokafka_loggers:
     logging.getLogger(logger_name).setLevel(logging.INFO)
@@ -189,8 +173,8 @@ async def _bootstrap_admin_user(state_handler: StateHandler) -> None:
 
 async def _create_s3_buckets(state_handler: StateHandler) -> None:
     """Create S3 buckets on startup if they don't exist."""
-    import boto3
-    from botocore.exceptions import ClientError
+    from minio import Minio
+    from minio.error import S3Error
 
     s3_config = state_handler.s3_config
     if s3_config is None:
@@ -203,30 +187,28 @@ async def _create_s3_buckets(state_handler: StateHandler) -> None:
     ]
 
     try:
-        logger.info(f"Creating S3 buckets if they don't exist...")
-        client = boto3.client(
-            "s3",
-            endpoint_url=s3_config.endpoint_url,
-            aws_access_key_id=s3_config.access_key,
-            aws_secret_access_key=s3_config.secret_key,
+        logger.info("Creating S3 buckets if they don't exist...")
+        client = Minio(
+            s3_config.endpoint_url,
+            access_key=s3_config.access_key,
+            secret_key=s3_config.secret_key,
+            secure=False,
         )
 
         for bucket in required_buckets:
             try:
-                client.head_bucket(Bucket=bucket)
-                logger.info(f"S3 bucket already exists: {bucket}")
-            except ClientError as e:
-                error_code = e.response["Error"]["Code"]
-                if error_code in {"404", "NoSuchBucket"}:
+                if client.bucket_exists(bucket):
+                    logger.info(f"S3 bucket already exists: {bucket}")
+                else:
                     try:
-                        client.create_bucket(Bucket=bucket)
+                        client.make_bucket(bucket)
                         logger.info(f"Created S3 bucket: {bucket}")
-                    except Exception as create_error:
+                    except S3Error as create_error:
                         logger.error(
                             f"Failed to create bucket {bucket}: {create_error}"
                         )
-                else:
-                    logger.error(f"Error checking bucket {bucket}: {error_code}")
+            except S3Error as e:
+                logger.error(f"Error checking bucket {bucket}: {e.code}")
 
         logger.info("S3 bucket setup completed")
     except Exception as e:

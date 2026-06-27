@@ -5,7 +5,7 @@ import logging
 from abc import ABC
 from typing import Any, Dict, Optional, cast
 
-from botocore.exceptions import ClientError
+from minio.error import S3Error
 from pydantic import BaseModel, Field
 
 from models.data.common import OperationResult
@@ -35,20 +35,18 @@ class BaseS3Storage(ABC, BaseModel):
         """Ensure S3 connection is available."""
         if (
             not self.connection_manager
-            or not hasattr(self.connection_manager, "boto_client")
-            or not self.connection_manager.boto_client
+            or not hasattr(self.connection_manager, "minio_client")
+            or not self.connection_manager.minio_client
         ):
             raise S3ConnectionError("S3 service unavailable")
 
-    def _handle_client_error(
-        self, e: ClientError, operation: str, key: str, bucket: str | None = None
+    def _handle_s3_error(
+        self, e: S3Error, operation: str, key: str, bucket: str | None = None
     ) -> None:
-        """Handle boto3 ClientError with appropriate logging and exceptions."""
+        """Handle minio S3Error with appropriate logging and exceptions."""
         bucket_to_use = bucket if bucket is not None else self.bucket
-        error_code = e.response["Error"].get("Code", "Unknown")
-        error_message = e.response["Error"].get("Message", str(e))
 
-        if error_code in ["NoSuchKey", "404"]:
+        if e.code in ["NoSuchKey", "NoSuchBucket", "404"]:
             logger.warning(
                 f"S3 {operation} not found: bucket={bucket_to_use}, key={key}"
             )
@@ -56,10 +54,10 @@ class BaseS3Storage(ABC, BaseModel):
         else:
             logger.error(
                 f"S3 {operation} failed: bucket={bucket_to_use}, key={key}, "
-                f"error_code={error_code}, error_message={error_message}",
+                f"error_code={e.code}, error_message={e.message}",
                 exc_info=True,
             )
-            raise S3StorageError(f"{operation} failed: {error_message}")
+            raise S3StorageError(f"{operation} failed: {e.message}")
 
     def store(
         self,
@@ -93,24 +91,25 @@ class BaseS3Storage(ABC, BaseModel):
 
             logger.debug(f"[S3_STORE] Body size: {len(body)} bytes, key={key}")
 
-            self.connection_manager.boto_client.put_object(
-                Bucket=bucket_to_use,
-                Key=key,
-                Body=body,
-                ContentType=content_type,
-                Metadata=metadata or {},
+            data_len = len(body)
+            self.connection_manager.minio_client.put_object(
+                bucket_to_use,
+                key,
+                body,
+                data_len,
+                content_type=content_type,
             )
 
             logger.debug(f"[S3_STORE] SUCCESS: bucket={bucket_to_use}, key={key}")
             return OperationResult(success=True)
 
-        except ClientError as e:
+        except S3Error as e:
             logger.error(
-                f"[S3_STORE] ClientError: bucket={bucket_to_use}, key={key}, "
+                f"[S3_STORE] S3Error: bucket={bucket_to_use}, key={key}, "
                 f"error={type(e).__name__}: {e}"
             )
-            self._handle_client_error(e, "store", key, bucket_to_use)
-            return OperationResult(success=False, error=str(e))  # Won't reach here
+            self._handle_s3_error(e, "store", key, bucket_to_use)
+            return OperationResult(success=False, error=str(e))
         except Exception as e:
             logger.error(
                 f"[S3_STORE] FAILED: bucket={bucket_to_use}, key={key}, "
@@ -126,37 +125,32 @@ class BaseS3Storage(ABC, BaseModel):
         self._ensure_connection()
 
         try:
-            response = self.connection_manager.boto_client.get_object(
-                Bucket=bucket_to_use, Key=key
+            response = self.connection_manager.minio_client.get_object(
+                bucket_to_use, key
             )
-            content_type = response.get("ContentType", "application/json")
+            content_type = response.headers.get("Content-Type", "application/json")
 
             if content_type == "text/plain":
-                data = response["Body"].read().decode("utf-8")
+                data = response.read().decode("utf-8")
                 logger.debug(
                     f"[S3_LOAD] SUCCESS (text): bucket={bucket_to_use}, key={key}, "
                     f"data_length={len(data)}"
                 )
                 return StringLoadResponse(data=data)
             else:
-                data = json.loads(response["Body"].read().decode("utf-8"))
+                data = json.loads(response.read().decode("utf-8"))
                 logger.debug(
                     f"[S3_LOAD] SUCCESS (json): bucket={bucket_to_use}, key={key}, "
                     f"data_type={type(data)}, data_keys={list(data.keys()) if isinstance(data, dict) else 'N/A'}"
                 )
                 return DictLoadResponse(data=data)
 
-        except ClientError as e:
-            error_code = (
-                e.response.get("Error", {}).get("Code", "Unknown")
-                if e.response
-                else "Unknown"
-            )
+        except S3Error as e:
             logger.warning(
-                f"[S3_LOAD] ClientError: bucket={bucket_to_use}, key={key}, "
-                f"code={error_code}, error={type(e).__name__}"
+                f"[S3_LOAD] S3Error: bucket={bucket_to_use}, key={key}, "
+                f"code={e.code}, error={type(e).__name__}"
             )
-            self._handle_client_error(e, "load", key, bucket_to_use)
+            self._handle_s3_error(e, "load", key, bucket_to_use)
             return None
         except Exception as e:
             logger.error(
@@ -172,15 +166,15 @@ class BaseS3Storage(ABC, BaseModel):
         self._ensure_connection()
 
         try:
-            cast(Any, self.connection_manager).boto_client.delete_object(
-                Bucket=bucket_to_use, Key=key
+            cast(Any, self.connection_manager).minio_client.remove_object(
+                bucket_to_use, key
             )
             logger.debug(f"S3 delete successful: bucket={bucket_to_use}, key={key}")
             return OperationResult(success=True)
 
-        except ClientError as e:
-            self._handle_client_error(e, "delete", key, bucket_to_use)
-            return OperationResult(success=False, error=str(e))  # Won't reach here
+        except S3Error as e:
+            self._handle_s3_error(e, "delete", key, bucket_to_use)
+            return OperationResult(success=False, error=str(e))
         except Exception as e:
             logger.error(
                 f"S3 delete failed: bucket={bucket_to_use}, key={key}, error={e}",
@@ -194,12 +188,10 @@ class BaseS3Storage(ABC, BaseModel):
         self._ensure_connection()
 
         try:
-            self.connection_manager.boto_client.head_object(
-                Bucket=bucket_to_use, Key=key
-            )
+            self.connection_manager.minio_client.stat_object(bucket_to_use, key)
             return True
-        except ClientError as e:
-            if e.response["Error"].get("Code") in ["NoSuchKey", "404"]:
+        except S3Error as e:
+            if e.code in ["NoSuchKey", "NoSuchObject", "404"]:
                 return False
             raise S3StorageError(f"Exists check failed: {e}")
         except Exception as e:

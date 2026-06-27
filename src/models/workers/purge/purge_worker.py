@@ -6,7 +6,7 @@ import os
 from datetime import datetime, timezone
 from typing import Any
 
-from botocore.exceptions import ClientError  # type: ignore[import-untyped]
+from minio.error import S3Error
 from pydantic import Field
 
 from models.config.settings import settings
@@ -92,16 +92,14 @@ class PurgeWorker(MysqlWorker):
 
     def _init_s3_client(self) -> None:
         """Initialize S3 client."""
-        import boto3
-        from botocore.config import Config
+        from minio import Minio
 
         s3_config = settings.get_s3_config
-        self.s3_client = boto3.client(
-            "s3",
-            endpoint_url=s3_config.endpoint_url,
-            aws_access_key_id=s3_config.access_key,
-            aws_secret_access_key=s3_config.secret_key,
-            config=Config(signature_version="s3v4", region_name="us-east-1"),
+        self.s3_client = Minio(
+            s3_config.endpoint_url,
+            access_key=s3_config.access_key,
+            secret_key=s3_config.secret_key,
+            secure=False,
         )
         logger.info("S3 client initialized for purge worker")
 
@@ -139,27 +137,14 @@ class PurgeWorker(MysqlWorker):
         deleted_count = 0
 
         try:
-            while True:
-                response = self.s3_client.list_objects_v2(Bucket=bucket)
-                contents = response.get("Contents", [])
+            objects = self.s3_client.list_objects(bucket)
+            for obj in objects:
+                self.s3_client.remove_object(bucket, obj.object_name)
+                deleted_count += 1
+                logger.debug(f"Deleted object {obj.object_name} from {bucket}")
 
-                if not contents:
-                    break
-
-                objects_to_delete = [{"Key": obj["Key"]} for obj in contents]
-
-                if objects_to_delete:
-                    self.s3_client.delete_objects(
-                        Bucket=bucket, Delete={"Objects": objects_to_delete}
-                    )
-                    deleted_count += len(objects_to_delete)
-                    logger.debug(
-                        f"Deleted {len(objects_to_delete)} objects from {bucket}"
-                    )
-
-        except ClientError as e:
-            error_code = e.response.get("Error", {}).get("Code", "")
-            if error_code == "NoSuchBucket":
+        except S3Error as e:
+            if e.code == "NoSuchBucket":
                 logger.warning(f"Bucket {bucket} does not exist, skipping")
             else:
                 logger.error(f"Error purging bucket {bucket}: {e}")
