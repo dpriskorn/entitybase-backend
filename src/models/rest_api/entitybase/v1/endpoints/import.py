@@ -83,6 +83,7 @@ async def import_entity(
         result = await handler.create_entity(
             request,
             edit_headers=edit_headers,
+            user_id=auth.user.user_id,
             validator=validator,
             auto_assign_id=False,
         )

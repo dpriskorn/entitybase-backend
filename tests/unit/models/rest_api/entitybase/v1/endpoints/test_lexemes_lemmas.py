@@ -463,7 +463,7 @@ class TestFormRepresentationUpdates:
                 "de",
                 TermUpdateRequest(language="de", value="Antwort"),
                 mock_req,
-                headers=Mock(x_user_id=123, x_edit_summary="add gloss"),
+                auth=Mock(edit_summary="add gloss", base_revision_id=0),
             )
 
         assert result.hash is not None
@@ -516,7 +516,7 @@ class TestFormRepresentationUpdates:
                 "en",
                 TermUpdateRequest(language="en", value="reply"),
                 mock_req,
-                headers=Mock(x_user_id=123, x_edit_summary="add gloss"),
+                auth=Mock(edit_summary="add gloss", base_revision_id=0),
             )
 
         assert exc.value.status_code == 409

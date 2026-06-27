@@ -182,7 +182,7 @@ class TestRedirectService:
         mock_state.s3_client.store_revision = MagicMock()
         service = RedirectService(state=mock_state)
 
-        edit_headers = EditHeaders(x_user_id=1, x_edit_summary="Creating redirect")
+        edit_headers = EditHeaders(x_edit_summary="Creating redirect")
 
         revision_data, content_hash = service._create_redirect_revision(
             "Q1", "Q2", edit_headers, from_head_revision_id=10
@@ -201,7 +201,7 @@ class TestRedirectService:
 
         with pytest.raises(HTTPException) as exc_info:
             await service.revert_redirect(
-                "Q1", 10, EditHeaders(x_user_id=0, x_edit_summary="test")
+                "Q1", 10, EditHeaders(x_edit_summary="test")
             )
         assert exc_info.value.status_code == 404
         assert "not a redirect" in exc_info.value.detail
@@ -216,7 +216,7 @@ class TestRedirectService:
 
         with pytest.raises(HTTPException) as exc_info:
             await service.revert_redirect(
-                "Q1", 10, EditHeaders(x_user_id=0, x_edit_summary="test")
+                "Q1", 10, EditHeaders(x_edit_summary="test")
             )
         assert exc_info.value.status_code == 423
         assert "deleted" in exc_info.value.detail
@@ -232,7 +232,7 @@ class TestRedirectService:
 
         with pytest.raises(HTTPException) as exc_info:
             await service.revert_redirect(
-                "Q1", 10, EditHeaders(x_user_id=0, x_edit_summary="test")
+                "Q1", 10, EditHeaders(x_edit_summary="test")
             )
         assert exc_info.value.status_code == 423
         assert "locked or archived" in exc_info.value.detail
@@ -254,7 +254,7 @@ class TestRedirectService:
             redirect_from_id="Q1",
             redirect_to_id="Q2",
         )
-        edit_headers = EditHeaders(x_user_id=0, x_edit_summary="test")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         response = await service.create_redirect(request, edit_headers)
 
@@ -281,7 +281,7 @@ class TestRedirectService:
             redirect_from_id="Q1",
             redirect_to_id="Q2",
         )
-        edit_headers = EditHeaders(x_user_id=0, x_edit_summary="test")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         with pytest.raises(HTTPException) as exc_info:
             await service.create_redirect(request, edit_headers)
@@ -308,7 +308,7 @@ class TestRedirectService:
             redirect_from_id="Q1",
             redirect_to_id="Q2",
         )
-        edit_headers = EditHeaders(x_user_id=0, x_edit_summary="test")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         response = await service.create_redirect(request, edit_headers)
 
@@ -336,7 +336,7 @@ class TestRedirectService:
             redirect_from_id="Q1",
             redirect_to_id="Q2",
         )
-        edit_headers = EditHeaders(x_user_id=0, x_edit_summary="test")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         response = await service.create_redirect(request, edit_headers)
 
@@ -366,7 +366,7 @@ class TestRedirectService:
             ),
         ):
             response = await service.revert_redirect(
-                "Q1", 10, EditHeaders(x_user_id=0, x_edit_summary="test")
+                "Q1", 10, EditHeaders(x_edit_summary="test")
             )
 
         assert response.entity_id == "Q1"

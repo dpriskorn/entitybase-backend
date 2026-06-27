@@ -37,7 +37,7 @@ class TestCreationTransaction:
 
         entity_id = "Q42"
         entity_type = EntityType.ITEM
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Test creation")
+        edit_headers = EditHeaders(x_edit_summary="Test creation")
 
         hash_result = StatementHashResult(
             statements=[1, 2, 3], properties=["P31"], property_counts={"P31": 1}
@@ -60,6 +60,7 @@ class TestCreationTransaction:
             request_data=request_data,
             entity_type=entity_type,
             edit_headers=edit_headers,
+            user_id=123,
             hash_result=hash_result,
         )
 
@@ -81,7 +82,7 @@ class TestCreationTransaction:
 
         entity_id = "Q1"
         entity_type = EntityType.ITEM
-        edit_headers = EditHeaders(x_user_id=1, x_edit_summary="Initial creation")
+        edit_headers = EditHeaders(x_edit_summary="Initial creation")
 
         hash_result = StatementHashResult(
             statements=[10, 20, 30],
@@ -106,6 +107,7 @@ class TestCreationTransaction:
             request_data=request_data,
             entity_type=entity_type,
             edit_headers=edit_headers,
+            user_id=1,
             hash_result=hash_result,
         )
 

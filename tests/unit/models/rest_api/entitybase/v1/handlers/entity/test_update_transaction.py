@@ -40,7 +40,7 @@ class TestUpdateTransaction:
 
         entity_id = "Q42"
         entity_type = EntityType.ITEM
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Test update")
+        edit_headers = EditHeaders(x_edit_summary="Test update")
 
         hash_result = StatementHashResult(
             statements=[1, 2, 3], properties=["P31"], property_counts={"P31": 1}
@@ -64,6 +64,7 @@ class TestUpdateTransaction:
             entity_type=entity_type,
             edit_headers=edit_headers,
             hash_result=hash_result,
+            user_id=123,
         )
 
         assert result.id == entity_id
@@ -85,7 +86,7 @@ class TestUpdateTransaction:
 
         entity_id = "Q1"
         entity_type = EntityType.ITEM
-        edit_headers = EditHeaders(x_user_id=1, x_edit_summary="Update properties")
+        edit_headers = EditHeaders(x_edit_summary="Update properties")
 
         hash_result = StatementHashResult(
             statements=[10, 20, 30],
@@ -111,6 +112,7 @@ class TestUpdateTransaction:
             entity_type=entity_type,
             edit_headers=edit_headers,
             hash_result=hash_result,
+            user_id=1,
         )
 
         assert result.id == entity_id
@@ -347,9 +349,7 @@ class TestUpdateTransaction:
 
         entity_id = "Q42"
         entity_type = EntityType.ITEM
-        edit_headers = EditHeaders(
-            x_user_id=123, x_edit_summary="Test", x_base_revision_id=1
-        )
+        edit_headers = EditHeaders(x_edit_summary="Test", x_base_revision_id=1)
 
         hash_result = StatementHashResult(
             statements=[1, 2, 3], properties=["P31"], property_counts={"P31": 1}
@@ -377,6 +377,7 @@ class TestUpdateTransaction:
                 entity_type=entity_type,
                 edit_headers=edit_headers,
                 hash_result=hash_result,
+                user_id=123,
             )
 
         assert exc_info.value.status_code == 409
@@ -393,7 +394,7 @@ class TestUpdateTransaction:
 
         entity_id = "Q1"
         entity_type = EntityType.ITEM
-        edit_headers = EditHeaders(x_user_id=1, x_edit_summary="Single term update")
+        edit_headers = EditHeaders(x_edit_summary="Single term update")
 
         existing_hashes: dict[str, Any] = {
             "labels": {},
@@ -420,6 +421,7 @@ class TestUpdateTransaction:
             entity_id=entity_id,
             entity_type=entity_type,
             edit_headers=edit_headers,
+            user_id=1,
             existing_hashes=existing_hashes,
             existing_revision=existing_revision,
         )
@@ -439,9 +441,7 @@ class TestUpdateTransaction:
 
         entity_id = "Q1"
         entity_type = EntityType.ITEM
-        edit_headers = EditHeaders(
-            x_user_id=1, x_edit_summary="Test", x_base_revision_id=3
-        )
+        edit_headers = EditHeaders(x_edit_summary="Test", x_base_revision_id=3)
 
         existing_hashes: dict[str, Any] = {
             "labels": {},
@@ -470,6 +470,7 @@ class TestUpdateTransaction:
                 entity_id=entity_id,
                 entity_type=entity_type,
                 edit_headers=edit_headers,
+                user_id=1,
                 existing_hashes=existing_hashes,
                 existing_revision=existing_revision,
             )

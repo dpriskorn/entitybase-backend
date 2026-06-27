@@ -91,6 +91,7 @@ class RedirectService(Service):
         redirect_from_id: str,
         redirect_to_id: str,
         edit_headers: EditHeaders,
+        user_id: int = 0,
         from_head_revision_id: int,
     ) -> tuple[RevisionData, int]:
         """Create revision data for redirect.
@@ -99,6 +100,7 @@ class RedirectService(Service):
             redirect_from_id: Source entity ID
             redirect_to_id: Target entity ID
             edit_headers: Edit headers
+            user_id: User ID
             from_head_revision_id: Source head revision ID
 
         Returns:
@@ -113,7 +115,7 @@ class RedirectService(Service):
                 type=EditType.REDIRECT_CREATE,
                 at=datetime.now(timezone.utc).isoformat(),
                 summary=edit_headers.x_edit_summary,
-                user_id=edit_headers.x_user_id,
+                user_id=user_id,
             ),
             hashes=HashMaps(),
             redirects_to=redirect_to_id,
@@ -146,6 +148,7 @@ class RedirectService(Service):
         self,
         request: EntityRedirectRequest,
         edit_headers: EditHeaders,
+        user_id: int = 0,
     ) -> EntityRedirectResponse:
         """Mark an entity as redirect to another entity"""
         logger.debug(
@@ -163,6 +166,7 @@ class RedirectService(Service):
             request.redirect_from_id,
             request.redirect_to_id,
             edit_headers,
+            user_id,
             from_head_revision_id,
         )
 
@@ -203,7 +207,7 @@ class RedirectService(Service):
                 type=ChangeType.REDIRECT,
                 from_rev=from_head_revision_id if from_head_revision_id else None,
                 at=datetime.now(timezone.utc),
-                user=str(edit_headers.x_user_id),
+                user=str(user_id),
                 summary=edit_headers.x_edit_summary,
             )
             if settings.streaming_enabled:

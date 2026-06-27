@@ -29,6 +29,7 @@ class EntityCreateHandler(EntityHandler):
         self,
         request: EntityCreateRequest,
         edit_headers: EditHeaders,
+        user_id: int = 0,
         validator: Any | None = None,
         auto_assign_id: bool = False,
     ) -> EntityResponse:
@@ -108,15 +109,16 @@ class EntityCreateHandler(EntityHandler):
             entity_type=EntityType(request.type),
             edit_type=request.edit_type,
             edit_headers=edit_headers,
+            user_id=user_id,
             is_creation=True,
             validator=validator,
         )
         response = await self.process_entity_revision_new(ctx)
 
         # Log activity
-        if edit_headers.x_user_id > 0:
+        if user_id > 0:
             activity_result = self.state.mysql_client.user_repository.log_user_activity(
-                user_id=edit_headers.x_user_id,
+                user_id=user_id,
                 activity_type=UserActivityType.ENTITY_CREATE,
                 entity_id=entity_id,
                 revision_id=response.revision_id,

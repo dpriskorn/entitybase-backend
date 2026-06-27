@@ -16,7 +16,6 @@ def _make_edit_headers() -> EditHeaders:
     """Create standard edit headers for testing."""
     return EditHeaders(
         x_edit_summary="test edit",
-        x_user_id="0",
     )
 
 
@@ -747,7 +746,7 @@ class TestEntityStatementService:
             },
             hashes=HashMaps(),
         )
-        edit_headers = EditHeaders(**{"X-User-ID": 5, "X-Edit-Summary": "test summary"})
+        edit_headers = EditHeaders(**{"X-Edit-Summary": "test summary"})
 
         service = EntityStatementService(state=mock_state)
         result = await service._store_updated_revision(
@@ -802,7 +801,7 @@ class TestEntityStatementService:
             },
             hashes=HashMaps(),
         )
-        edit_headers = EditHeaders(**{"X-User-ID": 5, "X-Edit-Summary": "test summary"})
+        edit_headers = EditHeaders(**{"X-Edit-Summary": "test summary"})
 
         service = EntityStatementService(state=mock_state)
 
@@ -845,7 +844,7 @@ class TestEntityStatementService:
             },
             hashes=HashMaps(),
         )
-        edit_headers = EditHeaders(**{"X-User-ID": 5, "X-Edit-Summary": "test summary"})
+        edit_headers = EditHeaders(**{"X-Edit-Summary": "test summary"})
 
         service = EntityStatementService(state=mock_state)
 

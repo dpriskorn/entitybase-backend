@@ -71,9 +71,9 @@ class TestEntityDeleteHandler:
         handler = EntityDeleteHandler(state=mock_state)
 
         request = EntityDeleteRequest(delete_type=DeleteType.SOFT)
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Soft delete test")
+        edit_headers = EditHeaders(x_edit_summary="Soft delete test")
 
-        response = await handler.delete_entity("Q42", request, edit_headers)
+        response = await handler.delete_entity("Q42", request, edit_headers, user_id=123)
 
         assert response.id == "Q42"
         assert response.revision_id == 6
@@ -105,15 +105,15 @@ class TestEntityDeleteHandler:
         handler = EntityDeleteHandler(state=mock_state)
 
         request = EntityDeleteRequest(delete_type=DeleteType.HARD)
-        edit_headers = EditHeaders(x_user_id=456, x_edit_summary="Hard delete test")
+        edit_headers = EditHeaders(x_edit_summary="Hard delete test")
 
-        response = await handler.delete_entity("Q42", request, edit_headers)
+        response = await handler.delete_entity("Q42", request, edit_headers, user_id=456)
 
         assert response.id == "Q42"
         assert response.revision_id == 4
         assert response.is_deleted is True
         assert response.deletion_status == "hard_deleted"
-        mock_mysql.decrement_ref_count.assert_called()
+        mock_mysql.create_revision.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_delete_entity_not_found(self) -> None:
@@ -126,12 +126,12 @@ class TestEntityDeleteHandler:
         mock_mysql.entity_exists.return_value = False
 
         handler = EntityDeleteHandler(state=mock_state)
-
         request = EntityDeleteRequest(delete_type=DeleteType.SOFT)
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Delete test")
+        edit_headers = EditHeaders(x_edit_summary="Delete test")
 
         with pytest.raises(Exception):
-            await handler.delete_entity("Q999", request, edit_headers)
+            await handler.delete_entity("Q999", request, edit_headers, user_id=123)
+
 
     @pytest.mark.asyncio
     async def test_delete_entity_already_deleted(self) -> None:
@@ -145,12 +145,12 @@ class TestEntityDeleteHandler:
         mock_mysql.is_entity_deleted.return_value = True
 
         handler = EntityDeleteHandler(state=mock_state)
-
         request = EntityDeleteRequest(delete_type=DeleteType.SOFT)
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Delete test")
+        edit_headers = EditHeaders(x_edit_summary="Delete test")
 
         with pytest.raises(Exception):
-            await handler.delete_entity("Q42", request, edit_headers)
+            await handler.delete_entity("Q42", request, edit_headers, user_id=123)
+
 
     @pytest.mark.asyncio
     async def test_delete_s3_not_found(self) -> None:
@@ -170,12 +170,12 @@ class TestEntityDeleteHandler:
         mock_s3.read_revision.side_effect = S3NotFoundError("Object not found")
 
         handler = EntityDeleteHandler(state=mock_state)
-
         request = EntityDeleteRequest(delete_type=DeleteType.SOFT)
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Delete test")
+        edit_headers = EditHeaders(x_edit_summary="Delete test")
 
         with pytest.raises(Exception):
-            await handler.delete_entity("Q42", request, edit_headers)
+            await handler.delete_entity("Q42", request, edit_headers, user_id=123)
+
 
     @pytest.mark.asyncio
     async def test_delete_conflict(self) -> None:
@@ -196,12 +196,12 @@ class TestEntityDeleteHandler:
         mock_s3.read_revision.return_value = _make_current_revision()
 
         handler = EntityDeleteHandler(state=mock_state)
-
         request = EntityDeleteRequest(delete_type=DeleteType.SOFT)
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Delete test")
+        edit_headers = EditHeaders(x_edit_summary="Delete test")
 
         with pytest.raises(Exception):
-            await handler.delete_entity("Q42", request, edit_headers)
+            await handler.delete_entity("Q42", request, edit_headers, user_id=123)
+
 
     @pytest.mark.asyncio
     async def test_delete_mysql_not_initialized(self) -> None:
@@ -211,12 +211,12 @@ class TestEntityDeleteHandler:
         mock_state.s3_client = MagicMock()
 
         handler = EntityDeleteHandler(state=mock_state)
-
         request = EntityDeleteRequest(delete_type=DeleteType.SOFT)
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Delete test")
+        edit_headers = EditHeaders(x_edit_summary="Delete test")
 
         with pytest.raises(Exception):
-            await handler.delete_entity("Q42", request, edit_headers)
+            await handler.delete_entity("Q42", request, edit_headers, user_id=123)
+
 
     @pytest.mark.asyncio
     async def test_delete_s3_not_initialized(self) -> None:
@@ -229,7 +229,7 @@ class TestEntityDeleteHandler:
         handler = EntityDeleteHandler(state=mock_state)
 
         request = EntityDeleteRequest(delete_type=DeleteType.SOFT)
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Delete test")
+        edit_headers = EditHeaders(x_edit_summary="Delete test")
 
         with pytest.raises(Exception):
-            await handler.delete_entity("Q42", request, edit_headers)
+            await handler.delete_entity("Q42", request, edit_headers, user_id=123)

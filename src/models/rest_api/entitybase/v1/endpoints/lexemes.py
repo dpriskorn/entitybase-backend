@@ -63,6 +63,7 @@ async def create_lexeme(
     return await handler.create_entity(
         request=request,
         edit_headers=headers,
+        user_id=auth.user.user_id,
         validator=validator,
     )
 
@@ -112,6 +113,7 @@ async def update_lexeme_language(
         update_request,
         edit_headers=headers,
         validator=validator,
+        user_id=0,
     )
 
 
@@ -168,6 +170,7 @@ async def update_lexeme_lexicalcategory(
         update_request,
         edit_headers=headers,
         validator=validator,
+        user_id=0,
     )
 
 
@@ -258,6 +261,7 @@ async def add_lexeme_lemma(
         update_request,
         edit_headers=headers,
         validator=validator,
+        user_id=auth.user.user_id,
     )
 
     hash_value = MetadataExtractor.hash_string(request.value)
@@ -308,6 +312,7 @@ async def update_lexeme_lemma(
         update_request,
         edit_headers=headers,
         validator=validator,
+        user_id=0,
     )
 
     hash_value = MetadataExtractor.hash_string(request.value)
@@ -359,6 +364,7 @@ async def delete_lexeme_lemma(
         update_request,
         edit_headers=headers,
         validator=validator,
+        user_id=0,
     )
 
     return DeleteResponse(success=True)

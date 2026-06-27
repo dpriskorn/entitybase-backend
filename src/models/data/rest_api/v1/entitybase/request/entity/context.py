@@ -69,6 +69,7 @@ class ProcessEntityRevisionContext(BaseModel):
     entity_type: Any = Field(..., description="Entity type enum")
     edit_type: Any = Field(default=None, description="Edit type")
     edit_headers: Any = Field(..., description="Edit headers")
+    user_id: int = Field(default=0, description="User ID")
     is_creation: bool = Field(
         default=False, description="Whether this is a creation operation"
     )
@@ -85,6 +86,7 @@ class CreationTransactionContext(BaseModel):
     request_data: Any = Field(..., description="Prepared request data")
     request: Any = Field(..., description="Original create request")
     edit_headers: Any = Field(..., description="Edit headers")
+    user_id: int = Field(default=0, description="User ID")
     validator: Any = Field(default=None, description="Validator instance")
 
 
@@ -130,3 +132,4 @@ class RevisionContext(BaseModel):
     )
     validator: Any | None = Field(default=None, description="Validator instance")
     edit_headers: Any = Field(default=None, description="Edit headers")
+    user_id: int = Field(default=0, description="User ID")

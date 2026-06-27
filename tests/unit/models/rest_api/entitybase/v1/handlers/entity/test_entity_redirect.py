@@ -33,7 +33,7 @@ class TestRedirectHandler:
             redirect_from_id="Q1",
             redirect_to_id="Q2",
         )
-        headers = EditHeaders(x_user_id=0, x_edit_summary="create redirect")
+        headers = EditHeaders(x_edit_summary="create redirect")
 
         mock_state.redirect_service.create_redirect.return_value = MagicMock()
 
@@ -49,7 +49,7 @@ class TestRedirectHandler:
         self, handler: RedirectHandler, mock_state: MagicMock
     ) -> None:
         request = RedirectRevertRequest(revert_to_revision_id=5)
-        headers = EditHeaders(x_user_id=0, x_edit_summary="revert redirect")
+        headers = EditHeaders(x_edit_summary="revert redirect")
 
         mock_state.redirect_service.revert_redirect.return_value = MagicMock()
 

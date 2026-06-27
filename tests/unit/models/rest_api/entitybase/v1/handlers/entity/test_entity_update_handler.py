@@ -60,7 +60,7 @@ class TestEntityUpdateHandler:
                 "Q42",
                 modified_data,
                 MagicMock(),
-                EditHeaders(x_user_id=123, x_edit_summary="Test edit"),
+                EditHeaders(x_edit_summary="Test edit"),
             )
 
             assert result.id == "Q42"
@@ -84,7 +84,7 @@ class TestEntityUpdateHandler:
                 "Q999",
                 modified_data,
                 MagicMock(),
-                EditHeaders(x_user_id=1, x_edit_summary="Test"),
+                EditHeaders(x_edit_summary="Test"),
             )
         assert exc_info.value.status_code == 404
         assert exc_info.value.detail == "Entity not found"
@@ -109,7 +109,7 @@ class TestEntityUpdateHandler:
                 "Q42",
                 modified_data,
                 MagicMock(),
-                EditHeaders(x_user_id=1, x_edit_summary="Test"),
+                EditHeaders(x_edit_summary="Test"),
             )
         assert exc_info.value.status_code == 410
         assert exc_info.value.detail == "Entity deleted"
@@ -135,7 +135,7 @@ class TestEntityUpdateHandler:
                 "Q42",
                 modified_data,
                 MagicMock(),
-                EditHeaders(x_user_id=1, x_edit_summary="Test"),
+                EditHeaders(x_edit_summary="Test"),
             )
         assert exc_info.value.status_code == 423
         assert exc_info.value.detail == "Entity locked"
@@ -188,7 +188,7 @@ class TestEntityUpdateHandler:
                     result = await handler.update_label(
                         "Q42",
                         context,
-                        EditHeaders(x_user_id=1, x_edit_summary="Update label"),
+                        EditHeaders(x_edit_summary="Update label"),
                     )
 
                     assert mock_update.called
@@ -206,7 +206,7 @@ class TestEntityUpdateHandler:
             await handler.update_label(
                 "Q42",
                 context,
-                EditHeaders(x_user_id=1, x_edit_summary="Update label"),
+                EditHeaders(x_edit_summary="Update label"),
             )
         assert exc_info.value.status_code == 400
         assert "Language in request" in exc_info.value.detail
@@ -224,7 +224,7 @@ class TestEntityUpdateHandler:
             await handler.update_label(
                 "INVALID",
                 context,
-                EditHeaders(x_user_id=1, x_edit_summary="Update label"),
+                EditHeaders(x_edit_summary="Update label"),
             )
         assert exc_info.value.status_code == 400
         assert exc_info.value.detail == "Invalid entity ID format"
@@ -265,7 +265,7 @@ class TestEntityUpdateHandler:
                 result = await handler.delete_label(
                     "Q42",
                     "en",
-                    EditHeaders(x_user_id=1, x_edit_summary="Delete label"),
+                    EditHeaders(x_edit_summary="Delete label"),
                 )
 
                 assert result is not None
@@ -300,7 +300,7 @@ class TestEntityUpdateHandler:
                 result = await handler.delete_label(
                     "Q42",
                     "en",  # Label doesn't exist
-                    EditHeaders(x_user_id=1, x_edit_summary="Delete label"),
+                    EditHeaders(x_edit_summary="Delete label"),
                 )
 
                 # Should return current entity without calling update
@@ -343,7 +343,7 @@ class TestEntityUpdateHandler:
                     result = await handler.update_description(
                         "Q42",
                         context,
-                        EditHeaders(x_user_id=1, x_edit_summary="Update description"),
+                        EditHeaders(x_edit_summary="Update description"),
                     )
 
                     assert mock_update.called
@@ -361,7 +361,7 @@ class TestEntityUpdateHandler:
             await handler.update_description(
                 "Q42",
                 context,
-                EditHeaders(x_user_id=1, x_edit_summary="Update description"),
+                EditHeaders(x_edit_summary="Update description"),
             )
         assert exc_info.value.status_code == 400
         assert "Language in request" in exc_info.value.detail
@@ -379,7 +379,7 @@ class TestEntityUpdateHandler:
             await handler.update_description(
                 "INVALID",
                 context,
-                EditHeaders(x_user_id=1, x_edit_summary="Update description"),
+                EditHeaders(x_edit_summary="Update description"),
             )
         assert exc_info.value.status_code == 400
         assert exc_info.value.detail == "Invalid entity ID format"
@@ -421,7 +421,7 @@ class TestEntityUpdateHandler:
                 result = await handler.delete_description(
                     "Q42",
                     "en",
-                    EditHeaders(x_user_id=1, x_edit_summary="Delete description"),
+                    EditHeaders(x_edit_summary="Delete description"),
                 )
 
                 assert result is not None
@@ -457,7 +457,7 @@ class TestEntityUpdateHandler:
                 result = await handler.delete_description(
                     "Q42",
                     "en",  # Description doesn't exist
-                    EditHeaders(x_user_id=1, x_edit_summary="Delete description"),
+                    EditHeaders(x_edit_summary="Delete description"),
                 )
 
                 assert result == mock_entity
@@ -497,7 +497,7 @@ class TestEntityUpdateHandler:
                         "Q42",
                         "en",
                         ["Alias1", "Alias2"],
-                        EditHeaders(x_user_id=1, x_edit_summary="Update aliases"),
+                        EditHeaders(x_edit_summary="Update aliases"),
                     )
 
                     assert mock_update.called
@@ -519,7 +519,7 @@ class TestEntityUpdateHandler:
                 "INVALID",
                 "en",
                 ["Alias"],
-                EditHeaders(x_user_id=1, x_edit_summary="Update aliases"),
+                EditHeaders(x_edit_summary="Update aliases"),
             )
         assert exc_info.value.status_code == 400
         assert exc_info.value.detail == "Invalid entity ID format"
@@ -563,7 +563,7 @@ class TestEntityUpdateHandler:
                     )
                     result = await handler.update_sitelink(
                         ctx,
-                        EditHeaders(x_user_id=1, x_edit_summary="Update sitelink"),
+                        EditHeaders(x_edit_summary="Update sitelink"),
                     )
 
                     assert mock_update.called
@@ -612,7 +612,7 @@ class TestEntityUpdateHandler:
                     )
                     result = await handler.update_sitelink(
                         ctx,
-                        EditHeaders(x_user_id=1, x_edit_summary="Update sitelink"),
+                        EditHeaders(x_edit_summary="Update sitelink"),
                     )
 
                     assert mock_update.called
@@ -629,7 +629,7 @@ class TestEntityUpdateHandler:
             )
             await handler.update_sitelink(
                 ctx,
-                EditHeaders(x_user_id=1, x_edit_summary="Update sitelink"),
+                EditHeaders(x_edit_summary="Update sitelink"),
             )
         assert exc_info.value.status_code == 400
         assert exc_info.value.detail == "Invalid entity ID format"
@@ -670,7 +670,7 @@ class TestEntityUpdateHandler:
                     result = await handler.delete_sitelink(
                         "Q42",
                         "enwiki",
-                        EditHeaders(x_user_id=1, x_edit_summary="Delete sitelink"),
+                        EditHeaders(x_edit_summary="Delete sitelink"),
                     )
 
                     assert mock_update.called
@@ -702,7 +702,7 @@ class TestEntityUpdateHandler:
                 result = await handler.delete_sitelink(
                     "Q42",
                     "enwiki",  # Sitelink doesn't exist
-                    EditHeaders(x_user_id=1, x_edit_summary="Delete sitelink"),
+                    EditHeaders(x_edit_summary="Delete sitelink"),
                 )
 
                 assert result == mock_entity

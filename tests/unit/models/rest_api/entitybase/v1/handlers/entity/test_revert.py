@@ -196,7 +196,7 @@ class TestEntityRevertHandlerCreateRevisionData:
             property_counts={"P1": 1},
             properties=["P1"],
         )
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Revert")
+        edit_headers = EditHeaders(x_edit_summary="Revert")
 
         result = await handler._create_revision_data(
             "Q42", target_data, 11, edit_headers
@@ -220,7 +220,7 @@ class TestEntityRevertHandlerCreateRevisionData:
         target_data = self._make_target_data(
             state={"sp": True, "locked": False, "archived": True},
         )
-        edit_headers = EditHeaders(x_user_id=0, x_edit_summary="test")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         result = await handler._create_revision_data(
             "Q42", target_data, 5, edit_headers
@@ -237,7 +237,7 @@ class TestEntityRevertHandlerCreateRevisionData:
         handler = EntityRevertHandler(state=MagicMock())
         empty_data = MagicMock(spec=S3RevisionData)
         empty_data.revision = None
-        edit_headers = EditHeaders(x_user_id=0, x_edit_summary="test")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         result = await handler._create_revision_data("Q42", empty_data, 1, edit_headers)
 
@@ -251,7 +251,7 @@ class TestEntityRevertHandlerCreateRevisionData:
     async def test_create_revision_data_non_dict_hashes(self) -> None:
         handler = EntityRevertHandler(state=MagicMock())
         target_data = self._make_target_data(hashes="invalid")
-        edit_headers = EditHeaders(x_user_id=0, x_edit_summary="test")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         result = await handler._create_revision_data(
             "Q42", target_data, 1, edit_headers
@@ -263,7 +263,7 @@ class TestEntityRevertHandlerCreateRevisionData:
     async def test_create_revision_data_non_dict_state(self) -> None:
         handler = EntityRevertHandler(state=MagicMock())
         target_data = self._make_target_data(state="invalid")
-        edit_headers = EditHeaders(x_user_id=0, x_edit_summary="test")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         result = await handler._create_revision_data(
             "Q42", target_data, 1, edit_headers
@@ -348,7 +348,7 @@ class TestEntityRevertHandlerPublishChangeEvent:
         mock_state = MagicMock()
         mock_producer = AsyncMock()
         mock_state.entity_change_stream_producer = mock_producer
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Revert test")
+        edit_headers = EditHeaders(x_edit_summary="Revert test")
 
         handler = EntityRevertHandler(state=mock_state)
 
@@ -372,7 +372,7 @@ class TestEntityRevertHandlerPublishChangeEvent:
         mock_state = MagicMock()
         mock_producer = AsyncMock()
         mock_state.entity_change_stream_producer = mock_producer
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Revert test")
+        edit_headers = EditHeaders(x_edit_summary="Revert test")
 
         handler = EntityRevertHandler(state=mock_state)
 
@@ -388,7 +388,7 @@ class TestEntityRevertHandlerPublishChangeEvent:
     async def test_publish_event_without_producer(self) -> None:
         mock_state = MagicMock()
         mock_state.entity_change_stream_producer = None
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="test")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         handler = EntityRevertHandler(state=mock_state)
         await handler._publish_change_event("Q42", 11, 5, edit_headers)
@@ -409,7 +409,7 @@ class TestEntityRevertHandlerRevertEntity:
         mock_state = MagicMock()
         handler = EntityRevertHandler(state=mock_state)
         request = EntityRevertRequest(to_revision_id=3)
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="test revert")
+        edit_headers = EditHeaders(x_edit_summary="test revert")
 
         with (
             patch.object(
@@ -442,7 +442,7 @@ class TestEntityRevertHandlerRevertEntity:
                 success=True
             )
 
-            response = await handler.revert_entity("Q42", request, edit_headers)
+            response = await handler.revert_entity("Q42", request, edit_headers, user_id=123)
 
         assert isinstance(response, EntityRevertResponse)
         assert response.entity_id == "Q42"
@@ -465,7 +465,7 @@ class TestEntityRevertHandlerRevertEntity:
         )
         handler = EntityRevertHandler(state=mock_state)
         request = EntityRevertRequest(to_revision_id=1)
-        edit_headers = EditHeaders(x_user_id=456, x_edit_summary="revert")
+        edit_headers = EditHeaders(x_edit_summary="revert")
 
         with (
             patch.object(
@@ -493,7 +493,7 @@ class TestEntityRevertHandlerRevertEntity:
             mock_head.return_value = 5
             mock_store.return_value = 999
 
-            response = await handler.revert_entity("Q42", request, edit_headers)
+            response = await handler.revert_entity("Q42", request, edit_headers, user_id=456)
 
         mock_mysql.user_repository.log_user_activity.assert_called_once_with(
             user_id=456,
@@ -513,7 +513,7 @@ class TestEntityRevertHandlerRevertEntity:
         )
         handler = EntityRevertHandler(state=mock_state)
         request = EntityRevertRequest(to_revision_id=1)
-        edit_headers = EditHeaders(x_user_id=789, x_edit_summary="revert")
+        edit_headers = EditHeaders(x_edit_summary="revert")
 
         with (
             patch.object(
@@ -541,7 +541,7 @@ class TestEntityRevertHandlerRevertEntity:
             mock_head.return_value = 5
             mock_store.return_value = 999
 
-            response = await handler.revert_entity("Q42", request, edit_headers)
+            response = await handler.revert_entity("Q42", request, edit_headers, user_id=789)
 
         assert response.new_revision_id == 6
 
@@ -552,7 +552,7 @@ class TestEntityRevertHandlerRevertEntity:
         mock_state.mysql_client = mock_mysql
         handler = EntityRevertHandler(state=mock_state)
         request = EntityRevertRequest(to_revision_id=1)
-        edit_headers = EditHeaders(x_user_id=0, x_edit_summary="revert")
+        edit_headers = EditHeaders(x_edit_summary="revert")
 
         with (
             patch.object(
@@ -580,7 +580,7 @@ class TestEntityRevertHandlerRevertEntity:
             mock_head.return_value = 5
             mock_store.return_value = 999
 
-            response = await handler.revert_entity("Q42", request, edit_headers)
+            response = await handler.revert_entity("Q42", request, edit_headers, user_id=0)
 
         mock_mysql.user_repository.log_user_activity.assert_not_called()
         assert response.new_revision_id == 6
@@ -590,7 +590,7 @@ class TestEntityRevertHandlerRevertEntity:
         mock_state = MagicMock()
         handler = EntityRevertHandler(state=mock_state)
         request = EntityRevertRequest(to_revision_id=3)
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="test")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         with patch.object(
             handler, "_resolve_entity_id", new_callable=AsyncMock
@@ -600,5 +600,5 @@ class TestEntityRevertHandlerRevertEntity:
             )
 
             with pytest.raises(HTTPException) as exc_info:
-                await handler.revert_entity("Q999", request, edit_headers)
+                await handler.revert_entity("Q999", request, edit_headers, user_id=123)
             assert exc_info.value.status_code == 404

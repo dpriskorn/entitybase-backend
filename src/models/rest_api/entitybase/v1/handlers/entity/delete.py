@@ -24,6 +24,7 @@ class EntityDeleteHandler(Handler):
         entity_id: str,
         request: EntityDeleteRequest,
         edit_headers: EditHeaders,
+        user_id: int = 0,
     ) -> EntityDeleteResponse:
         """Delete entity (soft or hard delete).
 
@@ -69,7 +70,7 @@ class EntityDeleteHandler(Handler):
             )
 
         edit_context = EditContext(
-            user_id=edit_headers.x_user_id,
+            user_id=user_id,
             edit_summary=edit_headers.x_edit_summary,
         )
 
@@ -119,13 +120,13 @@ class EntityDeleteHandler(Handler):
             new_revision_id=new_revision_id,
             head_revision_id=head_revision_id,
             edit_context=EditContext(
-                user_id=edit_headers.x_user_id,
+                user_id=user_id,
                 edit_summary=edit_headers.x_edit_summary,
             ),
         )
 
         delete_service.log_delete_activity(
-            user_id=edit_headers.x_user_id,
+            user_id=user_id,
             entity_id=entity_id,
             new_revision_id=new_revision_id,
         )

@@ -90,6 +90,7 @@ async def update_entity_description(
         context,
         headers,
         validator,
+        user_id=0,
     )
 
     hash_value = MetadataExtractor.hash_string(request.value)
@@ -119,6 +120,7 @@ async def delete_entity_description(
         language_code,
         headers,
         validator,
+        user_id=0,
     )
 
     return DeleteResponse(success=True)
@@ -156,6 +158,7 @@ async def add_entity_description(
         context,
         headers,
         validator,
+        user_id=auth.user.user_id,
     )
 
     hash_value = MetadataExtractor.hash_string(request.value)

@@ -83,6 +83,7 @@ async def update_entity_aliases(
             aliases_data,
             headers,
             validator,
+            user_id=0,
         )
         logger.info(f"ALIAS UPDATE SUCCESS: entity={entity_id}")
         hashes = [MetadataExtractor.hash_string(alias) for alias in aliases_data]
@@ -127,6 +128,7 @@ async def add_entity_alias(
         request.value,
         headers,
         validator,
+        user_id=auth.user.user_id,
     )
 
     hash_value = MetadataExtractor.hash_string(request.value)
@@ -156,6 +158,7 @@ async def delete_entity_aliases(
         language_code,
         headers,
         validator,
+        user_id=0,
     )
 
     return DeleteResponse(success=True)

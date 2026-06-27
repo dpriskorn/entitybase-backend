@@ -61,8 +61,8 @@ class TestStatementHandlerSnakReconstruction:
             response = handler.get_statement(123456789)
 
             # Verify snak was reconstructed
-            assert response.statement["mainsnak"] == reconstructed_snak
-            assert "hash" not in response.statement["mainsnak"]
+            assert response.statement.mainsnak == reconstructed_snak
+            assert "hash" not in response.statement.mainsnak
 
             # Verify SnakHandler was called with correct hash
             mock_snak_handler_instance.get_snak.assert_called_once_with(123456789)
@@ -89,7 +89,7 @@ class TestStatementHandlerSnakReconstruction:
             response = handler.get_statement(123456789)
 
             # Verify statement still returned even with missing snak
-            assert response.statement["mainsnak"] == {"hash": 123456789}
+            assert response.statement.mainsnak == {"hash": 123456789}
 
     def test_get_statements_batch_reconstructs_multiple_snaks(self, mock_state):
         """Test batch statement retrieval reconstructs all snaks."""
@@ -149,8 +149,8 @@ class TestStatementHandlerSnakReconstruction:
 
             # Verify both snaks were reconstructed
             assert len(response) == 2
-            assert response[0].statement["mainsnak"]["property"] == "P31"
-            assert response[1].statement["mainsnak"]["property"] == "P569"
+            assert response[0].statement.mainsnak["property"] == "P31"
+            assert response[1].statement.mainsnak["property"] == "P569"
 
             # Verify SnakHandler.get_snak called twice
             assert mock_snak_handler_instance.get_snak.call_count == 2

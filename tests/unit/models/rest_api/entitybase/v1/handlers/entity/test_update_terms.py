@@ -132,7 +132,7 @@ class TestUpdateLabelErrors:
         mixin, mock_state = self._create_mixin_with_mocks()
 
         context = TermUpdateContext(language="en", language_code="de", value="Test")
-        edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         with pytest.raises(HTTPException) as exc_info:
             await mixin.update_label("Q1", context, edit_headers)
@@ -152,7 +152,7 @@ class TestUpdateLabelErrors:
         mixin, mock_state = self._create_mixin_with_mocks()
 
         context = TermUpdateContext(language="en", language_code="en", value="Test")
-        edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         with pytest.raises(HTTPException) as exc_info:
             await mixin.update_label("invalid", context, edit_headers)
@@ -185,7 +185,7 @@ class TestDeleteLabelErrors:
 
         mixin, mock_state = self._create_mixin_with_mocks()
 
-        edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         with pytest.raises(HTTPException) as exc_info:
             await mixin.delete_label("invalid", "en", edit_headers)
@@ -202,7 +202,7 @@ class TestDeleteLabelErrors:
         mixin, mock_state = self._create_mixin_with_mocks()
         mock_state.mysql_client.is_entity_deleted.return_value = True
 
-        edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         with pytest.raises(HTTPException) as exc_info:
             await mixin.delete_label("Q1", "en", edit_headers)
@@ -220,7 +220,7 @@ class TestDeleteLabelErrors:
         mock_state.mysql_client.is_entity_deleted.return_value = False
         mock_state.mysql_client.is_entity_locked.return_value = True
 
-        edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         with pytest.raises(HTTPException) as exc_info:
             await mixin.delete_label("Q1", "en", edit_headers)
@@ -257,7 +257,7 @@ class TestUpdateDescriptionErrors:
         mixin, mock_state = self._create_mixin_with_mocks()
 
         context = TermUpdateContext(language="en", language_code="de", value="Test")
-        edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         with pytest.raises(HTTPException) as exc_info:
             await mixin.update_description("Q1", context, edit_headers)
@@ -277,7 +277,7 @@ class TestUpdateDescriptionErrors:
         mixin, mock_state = self._create_mixin_with_mocks()
 
         context = TermUpdateContext(language="en", language_code="en", value="Test")
-        edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         with pytest.raises(HTTPException) as exc_info:
             await mixin.update_description("invalid", context, edit_headers)
@@ -310,7 +310,7 @@ class TestDeleteDescriptionErrors:
 
         mixin, mock_state = self._create_mixin_with_mocks()
 
-        edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         with pytest.raises(HTTPException) as exc_info:
             await mixin.delete_description("invalid", "en", edit_headers)
@@ -327,7 +327,7 @@ class TestDeleteDescriptionErrors:
         mixin, mock_state = self._create_mixin_with_mocks()
         mock_state.mysql_client.is_entity_deleted.return_value = True
 
-        edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         with pytest.raises(HTTPException) as exc_info:
             await mixin.delete_description("Q1", "en", edit_headers)
@@ -345,7 +345,7 @@ class TestDeleteDescriptionErrors:
         mock_state.mysql_client.is_entity_deleted.return_value = False
         mock_state.mysql_client.is_entity_locked.return_value = True
 
-        edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         with pytest.raises(HTTPException) as exc_info:
             await mixin.delete_description("Q1", "en", edit_headers)
@@ -378,7 +378,7 @@ class TestUpdateAliasesErrors:
 
         mixin, mock_state = self._create_mixin_with_mocks()
 
-        edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         with pytest.raises(HTTPException) as exc_info:
             await mixin.update_aliases("invalid", "en", ["alias"], edit_headers)
@@ -411,7 +411,7 @@ class TestAddAliasErrors:
 
         mixin, mock_state = self._create_mixin_with_mocks()
 
-        edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         with pytest.raises(HTTPException) as exc_info:
             await mixin.add_alias("invalid", "en", "alias", edit_headers)
@@ -428,7 +428,7 @@ class TestAddAliasErrors:
         mixin, mock_state = self._create_mixin_with_mocks()
         mock_state.mysql_client.is_entity_deleted.return_value = True
 
-        edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         with pytest.raises(HTTPException) as exc_info:
             await mixin.add_alias("Q1", "en", "alias", edit_headers)
@@ -446,7 +446,7 @@ class TestAddAliasErrors:
         mock_state.mysql_client.is_entity_deleted.return_value = False
         mock_state.mysql_client.is_entity_locked.return_value = True
 
-        edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         with pytest.raises(HTTPException) as exc_info:
             await mixin.add_alias("Q1", "en", "alias", edit_headers)
@@ -479,7 +479,7 @@ class TestDeleteAliasesErrors:
 
         mixin, mock_state = self._create_mixin_with_mocks()
 
-        edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         with pytest.raises(HTTPException) as exc_info:
             await mixin.delete_aliases("invalid", "en", edit_headers)
@@ -496,7 +496,7 @@ class TestDeleteAliasesErrors:
         mixin, mock_state = self._create_mixin_with_mocks()
         mock_state.mysql_client.is_entity_deleted.return_value = True
 
-        edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         with pytest.raises(HTTPException) as exc_info:
             await mixin.delete_aliases("Q1", "en", edit_headers)
@@ -514,7 +514,7 @@ class TestDeleteAliasesErrors:
         mock_state.mysql_client.is_entity_deleted.return_value = False
         mock_state.mysql_client.is_entity_locked.return_value = True
 
-        edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         with pytest.raises(HTTPException) as exc_info:
             await mixin.delete_aliases("Q1", "en", edit_headers)
@@ -572,7 +572,7 @@ class TestDeleteAliasesSuccess:
                     return_value=EntityType.ITEM,
                 ):
                     result = await mixin.delete_aliases(
-                        "Q1", "en", EditHeaders(x_edit_summary="test", x_user_id="0")
+                        "Q1", "en", EditHeaders(x_edit_summary="test")
                     )
 
                     assert result == mock_response
@@ -600,7 +600,7 @@ class TestDeleteAliasesSuccess:
                 return_value=MagicMock(),
             ):
                 result = await mixin.delete_aliases(
-                    "Q1", "en", EditHeaders(x_edit_summary="test", x_user_id="0")
+                    "Q1", "en", EditHeaders(x_edit_summary="test")
                 )
 
                 assert result == mock_entity
@@ -653,7 +653,7 @@ class TestAddAliasSuccess:
                             "Q1",
                             "en",
                             "alias",
-                            EditHeaders(x_edit_summary="test", x_user_id="0"),
+                            EditHeaders(x_edit_summary="test"),
                         )
 
                     assert exc_info.value.status_code == 409
@@ -714,7 +714,7 @@ class TestAddAliasSuccess:
                                 "Q1",
                                 "en",
                                 "newalias",
-                                EditHeaders(x_edit_summary="test", x_user_id="0"),
+                                EditHeaders(x_edit_summary="test"),
                             )
 
                             assert result == mock_response
@@ -770,7 +770,7 @@ class TestAddAliasSuccess:
                             "Q1",
                             "en",
                             "newalias",
-                            EditHeaders(x_edit_summary="test", x_user_id="0"),
+                            EditHeaders(x_edit_summary="test"),
                         )
 
                         assert result == mock_response
@@ -797,7 +797,7 @@ class TestExecuteTermAddTransaction:
             entity_type=ET.ITEM,
             updated_hashes={"labels": {}},
             existing_revision={},
-            edit_headers=EditHeaders(x_edit_summary="test", x_user_id="0"),
+            edit_headers=EditHeaders(x_edit_summary="test"),
         )
         mock_response = MagicMock()
         mock_response.revision_id = 3
@@ -831,7 +831,7 @@ class TestExecuteTermAddTransaction:
             entity_type=ET.ITEM,
             updated_hashes={"labels": {}},
             existing_revision={},
-            edit_headers=EditHeaders(x_edit_summary="test", x_user_id="0"),
+            edit_headers=EditHeaders(x_edit_summary="test"),
         )
 
         with patch(
@@ -864,7 +864,7 @@ class TestExecuteTermAddTransaction:
             entity_type=ET.ITEM,
             updated_hashes={"labels": {}},
             existing_revision={},
-            edit_headers=EditHeaders(x_edit_summary="test", x_user_id="0"),
+            edit_headers=EditHeaders(x_edit_summary="test"),
         )
 
         with patch(
@@ -900,7 +900,7 @@ class TestExecuteTermAddTransaction:
             entity_type=ET.ITEM,
             updated_hashes={"labels": {}},
             existing_revision={},
-            edit_headers=EditHeaders(x_edit_summary="test", x_user_id="0"),
+            edit_headers=EditHeaders(x_edit_summary="test"),
         )
         mock_response = MagicMock()
         mock_response.revision_id = 3
@@ -933,7 +933,7 @@ class TestExecuteTermAddTransaction:
             entity_type=ET.ITEM,
             updated_hashes={"labels": {}},
             existing_revision={},
-            edit_headers=EditHeaders(x_edit_summary="test", x_user_id=0),
+            edit_headers=EditHeaders(x_edit_summary="test"),
         )
         mock_response = MagicMock()
         mock_response.revision_id = 3
@@ -973,7 +973,7 @@ class TestExecuteTermDeleteTransaction:
             entity_type=ET.ITEM,
             updated_hashes={"labels": {}},
             existing_revision={},
-            edit_headers=EditHeaders(x_edit_summary="test", x_user_id="0"),
+            edit_headers=EditHeaders(x_edit_summary="test"),
         )
         mock_response = MagicMock()
         mock_response.revision_id = 3
@@ -1013,7 +1013,7 @@ class TestExecuteTermDeleteTransaction:
             entity_type=ET.ITEM,
             updated_hashes={"labels": {}},
             existing_revision={},
-            edit_headers=EditHeaders(x_edit_summary="test", x_user_id="0"),
+            edit_headers=EditHeaders(x_edit_summary="test"),
         )
         mock_response = MagicMock()
         mock_response.revision_id = 3
@@ -1047,7 +1047,7 @@ class TestExecuteTermDeleteTransaction:
             entity_type=ET.ITEM,
             updated_hashes={"labels": {}},
             existing_revision={},
-            edit_headers=EditHeaders(x_edit_summary="test", x_user_id="0"),
+            edit_headers=EditHeaders(x_edit_summary="test"),
         )
 
         with patch(
@@ -1080,7 +1080,7 @@ class TestExecuteTermDeleteTransaction:
             entity_type=ET.ITEM,
             updated_hashes={"labels": {}},
             existing_revision={},
-            edit_headers=EditHeaders(x_edit_summary="test", x_user_id="0"),
+            edit_headers=EditHeaders(x_edit_summary="test"),
         )
 
         with patch(
@@ -1116,7 +1116,7 @@ class TestExecuteTermDeleteTransaction:
             entity_type=ET.ITEM,
             updated_hashes={"labels": {}},
             existing_revision={},
-            edit_headers=EditHeaders(x_edit_summary="test", x_user_id="0"),
+            edit_headers=EditHeaders(x_edit_summary="test"),
         )
         mock_response = MagicMock()
         mock_response.revision_id = 3
@@ -1151,7 +1151,7 @@ class TestExecuteTermDeleteTransaction:
             entity_type=ET.ITEM,
             updated_hashes={"labels": {}},
             existing_revision={},
-            edit_headers=EditHeaders(x_edit_summary="test", x_user_id=0),
+            edit_headers=EditHeaders(x_edit_summary="test"),
         )
         mock_response = MagicMock()
         mock_response.revision_id = 3

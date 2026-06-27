@@ -38,7 +38,7 @@ class TestPropertyCreateHandler:
         request.edit_type = "create"
         request.is_mass_edit = False
 
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="test")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         with patch(
             "models.rest_api.entitybase.v1.handlers.entity.create.EntityCreateHandler.process_entity_revision_new",
@@ -76,7 +76,7 @@ class TestPropertyCreateHandler:
         request.edit_type = "create"
         request.is_mass_edit = False
 
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="test")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         with patch(
             "models.rest_api.entitybase.v1.handlers.entity.create.EntityCreateHandler.process_entity_revision_new",

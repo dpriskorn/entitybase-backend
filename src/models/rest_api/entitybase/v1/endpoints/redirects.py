@@ -32,7 +32,7 @@ async def create_entity_redirect(
     headers = auth_to_edit_headers(auth)
 
     handler = RedirectHandler(state=state)
-    result = await handler.create_entity_redirect(request, edit_headers=headers)
+    result = await handler.create_entity_redirect(request, edit_headers=headers, user_id=auth.user.user_id)
     if not isinstance(result, EntityRedirectResponse):
         raise_validation_error("Invalid response type", status_code=500)
     return result
@@ -53,7 +53,7 @@ async def revert_entity_redirect(  # type: ignore[no-any-return]
 
     handler = RedirectHandler(state=state)
     result = await handler.revert_entity_redirect(
-        entity_id, request, edit_headers=headers
+        entity_id, request, edit_headers=headers, user_id=auth.user.user_id
     )
     if not isinstance(result, EntityRevertResponse):
         raise_validation_error("Invalid response type", status_code=500)

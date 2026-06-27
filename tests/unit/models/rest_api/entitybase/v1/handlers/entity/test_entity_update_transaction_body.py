@@ -47,7 +47,7 @@ class TestEntityUpdateTransactionBody:
                     "Q42",
                     modified_data,
                     EntityType.ITEM,
-                    EditHeaders(x_user_id=1, x_edit_summary="Update"),
+                    EditHeaders(x_edit_summary="Update"),
                 )
             assert exc_info.value.status_code == 404
             mock_tx.rollback.assert_called_once()
@@ -85,7 +85,7 @@ class TestEntityUpdateTransactionBody:
                     "Q42",
                     modified_data,
                     EntityType.ITEM,
-                    EditHeaders(x_user_id=1, x_edit_summary="Update"),
+                    EditHeaders(x_edit_summary="Update"),
                 )
             assert exc_info.value.status_code == 422
             mock_tx.rollback.assert_called_once()
@@ -121,7 +121,7 @@ class TestEntityUpdateTransactionBody:
                     "Q42",
                     modified_data,
                     EntityType.ITEM,
-                    EditHeaders(x_user_id=1, x_edit_summary="Update"),
+                    EditHeaders(x_edit_summary="Update"),
                 )
             assert exc_info.value.status_code == 500
             assert "Unexpected error" in str(exc_info.value.detail)
@@ -198,7 +198,8 @@ class TestEntityUpdateTransactionBody:
                 "Q42",
                 modified_data,
                 EntityType.ITEM,
-                EditHeaders(x_user_id=123, x_edit_summary="Update"),
+                EditHeaders(x_edit_summary="Update"),
+                user_id=123,
             )
 
             assert result.id == "Q42"
@@ -271,7 +272,8 @@ class TestEntityUpdateTransactionBody:
                 "Q42",
                 modified_data,
                 EntityType.ITEM,
-                EditHeaders(x_user_id=123, x_edit_summary="Update"),
+                EditHeaders(x_edit_summary="Update"),
+                user_id=123,
             )
 
             assert result.id == "Q42"
@@ -337,7 +339,8 @@ class TestEntityUpdateTransactionBody:
                 "Q42",
                 modified_data,
                 EntityType.ITEM,
-                EditHeaders(x_user_id=0, x_edit_summary="Bot update"),
+                EditHeaders(x_edit_summary="Bot update"),
+                user_id=0,
             )
 
             assert result.id == "Q42"

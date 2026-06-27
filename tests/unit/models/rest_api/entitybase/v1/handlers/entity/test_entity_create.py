@@ -30,9 +30,9 @@ class TestEntityCreateHandler:
             type="item", id="Q42", labels={"en": {"value": "Test Entity"}}
         )
 
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Test creation")
+        edit_headers = EditHeaders(x_edit_summary="Test creation")
         with pytest.raises(Exception):  # Should raise validation error
-            await handler.create_entity(request, edit_headers=edit_headers)
+            await handler.create_entity(request, edit_headers=edit_headers, user_id=123)
 
         mock_mysql.entity_exists.assert_called_once_with("Q42")
 
@@ -52,9 +52,9 @@ class TestEntityCreateHandler:
             type="item", id="Q42", labels={"en": {"value": "Test Entity"}}
         )
 
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Test creation")
+        edit_headers = EditHeaders(x_edit_summary="Test creation")
         with pytest.raises(Exception):  # Should raise validation error
-            await handler.create_entity(request, edit_headers=edit_headers)
+            await handler.create_entity(request, edit_headers=edit_headers, user_id=123)
 
     @pytest.mark.asyncio
     async def test_create_entity_missing_id_no_auto_assign(self) -> None:
@@ -67,9 +67,9 @@ class TestEntityCreateHandler:
             type="item", labels={"en": {"value": "Test Entity"}}
         )
 
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Test creation")
+        edit_headers = EditHeaders(x_edit_summary="Test creation")
         with pytest.raises(Exception):  # Should raise validation error
-            await handler.create_entity(request, edit_headers=edit_headers)
+            await handler.create_entity(request, edit_headers=edit_headers, user_id=123)
 
     @pytest.mark.asyncio
     async def test_create_entity_auto_assign_no_enumeration_service(self) -> None:
@@ -82,10 +82,10 @@ class TestEntityCreateHandler:
             type="item", labels={"en": {"value": "Test Entity"}}
         )
 
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Test creation")
+        edit_headers = EditHeaders(x_edit_summary="Test creation")
         with pytest.raises(Exception):  # Should raise validation error
             await handler.create_entity(
-                request, edit_headers=edit_headers, auto_assign_id=True
+                request, edit_headers=edit_headers, user_id=123, auto_assign_id=True
             )
 
     @pytest.mark.asyncio
@@ -122,9 +122,9 @@ class TestEntityCreateHandler:
                 type="item", id="Q42", labels={"en": {"value": "Test Entity"}}
             )
 
-            edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Test creation")
+            edit_headers = EditHeaders(x_edit_summary="Test creation")
             result = await handler.create_entity(
-                request, edit_headers=edit_headers, validator=mock_validator
+                request, edit_headers=edit_headers, user_id=123, validator=mock_validator
             )
 
             assert result.id == "Q42"

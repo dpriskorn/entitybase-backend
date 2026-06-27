@@ -107,7 +107,14 @@ class TestUserHandlerMethods:
         """Test get_user success."""
         from models.data.rest_api.v1.entitybase.response import UserResponse
 
-        user = UserResponse(user_id=1, created_at=datetime.now(timezone.utc))
+        from models.data.common.roles import UserRole
+
+        user = UserResponse(
+            user_id=1,
+            username="testuser",
+            role=UserRole.DEFAULT,
+            created_at=datetime.now(timezone.utc),
+        )
         mock_state.mysql_client.user_repository.get_user.return_value = user
 
         result = handler.get_user(1)

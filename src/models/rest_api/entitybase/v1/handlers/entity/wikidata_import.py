@@ -86,7 +86,6 @@ class EntityJsonImportHandler(Handler):
                 return False, False
 
             edit_headers_data = {
-                "x_user_id": 0,
                 "x_edit_summary": "Wikidata import",
             }
 

@@ -59,6 +59,7 @@ class EntityUpdateHandler(
         modified_data: dict[str, Any],
         entity_type: EntityType,
         edit_headers: EditHeaders,
+        user_id: int = 0,
         validator: Any | None = None,
     ) -> EntityResponse:
         """Execute entity update using UpdateTransaction.
@@ -145,7 +146,7 @@ class EntityUpdateHandler(
             )
 
             edit_context = EditContext(
-                user_id=edit_headers.x_user_id,
+                user_id=user_id,
                 edit_summary=edit_headers.x_edit_summary,
             )
             event_context = EventPublishContext(
@@ -157,10 +158,10 @@ class EntityUpdateHandler(
             )
             await tx.publish_event(event_context, edit_context)
 
-            if edit_headers.x_user_id:
+            if user_id:
                 activity_result = await (
                     self.state.mysql_client.user_repository.log_user_activity(
-                        user_id=edit_headers.x_user_id,
+                        user_id=user_id,
                         activity_type=UserActivityType.ENTITY_EDIT,
                         entity_id=entity_id,
                         revision_id=response.revision_id,

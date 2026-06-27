@@ -31,6 +31,7 @@ class EntityRevertHandler(Handler):
         entity_id: str,
         request: EntityRevertRequest,
         edit_headers: EditHeaders,
+        user_id: int = 0,
     ) -> EntityRevertResponse:
         """Revert an entity to a specified revision.
 
@@ -75,7 +76,7 @@ class EntityRevertHandler(Handler):
         logger.debug(f"New revision ID: {new_revision_id}")
 
         new_revision_data = await self._create_revision_data(
-            entity_id, target_revision_data, new_revision_id, edit_headers
+            entity_id, target_revision_data, new_revision_id, edit_headers, user_id=user_id
         )
 
         content_hash = await self._store_revision(
@@ -83,13 +84,13 @@ class EntityRevertHandler(Handler):
         )
 
         await self._publish_change_event(
-            entity_id, new_revision_id, head_revision, edit_headers
+            entity_id, new_revision_id, head_revision, edit_headers, user_id=user_id
         )
 
         # Log activity
-        if edit_headers.x_user_id > 0:
+        if user_id > 0:
             activity_result = self.state.mysql_client.user_repository.log_user_activity(
-                user_id=edit_headers.x_user_id,
+                user_id=user_id,
                 activity_type=UserActivityType.ENTITY_REVERT,
                 entity_id=entity_id,
                 revision_id=new_revision_id,
@@ -168,6 +169,7 @@ class EntityRevertHandler(Handler):
         target_data: S3RevisionData,
         new_revision_id: int,
         edit_headers: EditHeaders,
+        user_id: int = 0,
     ) -> RevisionData:
         """Create new revision data from target revision."""
         logger.debug("Creating new revision data from target revision")
@@ -214,7 +216,7 @@ class EntityRevertHandler(Handler):
             entity_type=EntityType.ITEM,
             edit=EditData(
                 type=EditType.MANUAL_UPDATE,
-                user_id=edit_headers.x_user_id,
+                user_id=user_id,
                 summary=f"Revert to revision {new_revision_id - 1}",
                 at=datetime.now(timezone.utc).isoformat(),
             ),
@@ -283,6 +285,7 @@ class EntityRevertHandler(Handler):
         new_revision_id: int,
         head_revision: int,
         edit_headers: EditHeaders,
+        user_id: int = 0,
     ) -> None:
         """Publish entity change event."""
         if self.state.entity_change_stream_producer:
@@ -292,7 +295,7 @@ class EntityRevertHandler(Handler):
                 type=ChangeType.REVERT,
                 from_rev=head_revision,
                 at=datetime.now(timezone.utc),
-                user=str(edit_headers.x_user_id),
+                user=str(user_id),
                 summary=edit_headers.x_edit_summary,
             )
             if settings.streaming_enabled:

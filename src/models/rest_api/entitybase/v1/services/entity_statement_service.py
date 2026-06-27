@@ -115,7 +115,7 @@ class EntityStatementService(Service):
             return result
         self._decrement_statement_ref_count(statement_hash)
         new_revision_id = await self._store_updated_revision(
-            revision_data, entity_id, head_revision_id, edit_headers
+            revision_data, entity_id, head_revision_id, edit_headers, user_id=edit_headers.x_user_id
         )
         return OperationResult(
             success=True,
@@ -295,6 +295,7 @@ class EntityStatementService(Service):
         entity_id: str,
         head_revision_id: int,
         edit_headers: EditHeaders,
+        user_id: int = 0,
     ) -> int:
         """Store updated revision and return new revision ID."""
         logger.debug(f"Storing updated revision for entity {entity_id}")
@@ -304,7 +305,7 @@ class EntityStatementService(Service):
         revision_data.edit.edit_type = EditType.MANUAL_UPDATE
         revision_data.edit.edit_summary = edit_headers.x_edit_summary
         revision_data.edit.at = datetime.now(timezone.utc).isoformat()
-        revision_data.edit.user_id = edit_headers.x_user_id
+        revision_data.edit.user_id = user_id
         try:
             from models.data.infrastructure.s3.revision_data import S3RevisionData
 
@@ -387,6 +388,7 @@ class EntityStatementService(Service):
             entity_type=entity_response.entity_data.revision.get("entity_type"),
             edit_type=EditType.UNSPECIFIED,
             edit_headers=edit_headers,
+            user_id=edit_headers.x_user_id,
             is_creation=False,
             validator=validator,
         )

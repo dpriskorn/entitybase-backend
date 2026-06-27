@@ -26,7 +26,7 @@ class TestEntityUpdateLexemeMixin:
         self, mixin: EntityUpdateLexemeMixin
     ) -> None:
         request = MagicMock(spec=LexemeUpdateRequest)
-        edit_headers = EditHeaders(x_user_id=1, x_edit_summary="test")
+        edit_headers = EditHeaders(x_edit_summary="test")
         with pytest.raises(HTTPException) as exc_info:
             await mixin.update_lexeme("Q42", request, edit_headers)
         assert exc_info.value.status_code == 400
@@ -37,7 +37,7 @@ class TestEntityUpdateLexemeMixin:
     ) -> None:
         mixin.state.mysql_client.entity_exists.return_value = False
         request = MagicMock(spec=LexemeUpdateRequest)
-        edit_headers = EditHeaders(x_user_id=1, x_edit_summary="test")
+        edit_headers = EditHeaders(x_edit_summary="test")
         with pytest.raises(HTTPException) as exc_info:
             await mixin.update_lexeme("L123", request, edit_headers)
         assert exc_info.value.status_code == 404
@@ -49,7 +49,7 @@ class TestEntityUpdateLexemeMixin:
         mixin.state.mysql_client.entity_exists.return_value = True
         mixin.state.mysql_client.is_entity_deleted.return_value = True
         request = MagicMock(spec=LexemeUpdateRequest)
-        edit_headers = EditHeaders(x_user_id=1, x_edit_summary="test")
+        edit_headers = EditHeaders(x_edit_summary="test")
         with pytest.raises(HTTPException) as exc_info:
             await mixin.update_lexeme("L123", request, edit_headers)
         assert exc_info.value.status_code == 410
@@ -62,7 +62,7 @@ class TestEntityUpdateLexemeMixin:
         mixin.state.mysql_client.is_entity_deleted.return_value = False
         mixin.state.mysql_client.is_entity_locked.return_value = True
         request = MagicMock(spec=LexemeUpdateRequest)
-        edit_headers = EditHeaders(x_user_id=1, x_edit_summary="test")
+        edit_headers = EditHeaders(x_edit_summary="test")
         with pytest.raises(HTTPException) as exc_info:
             await mixin.update_lexeme("L123", request, edit_headers)
         assert exc_info.value.status_code == 423
@@ -110,7 +110,7 @@ class TestEntityUpdateLexemeMixin:
         request.data.model_copy.return_value = mock_request_data
         request.type = "lexeme"
 
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="test update")
+        edit_headers = EditHeaders(x_edit_summary="test update")
 
         with patch(
             "models.rest_api.entitybase.v1.handlers.entity.update_lexeme.UpdateTransaction",
@@ -153,7 +153,7 @@ class TestEntityUpdateLexemeMixin:
         request.data.model_copy.return_value = mock_request_data
         request.type = "lexeme"
 
-        edit_headers = EditHeaders(x_user_id=1, x_edit_summary="test")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         with patch(
             "models.rest_api.entitybase.v1.handlers.entity.update_lexeme.UpdateTransaction",
@@ -196,7 +196,7 @@ class TestEntityUpdateLexemeMixin:
         request.data.model_copy.return_value = mock_request_data
         request.type = "lexeme"
 
-        edit_headers = EditHeaders(x_user_id=1, x_edit_summary="test")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         with patch(
             "models.rest_api.entitybase.v1.handlers.entity.update_lexeme.UpdateTransaction",
@@ -237,7 +237,7 @@ class TestEntityUpdateLexemeMixin:
         request.data.model_copy.return_value = mock_request_data
         request.type = "lexeme"
 
-        edit_headers = EditHeaders(x_user_id=1, x_edit_summary="test")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         with patch(
             "models.rest_api.entitybase.v1.handlers.entity.update_lexeme.UpdateTransaction",
@@ -292,7 +292,7 @@ class TestEntityUpdateLexemeMixin:
         request.data.model_copy.return_value = mock_request_data
         request.type = "lexeme"
 
-        edit_headers = EditHeaders(x_user_id=456, x_edit_summary="test")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         with patch(
             "models.rest_api.entitybase.v1.handlers.entity.update_lexeme.UpdateTransaction",

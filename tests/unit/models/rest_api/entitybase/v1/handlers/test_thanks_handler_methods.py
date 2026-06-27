@@ -26,10 +26,10 @@ class TestThanksHandlerMethods:
 
     @pytest.fixture
     def mock_thank_item(self):
-        """Create a mock thank item dict."""
-        from models.data.rest_api.v1.entitybase.response import ThankItemResponse
+        """Create a mock thank item."""
+        from models.data.infrastructure.mysql.records.thanks import ThankItem
 
-        return ThankItemResponse(
+        return ThankItem(
             id=1,
             from_user_id=42,
             to_user_id=7,
@@ -138,15 +138,11 @@ class TestThanksHandlerMethods:
 
     def test_send_thank_success(self, handler, mock_state, mock_thank_item):
         """Test send_thank success path."""
+        from models.data.common import OperationResult
+
         mock_state.mysql_client.user_repository.user_exists.return_value = True
-        mock_state.mysql_client.thanks_repository.send_thank.return_value = MagicMock(
-            success=True
-        )
-        mock_state.mysql_client.thanks_repository.get_revision_thanks.return_value = (
-            MagicMock(
-                success=True,
-                data=[mock_thank_item],
-            )
+        mock_state.mysql_client.thanks_repository.send_thank_and_get.return_value = (
+            OperationResult(success=True, data=mock_thank_item)
         )
         mock_state.mysql_client.user_repository.log_user_activity.return_value = (
             MagicMock(success=True)
@@ -168,9 +164,11 @@ class TestThanksHandlerMethods:
 
     def test_send_thank_repo_failure(self, handler, mock_state):
         """Test send_thank raises 400 when repo fails."""
+        from models.data.common import OperationResult
+
         mock_state.mysql_client.user_repository.user_exists.return_value = True
-        mock_state.mysql_client.thanks_repository.send_thank.return_value = MagicMock(
-            success=False, error="Already thanked"
+        mock_state.mysql_client.thanks_repository.send_thank_and_get.return_value = (
+            OperationResult(success=False, error="Already thanked")
         )
 
         with pytest.raises(HTTPException) as exc_info:
@@ -178,74 +176,27 @@ class TestThanksHandlerMethods:
 
         assert exc_info.value.status_code == 400
 
-    def test_send_thank_revision_thanks_failure(self, handler, mock_state):
-        """Test send_thank raises 500 when revision thanks retrieval fails."""
+    def test_send_thank_send_and_get_failure(self, handler, mock_state):
+        """Test send_thank raises 400 when send_thank_and_get returns failure."""
+        from models.data.common import OperationResult
+
         mock_state.mysql_client.user_repository.user_exists.return_value = True
-        mock_state.mysql_client.thanks_repository.send_thank.return_value = MagicMock(
-            success=True
-        )
-        mock_state.mysql_client.thanks_repository.get_revision_thanks.return_value = (
-            MagicMock(success=False, error="DB error")
+        mock_state.mysql_client.thanks_repository.send_thank_and_get.return_value = (
+            OperationResult(success=False, error="Cannot thank your own revision")
         )
 
         with pytest.raises(HTTPException) as exc_info:
             handler.send_thank("Q1", 123, 42)
 
-        assert exc_info.value.status_code == 500
-
-    def test_send_thank_no_thanks_data(self, handler, mock_state):
-        """Test send_thank raises 500 when no thanks data returned."""
-        mock_state.mysql_client.user_repository.user_exists.return_value = True
-        mock_state.mysql_client.thanks_repository.send_thank.return_value = MagicMock(
-            success=True
-        )
-        mock_state.mysql_client.thanks_repository.get_revision_thanks.return_value = (
-            MagicMock(success=True, data=None)
-        )
-
-        with pytest.raises(HTTPException) as exc_info:
-            handler.send_thank("Q1", 123, 42)
-
-        assert exc_info.value.status_code == 500
-
-    def test_send_thank_not_found_in_list(self, handler, mock_state):
-        """Test send_thank raises 500 when created thank not found."""
-        mock_state.mysql_client.user_repository.user_exists.return_value = True
-        mock_state.mysql_client.thanks_repository.send_thank.return_value = MagicMock(
-            success=True
-        )
-        mock_state.mysql_client.thanks_repository.get_revision_thanks.return_value = (
-            MagicMock(
-                success=True,
-                data=[
-                    MagicMock(
-                        id=2,
-                        from_user_id=99,
-                        to_user_id=7,
-                        entity_id="Q1",
-                        revision_id=123,
-                        created_at=datetime.now(timezone.utc),
-                    )
-                ],
-            )
-        )
-
-        with pytest.raises(HTTPException) as exc_info:
-            handler.send_thank("Q1", 123, 42)
-
-        assert exc_info.value.status_code == 500
+        assert exc_info.value.status_code == 400
 
     def test_send_thank_log_failure(self, handler, mock_state, mock_thank_item):
         """Test send_thank handles log_user_activity failure."""
+        from models.data.common import OperationResult
+
         mock_state.mysql_client.user_repository.user_exists.return_value = True
-        mock_state.mysql_client.thanks_repository.send_thank.return_value = MagicMock(
-            success=True
-        )
-        mock_state.mysql_client.thanks_repository.get_revision_thanks.return_value = (
-            MagicMock(
-                success=True,
-                data=[mock_thank_item],
-            )
+        mock_state.mysql_client.thanks_repository.send_thank_and_get.return_value = (
+            OperationResult(success=True, data=mock_thank_item)
         )
         mock_state.mysql_client.user_repository.log_user_activity.return_value = (
             MagicMock(success=False, error="Log failed")

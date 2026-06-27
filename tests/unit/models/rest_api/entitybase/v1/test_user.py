@@ -76,8 +76,14 @@ class TestUserHandler:
         from models.data.rest_api.v1.entitybase.response import UserResponse
         from datetime import datetime
 
+        from models.data.common.roles import UserRole
+
         mock_user = UserResponse(
-            user_id=12345, created_at=datetime(2023, 1, 1), preferences=None
+            user_id=12345,
+            username="testuser",
+            role=UserRole.DEFAULT,
+            created_at=datetime(2023, 1, 1),
+            preferences=None,
         )
 
         mock_mysql_client.user_repository.get_user.return_value = mock_user

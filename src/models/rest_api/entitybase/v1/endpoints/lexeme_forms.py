@@ -106,6 +106,7 @@ async def create_lexeme_form(
         update_request,
         edit_headers=headers,
         validator=validator,
+        user_id=auth.user.user_id,
     )
 
 
@@ -225,6 +226,7 @@ async def add_form_representation(
         update_request,
         edit_headers=headers,
         validator=validator,
+        user_id=auth.user.user_id,
     )
 
     hash_value = MetadataExtractor.hash_string(request.value)
@@ -296,6 +298,7 @@ async def update_form_representation(
         update_request,
         edit_headers=headers,
         validator=validator,
+        user_id=0,
     )
 
     hash_value = MetadataExtractor.hash_string(request.value)
@@ -341,6 +344,7 @@ async def delete_form(
         update_request,
         edit_headers=headers,
         validator=validator,
+        user_id=0,
     )
 
 
@@ -395,6 +399,7 @@ async def delete_form_representation(
         update_request,
         edit_headers=headers,
         validator=validator,
+        user_id=0,
     )
 
     return DeleteResponse(success=True)
@@ -456,4 +461,5 @@ async def add_form_statement(
         update_request,
         edit_headers=headers,
         validator=validator,
+        user_id=auth.user.user_id,
     )

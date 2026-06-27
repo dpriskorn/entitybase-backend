@@ -209,7 +209,7 @@ async def delete_entity(  # type: ignore[no-any-return]
     state = req.app.state.state_handler
     validate_state_clients(state)
     handler = EntityDeleteHandler(state=state)
-    result = await handler.delete_entity(entity_id, request, edit_headers=headers)
+    result = await handler.delete_entity(entity_id, request, edit_headers=headers, user_id=0)
     if not isinstance(result, EntityDeleteResponse):
         raise_validation_error("Invalid response type", status_code=500)
     return result
@@ -226,7 +226,7 @@ async def lock_entity(
     state = req.app.state.state_handler
     validate_state_clients(state)
     handler = EntityStatusHandler(state=state)
-    return handler.lock(entity_id, request, edit_headers=auth_to_edit_headers(auth))
+    return handler.lock(entity_id, request, edit_headers=auth_to_edit_headers(auth), user_id=auth.user.user_id)
 
 
 @router.delete("/entities/{entity_id}/lock", response_model=EntityStatusResponse)
@@ -240,7 +240,7 @@ async def unlock_entity(
     state = req.app.state.state_handler
     validate_state_clients(state)
     handler = EntityStatusHandler(state=state)
-    return handler.unlock(entity_id, request, edit_headers=headers)
+    return handler.unlock(entity_id, request, edit_headers=headers, user_id=0)
 
 
 @router.post("/entities/{entity_id}/archive", response_model=EntityStatusResponse)
@@ -254,7 +254,7 @@ async def archive_entity(
     state = req.app.state.state_handler
     validate_state_clients(state)
     handler = EntityStatusHandler(state=state)
-    return handler.archive(entity_id, request, edit_headers=auth_to_edit_headers(auth))
+    return handler.archive(entity_id, request, edit_headers=auth_to_edit_headers(auth), user_id=auth.user.user_id)
 
 
 @router.delete("/entities/{entity_id}/archive", response_model=EntityStatusResponse)
@@ -268,7 +268,7 @@ async def unarchive_entity(
     state = req.app.state.state_handler
     validate_state_clients(state)
     handler = EntityStatusHandler(state=state)
-    return handler.unarchive(entity_id, request, edit_headers=headers)
+    return handler.unarchive(entity_id, request, edit_headers=headers, user_id=0)
 
 
 @router.post("/entities/{entity_id}/semi-protect", response_model=EntityStatusResponse)

@@ -105,6 +105,7 @@ async def create_lexeme_sense(
         update_request,
         edit_headers=headers,
         validator=validator,
+        user_id=auth.user.user_id,
     )
 
 
@@ -222,6 +223,7 @@ async def add_sense_gloss(
         update_request,
         edit_headers=headers,
         validator=validator,
+        user_id=auth.user.user_id,
     )
 
     hash_value = MetadataExtractor.hash_string(request.value)
@@ -291,6 +293,7 @@ async def update_sense_gloss(
         update_request,
         edit_headers=headers,
         validator=validator,
+        user_id=0,
     )
 
     hash_value = MetadataExtractor.hash_string(request.value)
@@ -342,6 +345,7 @@ async def delete_sense(
         update_request,
         edit_headers=headers,
         validator=validator,
+        user_id=0,
     )
 
 
@@ -402,6 +406,7 @@ async def delete_sense_gloss(
         update_request,
         edit_headers=headers,
         validator=validator,
+        user_id=0,
     )
 
     return DeleteResponse(success=True)
@@ -463,4 +468,5 @@ async def add_sense_statement(
         update_request,
         edit_headers=headers,
         validator=validator,
+        user_id=auth.user.user_id,
     )

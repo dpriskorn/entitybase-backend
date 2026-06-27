@@ -483,7 +483,7 @@ class TestEntityHandlerNew:
             request_data={"labels": {"en": {"value": "Test"}}},
             entity_type=EntityType.ITEM,
             edit_type=EditType.MANUAL_CREATE,
-            edit_headers=EditHeaders(x_user_id=123, x_edit_summary="Create test"),
+            edit_headers=EditHeaders(x_edit_summary="Create test"),
             is_creation=True,
         )
 

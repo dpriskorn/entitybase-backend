@@ -110,7 +110,7 @@ class TestItemCreateHandlerExecuteCreationTransaction:
         mock_ctx.tx = mock_tx
         mock_ctx.entity_id = "Q42"
         mock_ctx.request_data = MagicMock()
-        mock_ctx.edit_headers = EditHeaders(x_user_id=123, x_edit_summary="test")
+        mock_ctx.edit_headers = EditHeaders(x_edit_summary="test")
         mock_ctx.validator = None
 
         result = await ItemCreateHandler._execute_creation_transaction(mock_ctx)
@@ -150,13 +150,13 @@ class TestItemCreateHandlerCreateEntity:
         mock_data_copy = MagicMock()
         request.data.model_copy.return_value = mock_data_copy
 
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="test")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         with patch(
             "models.rest_api.entitybase.v1.handlers.entity.item.CreationTransaction",
             return_value=mock_tx,
         ):
-            result = await handler.create_entity(request, edit_headers)
+            result = await handler.create_entity(request, edit_headers, user_id=123)
 
         assert result == mock_response
         mock_tx.register_entity.assert_called_once_with("Q42")
@@ -189,13 +189,13 @@ class TestItemCreateHandlerCreateEntity:
         mock_data_copy = MagicMock()
         request.data.model_copy.return_value = mock_data_copy
 
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="test")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         with patch(
             "models.rest_api.entitybase.v1.handlers.entity.item.CreationTransaction",
             return_value=mock_tx,
         ):
-            result = await handler.create_entity(request, edit_headers)
+            result = await handler.create_entity(request, edit_headers, user_id=123)
 
         assert result == mock_response
         mock_enum.confirm_id_usage.assert_called_once_with("Q999")
@@ -216,13 +216,13 @@ class TestItemCreateHandlerCreateEntity:
         mock_data_copy = MagicMock()
         request.data.model_copy.return_value = mock_data_copy
 
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="test")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         with patch(
             "models.rest_api.entitybase.v1.handlers.entity.item.CreationTransaction",
             return_value=mock_tx,
         ):
             with pytest.raises(Exception, match="DB error"):
-                await handler.create_entity(request, edit_headers)
+                await handler.create_entity(request, edit_headers, user_id=123)
 
         mock_tx.rollback.assert_called_once()

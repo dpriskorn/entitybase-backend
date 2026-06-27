@@ -54,7 +54,7 @@ class TestLexemeCreateHandler:
         handler = self._make_handler(mock_state)
         request = self._make_request(lemmas={})
 
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="test")
+        edit_headers = EditHeaders(x_edit_summary="test")
 
         from fastapi import HTTPException
 
@@ -74,7 +74,7 @@ class TestLexemeCreateHandler:
         with pytest.raises(HTTPException) as exc_info:
             await handler.create_entity(
                 self._make_request(language="invalid"),
-                EditHeaders(x_user_id=123, x_edit_summary="test"),
+                EditHeaders(x_edit_summary="test"),
             )
         assert exc_info.value.status_code == 400
 
@@ -89,6 +89,6 @@ class TestLexemeCreateHandler:
         with pytest.raises(HTTPException) as exc_info:
             await handler.create_entity(
                 self._make_request(lexical_category="invalid"),
-                EditHeaders(x_user_id=123, x_edit_summary="test"),
+                EditHeaders(x_edit_summary="test"),
             )
         assert exc_info.value.status_code == 400

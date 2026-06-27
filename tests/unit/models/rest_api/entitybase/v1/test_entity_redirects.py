@@ -296,7 +296,6 @@ def test_revert_redirect_entity_not_redirect(redirect_service: RedirectService) 
 
     edit_headers = Mock()
     edit_headers.x_edit_summary = "Test revert"
-    edit_headers.x_user_id = 1
 
     from fastapi import HTTPException
 
@@ -321,7 +320,6 @@ def test_revert_redirect_entity_deleted(redirect_service: RedirectService) -> No
 
     edit_headers = Mock()
     edit_headers.x_edit_summary = "Test revert"
-    edit_headers.x_user_id = 1
 
     from fastapi import HTTPException
 
@@ -346,7 +344,6 @@ def test_revert_redirect_entity_locked(redirect_service: RedirectService) -> Non
 
     edit_headers = Mock()
     edit_headers.x_edit_summary = "Test revert"
-    edit_headers.x_user_id = 1
 
     from fastapi import HTTPException
 
@@ -371,7 +368,6 @@ def test_revert_redirect_entity_archived(redirect_service: RedirectService) -> N
 
     edit_headers = Mock()
     edit_headers.x_edit_summary = "Test revert"
-    edit_headers.x_user_id = 1
 
     from fastapi import HTTPException
 

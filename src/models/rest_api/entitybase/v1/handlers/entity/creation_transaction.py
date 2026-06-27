@@ -56,6 +56,7 @@ class CreationTransaction(EntityTransaction):
         request_data: PreparedRequestData,
         entity_type: Any,
         edit_headers: EditHeaders,
+        user_id: int = 0,
         hash_result: StatementHashResult,
     ) -> EntityResponse:
         """Create revision using new architecture components."""
@@ -104,7 +105,7 @@ class CreationTransaction(EntityTransaction):
             edit=EditData(
                 mass=False,
                 type=EditType.UNSPECIFIED,
-                user_id=edit_headers.x_user_id,
+                user_id=user_id,
                 summary=edit_headers.x_edit_summary,
                 at=created_at,
             ),

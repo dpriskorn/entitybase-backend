@@ -24,7 +24,7 @@ class EntityStatusHandler(Handler):
     """Handler for entity status change operations."""
 
     def lock(
-        self, entity_id: str, request: EntityStatusRequest, edit_headers: EditHeaders
+        self, entity_id: str, request: EntityStatusRequest, edit_headers: EditHeaders, user_id: int = 0
     ) -> EntityStatusResponse:
         """Lock an entity from edits."""
         logger.debug(f"Locking entity: {entity_id}")
@@ -32,11 +32,11 @@ class EntityStatusHandler(Handler):
         response = status_service.change_status(
             entity_id, StatusOperation.LOCK, request
         )
-        self._log_activity(edit_headers, UserActivityType.ENTITY_LOCK, entity_id)
+        self._log_activity(user_id, UserActivityType.ENTITY_LOCK, entity_id)
         return response
 
     def unlock(
-        self, entity_id: str, request: EntityStatusRequest, edit_headers: EditHeaders
+        self, entity_id: str, request: EntityStatusRequest, edit_headers: EditHeaders, user_id: int = 0
     ) -> EntityStatusResponse:
         """Remove lock from an entity."""
         logger.debug(f"Unlocking entity: {entity_id}")
@@ -44,11 +44,11 @@ class EntityStatusHandler(Handler):
         response = status_service.change_status(
             entity_id, StatusOperation.UNLOCK, request
         )
-        self._log_activity(edit_headers, UserActivityType.ENTITY_UNLOCK, entity_id)
+        self._log_activity(user_id, UserActivityType.ENTITY_UNLOCK, entity_id)
         return response
 
     def archive(
-        self, entity_id: str, request: EntityStatusRequest, edit_headers: EditHeaders
+        self, entity_id: str, request: EntityStatusRequest, edit_headers: EditHeaders, user_id: int = 0
     ) -> EntityStatusResponse:
         """Archive an entity."""
         logger.debug(f"Archiving entity: {entity_id}")
@@ -56,11 +56,11 @@ class EntityStatusHandler(Handler):
         response = status_service.change_status(
             entity_id, StatusOperation.ARCHIVE, request
         )
-        self._log_activity(edit_headers, UserActivityType.ENTITY_ARCHIVE, entity_id)
+        self._log_activity(user_id, UserActivityType.ENTITY_ARCHIVE, entity_id)
         return response
 
     def unarchive(
-        self, entity_id: str, request: EntityStatusRequest, edit_headers: EditHeaders
+        self, entity_id: str, request: EntityStatusRequest, edit_headers: EditHeaders, user_id: int = 0
     ) -> EntityStatusResponse:
         """Unarchive an entity."""
         logger.debug(f"Unarchiving entity: {entity_id}")
@@ -68,16 +68,16 @@ class EntityStatusHandler(Handler):
         response = status_service.change_status(
             entity_id, StatusOperation.UNARCHIVE, request
         )
-        self._log_activity(edit_headers, UserActivityType.ENTITY_UNARCHIVE, entity_id)
+        self._log_activity(user_id, UserActivityType.ENTITY_UNARCHIVE, entity_id)
         return response
 
     def _log_activity(
-        self, edit_headers: EditHeaders, activity_type: UserActivityType, entity_id: str
+        self, user_id: int, activity_type: UserActivityType, entity_id: str
     ) -> None:
         """Log user activity."""
-        if edit_headers.x_user_id > 0:
+        if user_id > 0:
             activity_result = self.state.mysql_client.user_repository.log_user_activity(
-                user_id=edit_headers.x_user_id,
+                user_id=user_id,
                 activity_type=activity_type,
                 entity_id=entity_id,
                 revision_id=0,

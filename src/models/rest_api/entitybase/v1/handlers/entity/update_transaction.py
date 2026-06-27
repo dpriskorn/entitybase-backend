@@ -123,6 +123,7 @@ class UpdateTransaction(EntityTransaction):
         entity_type: Any,
         edit_headers: EditHeaders,
         hash_result: StatementHashResult,
+        user_id: int = 0,
     ) -> EntityResponse:
         """Create revision using new architecture components."""
         logger.debug(f"[UpdateTransaction] Starting revision creation for {entity_id}")
@@ -171,7 +172,7 @@ class UpdateTransaction(EntityTransaction):
             edit=EditData(
                 mass=False,
                 type=EditType.UNSPECIFIED,
-                user_id=edit_headers.x_user_id,
+                user_id=user_id,
                 summary=edit_headers.x_edit_summary,
                 at=created_at,
             ),
@@ -235,6 +236,7 @@ class UpdateTransaction(EntityTransaction):
         entity_id: str,
         entity_type: Any,
         edit_headers: EditHeaders,
+        user_id: int = 0,
         existing_hashes: dict[str, Any],
         existing_revision: dict[str, Any],
     ) -> EntityResponse:
@@ -293,7 +295,7 @@ class UpdateTransaction(EntityTransaction):
             edit=EditData(
                 mass=False,
                 type=EditType.UNSPECIFIED,
-                user_id=edit_headers.x_user_id,
+                user_id=user_id,
                 summary=edit_headers.x_edit_summary,
                 at=created_at,
             ),

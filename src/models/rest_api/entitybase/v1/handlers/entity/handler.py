@@ -92,6 +92,7 @@ class EntityHandler(Handler):
             stream_producer=self.state.entity_change_stream_producer,
             validator=ctx.validator,
             edit_headers=ctx.edit_headers,
+            user_id=ctx.user_id,
         )
 
         # 1. Validate request
@@ -367,7 +368,7 @@ class EntityHandler(Handler):
                 change_type = edit_type_to_change_type(
                     ctx.edit_type or EditType.UNSPECIFIED
                 )
-                user_id = str(ctx.edit_headers.x_user_id) if ctx.edit_headers else "0"
+                user_id = str(ctx.user_id)
                 event = EntityChangeEvent(
                     id=ctx.entity_id,
                     rev=result.revision_id,
