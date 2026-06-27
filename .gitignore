@@ -6,6 +6,9 @@ eventstreams
 eventgate
 schemas-event-primary
 
+# environment
+.env
+
 # code related
 .idea
 deprecated/.env
