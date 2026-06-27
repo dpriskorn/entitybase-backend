@@ -108,7 +108,7 @@ async def register(
         logger.error(f"Failed to create user: {result.error}")
         raise_validation_error(result.error or "Failed to create user", status_code=400)
 
-    data = result.data
+    data = result.get_data()
     logger.info(f"Admin {auth.user.username} created user: {request.username}")
 
     return RegisterResponse(

@@ -26,7 +26,8 @@ async def test_login_response_schema(api_prefix: str) -> None:
         )
         assert response.status_code == 401
         data = response.json()
-        assert "detail" in data
+        assert data["error"] == "http_error"
+        assert "message" in data
 
 
 @pytest.mark.contract
@@ -44,7 +45,7 @@ async def test_login_validation_error(api_prefix: str) -> None:
         )
         assert response.status_code == 422
         data = response.json()
-        assert "detail" in data
+        assert "detail" in data  # Pydantic validation errors use FastAPI default format
 
 
 @pytest.mark.contract
@@ -54,7 +55,7 @@ async def test_register_requires_auth(api_prefix: str) -> None:
     from models.rest_api.main import app
 
     async with AsyncClient(
-        transport=ASGITransport(app=app), base_url="http/test"
+        transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.post(
             f"{api_prefix}/auth/register",
@@ -62,7 +63,8 @@ async def test_register_requires_auth(api_prefix: str) -> None:
         )
         assert response.status_code == 401
         data = response.json()
-        assert "detail" in data
+        assert data["error"] == "http_error"
+        assert "message" in data
 
 
 @pytest.mark.contract
@@ -100,7 +102,8 @@ async def test_delete_user_requires_auth(api_prefix: str) -> None:
         )
         assert response.status_code == 401
         data = response.json()
-        assert "detail" in data
+        assert data["error"] == "http_error"
+        assert "message" in data
 
 
 @pytest.mark.contract
@@ -120,7 +123,8 @@ async def test_delete_nonexistent_user(
         )
         assert response.status_code == 404
         data = response.json()
-        assert "detail" in data
+        assert data["error"] == "http_error"
+        assert "message" in data
 
 
 @pytest.mark.contract
@@ -130,10 +134,13 @@ async def test_login_missing_edit_summary(api_prefix: str) -> None:
     from models.rest_api.main import app
 
     async with AsyncClient(
-        transport=ASGITransport(app=app), base_url="http/test"
+        transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.post(
             f"{api_prefix}/auth/login",
             json={"username": "test", "password": "pass"},
         )
         assert response.status_code == 401
+        data = response.json()
+        assert data["error"] == "http_error"
+        assert "message" in data

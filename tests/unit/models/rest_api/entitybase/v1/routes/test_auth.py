@@ -138,9 +138,13 @@ class TestRegisterEndpoint:
         from models.rest_api.main import app
 
         mock_user_repo.user_exists_by_username.return_value = False
-        mock_user_repo.create_user_with_password.return_value = MagicMock(
-            success=True, data={"user_id": 100, "username": "newuser"}
+        result_mock = MagicMock(
+            spec=["success", "data", "get_data"],
+            success=True,
+            data={"user_id": 100, "username": "newuser"},
         )
+        result_mock.get_data.return_value = {"user_id": 100, "username": "newuser"}
+        mock_user_repo.create_user_with_password.return_value = result_mock
         client = TestClient(app)
         response = client.post(
             f"{self.API_PREFIX}/auth/register",
