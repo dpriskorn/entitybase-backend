@@ -32,32 +32,6 @@ services:
     mem_limit: 512m
     cpus: 0.5
 
-  idworker:
-    container_name: idworker
-    build:
-      context: .
-      dockerfile: docker/containers/Dockerfile.idworker
-    ports:
-      - "8001:8001"
-    environment:
-      WORKER_ID: id_worker_1
-      WORKER_COUNT: 1
-      MYSQL_HOST: mysql
-      MYSQL_PORT: 3306
-      MYSQL_DATABASE: entitybase
-      MYSQL_USER: root
-      MYSQL_PASSWORD: ""
-      LOG_LEVEL: "INFO"
-      CI: "true"
-    healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8001/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-    mem_limit: 512m
-    cpus: 0.5
-
   json-dump-worker:
     container_name: json-dump-worker
     build:
@@ -234,8 +208,6 @@ services:
       - "8000:8000"
     depends_on:
       rustfs:
-        condition: service_healthy
-      idworker:
         condition: service_healthy
       create-buckets:
         condition: service_completed_successfully

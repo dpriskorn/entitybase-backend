@@ -1,22 +1,4 @@
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: ""
-      MYSQL_DATABASE: entitybase
-      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-    ports:
-      - "3306:3306"
-    healthcheck:
-      test: ["CMD", "mysql", "-uroot", "-e", "SELECT 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 30
-      start_period: 30s
-    mem_limit: 512m
-    cpus: 0.5
-
   rustfs:
     image: ghcr.io/so9q/rustfs:1.0.0-beta.8
     container_name: rustfs
@@ -87,30 +69,11 @@ services:
     mem_limit: 512m
     cpus: 0.5
 
-  create-tables:
-    build:
-      context: .
-      dockerfile: docker/containers/Dockerfile.api
-    container_name: create-tables
-    depends_on:
-      mysql:
-        condition: service_healthy
-    command: sh -c "sleep 20 && python -m models.workers.create tables setup"
-    environment:
-      MYSQL_HOST: mysql
-      MYSQL_PORT: 3306
-      MYSQL_DATABASE: entitybase
-      MYSQL_USER: root
-      MYSQL_PASSWORD: ""
-      CI: "true"
-    mem_limit: 512m
-    cpus: 0.5
-
   create-topics:
+    container_name: create-topics
     build:
       context: .
       dockerfile: docker/containers/Dockerfile.api
-    container_name: create-topics
     depends_on:
       redpanda:
         condition: service_healthy
@@ -131,11 +94,7 @@ services:
     depends_on:
       rustfs:
         condition: service_healthy
-      mysql:
-        condition: service_healthy
       create-buckets:
-        condition: service_completed_successfully
-      create-tables:
         condition: service_completed_successfully
       create-topics:
         condition: service_completed_successfully

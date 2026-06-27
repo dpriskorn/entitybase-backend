@@ -83,17 +83,10 @@ jobs:
       - name: Build docker images
         run: |
           docker compose -f docker-compose.ci.yml build --no-cache \
-            api idworker create-buckets create-tables
+            api create-buckets
       - name: Start infrastructure services
         run: |
-          docker compose -f docker-compose.ci.yml up -d mysql rustfs
-      - name: Wait for MySQL
-        timeout-minutes: 2
-        run: |
-          until docker compose -f docker-compose.ci.yml exec -T mysql mysqladmin ping -h localhost --silent; do
-            echo "Waiting for MySQL..."
-            sleep 2
-          done
+          docker compose -f docker-compose.ci.yml up -d rustfs
       - name: Wait for rustfs
         timeout-minutes: 2
         run: |
@@ -101,12 +94,8 @@ jobs:
             echo "Waiting for rustfs..."
             sleep 2
           done
-      - name: Setup database tables
-        run: docker compose -f docker-compose.ci.yml run --rm create-tables
       - name: Setup S3 buckets
         run: docker compose -f docker-compose.ci.yml run --rm create-buckets
-      - name: Start idworker
-        run: docker compose -f docker-compose.ci.yml up -d idworker
       - name: Start API
         run: docker compose -f docker-compose.ci.yml up -d api
         timeout-minutes: 2
@@ -286,11 +275,8 @@ jobs:
       - name: Show container logs on failure
         if: failure()
         run: |
-          docker compose -f docker-compose.ci.yml logs --tail=100 mysql
           docker compose -f docker-compose.ci.yml logs --tail=100 rustfs
-          docker compose -f docker-compose.ci.yml logs --tail=100 create-tables
           docker compose -f docker-compose.ci.yml logs --tail=100 create-buckets
-          docker compose -f docker-compose.ci.yml logs --tail=100 idworker
           docker compose -f docker-compose.ci.yml logs --tail=100 api
       - name: Down containers
         if: always()
