@@ -148,6 +148,9 @@ jobs:
       - name: Start API
         run: docker compose -f docker-compose.ci-minimal.yml up -d entitybase-api
         timeout-minutes: 2
+      - name: API logs
+        if: always()
+        run: sleep 10 && docker logs entitybase-api
       - name: Wait for API
         timeout-minutes: 2
         run: |
@@ -329,6 +332,9 @@ jobs:
       - name: Start API
         run: docker compose -f docker-compose.ci-full.yml up -d api
         timeout-minutes: 2
+      - name: API logs
+        if: always()
+        run: sleep 10 && docker logs api
       - name: Wait for API
         timeout-minutes: 2
         run: |
