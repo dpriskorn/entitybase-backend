@@ -33,6 +33,7 @@ class TestUserRepositoryStatistics:
             total_properties=20,
             total_sitelinks=200,
             total_terms=5000,
+            total_edits=2000,
             terms_per_language={"en": 3000},
             terms_by_type={"label": 2000},
         )
@@ -62,6 +63,7 @@ class TestUserRepositoryStatistics:
             total_properties=20,
             total_sitelinks=200,
             total_terms=5000,
+            total_edits=2000,
         )
 
         with pytest.raises(HTTPException) as exc_info:
@@ -91,6 +93,7 @@ class TestUserRepositoryStatistics:
             total_properties=20,
             total_sitelinks=200,
             total_terms=5000,
+            total_edits=2000,
         )
 
         with pytest.raises(HTTPException) as exc_info:
