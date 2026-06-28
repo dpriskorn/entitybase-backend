@@ -158,7 +158,7 @@ jobs:
       - name: Wait for API
         timeout-minutes: 2
         run: |
-          until curl -f http://localhost:8080/health; do
+          until curl -f http://localhost:8000/health; do
             echo "Waiting for API..."
             sleep 2
           done
