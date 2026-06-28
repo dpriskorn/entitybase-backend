@@ -162,6 +162,14 @@ jobs:
             echo "Waiting for API..."
             sleep 2
           done
+      - name: Install poetry
+        run: pipx install poetry
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: 'poetry'
+      - run: pip install --upgrade pip wheel
+      - run: poetry install --with=dev
 
       # === E2E TESTS ===
       - name: Run e2e tests (01 - basics)
@@ -350,6 +358,14 @@ jobs:
             echo "Waiting for API..."
             sleep 2
           done
+      - name: Install poetry
+        run: pipx install poetry
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: 'poetry'
+      - run: pip install --upgrade pip wheel
+      - run: poetry install --with=dev
 
       # === E2E TESTS ===
       - name: Run e2e tests (01 - basics)
