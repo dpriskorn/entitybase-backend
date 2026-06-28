@@ -4,6 +4,9 @@ services:
     container_name: rustfs
     ports:
       - "9000:9000"
+    volumes:
+      - ./data/rustfs:/data
+      - ./data/rustfs/logs:/logs
     environment:
       RUSTFS_USER: fakekey
       RUSTFS_PASSWORD: fakesecret
