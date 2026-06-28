@@ -15,13 +15,12 @@ services:
     image: rustfs/rustfs:1.0.0-beta.8
     container_name: rustfs
     restart: unless-stopped
-    user: "1000:1000"
     ports:
       - "9000:9000"
       - "9001:9001"
     volumes:
-      - ./data/rustfs:/data
-      - ./data/rustfs/logs:/logs
+      - rustfs-data:/data
+      - rustfs-logs:/logs
     environment:
       - RUSTFS_ROOT_USER=${RUSTFS_ROOT_USER:-fakekey}
       - RUSTFS_ROOT_PASSWORD=${RUSTFS_ROOT_PASSWORD:-fakesecret}
@@ -184,3 +183,5 @@ networks:
 
 volumes:
   redpanda-data:
+  rustfs-data:
+  rustfs-logs:

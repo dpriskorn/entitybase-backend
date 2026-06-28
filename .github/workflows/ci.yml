@@ -139,7 +139,7 @@ jobs:
         if: always()
         run: sleep 10 && docker logs rustfs
       - name: Wait for rustfs
-        timeout-minutes: 2
+        timeout-minutes: 1
         run: |
           until curl -sf http://localhost:9000/health; do
             echo "Waiting for rustfs..."
@@ -318,7 +318,7 @@ jobs:
         if: always()
         run: sleep 10 && docker logs rustfs
       - name: Wait for rustfs
-        timeout-minutes: 2
+        timeout-minutes: 1
         run: |
           until curl -sf http://localhost:9000/health; do
             echo "Waiting for rustfs..."

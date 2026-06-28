@@ -5,8 +5,8 @@ services:
     ports:
       - "9000:9000"
     volumes:
-      - ./data/rustfs:/data
-      - ./data/rustfs/logs:/logs
+      - rustfs-data:/data
+      - rustfs-logs:/logs
     environment:
       RUSTFS_USER: fakekey
       RUSTFS_PASSWORD: fakesecret
@@ -254,3 +254,7 @@ services:
       retries: 10
       start_period: 10s
     mem_limit: 1g
+
+volumes:
+  rustfs-data:
+  rustfs-logs:
