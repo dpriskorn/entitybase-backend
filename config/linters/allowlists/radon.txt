@@ -171,6 +171,9 @@ close
 delete_document
 get_document
 index_document
+acquire
+release
+run_migrations
 # Mysql storage duplicate methods (intentional - same interface as S3 storage)
 exists
 load_statement

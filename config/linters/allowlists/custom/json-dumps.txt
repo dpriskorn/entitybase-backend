@@ -15,3 +15,5 @@ src/models/infrastructure/mysql/repositories/user.py:525
 src/models/infrastructure/mysql/repositories/user.py:478
 src/models/infrastructure/mysql/repositories/user.py:479
 src/models/infrastructure/mysql/repositories/user.py:526
+src/models/infrastructure/mysql/repositories/user.py:481
+src/models/infrastructure/mysql/repositories/user.py:482

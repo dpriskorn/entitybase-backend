@@ -2,3 +2,4 @@ src/models/infrastructure/mysql/repositories/revision.py:142
 src/models/infrastructure/mysql/repositories/revision.py:163
 src/models/infrastructure/mysql/repositories/revision.py:191
 src/models/infrastructure/sqlite/connection.py:50
+src/models/infrastructure/sqlite/connection.py:64

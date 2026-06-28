@@ -319,6 +319,7 @@ class TestUserHandlerMethods:
             30,
             150,
             300,
+            250,
             '{"en": 200, "fr": 100}',
             '{"labels": 200, "descriptions": 100}',
         )
@@ -352,6 +353,7 @@ class TestUserHandlerMethods:
         mock_stats.total_properties = 20
         mock_stats.total_sitelinks = 40
         mock_stats.total_terms = 100
+        mock_stats.total_edits = 75
         mock_stats.terms_per_language = {"en": 50}
         mock_stats.terms_by_type = {"labels": 50}
 
