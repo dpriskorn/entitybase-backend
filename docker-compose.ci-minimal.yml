@@ -94,7 +94,9 @@ services:
 
   entitybase-api:
     container_name: entitybase-api
-    image: entitybase-api:latest
+    build:
+      context: .
+      dockerfile: docker/containers/Dockerfile.api
     ports:
       - "8083:8080"
     environment:
