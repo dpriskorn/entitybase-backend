@@ -19,6 +19,37 @@ services:
     mem_limit: 512m
     cpus: 0.5
 
+  redpanda:
+    image: redpandadata/redpanda:v25.3.6
+    container_name: redpanda
+    command:
+      - redpanda
+      - start
+      - --overprovisioned
+      - --smp 1
+      - --memory 256M
+      - --reserve-memory 0M
+      - --node-id 0
+      - --check=false
+      - --kafka-addr PLAINTEXT://0.0.0.0:9092
+      - --advertise-kafka-addr PLAINTEXT://redpanda:9092
+    environment:
+      - KAFKA_RETENTION_BYTES=${REDPANDA_RETENTION_BYTES:-10485760}
+      - KAFKA_RETENTION_MS=${REDPANDA_RETENTION_MS:-3600000}
+      - KAFKA_LOG_SEGMENT_BYTES=${REDPANDA_LOG_SEGMENT_BYTES:-10485760}
+      - REDPANDA_LOG_SEGMENT_MAX_BYTES=${REDPANDA_LOG_SEGMENT_BYTES:-10485760}
+    healthcheck:
+      test: ["CMD-SHELL", "rpk cluster health | grep -q 'Healthy:.*true'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    mem_limit: 256m
+    cpus: 0.25
+    networks:
+      - entitybase-network
+    volumes:
+      - redpanda-data:/var/lib/redpanda/data
+
   create-buckets:
     container_name: create-buckets
     build:
@@ -258,3 +289,4 @@ services:
 volumes:
   rustfs-data:
   rustfs-logs:
+  redpanda-data:

@@ -78,7 +78,7 @@ services:
       - entitybase-network
     user: ${REDPANDA_USER}
     volumes:
-      - ${VOLUMES_PATH}/redpanda-data:/var/lib/redpanda/data
+      - redpanda-data:/var/lib/redpanda/data
 
   redpanda-console:
     image: redpandadata/console:latest
