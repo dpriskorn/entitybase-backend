@@ -165,8 +165,14 @@ def create_s3_buckets(s3_config):
         settings.s3_revisions_bucket,
     ]
 
+    endpoint = s3_config.endpoint_url
+    if endpoint.startswith("http://"):
+        endpoint = endpoint[7:]
+    elif endpoint.startswith("https://"):
+        endpoint = endpoint[8:]
+
     s3 = Minio(
-        s3_config.endpoint_url,
+        endpoint,
         access_key=s3_config.access_key,
         secret_key=s3_config.secret_key,
         secure=False,
