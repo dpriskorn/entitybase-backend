@@ -135,6 +135,9 @@ jobs:
         run: |
           docker ps
           docker port rustfs
+      - name: RustFS logs
+        if: always()
+        run: sleep 10 && docker logs rustfs
       - name: Wait for rustfs
         timeout-minutes: 2
         run: |
@@ -311,6 +314,9 @@ jobs:
         run: |
           docker ps
           docker port rustfs
+      - name: RustFS logs
+        if: always()
+        run: sleep 10 && docker logs rustfs
       - name: Wait for rustfs
         timeout-minutes: 2
         run: |
