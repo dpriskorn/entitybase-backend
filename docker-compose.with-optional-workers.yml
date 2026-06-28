@@ -133,25 +133,6 @@ services:
     networks:
       - entitybase-network
 
-  create-topics:
-    container_name: create-topics
-    image: entitybase-backend-create-topics:latest
-    depends_on:
-      redpanda:
-        condition: service_healthy
-    command: python -m models.workers.create topics setup
-    environment:
-      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
-      KAFKA_ENTITY_CHANGE_TOPIC: ${KAFKA_ENTITY_CHANGE_TOPIC:-entity_change}
-      KAFKA_INCREMENTAL_RDF_TOPIC: ${KAFKA_INCREMENTAL_RDF_TOPIC:-incremental_rdf_diff}
-    profiles:
-      - core
-      - workers
-    mem_limit: 512m
-    cpus: 0.5
-    networks:
-      - entitybase-network
-
   entitybase-api:
     container_name: entitybase-api
     image: entitybase-api:latest
@@ -180,8 +161,6 @@ services:
       - PURGE_WORKER_ENABLED=${PURGE_WORKER_ENABLED:-false}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     depends_on:
-      create-topics:
-        condition: service_completed_successfully
       rustfs:
         condition: service_healthy
     command: python -m models.rest_api.main
@@ -467,8 +446,6 @@ services:
       KAFKA_ENTITYCHANGE_JSON_TOPIC: ${KAFKA_ENTITY_CHANGE_TOPIC:-entity_change}
       ELASTICSEARCH_CONSUMER_GROUP: entitybase-elasticsearch-indexer
     depends_on:
-      create-topics:
-        condition: service_completed_successfully
       rustfs:
         condition: service_healthy
       elasticsearch:
@@ -506,8 +483,6 @@ services:
       KAFKA_ENTITYCHANGE_JSON_TOPIC: ${KAFKA_ENTITY_CHANGE_TOPIC:-entity_change}
       MEILISEARCH_CONSUMER_GROUP: entitybase-meilisearch-indexer
     depends_on:
-      create-topics:
-        condition: service_completed_successfully
       rustfs:
         condition: service_healthy
     healthcheck:

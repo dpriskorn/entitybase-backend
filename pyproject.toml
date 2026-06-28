@@ -126,10 +126,6 @@ create-tables = [
     "pydantic",
     "pymysql",
 ]
-create-topics = [
-    "aiokafka",
-    "pydantic",
-]
 meilisearch-indexer-worker = [
     "meilisearch",
     "pydantic",

@@ -73,21 +73,6 @@ services:
     mem_limit: 512m
     cpus: 0.5
 
-  create-topics:
-    container_name: create-topics
-    build:
-      context: .
-      dockerfile: docker/containers/Dockerfile.api
-    depends_on:
-      redpanda:
-        condition: service_healthy
-    environment:
-      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
-      CI: "true"
-    command: python -m models.workers.create topics setup
-    mem_limit: 256m
-    cpus: 0.25
-
   api:
     build:
       context: .
@@ -99,8 +84,6 @@ services:
       rustfs:
         condition: service_healthy
       create-buckets:
-        condition: service_completed_successfully
-      create-topics:
         condition: service_completed_successfully
     environment:
       S3_ENDPOINT: rustfs:9000
@@ -173,8 +156,6 @@ services:
         condition: service_healthy
       meilisearch:
         condition: service_healthy
-      create-topics:
-        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8007/health"]
       interval: 30s

@@ -94,22 +94,6 @@ services:
     mem_limit: 512m
     cpus: 0.5
 
-  create-topics:
-    build:
-      context: .
-      dockerfile: docker/containers/Dockerfile.api
-    container_name: create-topics
-    depends_on:
-      redpanda:
-        condition: service_healthy
-    command: python -m models.workers.create topics setup
-    environment:
-      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
-      KAFKA_ENTITY_CHANGE_TOPIC: ${KAFKA_ENTITY_CHANGE_TOPIC:-entity_change}
-      KAFKA_ENTITY_DIFF_TOPIC: ${KAFKA_ENTITY_DIFF_TOPIC:-entity_diff}
-    mem_limit: 512m
-    cpus: 0.5
-
   idworker:
     container_name: idworker
     build:
@@ -127,8 +111,6 @@ services:
       MYSQL_PASSWORD: ""
     depends_on:
       create-tables:
-        condition: service_completed_successfully
-      create-topics:
         condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8001/health"]

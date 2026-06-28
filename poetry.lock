@@ -160,7 +160,7 @@ version = "0.13.0"
 description = "Kafka integration with asyncio"
 optional = false
 python-versions = ">=3.10"
-groups = ["main", "api", "create-topics", "incremental-rdf-worker"]
+groups = ["main", "api", "incremental-rdf-worker"]
 files = [
     {file = "aiokafka-0.13.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:557245613c599145ec895d8f953cdaa45eb76f66c1b887fbdbdbc7764a902c1d"},
     {file = "aiokafka-0.13.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:e147396c692807be6ef72d3b1cbf980bf46967e5e389ee0aed880f8d45a33eca"},
@@ -240,7 +240,7 @@ version = "0.7.0"
 description = "Reusable constraint types to use with typing.Annotated"
 optional = false
 python-versions = ">=3.8"
-groups = ["main", "api", "create-buckets", "create-tables", "create-topics", "idworker", "incremental-rdf-worker", "json-worker", "meilisearch-indexer-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "create-buckets", "create-tables", "idworker", "incremental-rdf-worker", "json-worker", "meilisearch-indexer-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "annotated_types-0.7.0-py3-none-any.whl", hash = "sha256:1f02e8b43a8fbbc3f3e0d4f0f4bfc8131bcb4eebe8849b8e5c773f3a1c582a53"},
     {file = "annotated_types-0.7.0.tar.gz", hash = "sha256:aff07c09a53a08bc8cfccb9c85b05f1aa9a2a6f23728d790723543408344ce89"},
@@ -327,7 +327,7 @@ version = "5.0.1"
 description = "Timeout context manager for asyncio programs"
 optional = false
 python-versions = ">=3.8"
-groups = ["main", "api", "create-topics", "incremental-rdf-worker"]
+groups = ["main", "api", "incremental-rdf-worker"]
 files = [
     {file = "async_timeout-5.0.1-py3-none-any.whl", hash = "sha256:39e3809566ff85354557ec2398b55e096c8364bacac9405a7a1fa429e77fe76c"},
     {file = "async_timeout-5.0.1.tar.gz", hash = "sha256:d9321a7a3d5a6a5e187e824d2fa0793ce379a202935782d555d6e9d2735677d3"},
@@ -2551,7 +2551,7 @@ version = "26.0"
 description = "Core utilities for Python packages"
 optional = false
 python-versions = ">=3.8"
-groups = ["main", "api", "create-topics", "dev", "incremental-rdf-worker"]
+groups = ["main", "api", "dev", "incremental-rdf-worker"]
 files = [
     {file = "packaging-26.0-py3-none-any.whl", hash = "sha256:b36f1fef9334a5588b4166f8bcd26a14e521f2b55e6b9de3aaa80d3ff7a37529"},
     {file = "packaging-26.0.tar.gz", hash = "sha256:00243ae351a257117b6a241061796684b084ed1c516a08c48a3f7e147a9d80b4"},
@@ -2851,7 +2851,7 @@ version = "2.12.5"
 description = "Data validation using Python type hints"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "api", "create-buckets", "create-tables", "create-topics", "idworker", "incremental-rdf-worker", "json-worker", "meilisearch-indexer-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "create-buckets", "create-tables", "idworker", "incremental-rdf-worker", "json-worker", "meilisearch-indexer-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "pydantic-2.12.5-py3-none-any.whl", hash = "sha256:e561593fccf61e8a20fc46dfc2dfe075b8be7d0188df33f221ad1f0139180f9d"},
     {file = "pydantic-2.12.5.tar.gz", hash = "sha256:4d351024c75c0f085a9febbb665ce8c0c6ec5d30e903bdb6394b7ede26aebb49"},
@@ -2873,7 +2873,7 @@ version = "2.41.5"
 description = "Core functionality for Pydantic validation and serialization"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "api", "create-buckets", "create-tables", "create-topics", "idworker", "incremental-rdf-worker", "json-worker", "meilisearch-indexer-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "create-buckets", "create-tables", "idworker", "incremental-rdf-worker", "json-worker", "meilisearch-indexer-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "pydantic_core-2.41.5-cp310-cp310-macosx_10_12_x86_64.whl", hash = "sha256:77b63866ca88d804225eaa4af3e664c5faf3568cea95360d21f4725ab6e07146"},
     {file = "pydantic_core-2.41.5-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:dfa8a0c812ac681395907e71e1274819dec685fec28273a28905df579ef137e2"},
@@ -3837,7 +3837,7 @@ version = "4.15.0"
 description = "Backported and Experimental Type Hints for Python 3.9+"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "api", "create-buckets", "create-tables", "create-topics", "dev", "idworker", "incremental-rdf-worker", "json-worker", "meilisearch-indexer-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "create-buckets", "create-tables", "dev", "idworker", "incremental-rdf-worker", "json-worker", "meilisearch-indexer-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "typing_extensions-4.15.0-py3-none-any.whl", hash = "sha256:f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548"},
     {file = "typing_extensions-4.15.0.tar.gz", hash = "sha256:0cea48d173cc12fa28ecabc3b837ea3cf6f38c6d1136f85cbaaf598984861466"},
@@ -3849,7 +3849,7 @@ version = "0.4.2"
 description = "Runtime typing introspection tools"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "api", "create-buckets", "create-tables", "create-topics", "idworker", "incremental-rdf-worker", "json-worker", "meilisearch-indexer-worker", "purge-worker", "stats-worker", "ttl-worker"]
+groups = ["main", "api", "create-buckets", "create-tables", "idworker", "incremental-rdf-worker", "json-worker", "meilisearch-indexer-worker", "purge-worker", "stats-worker", "ttl-worker"]
 files = [
     {file = "typing_inspection-0.4.2-py3-none-any.whl", hash = "sha256:4ed1cacbdc298c220f1bd249ed5287caa16f34d44ef4e9c3d0cbad5b521545e7"},
     {file = "typing_inspection-0.4.2.tar.gz", hash = "sha256:ba561c48a67c5958007083d386c3295464928b01faa735ab8547c5692e87f464"},
@@ -4343,4 +4343,4 @@ pyyaml = ">=6.0.2"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13,<4.0"
-content-hash = "fe315fde941fceec884ee51f5a7ed9f289c1f2fff148a088f9912190bb16a65d"
+content-hash = "62e8b78f0ef3f391657efd6c01d4e8f96a112354a6eeba9a49d7c097616aece4"
