@@ -171,23 +171,7 @@ jobs:
       - run: pip install --upgrade pip wheel
       - run: poetry install --with=dev
       - name: Debug S3 configuration
-        run: >
-          poetry run python -c "
-          import os;
-          from models.config.settings import settings;
-          print(f'S3_ENDPOINT env: {os.environ.get(\"S3_ENDPOINT\", \"NOT SET\")}');
-          print(f'S3_ENDPOINT from settings: {settings.s3_endpoint}');
-          print(f'S3_ACCESS_KEY env: {os.environ.get(\"S3_ACCESS_KEY\", \"NOT SET\")}');
-          print(f'S3_SECRET_KEY env: {os.environ.get(\"S3_SECRET_KEY\", \"NOT SET\")}');
-          print(f'S3_BUCKET env: {os.environ.get(\"S3_BUCKET\", \"NOT SET\")}');
-          s3_config = settings.get_s3_config;
-          print(f'S3Config endpoint_url: {s3_config.endpoint_url}');
-          print(f'S3Config bucket: {s3_config.bucket}');
-          from minio import Minio;
-          client = Minio(s3_config.endpoint_url, s3_config.access_key, s3_config.secret_key, secure=False);
-          buckets = client.list_buckets();
-          print(f'Buckets: {[b.name for b in buckets]}')
-          "
+        run: poetry run python scripts/debug_s3.py
         env:
           S3_ENDPOINT: ${{ env.S3_ENDPOINT }}
           S3_ACCESS_KEY: ${{ env.S3_ACCESS_KEY }}
@@ -390,23 +374,7 @@ jobs:
       - run: pip install --upgrade pip wheel
       - run: poetry install --with=dev
       - name: Debug S3 configuration
-        run: >
-          poetry run python -c "
-          import os;
-          from models.config.settings import settings;
-          print(f'S3_ENDPOINT env: {os.environ.get(\"S3_ENDPOINT\", \"NOT SET\")}');
-          print(f'S3_ENDPOINT from settings: {settings.s3_endpoint}');
-          print(f'S3_ACCESS_KEY env: {os.environ.get(\"S3_ACCESS_KEY\", \"NOT SET\")}');
-          print(f'S3_SECRET_KEY env: {os.environ.get(\"S3_SECRET_KEY\", \"NOT SET\")}');
-          print(f'S3_BUCKET env: {os.environ.get(\"S3_BUCKET\", \"NOT SET\")}');
-          s3_config = settings.get_s3_config;
-          print(f'S3Config endpoint_url: {s3_config.endpoint_url}');
-          print(f'S3Config bucket: {s3_config.bucket}');
-          from minio import Minio;
-          client = Minio(s3_config.endpoint_url, s3_config.access_key, s3_config.secret_key, secure=False);
-          buckets = client.list_buckets();
-          print(f'Buckets: {[b.name for b in buckets]}')
-          "
+        run: poetry run python scripts/debug_s3.py
         env:
           S3_ENDPOINT: ${{ env.S3_ENDPOINT }}
           S3_ACCESS_KEY: ${{ env.S3_ACCESS_KEY }}
