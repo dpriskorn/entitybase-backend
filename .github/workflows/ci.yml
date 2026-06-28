@@ -151,6 +151,10 @@ jobs:
       - name: API logs
         if: always()
         run: sleep 10 && docker logs entitybase-api
+      - name: Verify API port mapping
+        run: |
+          docker ps
+          docker port entitybase-api
       - name: Wait for API
         timeout-minutes: 2
         run: |
@@ -335,6 +339,10 @@ jobs:
       - name: API logs
         if: always()
         run: sleep 10 && docker logs api
+      - name: Verify API port mapping
+        run: |
+          docker ps
+          docker port api
       - name: Wait for API
         timeout-minutes: 2
         run: |
