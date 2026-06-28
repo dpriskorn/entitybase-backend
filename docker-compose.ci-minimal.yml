@@ -98,7 +98,7 @@ services:
       context: .
       dockerfile: docker/containers/Dockerfile.api
     ports:
-      - "8083:8080"
+      - "8000:8080"
     environment:
       - VERSION=${VERSION_ENTITYBASE_BACKEND}
       - S3_ENDPOINT=rustfs:9000
