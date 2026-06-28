@@ -173,10 +173,10 @@ jobs:
       - name: Debug S3 configuration
         run: poetry run python scripts/debug_s3.py
         env:
-          S3_ENDPOINT: ${{ env.S3_ENDPOINT }}
-          S3_ACCESS_KEY: ${{ env.S3_ACCESS_KEY }}
-          S3_SECRET_KEY: ${{ env.S3_SECRET_KEY }}
-          S3_BUCKET: ${{ env.S3_BUCKET }}
+          S3_ENDPOINT: http://localhost:9000
+          S3_ACCESS_KEY: fakekey
+          S3_SECRET_KEY: fakesecret
+          S3_BUCKET: entitybase
 
       # === E2E TESTS ===
       - name: Run e2e tests (01 - basics)
@@ -376,10 +376,10 @@ jobs:
       - name: Debug S3 configuration
         run: poetry run python scripts/debug_s3.py
         env:
-          S3_ENDPOINT: ${{ env.S3_ENDPOINT }}
-          S3_ACCESS_KEY: ${{ env.S3_ACCESS_KEY }}
-          S3_SECRET_KEY: ${{ env.S3_SECRET_KEY }}
-          S3_BUCKET: ${{ env.S3_BUCKET }}
+          S3_ENDPOINT: http://localhost:9000
+          S3_ACCESS_KEY: fakekey
+          S3_SECRET_KEY: fakesecret
+          S3_BUCKET: testbucket
 
       # === E2E TESTS ===
       - name: Run e2e tests (01 - basics)
