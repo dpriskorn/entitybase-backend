@@ -183,6 +183,22 @@ class SqliteSchemaRepository(Repository):
                 )
             """)
 
+    def run_migrations(self) -> None:
+        """Run migrations for existing tables to add missing columns."""
+        with self.mysql_client.cursor as cursor:
+            cursor.execute("PRAGMA table_info(general_daily_stats)")
+            columns = [row[1] for row in cursor.fetchall()]
+            if "total_edits" not in columns:
+                logger.info(
+                    "Running migration: adding total_edits column to general_daily_stats"
+                )
+                cursor.execute(
+                    """
+                    ALTER TABLE general_daily_stats
+                    ADD COLUMN total_edits INTEGER NOT NULL DEFAULT 0
+                    """
+                )
+
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS metadata_content (
                     content_hash INTEGER NOT NULL,

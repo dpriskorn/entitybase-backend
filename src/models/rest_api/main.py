@@ -105,6 +105,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         state_handler = await _initialize_state_handler()
         await _create_s3_buckets(state_handler)
         await _create_database_tables(state_handler)
+        await _run_database_migrations(state_handler)
         await _bootstrap_admin_user(state_handler)
         await _initialize_app_state(app_, state_handler)
         yield
@@ -136,6 +137,14 @@ async def _create_database_tables(state_handler: StateHandler) -> None:
     except Exception as e:
         logger.warning(f"Could not create database tables on startup: {e}")
         logger.info("Tables will be created when first accessed or in tests")
+
+
+async def _run_database_migrations(state_handler: StateHandler) -> None:
+    """Run database migrations on startup."""
+    db_type = state_handler.settings.db_type
+    logger.info(f"Running database migrations (db_type={db_type})...")
+    state_handler.mysql_client.run_migrations()
+    logger.info(f"Database migrations completed (db_type={db_type})")
 
 
 async def _bootstrap_admin_user(state_handler: StateHandler) -> None:

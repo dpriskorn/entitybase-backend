@@ -185,6 +185,15 @@ class SqliteClient(Client):
         schema_repository = SqliteSchemaRepository(mysql_client=self)
         schema_repository.create_tables()
 
+    def run_migrations(self) -> None:
+        """Run SQLite database migrations."""
+        from models.infrastructure.sqlite.repositories.schema import (
+            SqliteSchemaRepository,
+        )
+
+        schema_repository = SqliteSchemaRepository(mysql_client=self)
+        schema_repository.run_migrations()
+
     def entity_exists(self, entity_id: str) -> bool:
         return self.id_resolver.entity_exists(entity_id)  # type: ignore[union-attr,no-any-return]
 

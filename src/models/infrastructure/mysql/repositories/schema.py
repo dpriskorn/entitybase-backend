@@ -186,6 +186,36 @@ class SchemaRepository(Repository):
             """
             )
 
+    def run_migrations(self) -> None:
+        """Run migrations for existing tables to add missing columns."""
+        if not self.mysql_client:
+            raise_validation_error(message="database not initialized")
+        if not self.mysql_client.connection_manager:
+            raise_validation_error(message="Connection manager not initialized")
+        if not self.mysql_client.connection_manager.connection:
+            raise_validation_error(
+                message="Connection manager variable not initialized"
+            )
+        with self.mysql_client.cursor as cursor:
+            cursor.execute(
+                """
+                SELECT COUNT(*) FROM information_schema.columns
+                WHERE table_schema = DATABASE()
+                AND table_name = 'general_daily_stats'
+                AND column_name = 'total_edits'
+                """
+            )
+            if cursor.fetchone()[0] == 0:
+                logger.info(
+                    "Running migration: adding total_edits column to general_daily_stats"
+                )
+                cursor.execute(
+                    """
+                    ALTER TABLE general_daily_stats
+                    ADD COLUMN total_edits BIGINT NOT NULL DEFAULT 0 AFTER total_terms
+                    """
+                )
+
             cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS metadata_content (

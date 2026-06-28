@@ -181,6 +181,12 @@ class MysqlClient(Client):
         schema_repository: SchemaRepository = SchemaRepository(mysql_client=self)
         schema_repository.create_tables()
 
+    def run_migrations(self) -> None:
+        from models.infrastructure.mysql.repositories.schema import SchemaRepository
+
+        schema_repository: SchemaRepository = SchemaRepository(mysql_client=self)
+        schema_repository.run_migrations()
+
     def entity_exists(self, entity_id: str) -> bool:
         return self.id_resolver.entity_exists(entity_id)  # type: ignore[union-attr]
 
