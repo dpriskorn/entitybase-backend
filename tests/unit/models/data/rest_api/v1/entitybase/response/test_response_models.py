@@ -161,6 +161,7 @@ class TestGeneralStatsResponse:
             total_properties=20,
             total_sitelinks=200,
             total_terms=1500,
+            total_edits=2000,
             terms_per_language=TermsPerLanguage(terms={"en": 1000}),
             terms_by_type=TermsByType(counts={"labels": 500}),
         )

@@ -510,6 +510,7 @@ class TestComputeDailyStatsExec:
             [100],
             [100],
             [100],
+            [100],
             ["labels", 100],
             ["descriptions", 100],
             ["aliases", 100],

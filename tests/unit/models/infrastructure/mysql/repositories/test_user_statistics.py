@@ -124,6 +124,7 @@ class TestUserRepositoryStatistics:
             total_properties=20,
             total_sitelinks=200,
             total_terms=5000,
+            total_edits=2000,
         )
 
         with pytest.raises(Exception) as exc_info:
