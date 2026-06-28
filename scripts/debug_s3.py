@@ -12,11 +12,15 @@ s3_config = settings.get_s3_config
 endpoint = s3_config.endpoint_url
 print(f"S3Config endpoint_url: {endpoint}")
 print(f"S3Config bucket: {s3_config.bucket}")
-print(f"Endpoint repr: {repr(endpoint)}")
-print(f"Endpoint length: {len(endpoint)}")
+
+# Remove http:// or https:// prefix since Minio adds it based on secure parameter
+if endpoint.startswith("http://"):
+    endpoint = endpoint[7:]
+elif endpoint.startswith("https://"):
+    endpoint = endpoint[8:]
+print(f"Endpoint after stripping scheme: {endpoint}")
 
 from minio import Minio
-print(f"Minio version: {Minio.__module__}")
 client = Minio(
     endpoint,
     s3_config.access_key,
