@@ -9,12 +9,16 @@ print(f"S3_SECRET_KEY env: {os.environ.get('S3_SECRET_KEY', 'NOT SET')}")
 print(f"S3_BUCKET env: {os.environ.get('S3_BUCKET', 'NOT SET')}")
 
 s3_config = settings.get_s3_config
-print(f"S3Config endpoint_url: {s3_config.endpoint_url}")
+endpoint = s3_config.endpoint_url
+print(f"S3Config endpoint_url: {endpoint}")
 print(f"S3Config bucket: {s3_config.bucket}")
+print(f"Endpoint repr: {repr(endpoint)}")
+print(f"Endpoint length: {len(endpoint)}")
 
 from minio import Minio
+print(f"Minio version: {Minio.__module__}")
 client = Minio(
-    s3_config.endpoint_url,
+    endpoint,
     s3_config.access_key,
     s3_config.secret_key,
     secure=False,
