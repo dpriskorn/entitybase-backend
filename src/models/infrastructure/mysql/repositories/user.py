@@ -437,6 +437,7 @@ class UserRepository(Repository):
             ("total_properties", ctx.total_properties),
             ("total_sitelinks", ctx.total_sitelinks),
             ("total_terms", ctx.total_terms),
+            ("total_edits", ctx.total_edits),
         ]:
             if value < 0:
                 raise_validation_error(
@@ -451,8 +452,8 @@ class UserRepository(Repository):
                 cursor.execute(
                     """
                     INSERT INTO general_daily_stats
-                    (stat_date, total_statements, total_qualifiers, total_references, total_items, total_lexemes, total_properties, total_sitelinks, total_terms, terms_per_language, terms_by_type)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    (stat_date, total_statements, total_qualifiers, total_references, total_items, total_lexemes, total_properties, total_sitelinks, total_terms, total_edits, terms_per_language, terms_by_type)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     ON DUPLICATE KEY UPDATE
                     total_statements = VALUES(total_statements),
                     total_qualifiers = VALUES(total_qualifiers),
@@ -462,6 +463,7 @@ class UserRepository(Repository):
                     total_properties = VALUES(total_properties),
                     total_sitelinks = VALUES(total_sitelinks),
                     total_terms = VALUES(total_terms),
+                    total_edits = VALUES(total_edits),
                     terms_per_language = VALUES(terms_per_language),
                     terms_by_type = VALUES(terms_by_type)
                     """,
@@ -475,6 +477,7 @@ class UserRepository(Repository):
                         ctx.total_properties,
                         ctx.total_sitelinks,
                         ctx.total_terms,
+                        ctx.total_edits,
                         json.dumps(ctx.terms_per_language),
                         json.dumps(ctx.terms_by_type),
                     ),

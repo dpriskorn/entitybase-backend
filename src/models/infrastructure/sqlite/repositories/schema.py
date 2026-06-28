@@ -176,6 +176,7 @@ class SqliteSchemaRepository(Repository):
                     total_properties INTEGER NOT NULL,
                     total_sitelinks INTEGER NOT NULL,
                     total_terms INTEGER NOT NULL,
+                    total_edits INTEGER NOT NULL,
                     terms_per_language TEXT NOT NULL,
                     terms_by_type TEXT NOT NULL,
                     created_at TEXT DEFAULT (datetime('now'))

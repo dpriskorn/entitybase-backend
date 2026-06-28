@@ -29,6 +29,7 @@ class GeneralStatsService(Service):
         total_properties = self.get_total_properties()
         total_sitelinks = self.get_total_sitelinks()
         total_terms = self.get_total_terms()
+        total_edits = self.get_total_edits()
         terms_per_language = self.get_terms_per_language()
         terms_by_type = self.get_terms_by_type()
 
@@ -41,6 +42,7 @@ class GeneralStatsService(Service):
             total_properties=total_properties,
             total_sitelinks=total_sitelinks,
             total_terms=total_terms,
+            total_edits=total_edits,
             terms_per_language=terms_per_language,
             terms_by_type=terms_by_type,
         )
@@ -131,6 +133,17 @@ class GeneralStatsService(Service):
                 return result[0] if result else 0
         except Exception:
             logger.debug("terms table does not exist, returning 0")
+            return 0
+
+    def get_total_edits(self) -> int:
+        """Count total edits (entity revisions)."""
+        try:
+            with self.state.mysql_client.cursor as cursor:
+                cursor.execute("SELECT COUNT(*) FROM entity_revisions")
+                result = cursor.fetchone()
+                return result[0] if result else 0
+        except Exception:
+            logger.debug("entity_revisions table does not exist, returning 0")
             return 0
 
     def get_terms_per_language(self) -> TermsPerLanguage:

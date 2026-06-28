@@ -223,6 +223,7 @@ class UserHandler(Handler):
             total_properties=stats.total_properties,
             total_sitelinks=stats.total_sitelinks,
             total_terms=stats.total_terms,
+            total_edits=stats.total_edits,
             terms_per_language=terms_per_lang,
             terms_by_type=terms_by_t,
         )
@@ -235,7 +236,7 @@ class UserHandler(Handler):
         try:
             logger.debug("Executing query for general_daily_stats")
             cursor.execute(
-                "SELECT stat_date, total_statements, total_qualifiers, total_references, total_items, total_lexemes, total_properties, total_sitelinks, total_terms, terms_per_language, terms_by_type FROM general_daily_stats ORDER BY stat_date DESC LIMIT 1"
+                "SELECT stat_date, total_statements, total_qualifiers, total_references, total_items, total_lexemes, total_properties, total_sitelinks, total_terms, total_edits, terms_per_language, terms_by_type FROM general_daily_stats ORDER BY stat_date DESC LIMIT 1"
             )
             row = cursor.fetchone()
             if row:
@@ -249,12 +250,13 @@ class UserHandler(Handler):
                     total_properties=row[6],
                     total_sitelinks=row[7],
                     total_terms=row[8],
+                    total_edits=row[9],
                     terms_per_language=cast(
                         TermsPerLanguage,
-                        self._parse_stats_terms(row[9], TermsPerLanguage),
+                        self._parse_stats_terms(row[10], TermsPerLanguage),
                     ),
                     terms_by_type=cast(
-                        TermsByType, self._parse_stats_terms(row[10], TermsByType)
+                        TermsByType, self._parse_stats_terms(row[11], TermsByType)
                     ),
                 )
             else:

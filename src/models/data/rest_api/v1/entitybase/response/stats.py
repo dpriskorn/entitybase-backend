@@ -49,6 +49,7 @@ class GeneralStatsResponse(BaseModel):
     total_terms: int = Field(
         description="Total number of terms (labels + descriptions + aliases)."
     )
+    total_edits: int = Field(description="Total number of edits (entity revisions).")
     terms_per_language: TermsPerLanguage = Field(
         description="Terms count per language."
     )
@@ -123,6 +124,7 @@ class GeneralStatsData(BaseModel):
     total_terms: int = Field(
         description="Total number of terms (labels + descriptions + aliases)."
     )
+    total_edits: int = Field(description="Total number of edits (entity revisions).")
     terms_per_language: TermsPerLanguage = Field(
         description="Terms count per language."
     )

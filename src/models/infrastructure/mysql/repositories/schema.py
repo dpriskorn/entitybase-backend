@@ -178,6 +178,7 @@ class SchemaRepository(Repository):
                     total_properties BIGINT NOT NULL,
                     total_sitelinks BIGINT NOT NULL,
                     total_terms BIGINT NOT NULL,
+                    total_edits BIGINT NOT NULL,
                     terms_per_language JSON NOT NULL,
                     terms_by_type JSON NOT NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

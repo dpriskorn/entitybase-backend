@@ -76,6 +76,7 @@ class GeneralStatsWorker(BaseStatsWorker):
             total_properties=stats.total_properties,
             total_sitelinks=stats.total_sitelinks,
             total_terms=stats.total_terms,
+            total_edits=stats.total_edits,
             terms_per_language=stats.terms_per_language.model_dump(mode="json"),
             terms_by_type=stats.terms_by_type.model_dump(mode="json"),
         )
