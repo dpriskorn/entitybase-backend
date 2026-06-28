@@ -4,8 +4,8 @@ set -Eeuo pipefail
 
 echo "=== CI Local Simulation ==="
 
-# Use docker-compose.full.yml to match CI (full stack with all workers)
-COMPOSE_FILE="docker-compose.full.yml"
+# Use docker-compose.ci-full.yml to match CI (full stack with all workers)
+COMPOSE_FILE="docker-compose.ci-full.yml"
 
 echo "🧹 Cleaning up any existing containers..."
 docker compose --file "$COMPOSE_FILE" down -v 2>/dev/null || true

@@ -127,10 +127,10 @@ jobs:
           test -f poetry.lock && echo "poetry.lock found" || (echo "poetry.lock missing" && exit 1)
       - name: Build docker images
         run: |
-          docker compose -f docker-compose.minimal.yml build --no-cache entitybase-api
+          docker compose -f docker-compose.ci-minimal.yml build --no-cache entitybase-api
       - name: Start infrastructure services
         run: |
-          docker compose -f docker-compose.minimal.yml up -d rustfs valkey redpanda
+          docker compose -f docker-compose.ci-minimal.yml up -d rustfs valkey redpanda
       - name: Verify docker port mapping
         run: |
           docker ps
@@ -146,7 +146,7 @@ jobs:
             sleep 2
           done
       - name: Start API
-        run: docker compose -f docker-compose.minimal.yml up -d entitybase-api
+        run: docker compose -f docker-compose.ci-minimal.yml up -d entitybase-api
         timeout-minutes: 2
       - name: Wait for API
         timeout-minutes: 2
@@ -279,11 +279,11 @@ jobs:
       - name: Show container logs on failure
         if: failure()
         run: |
-          docker compose -f docker-compose.minimal.yml logs --tail=100 rustfs
-          docker compose -f docker-compose.minimal.yml logs --tail=100 entitybase-api
+          docker compose -f docker-compose.ci-minimal.yml logs --tail=100 rustfs
+          docker compose -f docker-compose.ci-minimal.yml logs --tail=100 entitybase-api
       - name: Down containers
         if: always()
-        run: docker compose -f docker-compose.minimal.yml down -v
+        run: docker compose -f docker-compose.ci-minimal.yml down -v
 
   be-full-integration-tests:
     runs-on: ubuntu-latest
@@ -305,11 +305,11 @@ jobs:
           test -f poetry.lock && echo "poetry.lock found" || (echo "poetry.lock missing" && exit 1)
       - name: Build docker images
         run: |
-          docker compose -f docker-compose.full.yml build --no-cache \
+          docker compose -f docker-compose.ci-full.yml build --no-cache \
             api create-buckets
       - name: Start infrastructure services
         run: |
-          docker compose -f docker-compose.full.yml up -d rustfs
+          docker compose -f docker-compose.ci-full.yml up -d rustfs
       - name: Verify docker port mapping
         run: |
           docker ps
@@ -325,9 +325,9 @@ jobs:
             sleep 2
           done
       - name: Setup S3 buckets
-        run: docker compose -f docker-compose.full.yml run --rm create-buckets
+        run: docker compose -f docker-compose.ci-full.yml run --rm create-buckets
       - name: Start API
-        run: docker compose -f docker-compose.full.yml up -d api
+        run: docker compose -f docker-compose.ci-full.yml up -d api
         timeout-minutes: 2
       - name: Wait for API
         timeout-minutes: 2
@@ -460,12 +460,12 @@ jobs:
       - name: Show container logs on failure
         if: failure()
         run: |
-          docker compose -f docker-compose.full.yml logs --tail=100 rustfs
-          docker compose -f docker-compose.full.yml logs --tail=100 create-buckets
-          docker compose -f docker-compose.full.yml logs --tail=100 api
+          docker compose -f docker-compose.ci-full.yml logs --tail=100 rustfs
+          docker compose -f docker-compose.ci-full.yml logs --tail=100 create-buckets
+          docker compose -f docker-compose.ci-full.yml logs --tail=100 api
       - name: Down containers
         if: always()
-        run: docker compose -f docker-compose.full.yml down -v
+        run: docker compose -f docker-compose.ci-full.yml down -v
 
   fe-lint:
     runs-on: ubuntu-latest
