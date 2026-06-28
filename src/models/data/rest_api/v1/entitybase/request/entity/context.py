@@ -45,7 +45,9 @@ class GeneralStatisticsContext(BaseModel):
     total_properties: int = Field(..., description="Total number of properties")
     total_sitelinks: int = Field(..., description="Total number of sitelinks")
     total_terms: int = Field(..., description="Total number of terms")
-    total_edits: int = Field(..., description="Total number of edits (entity revisions)")
+    total_edits: int = Field(
+        ..., description="Total number of edits (entity revisions)"
+    )
     terms_per_language: Dict[str, int] = Field(
         default_factory=dict, description="Terms count per language"
     )
