@@ -1,6 +1,9 @@
 """Redirect-related routes."""
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
+
+from models.rest_api.auth.dependencies import auth_to_edit_headers, verify_auth
+from models.rest_api.auth.models import AuthenticatedRequest
 
 from models.data.rest_api.v1.entitybase.request.headers import EditHeadersType
 from models.data.rest_api.v1.entitybase.request import (
@@ -21,14 +24,17 @@ redirects_router = APIRouter()
 async def create_entity_redirect(
     request: EntityRedirectRequest,
     req: Request,
-    headers: EditHeadersType,
+    auth: AuthenticatedRequest = Depends(verify_auth),
 ) -> EntityRedirectResponse:
     """Create a redirect for an entity."""
     state = req.app.state.state_handler
     validate_state_clients(state)
+    headers = auth_to_edit_headers(auth)
 
     handler = RedirectHandler(state=state)
-    result = await handler.create_entity_redirect(request, edit_headers=headers)
+    result = await handler.create_entity_redirect(
+        request, edit_headers=headers, user_id=auth.user.user_id
+    )
     if not isinstance(result, EntityRedirectResponse):
         raise_validation_error("Invalid response type", status_code=500)
     return result
@@ -41,14 +47,15 @@ async def revert_entity_redirect(  # type: ignore[no-any-return]
     entity_id: str,
     request: RedirectRevertRequest,
     req: Request,
-    headers: EditHeadersType,
+    auth: AuthenticatedRequest = Depends(verify_auth),
 ) -> EntityRevertResponse:
     state = req.app.state.state_handler
     validate_state_clients(state)
+    headers = auth_to_edit_headers(auth)
 
     handler = RedirectHandler(state=state)
     result = await handler.revert_entity_redirect(
-        entity_id, request, edit_headers=headers
+        entity_id, request, edit_headers=headers, user_id=auth.user.user_id
     )
     if not isinstance(result, EntityRevertResponse):
         raise_validation_error("Invalid response type", status_code=500)

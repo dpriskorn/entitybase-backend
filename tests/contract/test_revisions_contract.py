@@ -13,7 +13,9 @@ sys.path.insert(0, "src")
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_revision_response_fields(api_prefix: str) -> None:
+async def test_revision_response_fields(
+    api_prefix: str, auth_headers: dict[str, str]
+) -> None:
     """Contract test: Revision has required fields."""
     from models.rest_api.main import app
 
@@ -22,7 +24,7 @@ async def test_revision_response_fields(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]
@@ -36,7 +38,9 @@ async def test_revision_response_fields(api_prefix: str) -> None:
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_revision_list_pagination(api_prefix: str) -> None:
+async def test_revision_list_pagination(
+    api_prefix: str, auth_headers: dict[str, str]
+) -> None:
     """Contract test: Pagination works correctly."""
     from models.rest_api.main import app
 
@@ -45,7 +49,7 @@ async def test_revision_list_pagination(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]
@@ -59,7 +63,9 @@ async def test_revision_list_pagination(api_prefix: str) -> None:
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_revision_content_hash(api_prefix: str) -> None:
+async def test_revision_content_hash(
+    api_prefix: str, auth_headers: dict[str, str]
+) -> None:
     """Contract test: Content hash is integer."""
     from models.rest_api.main import app
 
@@ -68,7 +74,7 @@ async def test_revision_content_hash(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]

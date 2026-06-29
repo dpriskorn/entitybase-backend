@@ -86,13 +86,13 @@ class EntityJsonImportHandler(Handler):
                 return False, False
 
             edit_headers_data = {
-                "x_user_id": 0,
                 "x_edit_summary": "Wikidata import",
             }
 
             await create_handler.create_entity(
                 create_request,
                 EditHeaders(**edit_headers_data),
+                0,
                 validator,
                 auto_assign_id=False,
             )

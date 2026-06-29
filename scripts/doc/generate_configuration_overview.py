@@ -91,9 +91,9 @@ def categorize_settings(
     for setting_name, setting_info in settings_items:
         name_lower = setting_name.lower()
 
-        if any(keyword in name_lower for keyword in ["vitess", "mysql", "database"]):
+        if any(keyword in name_lower for keyword in ["mysql", "mysql", "database"]):
             categories["Database"].append((setting_name, setting_info))
-        elif any(keyword in name_lower for keyword in ["s3", "minio", "bucket"]):
+        elif any(keyword in name_lower for keyword in ["s3", "rustfs", "bucket"]):
             categories["Storage"].append((setting_name, setting_info))
         elif any(
             keyword in name_lower for keyword in ["api", "endpoint", "port", "host"]
@@ -144,16 +144,16 @@ def generate_markdown(
     # Usage example
     lines.append("## Usage Example\n")
     lines.append(
-        "```python\nfrom models.config.settings import settings\n\n# Access a setting\napi_port = settings.api_port\n\n# Override via environment\n# export VITESS_HOST=my-custom-host\n```\n"
+        "```python\nfrom models.config.settings import settings\n\n# Access a setting\napi_port = settings.api_port\n\n# Override via environment\n# export MYSQL_HOST=my-custom-host\n```\n"
     )
 
     # Docker section
     lines.append("## Docker Configuration\n")
     lines.append("Key settings for Docker deployment:\n\n")
-    lines.append("- `VITESS_HOST`: Vitess database host (default: vitess)")
-    lines.append("- `VITESS_PORT`: Vitess database port (default: 15309)")
+    lines.append("- `MYSQL_HOST`: Mysql database host (default: mysql)")
+    lines.append("- `MYSQL_PORT`: Mysql database port (default: 15309)")
     lines.append(
-        "- `S3_ENDPOINT`: S3-compatible storage endpoint (default: http://minio:9000)"
+        "- `S3_ENDPOINT`: S3-compatible storage endpoint (default: http://rustfs:9000)"
     )
     lines.append("- `KAFKA_BROKERS`: Kafka broker addresses for change streaming")
     lines.append("")

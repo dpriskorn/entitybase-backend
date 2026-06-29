@@ -1,0 +1,23 @@
+#!/bin/bash
+# Pre-commit hook to run linters when src/ or frontend/ files are staged
+
+cd "$(dirname "$0")/../.."
+
+# Get staged files in src/ (Added, Copied, Modified)
+src_files=$(git diff-index --cached --name-only --diff-filter=ACM HEAD -- src/ 2>/dev/null || echo "")
+
+if [ -n "$src_files" ]; then
+    echo "Changes detected in src/. Running be-lint..."
+    echo "$src_files"
+    make be-lint
+fi
+
+# Get staged files in frontend/ (Added, Copied, Modified)
+frontend_files=$(git diff-index --cached --name-only --diff-filter=ACM HEAD -- frontend/ 2>/dev/null || echo "")
+
+if [ -n "$frontend_files" ]; then
+    echo "Changes detected in frontend/. Running fe-lint..."
+    echo "$frontend_files"
+    make fe-lint
+    make fe-tests
+fi

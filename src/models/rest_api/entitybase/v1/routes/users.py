@@ -1,6 +1,6 @@
 """User-related routes."""
 
-from fastapi import APIRouter, HTTPException, Request, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
 from models.rest_api.entitybase.v1.handlers.user import UserHandler
 from models.rest_api.entitybase.v1.handlers.user_activity import UserActivityHandler
@@ -15,6 +15,8 @@ from models.data.rest_api.v1.entitybase.response import (
 from models.data.rest_api.v1.entitybase.response import UserStatsResponse
 from models.data.rest_api.v1.entitybase.response import UserResponse
 from models.data.rest_api.v1.entitybase.response import UserActivityResponse
+from models.rest_api.auth.dependencies import verify_auth
+from models.rest_api.auth.models import AuthenticatedRequest
 from models.rest_api.utils import raise_validation_error, validate_state_clients
 from pydantic import BaseModel
 
@@ -49,7 +51,11 @@ def get_user_activity_query(
 
 
 @users_router.post("/users", response_model=UserCreateResponse)
-async def create_user(request: UserCreateRequest, req: Request) -> UserCreateResponse:
+async def create_user(
+    request: UserCreateRequest,
+    req: Request,
+    auth: AuthenticatedRequest = Depends(verify_auth),
+) -> UserCreateResponse:
     """Create a new user."""
     state = req.app.state.state_handler
     validate_state_clients(state)

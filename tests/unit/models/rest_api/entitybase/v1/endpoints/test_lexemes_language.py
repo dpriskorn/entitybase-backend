@@ -15,7 +15,7 @@ class TestLanguageEndpoints:
     async def test_get_lexeme_language(self, mock_entity_read_state):
         from models.rest_api.entitybase.v1.endpoints.lexemes import get_lexeme_language
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
 
         mock_revision_data = S3RevisionData(
             schema="1.0.0",
@@ -40,7 +40,7 @@ class TestLanguageEndpoints:
     async def test_get_lexeme_language_not_found(self, mock_entity_read_state):
         from models.rest_api.entitybase.v1.endpoints.lexemes import get_lexeme_language
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
 
         mock_revision_data = S3RevisionData(
             schema="1.0.0",
@@ -70,7 +70,7 @@ class TestLanguageEndpoints:
         )
         from models.data.rest_api.v1.entitybase.request import LexemeLanguageRequest
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
         mock_update_handler = AsyncMock()
         mock_entity = Mock()
         mock_entity.id = "L42"
@@ -117,7 +117,7 @@ class TestLanguageEndpoints:
         )
         from models.data.rest_api.v1.entitybase.request import LexemeLanguageRequest
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
 
         mock_revision_data = S3RevisionData(
             schema="1.0.0",
@@ -155,7 +155,7 @@ class TestLexicalCategoryEndpoints:
             get_lexeme_lexicalcategory,
         )
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
 
         mock_revision_data = S3RevisionData(
             schema="1.0.0",
@@ -184,7 +184,7 @@ class TestLexicalCategoryEndpoints:
             get_lexeme_lexicalcategory,
         )
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
 
         mock_revision_data = S3RevisionData(
             schema="1.0.0",
@@ -211,7 +211,7 @@ class TestLexicalCategoryEndpoints:
             get_lexeme_lexicalcategory,
         )
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
 
         mock_revision_data = S3RevisionData(
             schema="1.0.0",
@@ -243,7 +243,7 @@ class TestLexicalCategoryEndpoints:
             LexemeLexicalCategoryRequest,
         )
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
         mock_update_handler = AsyncMock()
         mock_entity = Mock()
         mock_entity.id = "L42"
@@ -294,7 +294,7 @@ class TestLexicalCategoryEndpoints:
             LexemeLexicalCategoryRequest,
         )
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
 
         mock_revision_data = S3RevisionData(
             schema="1.0.0",

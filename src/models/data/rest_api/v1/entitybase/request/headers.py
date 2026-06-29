@@ -5,11 +5,12 @@ from pydantic import BaseModel, Field
 
 
 class EditHeaders(BaseModel):
-    """Model for required editing headers (X-User-ID and X-Edit-Summary)."""
+    """Model for editing headers (X-Edit-Summary and X-Base-Revision-ID).
 
-    x_user_id: int = Field(
-        ..., alias="X-User-ID", ge=0, description="User ID making the edit"
-    )
+    Note: X-User-ID has been removed. User identity is now determined by
+    authentication credentials via the Authorization header.
+    """
+
     x_edit_summary: str = Field(
         ...,
         alias="X-Edit-Summary",

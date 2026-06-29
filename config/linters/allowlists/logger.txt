@@ -1,3 +1,5 @@
 # Logger allowlist for functions that need more than 1 logger call
 src/models/config/settings.py:109
 src/models/rest_api/entitybase/v1/handlers/entity/revert.py:118
+src/models/infrastructure/mysql/repositories/schema.py:189
+src/models/infrastructure/sqlite/repositories/schema.py:24

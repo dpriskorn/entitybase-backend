@@ -7,12 +7,12 @@ from datetime import datetime, timezone
 from typing import Any, Callable
 
 from models.data.infrastructure.s3 import EntityState
-from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.infrastructure.s3.enums import MetadataType
 from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
 from models.data.rest_api.v1.entitybase.request.entity.context import (
+    EditOperationContext,
     EventPublishContext,
 )
 from models.data.rest_api.v1.entitybase.response import EntityResponse
@@ -98,7 +98,7 @@ class UpdateTransaction(EntityTransaction):
             )
 
         # Store new statements
-        hash_data = hash_result.get_data()
+        hash_data: StatementHashResult = hash_result.get_data()
         store_result = ss.deduplicate_and_store_statements(hash_data, validator)
         if not store_result.success:
             from models.rest_api.utils import raise_validation_error
@@ -121,7 +121,7 @@ class UpdateTransaction(EntityTransaction):
         entity_id: str,
         request_data: PreparedRequestData,
         entity_type: Any,
-        edit_headers: EditHeaders,
+        edit_operation_context: EditOperationContext,
         hash_result: StatementHashResult,
     ) -> EntityResponse:
         """Create revision using new architecture components."""
@@ -141,7 +141,7 @@ class UpdateTransaction(EntityTransaction):
         from models.config.settings import settings
 
         logger.debug("Getting head revision ID")
-        head_revision_id = self.state.vitess_client.get_head(entity_id)
+        head_revision_id = self.state.mysql_client.get_head(entity_id)
         new_revision_id = head_revision_id + 1 if head_revision_id else 1
         logger.debug(f"New revision ID: {new_revision_id}")
 
@@ -171,8 +171,8 @@ class UpdateTransaction(EntityTransaction):
             edit=EditData(
                 mass=False,
                 type=EditType.UNSPECIFIED,
-                user_id=edit_headers.x_user_id,
-                summary=edit_headers.x_edit_summary,
+                user_id=edit_operation_context.user_id,
+                summary=edit_operation_context.edit_headers.x_edit_summary,
                 at=created_at,
             ),
             state=EntityState(),
@@ -189,10 +189,10 @@ class UpdateTransaction(EntityTransaction):
         content_hash = MetadataExtractor.hash_string(revision_json)
 
         logger.debug(
-            f"[UpdateTransaction.create_revision] entity_id={entity_id}, vitess_client={id(self.state.vitess_client)}, id_resolver={id(self.state.vitess_client.id_resolver)}"
+            f"[UpdateTransaction.create_revision] entity_id={entity_id}, mysql_client={id(self.state.mysql_client)}, id_resolver={id(self.state.mysql_client.id_resolver)}"
         )
-        expected_revision_id = edit_headers.x_base_revision_id
-        revision_created = self.state.vitess_client.create_revision(
+        expected_revision_id = edit_operation_context.edit_headers.x_base_revision_id
+        revision_created = self.state.mysql_client.create_revision(
             entity_id=entity_id,
             entity_data=revision_data,
             revision_id=new_revision_id,
@@ -202,7 +202,7 @@ class UpdateTransaction(EntityTransaction):
         if not revision_created:
             from models.rest_api.utils import raise_validation_error
 
-            current_head = self.state.vitess_client.get_head(entity_id)
+            current_head = self.state.mysql_client.get_head(entity_id)
             raise_validation_error(
                 f"Conflict: entity was modified by another edit. "
                 f"Expected base revision {expected_revision_id}, but current revision is {current_head}. "
@@ -234,7 +234,7 @@ class UpdateTransaction(EntityTransaction):
         self,
         entity_id: str,
         entity_type: Any,
-        edit_headers: EditHeaders,
+        edit_operation_context: EditOperationContext,
         existing_hashes: dict[str, Any],
         existing_revision: dict[str, Any],
     ) -> EntityResponse:
@@ -264,7 +264,7 @@ class UpdateTransaction(EntityTransaction):
         import json
 
         logger.debug(f"Getting head revision for entity {entity_id}")
-        head_revision_id = self.state.vitess_client.get_head(entity_id)
+        head_revision_id = self.state.mysql_client.get_head(entity_id)
         new_revision_id = head_revision_id + 1 if head_revision_id else 1
         logger.debug(f"New revision ID: {new_revision_id}")
 
@@ -293,8 +293,8 @@ class UpdateTransaction(EntityTransaction):
             edit=EditData(
                 mass=False,
                 type=EditType.UNSPECIFIED,
-                user_id=edit_headers.x_user_id,
-                summary=edit_headers.x_edit_summary,
+                user_id=edit_operation_context.user_id,
+                summary=edit_operation_context.edit_headers.x_edit_summary,
                 at=created_at,
             ),
             state=EntityState(),
@@ -312,9 +312,9 @@ class UpdateTransaction(EntityTransaction):
         content_hash = MetadataExtractor.hash_string(revision_json)
         logger.debug(f"Content hash: {content_hash}")
 
-        logger.debug("Creating revision in Vitess")
-        expected_revision_id = edit_headers.x_base_revision_id
-        revision_created = self.state.vitess_client.create_revision(
+        logger.debug("Creating revision in database")
+        expected_revision_id = edit_operation_context.edit_headers.x_base_revision_id
+        revision_created = self.state.mysql_client.create_revision(
             entity_id=entity_id,
             entity_data=revision_data,
             revision_id=new_revision_id,
@@ -324,7 +324,7 @@ class UpdateTransaction(EntityTransaction):
         if not revision_created:
             from models.rest_api.utils import raise_validation_error
 
-            current_head = self.state.vitess_client.get_head(entity_id)
+            current_head = self.state.mysql_client.get_head(entity_id)
             raise_validation_error(
                 f"Conflict: entity was modified by another edit. "
                 f"Expected base revision {expected_revision_id}, but current revision is {current_head}. "
@@ -390,9 +390,9 @@ class UpdateTransaction(EntityTransaction):
     def _rollback_statement(self, hash_val: int) -> None:
         logger.info(f"[UpdateTransaction] Rolling back statement {hash_val}")
         # Decrement ref_count
-        self.state.vitess_client.decrement_ref_count(hash_val)
+        self.state.mysql_client.decrement_ref_count(hash_val)
         # Check if orphaned and delete from S3
-        ref_count = self.state.vitess_client.get_ref_count(hash_val)
+        ref_count = self.state.mysql_client.get_ref_count(hash_val)
         if ref_count == 0:
             self.state.s3_client.delete_statement(hash_val)
 
@@ -457,4 +457,4 @@ class UpdateTransaction(EntityTransaction):
             f"[UpdateTransaction] Rolling back revision {revision_id} for {entity_id}"
         )
         # Delete from entity_revisions and revert head
-        self.state.vitess_client.delete_revision(entity_id, revision_id)
+        self.state.mysql_client.delete_revision(entity_id, revision_id)

@@ -45,48 +45,48 @@ S3 stores **all entity content** as immutable snapshots.
 
 **Revisions** (content_hash-based):
 ```
-s3://wikibase-revisions/{content_hash}.json
-Example: s3://wikibase-revisions/123456789012345.json
+s3://entitybase-revisions/{content_hash}.json
+Example: s3://entitybase-revisions/123456789012345.json
 ```
 
 **Statements**:
 ```
-s3://wikibase-statements/{content_hash}.json
+s3://entitybase-statements/{content_hash}.json
 ```
 
 **References**:
 ```
-s3://wikibase-references/{content_hash}.json
+s3://entitybase-references/{content_hash}.json
 ```
 
 **Qualifiers**:
 ```
-s3://wikibase-qualifiers/{content_hash}.json
+s3://entitybase-qualifiers/{content_hash}.json
 ```
 
 **Snaks**:
 ```
-s3://wikibase-snaks/{content_hash}.json
+s3://entitybase-snaks/{content_hash}.json
 ```
 
 **Terms** (UTF-8 text):
 ```
-s3://wikibase-terms/{content_hash}
+s3://entitybase-terms/{content_hash}
 ```
 
 **Sitelinks** (UTF-8 text):
 ```
-s3://wikibase-sitelinks/{content_hash}
+s3://entitybase-sitelinks/{content_hash}
 ```
 
 **Lexeme Forms**:
 ```
-s3://wikibase-lexeme-forms/{content_hash}.json
+s3://entitybase-lexeme-forms/{content_hash}.json
 ```
 
 **Lexeme Senses**:
 ```
-s3://wikibase-lexeme-senses/{content_hash}.json
+s3://entitybase-lexeme-senses/{content_hash}.json
 ```
 
 ### Revision Schema 4.0.0

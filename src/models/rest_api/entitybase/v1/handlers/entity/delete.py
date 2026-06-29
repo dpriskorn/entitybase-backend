@@ -24,8 +24,22 @@ class EntityDeleteHandler(Handler):
         entity_id: str,
         request: EntityDeleteRequest,
         edit_headers: EditHeaders,
+        user_id: int = 0,
     ) -> EntityDeleteResponse:
-        """Delete entity (soft or hard delete)."""
+        """Delete entity (soft or hard delete).
+
+        Performs soft or hard delete of an entity. Soft delete marks the
+        entity as deleted in state without removing data. Hard delete
+        removes the entity entirely from the database.
+
+        Args:
+            entity_id: Entity ID to delete
+            request: EntityDeleteRequest containing delete_type
+            edit_headers: User ID and edit summary
+
+        Returns:
+            EntityDeleteResponse with deleted entity ID and revision ID
+        """
         delete_service = DeleteService(state=self.state)
         logger.debug(f"Initializing delete for entity {entity_id}")
 
@@ -56,7 +70,7 @@ class EntityDeleteHandler(Handler):
             )
 
         edit_context = EditContext(
-            user_id=edit_headers.x_user_id,
+            user_id=user_id,
             edit_summary=edit_headers.x_edit_summary,
         )
 
@@ -83,7 +97,7 @@ class EntityDeleteHandler(Handler):
             revision_data
         )
 
-        revision_created = self.state.vitess_client.create_revision(
+        revision_created = self.state.mysql_client.create_revision(
             entity_id=entity_id,
             revision_id=new_revision_id,
             entity_data=revision_data,
@@ -93,7 +107,7 @@ class EntityDeleteHandler(Handler):
         if not revision_created:
             from models.rest_api.utils import raise_validation_error
 
-            current_head = self.state.vitess_client.get_head(entity_id)
+            current_head = self.state.mysql_client.get_head(entity_id)
             raise_validation_error(
                 f"Conflict: entity was modified by another edit. "
                 f"Expected base revision {head_revision_id}, but current revision is {current_head}. "
@@ -106,13 +120,13 @@ class EntityDeleteHandler(Handler):
             new_revision_id=new_revision_id,
             head_revision_id=head_revision_id,
             edit_context=EditContext(
-                user_id=edit_headers.x_user_id,
+                user_id=user_id,
                 edit_summary=edit_headers.x_edit_summary,
             ),
         )
 
         delete_service.log_delete_activity(
-            user_id=edit_headers.x_user_id,
+            user_id=user_id,
             entity_id=entity_id,
             new_revision_id=new_revision_id,
         )

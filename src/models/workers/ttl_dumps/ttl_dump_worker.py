@@ -31,9 +31,11 @@ except ImportError:
     S3ConnectionManager = None  # type: ignore
 
 try:
-    from models.infrastructure.vitess.client import VitessClient
+    from models.infrastructure.mysql.client import MysqlClient
+    from models.infrastructure.sqlite.client import SqliteClient
 except ImportError:
-    VitessClient = None  # type: ignore
+    MysqlClient = None  # type: ignore
+    SqliteClient = None  # type: ignore
 
 try:
     from models.rdf_builder.property_registry.loader import load_property_registry
@@ -50,7 +52,7 @@ from models.config.settings import settings
 from models.data.rest_api.v1.entitybase.response import WorkerHealthCheckResponse
 from models.infrastructure.s3.client import MyS3Client
 from models.infrastructure.s3.connection import S3ConnectionManager
-from models.infrastructure.vitess.client import VitessClient
+from models.infrastructure.mysql.client import MysqlClient
 from models.rdf_builder.converter import EntityConverter
 from models.rdf_builder.property_registry.registry import PropertyRegistry
 from models.rdf_builder.writers.triple import TripleWriters
@@ -61,7 +63,9 @@ logger = logging.getLogger(__name__)
 
 
 class TtlDumpWorker(Worker):
-    vitess_client: Any = None
+    """Periodically generates RDF TTL dumps of all entities."""
+
+    db_client: Any = None
     s3_client: Any = None
     converter: Any = None
     running: bool = False
@@ -72,8 +76,8 @@ class TtlDumpWorker(Worker):
         """Initialize clients for the worker lifespan."""
         logger.info("Initializing TTL Dump Worker")
 
-        if VitessClient is None:
-            raise RuntimeError("Vitess client not available")
+        if MysqlClient is None and SqliteClient is None:
+            raise RuntimeError("No database client available")
 
         if MyS3Client is None:
             raise RuntimeError("S3 client not available")
@@ -81,8 +85,15 @@ class TtlDumpWorker(Worker):
         if load_property_registry is None:
             raise RuntimeError("Property registry loader not available")
 
-        vitess_config = settings.get_vitess_config
-        self.vitess_client = VitessClient(config=vitess_config)
+        db_config = settings.get_db_config
+        if settings.db_type == "sqlite":
+            if SqliteClient is None:
+                raise RuntimeError("SQLite client not available")
+            self.db_client = SqliteClient(config=db_config)
+        else:
+            if MysqlClient is None:
+                raise RuntimeError("database client not available")
+            self.db_client = MysqlClient(config=db_config)
 
         s3_config = settings.get_s3_config
         s3_config.bucket = settings.s3_dump_bucket
@@ -94,7 +105,7 @@ class TtlDumpWorker(Worker):
         property_registry = load_property_registry(settings.property_registry_path)
         self.converter = EntityConverter(
             property_registry=property_registry,
-            vitess_client=self.vitess_client,
+            mysql_client=self.db_client,
             enable_deduplication=True,
         )
 
@@ -103,7 +114,7 @@ class TtlDumpWorker(Worker):
         logger.info("Shutting down TTL Dump Worker")
 
     async def start(self) -> None:
-        if not settings.ttl_dump_enabled:
+        if not settings.ttl_worker_enabled:
             logger.info("TTL Dump Worker disabled")
             return
 
@@ -162,10 +173,10 @@ class TtlDumpWorker(Worker):
             raise
 
     async def _fetch_all_entities(self) -> list[EntityDumpRecord]:
-        if not self.vitess_client:
-            raise ValueError("Vitess client not initialized")
+        if not self.db_client:
+            raise ValueError("database client not initialized")
 
-        with self.vitess_client.cursor as cursor:
+        with self.db_client.cursor as cursor:
             cursor.execute(
                 """SELECT eim.entity_id, eh.internal_id, eh.head_revision_id
                    FROM entity_id_mapping eim
@@ -183,8 +194,8 @@ class TtlDumpWorker(Worker):
     async def _fetch_entities_for_week(
         self, week_start: datetime, week_end: datetime
     ) -> list[EntityDumpRecord]:
-        if not self.vitess_client:
-            raise ValueError("Vitess client not initialized")
+        if not self.db_client:
+            raise ValueError("database client not initialized")
 
         entities = await self._fetch_all_entities()
         await self._filter_entities_by_week(entities, week_start, week_end)
@@ -194,7 +205,7 @@ class TtlDumpWorker(Worker):
         self, entities: list[EntityDumpRecord], week_start: datetime, week_end: datetime
     ) -> None:
         """Filter entities updated within the given week."""
-        with self.vitess_client.cursor as cursor:
+        with self.db_client.cursor as cursor:
             for i in range(0, len(entities), settings.ttl_dump_batch_size):
                 batch = entities[i : i + settings.ttl_dump_batch_size]
                 await self._update_batch_with_revisions(
@@ -479,7 +490,34 @@ async def run_worker(worker: TtlDumpWorker) -> None:
 async def run_server(app: Any) -> None:
     if uvicorn is None:
         raise RuntimeError("uvicorn not installed, cannot run server")
-    config = uvicorn.Config(app, host="0.0.0.0", port=8003, loop="asyncio")  # type: ignore
+    log_level = logging.getLevelName(settings.get_log_level())
+    logging_config = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "default": {
+                "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+                "datefmt": "%Y-%m-%d %H:%M:%S",
+            },
+        },
+        "handlers": {
+            "default": {
+                "class": "logging.StreamHandler",
+                "formatter": "default",
+            },
+        },
+        "root": {
+            "handlers": ["default"],
+            "level": log_level,
+        },
+    }
+    config = uvicorn.Config(  # type: ignore
+        app,
+        host="0.0.0.0",
+        port=8003,
+        loop="asyncio",
+        log_config=logging_config,
+    )
     server = uvicorn.Server(config)  # type: ignore
     await server.serve()
 
@@ -488,6 +526,7 @@ async def main() -> None:
     logging.basicConfig(
         level=settings.get_log_level(),
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
     )
 
     worker = TtlDumpWorker()

@@ -9,9 +9,9 @@ Usage:
     python scripts/statistics/backlink_statistics.py
 
 Environment Variables:
-    VITESS_HOST, VITESS_PORT, VITESS_DATABASE, VITESS_USER, VITESS_PASSWORD:
+    MYSQL_HOST, MYSQL_PORT, MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD:
     Database connection parameters.
-    MINIO_ENDPOINT, MINIO_ACCESS_KEY, MINIO_SECRET_KEY: S3 connection parameters.
+    RUSTFS_ENDPOINT, RUSTFS_ACCESS_KEY, RUSTFS_SECRET_KEY: S3 connection parameters.
 """
 
 import asyncio
@@ -25,8 +25,8 @@ from typing import Any
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
 from models.infrastructure.s3.s3_client import MyS3Client  # type: ignore
-from models.infrastructure.vitess.vitess_client import VitessClient  # type: ignore
-from models.infrastructure.vitess.vitess_config import VitessConfig  # type: ignore
+from models.infrastructure.mysql.mysql_client import MysqlClient  # type: ignore
+from models.infrastructure.mysql.mysql_config import MysqlConfig  # type: ignore
 from models.infrastructure.s3.s3_config import S3Config  # type: ignore
 
 logger = logging.getLogger(__name__)
@@ -96,7 +96,7 @@ def extract_entity_references(statement_content: dict) -> list[str]:
     return referenced
 
 
-async def compute_backlinks(vitess_client: Any, s3_client: Any) -> None:
+async def compute_backlinks(mysql_client: Any, s3_client: Any) -> None:
     """Compute backlink statistics for all entities.
 
     Scans all statement hashes, retrieves statement content from S3,
@@ -104,14 +104,14 @@ async def compute_backlinks(vitess_client: Any, s3_client: Any) -> None:
     Stores daily global statistics in the backlink_statistics table.
 
     Args:
-        vitess_client: Initialized Vitess client
+        mysql_client: Initialized Mysql client
         s3_client: Initialized S3 client
     """
     logger.info("Starting backlink computation")
 
     # Get all statement hashes from statement_content table
-    statement_hashes = vitess_client.statement_repository.get_all_statement_hashes(
-        vitess_client.connection
+    statement_hashes = mysql_client.statement_repository.get_all_statement_hashes(
+        mysql_client.connection
     )
 
     logger.info(f"Found {len(statement_hashes)} statements to process")
@@ -156,8 +156,8 @@ async def compute_backlinks(vitess_client: Any, s3_client: Any) -> None:
 
     # Store results in backlink_statistics table
     today = datetime.now(timezone.utc).date().isoformat()
-    vitess_client.backlink_repository.insert_backlink_statistics(
-        vitess_client.connection,
+    mysql_client.backlink_repository.insert_backlink_statistics(
+        mysql_client.connection,
         today,
         total_backlinks,
         unique_entities_with_backlinks,
@@ -178,27 +178,27 @@ async def main() -> None:
     logger.info("Starting backlink statistics computation")
 
     try:
-        # Initialize Vitess client
-        vitess_config = VitessConfig(
-            host=os.getenv("VITESS_HOST", "vitess"),
-            port=int(os.getenv("VITESS_PORT", "15309")),
-            database=os.getenv("VITESS_DATABASE", "page"),
-            user=os.getenv("VITESS_USER", "root"),
-            password=os.getenv("VITESS_PASSWORD", ""),
+        # Initialize Mysql client
+        mysql_config = MysqlConfig(
+            host=os.getenv("MYSQL_HOST", "mysql"),
+            port=int(os.getenv("MYSQL_PORT", "15309")),
+            database=os.getenv("MYSQL_DATABASE", "page"),
+            user=os.getenv("MYSQL_USER", "root"),
+            password=os.getenv("MYSQL_PASSWORD", ""),
         )
-        vitess_client = VitessClient(config=vitess_config)
+        mysql_client = MysqlClient(config=mysql_config)
 
         # Initialize S3 client
         s3_config = S3Config(
-            endpoint=os.getenv("MINIO_ENDPOINT", "http://minio:9000"),
-            access_key=os.getenv("MINIO_ACCESS_KEY", "minioadmin"),
-            secret_key=os.getenv("MINIO_SECRET_KEY", "minioadmin"),
+            endpoint=os.getenv("RUSTFS_ENDPOINT", "http://rustfs:9000"),
+            access_key=os.getenv("RUSTFS_ACCESS_KEY", "minioadmin"),
+            secret_key=os.getenv("RUSTFS_SECRET_KEY", "minioadmin"),
             region="us-east-1",
         )
         s3_client = MyS3Client(config=s3_config)
 
         # Run computation
-        await compute_backlinks(vitess_client, s3_client)
+        await compute_backlinks(mysql_client, s3_client)
 
         logger.info("Backlink statistics computation finished successfully")
 

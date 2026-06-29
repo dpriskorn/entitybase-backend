@@ -23,9 +23,11 @@ logger = logging.getLogger(__name__)
 
 
 class GeneralStatsWorker(BaseStatsWorker):
+    """Computes and stores general wiki statistics."""
+
     def get_enabled_setting(self) -> bool:
         """Check if general stats are enabled."""
-        return settings.general_stats_enabled
+        return settings.general_stats_worker_enabled
 
     def get_schedule_setting(self) -> str:
         """Get the schedule for general stats."""
@@ -34,8 +36,8 @@ class GeneralStatsWorker(BaseStatsWorker):
     async def run_daily_computation(self) -> None:
         """Run daily statistics computation and storage."""
         try:
-            if not self.vitess_client:
-                logger.error("Vitess client not initialized")
+            if not self.db_client:
+                logger.error("Database client not initialized")
                 return
 
             logger.info("Starting daily general statistics computation")
@@ -59,12 +61,12 @@ class GeneralStatsWorker(BaseStatsWorker):
 
     async def _store_statistics(self, stats: GeneralStatsData) -> None:
         """Store computed statistics in database via repository."""
-        if not self.vitess_client:
+        if not self.db_client:
             return
 
         today = date.today().isoformat()
 
-        self.vitess_client.user_repository.insert_general_statistics(
+        self.db_client.user_repository.insert_general_statistics(
             date=today,
             total_statements=stats.total_statements,
             total_qualifiers=stats.total_qualifiers,
@@ -74,6 +76,7 @@ class GeneralStatsWorker(BaseStatsWorker):
             total_properties=stats.total_properties,
             total_sitelinks=stats.total_sitelinks,
             total_terms=stats.total_terms,
+            total_edits=stats.total_edits,
             terms_per_language=stats.terms_per_language.model_dump(mode="json"),
             terms_by_type=stats.terms_by_type.model_dump(mode="json"),
         )
@@ -86,7 +89,34 @@ async def run_worker(worker: GeneralStatsWorker) -> None:
 async def run_server(app: FastAPI) -> None:
     if uvicorn is None:
         raise RuntimeError("uvicorn not installed, cannot run server")
-    config = uvicorn.Config(app, host="0.0.0.0", port=8005, loop="asyncio")
+    log_level = logging.getLevelName(settings.get_log_level())
+    logging_config = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "default": {
+                "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+                "datefmt": "%Y-%m-%d %H:%M:%S",
+            },
+        },
+        "handlers": {
+            "default": {
+                "class": "logging.StreamHandler",
+                "formatter": "default",
+            },
+        },
+        "root": {
+            "handlers": ["default"],
+            "level": log_level,
+        },
+    }
+    config = uvicorn.Config(
+        app,
+        host="0.0.0.0",
+        port=8005,
+        loop="asyncio",
+        log_config=logging_config,
+    )
     server = uvicorn.Server(config)
     await server.serve()
 
@@ -95,20 +125,42 @@ async def main() -> None:
     logging.basicConfig(
         level=settings.get_log_level(),
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-    worker = GeneralStatsWorker()
+    logger.info("Starting general statistics worker main()")
+    print("DEBUG: Starting general statistics worker main()")
 
-    if FastAPI is None:
-        logger.warning(
-            "FastAPI/uvicorn not installed, running worker without HTTP server"
-        )
-        await worker.start()
-    else:
-        app = FastAPI(response_model_by_alias=True)
+    try:
+        worker = GeneralStatsWorker()
+        logger.info(f"Worker created, running={worker.running}")
+        print(f"DEBUG: Worker created, running={worker.running}")
 
-        @app.get("/health")
-        async def health() -> WorkerHealthCheckResponse:
-            return await worker.health_check()
+        if FastAPI is None:
+            logger.warning(
+                "FastAPI/uvicorn not installed, running worker without HTTP server"
+            )
+            await worker.start()
+        else:
+            app = FastAPI(response_model_by_alias=True)
+            logger.info("FastAPI app created")
+            print("DEBUG: FastAPI app created")
 
-        await asyncio.gather(run_worker(worker), run_server(app))
+            @app.get("/health")
+            async def health() -> WorkerHealthCheckResponse:
+                return await worker.health_check()
+
+            logger.info("Starting asyncio.gather() for worker and server")
+            print("DEBUG: Starting asyncio.gather() for worker and server")
+
+            try:
+                await asyncio.gather(run_worker(worker), run_server(app))
+            except Exception as e:
+                logger.error(f"Error in asyncio.gather: {e}")
+                print(f"ERROR in asyncio.gather: {e}")
+                raise
+
+    except Exception as e:
+        logger.error(f"Fatal error in main(): {e}")
+        print(f"FATAL ERROR in main(): {e}")
+        raise

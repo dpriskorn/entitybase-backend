@@ -40,6 +40,10 @@ def check_file(file_path: Path, allowlist: set[str]) -> list[tuple[str, int, str
                     or "validate_numeric" in line
                 ):
                     continue
+                # Skip lines with return type annotations (e.g., "def foo() -> Optional[str]:")
+                # or container types like "def foo() -> List[Optional[str]]:"
+                if "->" in line and ("Optional[str]" in line or "str | None" in line):
+                    continue
                 # Look for str | None = Field(default=None)
                 if "str | None = Field(default=None)" in line:
                     violations.append(
@@ -74,7 +78,13 @@ def check_file(file_path: Path, allowlist: set[str]) -> list[tuple[str, int, str
                         )
                     )
                 # Look for str | None (union type)
-                elif "str | None" in line and not "Field(default=None)" in line:
+                # Skip FastAPI Header() dependency annotations - they use Annotated[..., Header()] = None
+                # which is not a Pydantic Field and cannot be replaced with Field(default="")
+                elif (
+                    "str | None" in line
+                    and not "Field(default=None)" in line
+                    and not ("Annotated[" in line and "Header(" in line)
+                ):
                     violations.append(
                         (
                             str(file_path),

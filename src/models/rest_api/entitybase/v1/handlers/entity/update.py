@@ -7,13 +7,13 @@ from typing import Any
 from fastapi import HTTPException
 from pydantic import BaseModel
 
-from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.infrastructure.s3.enums import EntityType
 from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.request import UserActivityType
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
 from models.data.rest_api.v1.entitybase.request.entity.context import (
+    EditOperationContext,
     EventPublishContext,
 )
 from models.data.rest_api.v1.entitybase.response import EntityResponse
@@ -58,19 +58,34 @@ class EntityUpdateHandler(
         entity_id: str,
         modified_data: dict[str, Any],
         entity_type: EntityType,
-        edit_headers: EditHeaders,
+        edit_operation_context: EditOperationContext,
         validator: Any | None = None,
     ) -> EntityResponse:
         """Execute entity update using UpdateTransaction.
 
-        This method handles the common pattern:
-        1. Validation (exists, deleted, locked)
-        2. UpdateTransaction creation
-        3. Statement processing
-        4. Revision creation
-        5. Event publishing
-        6. Activity logging
-        7. Commit/Rollback
+        Runs the full entity update flow within a database transaction:
+        1. Validation - check entity exists, not deleted, not locked/protected
+        2. UpdateTransaction creation - prepare atomic update
+        3. Statement processing - hash statements for this revision
+        4. Revision creation - store in S3, create DB records
+        5. Event publishing - emit change events to Kafka (if streaming enabled)
+        6. Activity logging - log the edit activity
+        7. Commit/Rollback - finalize or revert on error
+
+        Args:
+            entity_id: Entity ID to update
+            modified_data: Updated entity data (labels, claims, etc.)
+            entity_type: Type of entity (item, property, lexeme)
+            edit_headers: User ID and edit summary
+            validator: Optional JSON schema validator
+
+        Returns:
+            EntityResponse with updated entity data
+
+        Notes:
+            - If streaming is disabled, events are skipped silently
+            - Uses UpdateTransaction for atomic database updates
+            - Raises on validation failure, locked entity, or deleted entity
         """
         logger.info(
             f"_update_with_transaction START: entity={entity_id}, type={entity_type}"
@@ -79,25 +94,25 @@ class EntityUpdateHandler(
             f"_update_with_transaction: modified_data keys: {list(modified_data.keys())}"
         )
         logger.debug(
-            f"[_update_with_transaction] vitess_client={id(self.state.vitess_client)}, id_resolver={id(self.state.vitess_client.id_resolver)}"
+            f"[_update_with_transaction] mysql_client={id(self.state.mysql_client)}, id_resolver={id(self.state.mysql_client.id_resolver)}"
         )
 
-        if not self.state.vitess_client.entity_exists(entity_id):
+        if not self.state.mysql_client.entity_exists(entity_id):
             logger.warning(f"_update_with_transaction: entity not found: {entity_id}")
             raise_validation_error("Entity not found", status_code=404)
 
-        if self.state.vitess_client.is_entity_deleted(entity_id):
+        if self.state.mysql_client.is_entity_deleted(entity_id):
             logger.warning(f"_update_with_transaction: entity deleted: {entity_id}")
             raise_validation_error("Entity deleted", status_code=410)
 
-        if self.state.vitess_client.is_entity_locked(entity_id):
+        if self.state.mysql_client.is_entity_locked(entity_id):
             logger.warning(f"_update_with_transaction: entity locked: {entity_id}")
             raise_validation_error("Entity locked", status_code=423)
 
         tx = UpdateTransaction(state=self.state)
         tx.entity_id = entity_id
         try:
-            head_revision_id = tx.state.vitess_client.get_head(entity_id)
+            head_revision_id = tx.state.mysql_client.get_head(entity_id)
             logger.debug(
                 f"_update_with_transaction: head_revision_id={head_revision_id}"
             )
@@ -122,7 +137,7 @@ class EntityUpdateHandler(
                 entity_id=entity_id,
                 request_data=request_data,
                 entity_type=entity_type,
-                edit_headers=edit_headers,
+                edit_operation_context=edit_operation_context,
                 hash_result=hash_result,
             )
             logger.debug(
@@ -130,8 +145,8 @@ class EntityUpdateHandler(
             )
 
             edit_context = EditContext(
-                user_id=edit_headers.x_user_id,
-                edit_summary=edit_headers.x_edit_summary,
+                user_id=edit_operation_context.user_id,
+                edit_summary=edit_operation_context.edit_headers.x_edit_summary,
             )
             event_context = EventPublishContext(
                 entity_id=entity_id,
@@ -142,10 +157,10 @@ class EntityUpdateHandler(
             )
             await tx.publish_event(event_context, edit_context)
 
-            if edit_headers.x_user_id:
+            if edit_operation_context.user_id:
                 activity_result = await (
-                    self.state.vitess_client.user_repository.log_user_activity(
-                        user_id=edit_headers.x_user_id,
+                    self.state.mysql_client.user_repository.log_user_activity(
+                        user_id=edit_operation_context.user_id,
                         activity_type=UserActivityType.ENTITY_EDIT,
                         entity_id=entity_id,
                         revision_id=response.revision_id,

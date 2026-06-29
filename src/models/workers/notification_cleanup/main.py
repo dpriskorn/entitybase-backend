@@ -7,8 +7,8 @@ from datetime import datetime, timezone, timedelta
 from typing import AsyncGenerator
 
 from models.config.settings import settings
-from models.infrastructure.vitess.client import VitessClient
-from models.workers.vitess_worker import VitessWorker
+from models.infrastructure.mysql.client import MysqlClient
+from models.workers.mysql_worker import MysqlWorker
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +18,7 @@ async def main() -> None:
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
     )
 
     worker = NotificationCleanupWorker()
@@ -32,19 +33,23 @@ if __name__ == "__main__":
     asyncio.run(main())
 
 
-class NotificationCleanupWorker(VitessWorker):
+class NotificationCleanupWorker(MysqlWorker):
     """Worker that periodically cleans up old notifications to enforce limits."""
 
     max_age_days: int = 30
     max_per_user: int = 500
+
+    def get_enabled_setting(self) -> bool:
+        """Check if the notification cleanup worker is enabled."""
+        return True
 
     @asynccontextmanager
     async def lifespan(self) -> AsyncGenerator[None, None]:
         """Lifespan context manager for startup/shutdown."""
         try:
             # Initialize client
-            vitess_config = settings.get_vitess_config
-            self.vitess_client = VitessClient(config=vitess_config)
+            mysql_config = settings.get_mysql_config
+            self.db_client = MysqlClient(config=mysql_config)
             logger.info("Notification cleanup worker started")
             yield
         except Exception as e:
@@ -83,8 +88,9 @@ class NotificationCleanupWorker(VitessWorker):
 
     def _delete_old_notifications(self, cutoff_date: datetime) -> int:
         """Delete notifications older than cutoff date."""
-        assert self.vitess_client is not None
-        with self.vitess_client.connection_manager.connection.cursor() as cursor:
+        if self.db_client is None:
+            raise RuntimeError("database client not initialized")
+        with self.db_client.cursor as cursor:
             cursor.execute(
                 "DELETE FROM user_notifications WHERE event_timestamp < %s",
                 (cutoff_date.isoformat() + "Z",),
@@ -96,8 +102,9 @@ class NotificationCleanupWorker(VitessWorker):
         total_deleted = 0
 
         # Get users with excess notifications
-        assert self.vitess_client is not None
-        with self.vitess_client.cursor as cursor:
+        if self.db_client is None:
+            raise RuntimeError("database client not initialized")
+        with self.db_client.cursor as cursor:
             # Find users with too many notifications
             cursor.execute(
                 """

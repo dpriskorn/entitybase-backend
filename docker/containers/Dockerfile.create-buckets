@@ -1,0 +1,18 @@
+FROM python:3.13-alpine AS builder
+WORKDIR /app
+RUN apk add --no-cache gcc musl-dev libffi-dev openssl-dev
+COPY pyproject.toml poetry.lock ./
+RUN pip install --no-cache-dir poetry \
+    && POETRY_VIRTUALENVS_CREATE=false poetry install --no-root --no-interaction --only create-buckets \
+    && poetry cache clear pypi --all || true \
+    && rm -rf /root/.cache/*
+
+FROM python:3.13-alpine
+WORKDIR /app
+COPY --from=builder /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+COPY pyproject.toml /app/
+COPY src/ ./
+COPY scripts/ ./scripts/
+ENV PYTHONPATH=/app
+CMD ["python", "-m", "models.workers.create", "buckets", "setup"]

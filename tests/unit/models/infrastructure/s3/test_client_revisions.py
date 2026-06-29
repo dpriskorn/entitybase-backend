@@ -134,16 +134,16 @@ class TestS3ClientRevisions:
             region="us-east-1",
         )
 
-        mock_vitess_client = MagicMock()
+        mock_mysql_client = MagicMock()
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
-        mock_vitess_client.id_resolver = mock_id_resolver
+        mock_mysql_client.id_resolver = mock_id_resolver
 
         with patch(
             "models.infrastructure.s3.client.S3ConnectionManager",
             return_value=mock_connection_manager,
         ):
-            client = MyS3Client(config=config, vitess_client=mock_vitess_client)
+            client = MyS3Client(config=config, mysql_client=mock_mysql_client)
 
             mock_revision_repo = MagicMock()
             mock_revision_repo.get_content_hash.return_value = 12345678901234567890
@@ -177,16 +177,16 @@ class TestS3ClientRevisions:
             region="us-east-1",
         )
 
-        mock_vitess_client = MagicMock()
+        mock_mysql_client = MagicMock()
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = None
-        mock_vitess_client.id_resolver = mock_id_resolver
+        mock_mysql_client.id_resolver = mock_id_resolver
 
         with patch(
             "models.infrastructure.s3.client.S3ConnectionManager",
             return_value=mock_connection_manager,
         ):
-            client = MyS3Client(config=config, vitess_client=mock_vitess_client)
+            client = MyS3Client(config=config, mysql_client=mock_mysql_client)
 
             with pytest.raises(Exception):
                 client.read_revision("Q999", 1)
@@ -202,16 +202,16 @@ class TestS3ClientRevisions:
             region="us-east-1",
         )
 
-        mock_vitess_client = MagicMock()
+        mock_mysql_client = MagicMock()
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
-        mock_vitess_client.id_resolver = mock_id_resolver
+        mock_mysql_client.id_resolver = mock_id_resolver
 
         with patch(
             "models.infrastructure.s3.client.S3ConnectionManager",
             return_value=mock_connection_manager,
         ):
-            client = MyS3Client(config=config, vitess_client=mock_vitess_client)
+            client = MyS3Client(config=config, mysql_client=mock_mysql_client)
 
             mock_revision_repo = MagicMock()
             mock_revision_repo.get_content_hash.return_value = 0
@@ -223,8 +223,8 @@ class TestS3ClientRevisions:
                 with pytest.raises(Exception):
                     client.read_revision("Q42", 999)
 
-    def test_read_revision_vitess_client_none(self):
-        """Test read_revision raises 503 when vitess_client is None."""
+    def test_read_revision_mysql_client_none(self):
+        """Test read_revision raises 503 when mysql_client is None."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -237,7 +237,7 @@ class TestS3ClientRevisions:
             "models.infrastructure.s3.client.S3ConnectionManager",
             return_value=MagicMock(),
         ):
-            client = MyS3Client(config=config, vitess_client=None)
+            client = MyS3Client(config=config, mysql_client=None)
 
             with pytest.raises(Exception):
                 client.read_revision("Q42", 1)

@@ -28,8 +28,8 @@ class AdminHandler(Handler):
             f"list_entities called with entity_type={entity_type}, status={status}, "
             f"edit_type={edit_type}, limit={limit}, offset={offset}"
         )
-        if self.state.vitess_client is None:
-            raise_validation_error("Vitess not initialized", status_code=503)
+        if self.state.mysql_client is None:
+            raise_validation_error("database not initialized", status_code=503)
 
         if not entity_type and not status and not edit_type:
             raise_validation_error(
@@ -58,7 +58,7 @@ class AdminHandler(Handler):
             limit=limit,
             offset=offset,
         )
-        entities = self.state.vitess_client.entity_repository.list_entities_filtered(
+        entities = self.state.mysql_client.entity_repository.list_entities_filtered(
             filter_request=filter_request
         )
 
@@ -82,12 +82,12 @@ class AdminHandler(Handler):
             f"list_entities_by_type called with entity_type={entity_type}, "
             f"limit={limit}, offset={offset}"
         )
-        if self.state.vitess_client is None:
-            raise_validation_error("Vitess not initialized", status_code=503)
+        if self.state.mysql_client is None:
+            raise_validation_error("database not initialized", status_code=503)
 
         return cast(
             list[str],
-            self.state.vitess_client.list_entities_by_type(
+            self.state.mysql_client.list_entities_by_type(
                 entity_type=entity_type, limit=limit, offset=offset
             ),
         )
@@ -109,17 +109,17 @@ class AdminHandler(Handler):
     #     logger.debug(
     #         f"get_raw_revision called for entity {entity_id}, revision {revision_id}"
     #     )
-    #     if self.state.vitess_client is None:
-    #         raise_validation_error("Vitess not initialized", status_code=503)
+    #     if self.state.mysql_client is None:
+    #         raise_validation_error("database not initialized", status_code=503)
     #
     #     # Check if entity exists and get history
-    #     if not self.state.vitess_client.entity_exists(entity_id):
+    #     if not self.state.mysql_client.entity_exists(entity_id):
     #         raise_validation_error(
     #             f"Entity {entity_id} not found in ID mapping", status_code=404
     #         )
     #
     #     # Check if revisions exist for entity
-    #     history = self.state.vitess_client.get_history(entity_id)
+    #     history = self.state.mysql_client.get_history(entity_id)
     #     if not history:
     #         raise_validation_error(
     #             f"Entity {entity_id} has no revisions", status_code=404

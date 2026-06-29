@@ -1,4 +1,4 @@
-"""Integration tests for JSON dump worker with real Vitess and S3."""
+"""Integration tests for JSON dump worker with real Sql and S3."""
 
 import json
 import logging
@@ -18,10 +18,10 @@ class TestJsonDumpWorkerIntegration:
     """Integration tests for JsonDumpWorker with real services."""
 
     @pytest.fixture
-    def json_dump_worker(self, vitess_client, s3_client):
+    def json_dump_worker(self, mysql_client, s3_client):
         """Create JsonDumpWorker with real clients."""
         worker = JsonDumpWorker()
-        worker.vitess_client = vitess_client
+        worker.mysql_client = mysql_client
         worker.s3_client = s3_client
         return worker
 
@@ -102,7 +102,7 @@ class TestJsonDumpWorkerIntegration:
     async def test_fetch_all_entities_from_db(
         self, json_dump_worker: JsonDumpWorker, setup_test_entities
     ):
-        """Test fetching all entities from real Vitess database."""
+        """Test fetching all entities from real Sql database."""
         logger.info("=== test_fetch_all_entities_from_db START ===")
 
         entities = await json_dump_worker._fetch_all_entities()
@@ -122,7 +122,7 @@ class TestJsonDumpWorkerIntegration:
     async def test_fetch_entities_for_week_from_db(
         self, json_dump_worker: JsonDumpWorker, setup_test_entities
     ):
-        """Test fetching entities updated within a week from real Vitess."""
+        """Test fetching entities updated within a week from real Sql."""
         logger.info("=== test_fetch_entities_for_week_from_db START ===")
 
         now = datetime.now(timezone.utc)

@@ -2,10 +2,10 @@
 cd "$(dirname "$0")/../.."
 set -e
 
-source .venv/bin/activate
+ENV_FILE="${1:-full}"
 
-echo "🚀 Starting Docker services (MySQL, MinIO, Redpanda)..."
-docker compose -f docker-compose.tests.yml up -d mysql minio redpanda
+echo "🚀 Starting Docker services (MySQL, rustfs, Redpanda)..."
+docker compose -f docker-compose.tests.yml up -d mysql rustfs redpanda
 
 echo "⏳ Waiting for services to be healthy..."
 sleep 30
@@ -13,18 +13,11 @@ sleep 30
 echo "📦 Creating buckets and tables..."
 docker compose -f docker-compose.tests.yml up create-buckets create-tables
 
-echo "📦 Creating Kafka topics..."
-docker compose -f docker-compose.tests.yml up --build create-topics || exit 1
-
 echo "✅ Setup complete! Starting API..."
 
-# Load environment variables
-source test.env
-
-# Set PYTHONPATH
-export PYTHONPATH=src
+source "test-${ENV_FILE}.env"
 
 echo "🐍 Starting API with uvicorn..."
-exec uvicorn models.rest_api.main:app \
+exec poetry run uvicorn models.rest_api.main:app \
   --host 0.0.0.0 \
   --port 8080

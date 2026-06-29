@@ -18,21 +18,21 @@ class TestJsonDumpWorker:
         worker = JsonDumpWorker()
         assert worker.worker_id is not None
         assert worker.running is False
-        assert worker.vitess_client is None
+        assert worker.db_client is None
         assert worker.s3_client is None
 
     @pytest.mark.asyncio
     async def test_lifespan_initialization(self):
         """Test lifespan context manager initializes clients."""
-        mock_vitess_client = MagicMock()
+        mock_mysql_client = MagicMock()
         mock_s3_client = MagicMock()
 
         worker = JsonDumpWorker()
 
         with (
             patch(
-                "models.workers.json_dumps.json_dump_worker.VitessClient",
-                return_value=mock_vitess_client,
+                "models.workers.json_dumps.json_dump_worker.MysqlClient",
+                return_value=mock_mysql_client,
             ),
             patch(
                 "models.workers.json_dumps.json_dump_worker.MyS3Client",
@@ -40,7 +40,7 @@ class TestJsonDumpWorker:
             ),
         ):
             async with worker.lifespan():
-                assert worker.vitess_client is not None
+                assert worker.db_client is not None
                 assert worker.s3_client is not None
 
     @pytest.mark.asyncio
@@ -78,10 +78,8 @@ class TestJsonDumpWorker:
                 mock_datetime.time.side_effect = lambda h, m, s: datetime(
                     2025, 1, 1, h, m, s
                 ).time()
-                mock_datetime.combine.side_effect = (
-                    lambda d, t, tzinfo=None: datetime.combine(d, t).replace(
-                        tzinfo=tzinfo
-                    )
+                mock_datetime.combine.side_effect = lambda d, t, tzinfo=None: (
+                    datetime.combine(d, t).replace(tzinfo=tzinfo)
                     if tzinfo
                     else datetime.combine(d, t).replace(tzinfo=timezone.utc)
                 )
@@ -100,12 +98,12 @@ class TestJsonDumpWorker:
             ("Q2", 200, 2),
         ]
 
-        mock_vitess_client = MagicMock()
-        mock_vitess_client.cursor.__enter__ = MagicMock(return_value=mock_cursor)
-        mock_vitess_client.cursor.__exit__ = MagicMock(return_value=False)
+        mock_mysql_client = MagicMock()
+        mock_mysql_client.cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_mysql_client.cursor.__exit__ = MagicMock(return_value=False)
 
         worker = JsonDumpWorker()
-        worker.vitess_client = mock_vitess_client
+        worker.db_client = mock_mysql_client
 
         entities = await worker._fetch_all_entities()
 
@@ -133,9 +131,9 @@ class TestJsonDumpWorker:
         mock_cursor.fetchall.side_effect = mock_fetchall
         mock_cursor.execute = MagicMock()
 
-        mock_vitess_client = MagicMock()
-        mock_vitess_client.cursor.__enter__ = MagicMock(return_value=mock_cursor)
-        mock_vitess_client.cursor.__exit__ = MagicMock(return_value=False)
+        mock_mysql_client = MagicMock()
+        mock_mysql_client.cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_mysql_client.cursor.__exit__ = MagicMock(return_value=False)
 
         with patch(
             "models.workers.json_dumps.json_dump_worker.settings"
@@ -143,7 +141,7 @@ class TestJsonDumpWorker:
             mock_settings.json_dump_batch_size = 1000
 
             worker = JsonDumpWorker()
-            worker.vitess_client = mock_vitess_client
+            worker.db_client = mock_mysql_client
 
             entities = await worker._fetch_entities_for_week(week_start, week_end)
 
@@ -201,16 +199,26 @@ class TestJsonDumpWorker:
     @pytest.mark.asyncio
     async def test_start_disabled_worker(self):
         """Test worker exits when json_dump_enabled is False."""
+        from contextlib import asynccontextmanager
+        from models.workers.json_dumps.json_dump_worker import (
+            JsonDumpWorker as WorkerClass,
+        )
+
         worker = JsonDumpWorker()
 
-        with patch(
-            "models.workers.json_dumps.json_dump_worker.settings"
-        ) as mock_settings:
-            mock_settings.json_dump_enabled = False
+        @asynccontextmanager
+        async def mock_lifespan(self):
+            yield
 
-            await worker.start()
+        with patch.object(WorkerClass, "lifespan", mock_lifespan):
+            with patch(
+                "models.workers.json_dumps.json_dump_worker.settings"
+            ) as mock_settings:
+                mock_settings.json_worker_enabled = False
 
-            worker.running = False
+                await worker.start()
+
+                worker.running = False
 
     @pytest.mark.asyncio
     async def test_start_loop_error_recovery(self):
@@ -238,7 +246,7 @@ class TestJsonDumpWorker:
             with patch(
                 "models.workers.json_dumps.json_dump_worker.settings"
             ) as mock_settings:
-                mock_settings.json_dump_enabled = True
+                mock_settings.json_worker_enabled = True
 
                 with patch.object(WorkerClass, "lifespan", mock_lifespan):
                     with patch.object(

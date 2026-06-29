@@ -17,8 +17,8 @@ class TestBacklinkStatisticsService:
         mock_cursor = MagicMock()
         mock_cursor.fetchone.return_value = [100]
         mock_cursor.fetchall.return_value = []
-        mock_state.vitess_client.cursor = mock_cursor
-        mock_state.vitess_client.id_resolver = MagicMock()
+        mock_state.mysql_client.cursor = mock_cursor
+        mock_state.mysql_client.id_resolver = MagicMock()
 
         service = BacklinkStatisticsService(state=mock_state)
         service.top_limit = 10
@@ -36,7 +36,7 @@ class TestBacklinkStatisticsService:
         mock_state = MagicMock()
         mock_cursor = MagicMock()
         mock_cursor.fetchone.return_value = [150]
-        mock_state.vitess_client.cursor = mock_cursor
+        mock_state.mysql_client.cursor = mock_cursor
 
         service = BacklinkStatisticsService(state=mock_state)
 
@@ -54,7 +54,7 @@ class TestBacklinkStatisticsService:
         mock_state = MagicMock()
         mock_cursor = MagicMock()
         mock_cursor.fetchone.return_value = None
-        mock_state.vitess_client.cursor = mock_cursor
+        mock_state.mysql_client.cursor = mock_cursor
 
         service = BacklinkStatisticsService(state=mock_state)
 
@@ -71,7 +71,7 @@ class TestBacklinkStatisticsService:
         mock_state = MagicMock()
         mock_cursor = MagicMock()
         mock_cursor.fetchone.return_value = [50]
-        mock_state.vitess_client.cursor = mock_cursor
+        mock_state.mysql_client.cursor = mock_cursor
 
         service = BacklinkStatisticsService(state=mock_state)
 
@@ -91,14 +91,14 @@ class TestBacklinkStatisticsService:
             (1, 100),
             (2, 50),
         ]
-        mock_state.vitess_client.cursor = mock_cursor
+        mock_state.mysql_client.cursor = mock_cursor
 
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_entity_id.side_effect = lambda internal_id: {
             1: "Q1",
             2: "Q2",
         }.get(internal_id)
-        mock_state.vitess_client.id_resolver = mock_id_resolver
+        mock_state.mysql_client.id_resolver = mock_id_resolver
 
         service = BacklinkStatisticsService(state=mock_state)
 
@@ -119,8 +119,8 @@ class TestBacklinkStatisticsService:
         mock_state = MagicMock()
         mock_cursor = MagicMock()
         mock_cursor.fetchall.return_value = []
-        mock_state.vitess_client.cursor = mock_cursor
-        mock_state.vitess_client.id_resolver = MagicMock()
+        mock_state.mysql_client.cursor = mock_cursor
+        mock_state.mysql_client.id_resolver = MagicMock()
 
         service = BacklinkStatisticsService(state=mock_state)
 
@@ -137,8 +137,8 @@ class TestBacklinkStatisticsService:
         mock_state = MagicMock()
         mock_cursor = MagicMock()
         mock_cursor.fetchall.return_value = []
-        mock_state.vitess_client.cursor = mock_cursor
-        mock_state.vitess_client.id_resolver = MagicMock()
+        mock_state.mysql_client.cursor = mock_cursor
+        mock_state.mysql_client.id_resolver = MagicMock()
 
         service = BacklinkStatisticsService(state=mock_state, top_limit=50)
 
@@ -158,14 +158,14 @@ class TestBacklinkStatisticsService:
         mock_cursor = MagicMock()
         mock_cursor.fetchone.side_effect = [[100], [50]]
         mock_cursor.fetchall.return_value = [(1, 100), (2, 50)]
-        mock_state.vitess_client.cursor = mock_cursor
+        mock_state.mysql_client.cursor = mock_cursor
 
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_entity_id.side_effect = lambda internal_id: {
             1: "Q1",
             2: "Q2",
         }.get(internal_id)
-        mock_state.vitess_client.id_resolver = mock_id_resolver
+        mock_state.mysql_client.id_resolver = mock_id_resolver
 
         service = BacklinkStatisticsService(state=mock_state)
 

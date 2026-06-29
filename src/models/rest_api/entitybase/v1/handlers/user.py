@@ -36,8 +36,8 @@ class UserHandler(Handler):
     async def create_user(self, request: UserCreateRequest) -> UserCreateResponse:
         """Create/register a user."""
         created = False
-        if not self.state.vitess_client.user_repository.user_exists(request.user_id):
-            result = self.state.vitess_client.user_repository.create_user(
+        if not self.state.mysql_client.user_repository.user_exists(request.user_id):
+            result = self.state.mysql_client.user_repository.create_user(
                 request.user_id
             )
             if not result.success:
@@ -52,10 +52,10 @@ class UserHandler(Handler):
 
     async def delete_user(self, user_id: int) -> None:
         """Delete a user by ID."""
-        if not self.state.vitess_client.user_repository.user_exists(user_id):
+        if not self.state.mysql_client.user_repository.user_exists(user_id):
             raise_validation_error("User not found", status_code=404)
 
-        result = self.state.vitess_client.user_repository.delete_user(user_id)
+        result = self.state.mysql_client.user_repository.delete_user(user_id)
         if not result.success:
             raise_validation_error(
                 result.error or "Failed to delete user", status_code=500
@@ -76,7 +76,7 @@ class UserHandler(Handler):
 
     def get_user(self, user_id: int) -> UserResponse:
         """Get user by ID."""
-        user = self.state.vitess_client.user_repository.get_user(user_id)
+        user = self.state.mysql_client.user_repository.get_user(user_id)
         if user is None:
             raise_validation_error("User not found", status_code=404)
         if not isinstance(user, UserResponse):
@@ -90,14 +90,14 @@ class UserHandler(Handler):
         self, user_id: int, request: WatchlistToggleRequest
     ) -> WatchlistToggleResponse:
         """Enable or disable watchlist for user."""
-        if not self.state.vitess_client.user_repository.user_exists(user_id):
+        if not self.state.mysql_client.user_repository.user_exists(user_id):
             raise_validation_error("User not registered", status_code=404)
 
         if not request.enabled:
-            result = self.state.vitess_client.user_repository.disable_watchlist(user_id)
+            result = self.state.mysql_client.user_repository.disable_watchlist(user_id)
             change_type = ChangeType.WATCHLIST_DISABLED
         else:
-            result = self.state.vitess_client.user_repository.enable_watchlist(user_id)
+            result = self.state.mysql_client.user_repository.enable_watchlist(user_id)
             change_type = ChangeType.WATCHLIST_ENABLED
         if not result.success:
             raise_validation_error(
@@ -109,7 +109,7 @@ class UserHandler(Handler):
     def get_user_stats(self) -> UserStatsResponse:
         """Get user statistics from the daily stats table."""
         logger.debug("Fetching user stats from database")
-        connection = self.state.vitess_client.connection_manager.acquire()
+        connection = self.state.mysql_client.connection_manager.acquire()
         cursor = connection.cursor()
         try:
             logger.debug("Executing query for user_daily_stats")
@@ -149,7 +149,7 @@ class UserHandler(Handler):
                 )
         finally:
             cursor.close()
-            self.state.vitess_client.connection_manager.release(connection)
+            self.state.mysql_client.connection_manager.release(connection)
 
     def _parse_stats_terms(
         self, terms_data: Any, response_class: type
@@ -223,19 +223,20 @@ class UserHandler(Handler):
             total_properties=stats.total_properties,
             total_sitelinks=stats.total_sitelinks,
             total_terms=stats.total_terms,
+            total_edits=stats.total_edits,
             terms_per_language=terms_per_lang,
             terms_by_type=terms_by_t,
         )
 
     def get_general_stats(self) -> GeneralStatsResponse:
-        """Get general wiki statistics from the daily stats table."""
+        """Get general entity statistics from the daily stats table."""
         logger.debug("Fetching general stats from database")
-        connection = self.state.vitess_client.connection_manager.acquire()
+        connection = self.state.mysql_client.connection_manager.acquire()
         cursor = connection.cursor()
         try:
             logger.debug("Executing query for general_daily_stats")
             cursor.execute(
-                "SELECT stat_date, total_statements, total_qualifiers, total_references, total_items, total_lexemes, total_properties, total_sitelinks, total_terms, terms_per_language, terms_by_type FROM general_daily_stats ORDER BY stat_date DESC LIMIT 1"
+                "SELECT stat_date, total_statements, total_qualifiers, total_references, total_items, total_lexemes, total_properties, total_sitelinks, total_terms, total_edits, terms_per_language, terms_by_type FROM general_daily_stats ORDER BY stat_date DESC LIMIT 1"
             )
             row = cursor.fetchone()
             if row:
@@ -249,19 +250,20 @@ class UserHandler(Handler):
                     total_properties=row[6],
                     total_sitelinks=row[7],
                     total_terms=row[8],
+                    total_edits=row[9],
                     terms_per_language=cast(
                         TermsPerLanguage,
-                        self._parse_stats_terms(row[9], TermsPerLanguage),
+                        self._parse_stats_terms(row[10], TermsPerLanguage),
                     ),
                     terms_by_type=cast(
-                        TermsByType, self._parse_stats_terms(row[10], TermsByType)
+                        TermsByType, self._parse_stats_terms(row[11], TermsByType)
                     ),
                 )
             else:
                 return self._compute_fallback_stats()
         finally:
             cursor.close()
-            self.state.vitess_client.connection_manager.release(connection)
+            self.state.mysql_client.connection_manager.release(connection)
 
     def get_deduplication_statistics(self) -> DeduplicationDatabaseStatsResponse:
         """Get deduplication statistics for all data types."""

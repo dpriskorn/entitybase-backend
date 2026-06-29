@@ -11,6 +11,7 @@ NC='\033[0m' # No Color
 # Track overall status
 overall_status=0
 clean_connections=false
+env_file="test-minimal"
 
 # Parse arguments
 for arg in "$@"; do
@@ -19,10 +20,20 @@ for arg in "$@"; do
             clean_connections=true
             shift
             ;;
+        --env=minimal)
+            env_file="test-minimal"
+            shift
+            ;;
+        --env=full)
+            env_file="test-full"
+            shift
+            ;;
         -h|--help)
             echo "Usage: $0 [OPTIONS]"
             echo ""
             echo "Options:"
+            echo "  --env=minimal  Use test-minimal.env (SQLite, no MySQL required) - default"
+            echo "  --env=full     Use test-full.env (MySQL required)"
             echo "  --clean-connections  Kill idle MySQL connections before checking"
             echo "  -h, --help           Show this help message"
             exit 0
@@ -33,10 +44,10 @@ done
 # Load test environment variables
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-if [ -f "$PROJECT_ROOT/test.env" ]; then
-    source "$PROJECT_ROOT/test.env"
+if [ -f "$PROJECT_ROOT/test-${env_file}.env" ]; then
+    source "$PROJECT_ROOT/test-${env_file}.env"
 else
-    echo -e "${RED}❌ test.env not found at $PROJECT_ROOT/test.env${NC}"
+    echo -e "${RED}❌ test-${env_file}.env not found at $PROJECT_ROOT/test-${env_file}.env${NC}"
     exit 1
 fi
 
@@ -72,7 +83,7 @@ check_completed_job() {
 # Check MySQL connectivity and connection count
 check_mysql_connectivity() {
     # Use docker exec to run mysql inside the container
-    if ! docker exec mysql mysql -u"$VITESS_USER" ${VITESS_PASSWORD:+-p"$VITESS_PASSWORD"} -e "SELECT 1" &>/dev/null; then
+    if ! docker exec mysql mysql -u"$MYSQL_USER" ${MYSQL_PASSWORD:+-p"$MYSQL_PASSWORD"} -e "SELECT 1" &>/dev/null; then
         echo -e "${RED}❌ mysql - connection failed${NC}"
         return 1
     fi
@@ -80,7 +91,7 @@ check_mysql_connectivity() {
 
     # Check connection count
     local conn_info
-    conn_info=$(docker exec mysql mysql -u"$VITESS_USER" ${VITESS_PASSWORD:+-p"$VITESS_PASSWORD"} -N -e "SHOW STATUS LIKE 'Threads_connected'" 2>/dev/null)
+    conn_info=$(docker exec mysql mysql -u"$MYSQL_USER" ${MYSQL_PASSWORD:+-p"$MYSQL_PASSWORD"} -N -e "SHOW STATUS LIKE 'Threads_connected'" 2>/dev/null)
     local current_connections=$(echo "$conn_info" | awk '{print $2}')
 
     if [ -n "$current_connections" ]; then
@@ -108,22 +119,22 @@ clean_idle_connections() {
     
     # Get current connection count before cleanup
     local before_count
-    before_count=$(docker exec mysql mysql -u"$VITESS_USER" ${VITESS_PASSWORD:+-p"$VITESS_PASSWORD"} -N -e "SHOW STATUS LIKE 'Threads_connected'" 2>/dev/null | awk '{print $2}')
+    before_count=$(docker exec mysql mysql -u"$MYSQL_USER" ${MYSQL_PASSWORD:+-p"$MYSQL_PASSWORD"} -N -e "SHOW STATUS LIKE 'Threads_connected'" 2>/dev/null | awk '{print $2}')
     echo "   Before: $before_count connections"
     
     # Kill idle connections (Sleep state) that are older than 1 second
     # This targets connections from crashed/leaked test runs
-    docker exec mysql mysql -u"$VITESS_USER" ${VITESS_PASSWORD:+-p"$VITESS_PASSWORD"} -N -e "
+    docker exec mysql mysql -u"$MYSQL_USER" ${MYSQL_PASSWORD:+-p"$MYSQL_PASSWORD"} -N -e "
         SELECT CONCAT('KILL ', id, ';') 
         FROM information_schema.processlist 
         WHERE Command = 'Sleep' 
         AND Time > 1
-        AND User = '$VITESS_USER'
-    " 2>/dev/null | docker exec -i mysql mysql -u"$VITESS_USER" ${VITESS_PASSWORD:+-p"$VITESS_PASSWORD"} 2>/dev/null || true
+        AND User = '$MYSQL_USER'
+    " 2>/dev/null | docker exec -i mysql mysql -u"$MYSQL_USER" ${MYSQL_PASSWORD:+-p"$MYSQL_PASSWORD"} 2>/dev/null || true
     
     # Get connection count after cleanup
     local after_count
-    after_count=$(docker exec mysql mysql -u"$VITESS_USER" ${VITESS_PASSWORD:+-p"$VITESS_PASSWORD"} -N -e "SHOW STATUS LIKE 'Threads_connected'" 2>/dev/null | awk '{print $2}')
+    after_count=$(docker exec mysql mysql -u"$MYSQL_USER" ${MYSQL_PASSWORD:+-p"$MYSQL_PASSWORD"} -N -e "SHOW STATUS LIKE 'Threads_connected'" 2>/dev/null | awk '{print $2}')
     
     local cleaned=$((before_count - after_count))
     if [ "$cleaned" -gt 0 ]; then
@@ -134,20 +145,24 @@ clean_idle_connections() {
 
 # Clean connections if requested (do this before other checks)
 if [ "$clean_connections" = true ]; then
-    clean_idle_connections
+    if [ "$DB_TYPE" = "mysql" ]; then
+        clean_idle_connections
+    else
+        echo -e "${YELLOW}⚠️  --clean-connections ignored: DB_TYPE is not mysql${NC}"
+    fi
 fi
 
 # Check all services
-check_running_service "mysql" || overall_status=1
-check_running_service "minio" || overall_status=1
+if [ "$DB_TYPE" = "mysql" ]; then
+    check_running_service "mysql" || overall_status=1
+fi
+check_running_service "rustfs" || overall_status=1
 check_running_service "redpanda" || overall_status=1
 check_running_service "idworker" || overall_status=1
 check_running_service "json-dump-worker" || overall_status=1
 check_running_service "ttl-dump-worker" || overall_status=1
 check_completed_job "create-tables" || overall_status=1
 check_completed_job "create-buckets" || overall_status=1
-
-check_mysql_connectivity || overall_status=1
 
 # Final status
 if [ $overall_status -eq 0 ]; then

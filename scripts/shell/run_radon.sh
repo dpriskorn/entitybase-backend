@@ -1,3 +1,3 @@
 #!/bin/bash
 cd "$(dirname "$0")/../.."
-python scripts/run-radon.py
+poetry run python scripts/run-radon.py

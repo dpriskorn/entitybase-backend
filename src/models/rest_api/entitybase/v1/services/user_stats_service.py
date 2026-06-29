@@ -23,14 +23,14 @@ class UserStatsService(Service):
 
     def get_total_users(self) -> int:
         """Count total users."""
-        with self.state.vitess_client.cursor as cursor:
+        with self.state.mysql_client.cursor as cursor:
             cursor.execute("SELECT COUNT(*) FROM users")
             result = cursor.fetchone()
             return result[0] if result else 0
 
     def get_active_users(self) -> int:
         """Count active users (active in last 30 days)."""
-        with self.state.vitess_client.cursor as cursor:
+        with self.state.mysql_client.cursor as cursor:
             cursor.execute(
                 "SELECT COUNT(*) FROM users WHERE last_activity >= DATE_SUB(NOW(), INTERVAL 30 DAY)"
             )

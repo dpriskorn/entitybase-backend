@@ -21,20 +21,41 @@ class EntityReadHandler(Handler):
         self,
         entity_id: str,
     ) -> EntityResponse:
-        """Get entity by ID."""
+        """Get entity by ID.
+
+        Fetches the latest revision of an entity from S3 using the head
+        revision ID from the database. Returns entity JSON with hashes
+        for statements, terms, and sitelinks.
+
+        Args:
+            entity_id: Entity ID (e.g., Q42, P31, L1)
+
+        Returns:
+            EntityResponse with entity data and state
+
+        Raises:
+            HTTPException 404: Entity not found, deleted, or no revisions exist
+            HTTPException 503: Mysql or S3 not initialized
+
+        Notes:
+            - Checks entity exists in database first
+            - Gets head revision ID from database
+            - Fetches revision data from S3
+            - Returns 404 if entity is marked as deleted in state
+        """
         logger.debug(f"get_entity({entity_id}) called")
-        if self.state.vitess_client is None:
-            raise_validation_error("Vitess not initialized", status_code=503)
+        if self.state.mysql_client is None:
+            raise_validation_error("database not initialized", status_code=503)
 
         if self.state.s3_client is None:
             raise_validation_error("S3 not initialized", status_code=503)
 
-        entity_exists = self.state.vitess_client.entity_exists(entity_id)
+        entity_exists = self.state.mysql_client.entity_exists(entity_id)
         logger.debug(f"get_entity({entity_id}): entity_exists = {entity_exists}")
         if not entity_exists:
             raise_validation_error("Entity not found", status_code=404)
 
-        head_revision_id = self.state.vitess_client.get_head(entity_id)
+        head_revision_id = self.state.mysql_client.get_head(entity_id)
         logger.debug(f"get_entity({entity_id}): head_revision_id = {head_revision_id}")
         if head_revision_id == 0:
             raise_validation_error("Entity not found", status_code=404)
@@ -82,15 +103,27 @@ class EntityReadHandler(Handler):
         limit: int = 20,
         offset: int = 0,
     ) -> list[EntityHistoryEntry]:
-        """Get entity revision history."""
-        if self.state.vitess_client is None:
-            raise_validation_error("Vitess not initialized", status_code=503)
+        """Get entity revision history.
 
-        if not self.state.vitess_client.entity_exists(entity_id):
+        Returns paginated list of revisions for an entity, sorted by
+        revision ID descending (newest first).
+
+        Args:
+            entity_id: Entity ID (e.g., Q42)
+            limit: Maximum number of revisions to return (default 20)
+            offset: Number of revisions to skip for pagination
+
+        Returns:
+            List of EntityHistoryEntry objects
+        """
+        if self.state.mysql_client is None:
+            raise_validation_error("database not initialized", status_code=503)
+
+        if not self.state.mysql_client.entity_exists(entity_id):
             raise_validation_error("Entity not found", status_code=404)
 
         try:
-            return self.state.vitess_client.get_entity_history(entity_id, limit, offset)  # type: ignore[no-any-return]
+            return self.state.mysql_client.get_entity_history(entity_id, limit, offset)  # type: ignore[no-any-return]
         except Exception as e:
             logger.error(f"Failed to get entity history for {entity_id}: {e}")
             raise_validation_error(
@@ -103,7 +136,21 @@ class EntityReadHandler(Handler):
         entity_id: str,
         revision_id: int,
     ) -> EntityResponse:
-        """Get specific entity revision."""
+        """Get specific entity revision.
+
+        Fetches a specific revision of an entity from S3 by revision ID.
+        Returns entity JSON (with hashes) as it existed at that revision.
+
+        Args:
+            entity_id: Entity ID (e.g., Q42)
+            revision_id: Specific revision ID to fetch
+
+        Returns:
+            EntityResponse with entity data at that revision
+
+        Raises:
+            HTTPException 404 if entity or revision not found
+        """
         if self.state.s3_client is None:
             raise_validation_error("S3 not initialized", status_code=503)
 

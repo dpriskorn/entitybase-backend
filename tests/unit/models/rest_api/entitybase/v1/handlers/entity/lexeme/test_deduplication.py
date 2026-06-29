@@ -56,9 +56,7 @@ def test_lexeme_storage_error_handling():
     mock_state.s3_client = mock_s3_client
 
     # Create handler
-    enumeration_service = EnumerationService(
-        worker_id="test", vitess_client=MagicMock()
-    )
+    enumeration_service = EnumerationService(worker_id="test", mysql_client=MagicMock())
     handler = LexemeCreateHandler(
         state=mock_state, enumeration_service=enumeration_service
     )

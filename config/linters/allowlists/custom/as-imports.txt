@@ -8,9 +8,9 @@ tests/integration/conftest.py:204
 tests/integration/conftest.py:275
 tests/integration/conftest.py:342
 tests/integration/conftest.py:386
-tests/integration/models/infrastructure/vitess/test_id_resolver_integration.py:2
-tests/integration/models/infrastructure/vitess/test_id_resolver_integration.py:19
-tests/integration/models/infrastructure/vitess/test_connection_pool_integration.py:18
+tests/integration/models/infrastructure/mysql/test_id_resolver_integration.py:2
+tests/integration/models/infrastructure/mysql/test_id_resolver_integration.py:19
+tests/integration/models/infrastructure/mysql/test_connection_pool_integration.py:18
 tests/integration/conftest.py:186
 tests/integration/conftest.py:207
 tests/integration/conftest.py:279

@@ -101,7 +101,7 @@ def categorize_file(package_path: str, filename: str) -> str:
         else:
             return "api"
     elif "infrastructure" in package_path:
-        if "vitess" in package_path:
+        if "mysql" in package_path:
             if "repository" in filename:
                 return "repository"
             else:
@@ -167,7 +167,7 @@ def generate_system_architecture_diagram(analysis: Dict) -> str:
         "Service Layer": {"components": analysis["services"], "color": "LightGreen"},
         "Worker Layer": {"components": analysis["workers"], "color": "LightYellow"},
         "Infrastructure Layer": {
-            "components": analysis["repositories"] + ["Vitess Client", "S3 Client"],
+            "components": analysis["repositories"] + ["Mysql Client", "S3 Client"],
             "color": "LightGray",
         },
         "Data Models": {
@@ -243,8 +243,8 @@ def generate_data_flow_diagram(analysis: Dict) -> str:
         'rectangle "FastAPI" as API',
         'rectangle "Request Handler" as Handler',
         'rectangle "Service Layer" as Service',
-        'rectangle "Vitess Client" as VitessClient',
-        'database "Vitess DB" as Vitess',
+        'rectangle "Mysql Client" as MysqlClient',
+        'database "Mysql DB" as Mysql',
         'rectangle "S3 Client" as S3Client',
         'storage "S3 Terms bucket" as S3Terms',
         'storage "S3 Statements bucket" as S3Statements',
@@ -265,12 +265,12 @@ def generate_data_flow_diagram(analysis: Dict) -> str:
         "Client -> API : HTTP Request",
         "API -> Handler : Route Request",
         "Handler -> Service : Business Logic",
-        "Service -> VitessClient : Database Query",
-        "VitessClient -> Vitess : SQL Query",
+        "Service -> MysqlClient : Database Query",
+        "MysqlClient -> Mysql : SQL Query",
         "",
         "' Background processing",
         "Handler -> Kafka : Change Events",
-        "Workers -> Vitess : Background Tasks",
+        "Workers -> Mysql : Background Tasks",
         "",
         "' Storage operations",
         "Service -> S3Client : Metadata Operations",
@@ -294,8 +294,8 @@ def generate_data_flow_diagram(analysis: Dict) -> str:
         "S3Revisions --> S3Client : Revisions",
         "S3Dumps --> S3Client : Dump Data",
         "S3Client --> Service : Retrieved Data",
-        "Vitess --> VitessClient : Results",
-        "VitessClient --> Service : Response Data",
+        "Mysql --> MysqlClient : Results",
+        "MysqlClient --> Service : Response Data",
         "Service --> Handler : Processed Data",
         "Handler --> API : JSON Response",
         "API --> Client : HTTP Response",
@@ -519,7 +519,7 @@ def generate_component_relationship_diagram(analysis: Dict) -> str:
         "[Workers] as Workers",
         "[Repositories] as Repos",
         "[Models] as Models",
-        'database "Vitess" as Vitess',
+        'database "Mysql" as Mysql',
         'storage "S3 Terms bucket" as S3Terms',
         'storage "S3 Statements bucket" as S3Statements',
         'storage "S3 References bucket" as S3References',
@@ -560,7 +560,7 @@ def generate_component_relationship_diagram(analysis: Dict) -> str:
         "Handlers -- MQ",
         "",
         "' External systems",
-        "DBI --> Vitess : mysql",
+        "DBI --> Mysql : mysql",
         "SI --> S3Terms : terms metadata",
         "SI --> S3Statements : statement content",
         "SI --> S3References : reference content",

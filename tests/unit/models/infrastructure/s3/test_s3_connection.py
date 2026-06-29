@@ -22,38 +22,37 @@ class TestS3ConnectionManager:
     def test_connect_already_connected(self):
         """Test connect when already connected."""
         manager = S3ConnectionManager(config=self.config)
-        manager.boto_client = MagicMock()
+        manager.minio_client = MagicMock()
 
         manager.connect()
 
-        # Should not create new client
-        assert manager.boto_client is not None
+        assert manager.minio_client is not None
 
     @patch("models.infrastructure.s3.connection.logger")
     def test_healthy_connection_success(self, mock_logger):
         """Test healthy connection check success."""
         manager = S3ConnectionManager(config=self.config)
-        mock_boto_client = MagicMock()
-        manager.boto_client = mock_boto_client
+        mock_minio_client = MagicMock()
+        manager.minio_client = mock_minio_client
 
-        mock_boto_client.head_bucket.return_value = {}
+        mock_minio_client.bucket_exists.return_value = True
 
         result = manager.healthy_connection
 
         assert result is True
-        mock_boto_client.head_bucket.assert_called_once_with(Bucket="test-bucket")
+        mock_minio_client.bucket_exists.assert_called_once_with("test-bucket")
         mock_logger.debug.assert_called()
 
     @patch("models.infrastructure.s3.connection.logger")
     def test_healthy_connection_no_client(self, mock_logger):
         """Test healthy connection when no client exists."""
         manager = S3ConnectionManager(config=self.config)
-        manager.boto_client = None
+        manager.minio_client = None
 
         with patch.object(type(manager), "connect") as mock_connect:
-            mock_boto_client = MagicMock()
-            manager.boto_client = mock_boto_client
-            mock_boto_client.head_bucket.return_value = {}
+            mock_minio_client = MagicMock()
+            manager.minio_client = mock_minio_client
+            mock_minio_client.bucket_exists.return_value = True
 
             result = manager.healthy_connection
 
@@ -64,10 +63,10 @@ class TestS3ConnectionManager:
     def test_healthy_connection_failure(self, mock_logger):
         """Test healthy connection check failure."""
         manager = S3ConnectionManager(config=self.config)
-        mock_boto_client = MagicMock()
-        manager.boto_client = mock_boto_client
+        mock_minio_client = MagicMock()
+        manager.minio_client = mock_minio_client
 
-        mock_boto_client.head_bucket.side_effect = Exception("Connection failed")
+        mock_minio_client.bucket_exists.side_effect = Exception("Connection failed")
 
         result = manager.healthy_connection
 

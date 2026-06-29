@@ -4,8 +4,8 @@ set -Eeuo pipefail
 
 echo "=== CI Local Simulation ==="
 
-# Use docker-compose.ci.yml to match CI
-COMPOSE_FILE="docker-compose.ci.yml"
+# Use docker-compose.ci-full.yml to match CI (full stack with all workers)
+COMPOSE_FILE="docker-compose.ci-full.yml"
 
 echo "🧹 Cleaning up any existing containers..."
 docker compose --file "$COMPOSE_FILE" down -v 2>/dev/null || true
@@ -15,7 +15,7 @@ docker compose --file "$COMPOSE_FILE" build \
   api idworker integration e2e create-buckets create-tables
 
 echo "🚀 Starting infrastructure services..."
-docker compose --file "$COMPOSE_FILE" up -d mysql minio redpanda
+docker compose --file "$COMPOSE_FILE" up -d mysql rustfs redpanda
 
 echo "⏳ Waiting for MySQL..."
 until docker compose --file "$COMPOSE_FILE" exec -T mysql mysqladmin ping -h localhost --silent; do
@@ -24,12 +24,12 @@ until docker compose --file "$COMPOSE_FILE" exec -T mysql mysqladmin ping -h loc
 done
 echo "✅ MySQL is ready"
 
-echo "⏳ Waiting for MinIO..."
-until curl -f http://localhost:9000/minio/health/live; do
-  echo "Waiting for MinIO..."
+echo "⏳ Waiting for rustfs..."
+until curl -f http://localhost:9000; do
+  echo "Waiting for rustfs..."
   sleep 2
 done
-echo "✅ MinIO is ready"
+echo "✅ rustfs is ready"
 
 echo "⏳ Waiting for Redpanda..."
 until docker compose --file "$COMPOSE_FILE" exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do

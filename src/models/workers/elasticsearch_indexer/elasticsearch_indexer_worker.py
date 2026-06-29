@@ -2,16 +2,20 @@
 
 import asyncio
 import logging
+import os
 from contextlib import asynccontextmanager
 from typing import Any, AsyncGenerator, Optional
 
+from fastapi import FastAPI
 from pydantic import Field
+import uvicorn
 
 from models.config.settings import settings
 from models.data.infrastructure.stream.consumer import EntityChangeEventData
+from models.data.rest_api.v1.entitybase.response import WorkerHealthCheckResponse
 from models.infrastructure.s3.client import MyS3Client
 from models.infrastructure.stream.consumer import StreamConsumerClient
-from models.infrastructure.vitess.client import VitessClient
+from models.infrastructure.mysql.client import MysqlClient
 from models.services.elasticsearch import (
     ElasticsearchClient,
     transform_to_elasticsearch,
@@ -22,16 +26,9 @@ logger = logging.getLogger(__name__)
 
 
 class ElasticsearchIndexerWorker(Worker):
-    """Worker that consumes entity change events and indexes them to Elasticsearch.
+    """Consumes entity changes from Kafka and indexes them to Elasticsearch."""
 
-    This worker:
-    1. Consumes entity change events from entitybase.entity_change Kafka topic
-    2. Fetches entity snapshots from S3 for the new revision
-    3. Transforms entity data to Elasticsearch format
-    4. Indexes the document to OpenSearch
-    """
-
-    vitess_client: Optional[VitessClient] = Field(default=None, exclude=True)
+    mysql_client: Optional[MysqlClient] = Field(default=None, exclude=True)
     s3_client: Optional[MyS3Client] = Field(default=None, exclude=True)
     consumer: Optional[StreamConsumerClient] = Field(default=None, exclude=True)
     elasticsearch_client: Any = Field(default=None, exclude=True)
@@ -99,21 +96,21 @@ class ElasticsearchIndexerWorker(Worker):
         )
 
     async def _initialize_storage_clients(self) -> None:
-        """Initialize S3 and Vitess clients."""
+        """Initialize S3 and database clients."""
         if not self.worker_enabled:
             return
 
-        vitess_config = settings.get_vitess_config
-        if vitess_config.host and vitess_config.port:
-            self.vitess_client = VitessClient(config=vitess_config)
-            logger.info("Vitess client initialized")
+        mysql_config = settings.get_mysql_config
+        if mysql_config.host and mysql_config.port:
+            self.mysql_client = MysqlClient(config=mysql_config)
+            logger.info("database client initialized")
         else:
             logger.warning(
-                "Vitess not configured, worker cannot fetch revision metadata"
+                "database not configured, worker cannot fetch revision metadata"
             )
 
         s3_config = settings.get_s3_config
-        if s3_config.endpoint:
+        if s3_config.endpoint_url:
             self.s3_client = MyS3Client(config=s3_config)
             logger.info("S3 client initialized")
         else:
@@ -142,8 +139,8 @@ class ElasticsearchIndexerWorker(Worker):
             await self.consumer.stop()
         if self.elasticsearch_client:
             self.elasticsearch_client.close()
-        if self.vitess_client and self.vitess_client.connection_manager:
-            self.vitess_client.connection_manager.close()
+        if self.mysql_client and self.mysql_client.connection_manager:
+            self.mysql_client.connection_manager.disconnect()
         logger.debug("All clients cleaned up")
 
     async def run(self) -> None:
@@ -225,30 +222,94 @@ class ElasticsearchIndexerWorker(Worker):
             return None
 
         try:
-            from models.infrastructure.s3.entity_storage import EntityStorage
-
-            storage = EntityStorage(s3_client=self.s3_client)
-            entity_data = await storage.get_entity(entity_id, revision_id)
-
-            if entity_data and entity_data.entity_data:
-                result: dict[str, Any] = entity_data.entity_data.revision.model_dump(
-                    mode="json"
-                )
-                return result
-
-            return None
+            s3_revision = self.s3_client.read_revision(entity_id, revision_id)
+            return s3_revision.revision
 
         except Exception as e:
             logger.error(f"Error fetching entity {entity_id} from S3: {e}")
             return None
 
+    def health_check(self) -> WorkerHealthCheckResponse:
+        """Return health status of the worker.
+
+        Returns:
+            WorkerHealthCheckResponse: Health status with status, worker_id, and range_status
+        """
+        return WorkerHealthCheckResponse(
+            status="healthy" if self.running else "starting",
+            worker_id=self.worker_id,
+            details={"running": self.running},
+            range_status={},
+        )
+
+
+async def run_server(app: FastAPI) -> None:
+    """Run the FastAPI server."""
+    log_level = os.getenv("LOG_LEVEL", "INFO").upper()
+    logging_config = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "default": {
+                "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+                "datefmt": "%Y-%m-%d %H:%M:%S",
+            },
+        },
+        "handlers": {
+            "default": {
+                "class": "logging.StreamHandler",
+                "formatter": "default",
+            },
+        },
+        "root": {
+            "handlers": ["default"],
+            "level": log_level,
+        },
+    }
+    config = uvicorn.Config(
+        app,
+        host="0.0.0.0",
+        port=8007,
+        loop="asyncio",
+        log_config=logging_config,
+    )
+    server = uvicorn.Server(config)
+    await server.serve()
+
 
 async def main() -> None:
     """Main entry point for the ElasticsearchIndexerWorker."""
+    log_level = os.getenv("LOG_LEVEL", "INFO")
+    logging.basicConfig(
+        level=getattr(logging, log_level.upper(), logging.INFO),
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+
     worker = ElasticsearchIndexerWorker(
         worker_id="elasticsearch-indexer",
         worker_enabled=settings.elasticsearch_enabled,
     )
 
+    app = FastAPI(response_model_by_alias=True)
+
+    @app.get("/health")
+    def health() -> WorkerHealthCheckResponse:
+        """Health check endpoint returning JSON status."""
+        return worker.health_check()
+
+    await asyncio.gather(
+        run_worker(worker),
+        run_server(app),
+    )
+
+
+async def run_worker(worker: ElasticsearchIndexerWorker) -> None:
+    """Run the worker."""
+    worker.running = True
     async with worker.lifespan():
         await worker.run()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

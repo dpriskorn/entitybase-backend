@@ -6,11 +6,14 @@ eventstreams
 eventgate
 schemas-event-primary
 
+# environment
+.env
+
 # code related
 .idea
 deprecated/.env
 /seaweedfs_data/
-/minio-data/
+/data/rustfs/
 seaweedfs
 alarik_data
 deprecated
@@ -33,6 +36,7 @@ test_data/properties/*.json
 /coverage.txt
 /coverage_below_threshold.txt
 /.opencode/plans/
+/.opencode/package-lock.json
 /unit.log
 /output.log
 /integration.log
@@ -40,6 +44,18 @@ test_data/properties/*.json
 /site/
 /.cache/
 /draft/
-e2e.env
 /data/
 /entitybase.db
+
+/var/
+
+# Generated requirements (no longer needed - using poetry directly in Dockerfiles)
+requirements*.txt
+.python-version
+*.py,cover
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.DS_Store
+frontend/*.local

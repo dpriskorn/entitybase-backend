@@ -33,9 +33,9 @@ class TestEntityHandler:
     async def test_build_revision_data_dangling_from_p6104(self) -> None:
         """Test _build_revision_data auto-computes is_dangling from P6104 claims."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
 
         handler = EntityHandler(state=mock_state)
@@ -55,8 +55,9 @@ class TestEntityHandler:
             edit_type=EditType.MANUAL_UPDATE,
             edit_summary="Test",
             is_creation=True,
-            vitess_client=mock_vitess,
+            mysql_client=mock_mysql,
             s3_client=mock_s3,
+            edit_headers=None,
         )
 
         hash_result = StatementHashResult(
@@ -91,8 +92,9 @@ class TestEntityHandler:
             edit_type=EditType.MANUAL_UPDATE,
             edit_summary="Test",
             is_creation=True,
-            vitess_client=mock_vitess,
+            mysql_client=mock_mysql,
             s3_client=mock_s3,
+            edit_headers=None,
         )
 
         revision_data_with_p6104 = handler._build_revision_data(
@@ -115,8 +117,9 @@ class TestEntityHandler:
             edit_type=EditType.MANUAL_UPDATE,
             edit_summary="Test",
             is_creation=True,
-            vitess_client=mock_vitess,
+            mysql_client=mock_mysql,
             s3_client=mock_s3,
+            edit_headers=None,
         )
 
         revision_data_empty_claims = handler._build_revision_data(
@@ -128,9 +131,9 @@ class TestEntityHandler:
     async def test_build_entity_response(self) -> None:
         """Test _build_entity_response method."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
 
         s3_revision_data = S3RevisionData(
@@ -167,8 +170,9 @@ class TestEntityHandler:
             edit_type=EditType.MANUAL_UPDATE,
             edit_summary="Test",
             is_creation=True,
-            vitess_client=mock_vitess,
+            mysql_client=mock_mysql,
             s3_client=mock_s3,
+            edit_headers=None,
         )
 
         response = await EntityHandler._build_entity_response(ctx, result)
@@ -181,9 +185,9 @@ class TestEntityHandler:
     async def test_build_entity_response_with_protection(self) -> None:
         """Test _build_entity_response with protection flags."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
 
         s3_revision_data = S3RevisionData(
@@ -220,7 +224,7 @@ class TestEntityHandler:
             edit_type=EditType.MANUAL_UPDATE,
             edit_summary="Test",
             is_creation=True,
-            vitess_client=mock_vitess,
+            mysql_client=mock_mysql,
             s3_client=mock_s3,
         )
 
@@ -236,9 +240,9 @@ class TestEntityHandler:
     async def test_process_entity_data_new(self) -> None:
         """Test _process_entity_data_new method."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
 
         handler = EntityHandler(state=mock_state)
@@ -259,8 +263,9 @@ class TestEntityHandler:
             edit_type=EditType.MANUAL_UPDATE,
             edit_summary="Test",
             is_creation=True,
-            vitess_client=mock_vitess,
+            mysql_client=mock_mysql,
             s3_client=mock_s3,
+            edit_headers=None,
         )
 
         result = await handler._process_entity_data_new(ctx)
@@ -271,9 +276,9 @@ class TestEntityHandler:
     async def test_hash_terms_new(self) -> None:
         """Test _hash_terms_new method."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
 
         handler = EntityHandler(state=mock_state)
@@ -291,8 +296,9 @@ class TestEntityHandler:
             edit_type=EditType.MANUAL_UPDATE,
             edit_summary="Test",
             is_creation=True,
-            vitess_client=mock_vitess,
+            mysql_client=mock_mysql,
             s3_client=mock_s3,
+            edit_headers=None,
         )
 
         result = await handler._hash_terms_new(ctx)
@@ -306,9 +312,9 @@ class TestEntityHandler:
     async def test_hash_sitelinks_new(self) -> None:
         """Test _hash_sitelinks_new method."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
 
         handler = EntityHandler(state=mock_state)
@@ -324,8 +330,9 @@ class TestEntityHandler:
             edit_type=EditType.MANUAL_UPDATE,
             edit_summary="Test",
             is_creation=True,
-            vitess_client=mock_vitess,
+            mysql_client=mock_mysql,
             s3_client=mock_s3,
+            edit_headers=None,
         )
 
         result = await handler._hash_sitelinks_new(ctx)
@@ -336,9 +343,9 @@ class TestEntityHandler:
     async def test_build_entity_response_s3_not_found(self) -> None:
         """Test _build_entity_response when S3 object not found (404)."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
 
         mock_s3.read_revision.side_effect = S3NotFoundError("Object not found: 123456")
@@ -353,8 +360,9 @@ class TestEntityHandler:
             edit_type=EditType.MANUAL_UPDATE,
             edit_summary="Test",
             is_creation=True,
-            vitess_client=mock_vitess,
+            mysql_client=mock_mysql,
             s3_client=mock_s3,
+            edit_headers=None,
         )
 
         with pytest.raises(Exception):  # Should raise validation error with 404

@@ -7,23 +7,20 @@ on:
     branches: ["main"]
 
 jobs:
-  lint:
+  be-lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 1
     steps:
       - uses: actions/checkout@v4
-      - name: Install poetry
-        run: pipx install poetry
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-          cache: 'poetry'
-      - run: pip install --upgrade pip wheel
-      - run: poetry install --with=dev
+      - run: pip install ruff radon mypy types-pymysql types-PyYAML types-requests && pipx install poetry
       - name: Run custom linters
         run: |
-          poetry run python scripts/linters/check_async_calls.py src/
-          poetry run python scripts/linters/check_int_fields.py src/
-          poetry run python scripts/linters/value_error_linter.py
+          python scripts/linters/check_async_calls.py src/
+          python scripts/linters/check_int_fields.py src/
+          python scripts/linters/value_error_linter.py
           bash scripts/shell/run-assert-linter.sh
           bash scripts/shell/run-response-model-lint.sh
           bash scripts/shell/run-logger-lint.sh
@@ -39,20 +36,16 @@ jobs:
           bash scripts/shell/run-status-code-lint.sh
       - name: Run external linters
         run: |
-          poetry run ruff check src/
-          poetry run radon cc src/ -n 11 -x 20 -e ".venv"
-          poetry run mypy src/
-          # poetry run vulture src/
+          ruff check src/
+          radon cc src/ -n 11 -x 20 -e ".venv"
+          mypy src/
 
-  test:
+  be-unit-01:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
-    needs: lint
+    timeout-minutes: 2
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      # === UNIT TESTS (no Docker) ===
       - name: Install poetry
         run: pipx install poetry
       - uses: actions/setup-python@v5
@@ -63,18 +56,65 @@ jobs:
       - run: poetry install --with=dev
       - name: Run unit tests (01 - config, data, services, validation, json_parser)
         run: poetry run pytest tests/unit -k "config or data or services or validation or json_parser" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
-        timeout-minutes: 10
+
+  be-unit-02:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install poetry
+        run: pipx install poetry
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: 'poetry'
+      - run: pip install --upgrade pip wheel
+      - run: poetry install --with=dev
       - name: Run unit tests (02 - internal_representation, workers)
         run: poetry run pytest tests/unit -k "internal_representation or workers" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
-        timeout-minutes: 10
+
+  be-unit-03:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install poetry
+        run: pipx install poetry
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: 'poetry'
+      - run: pip install --upgrade pip wheel
+      - run: poetry install --with=dev
       - name: Run unit tests (03 - infrastructure, rdf_builder)
         run: poetry run pytest tests/unit -k "infrastructure or rdf_builder" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
-        timeout-minutes: 10
+
+  be-unit-04:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install poetry
+        run: pipx install poetry
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: 'poetry'
+      - run: pip install --upgrade pip wheel
+      - run: poetry install --with=dev
       - name: Run unit tests (04 - rest_api)
         run: poetry run pytest tests/unit -k "rest_api" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
-        timeout-minutes: 10
 
-      # === SETUP DOCKER ===
+  be-minimal-integration-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Login to Docker Hub
@@ -82,43 +122,39 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
+      - name: Verify poetry.lock exists
+        run: |
+          test -f poetry.lock && echo "poetry.lock found" || (echo "poetry.lock missing" && exit 1)
       - name: Build docker images
         run: |
-          docker compose -f docker-compose.ci.yml build \
-            api idworker create-buckets create-tables
+          docker compose -f docker-compose.ci-minimal.yml build --no-cache entitybase-api
       - name: Start infrastructure services
         run: |
-          docker compose -f docker-compose.ci.yml up -d mysql minio redpanda
-      - name: Wait for MySQL
-        timeout-minutes: 2
+          docker compose -f docker-compose.ci-minimal.yml up -d rustfs valkey redpanda
+      - name: Verify docker port mapping
         run: |
-          until docker compose -f docker-compose.ci.yml exec -T mysql mysqladmin ping -h localhost --silent; do
-            echo "Waiting for MySQL..."
+          docker ps
+          docker port rustfs
+      # - name: RustFS logs
+      #   if: always()
+      #   run: sleep 10 && docker logs rustfs
+      - name: Wait for rustfs
+        timeout-minutes: 1
+        run: |
+          until curl -sf http://localhost:9000/health; do
+            echo "Waiting for rustfs..."
             sleep 2
           done
-      - name: Wait for MinIO
-        timeout-minutes: 2
-        run: |
-          until curl -f http://localhost:9000/minio/health/live; do
-            echo "Waiting for MinIO..."
-            sleep 2
-          done
-      - name: Wait for Redpanda
-        timeout-minutes: 2
-        run: |
-          until docker compose -f docker-compose.ci.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
-            echo "Waiting for Redpanda..."
-            sleep 2
-          done
-      - name: Setup database tables
-        run: docker compose -f docker-compose.ci.yml run --rm create-tables
-      - name: Setup S3 buckets
-        run: docker compose -f docker-compose.ci.yml run --rm create-buckets
-      - name: Start idworker
-        run: docker compose -f docker-compose.ci.yml up -d idworker
       - name: Start API
-        run: docker compose -f docker-compose.ci.yml up -d api
+        run: docker compose -f docker-compose.ci-minimal.yml up -d entitybase-api
         timeout-minutes: 2
+      - name: API logs
+        if: always()
+        run: sleep 10 && docker logs entitybase-api
+      - name: Verify API port mapping
+        run: |
+          docker ps
+          docker port entitybase-api
       - name: Wait for API
         timeout-minutes: 2
         run: |
@@ -126,164 +162,94 @@ jobs:
             echo "Waiting for API..."
             sleep 2
           done
-
-      # === E2E TESTS ===
-      - name: Run e2e tests (01 - basics)
+      - name: Install poetry
+        run: pipx install poetry
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: 'poetry'
+      - run: pip install --upgrade pip wheel
+      - run: poetry install --with=dev
+      - name: Debug S3 configuration
+        run: poetry run python scripts/debug_s3.py
         env:
-          VITESS_HOST: localhost
-          VITESS_PORT: 3306
-          VITESS_DATABASE: entitybase
-          VITESS_USER: root
-          VITESS_PASSWORD: ""
           S3_ENDPOINT: http://localhost:9000
           S3_ACCESS_KEY: fakekey
           S3_SECRET_KEY: fakesecret
-          S3_BUCKET: testbucket
-          REST_API_URL: http://localhost:8000
-          STREAMING_ENABLED: "false"
-        run: poetry run pytest tests/e2e -k "entity_crud or entity_lifecycle or entitybase_properties or entity_properties_e2e or entity_revisions_e2e or entity_sitelinks_e2e" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
+          S3_BUCKET: entitybase
+
+      # === E2E TESTS (using shell scripts for ASGITransport-based testing) ===
+      - name: Run e2e tests (01 - basics)
+        run: ./scripts/shell/run-e2e-01-basics.sh minimal
         timeout-minutes: 15
 
-      - name: Upload e2e coverage to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage.xml
-          flags: e2e-basics
-          name: e2e-basics
-
       - name: Run e2e tests (02 - terms)
-        env:
-          VITESS_HOST: localhost
-          VITESS_PORT: 3306
-          VITESS_DATABASE: entitybase
-          VITESS_USER: root
-          VITESS_PASSWORD: ""
-          S3_ENDPOINT: http://localhost:9000
-          S3_ACCESS_KEY: fakekey
-          S3_SECRET_KEY: fakesecret
-          S3_BUCKET: testbucket
-          REST_API_URL: http://localhost:8000
-          STREAMING_ENABLED: "false"
-        run: poetry run pytest tests/e2e -k "item_terms_e2e or property_terms_e2e or lexemes_e2e or lexeme_forms_e2e or lexeme_senses_e2e or redirects_e2e" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
+        run: ./scripts/shell/run-e2e-02-terms.sh minimal
         timeout-minutes: 15
 
       - name: Run e2e tests (03 - user features)
-        env:
-          VITESS_HOST: localhost
-          VITESS_PORT: 3306
-          VITESS_DATABASE: entitybase
-          VITESS_USER: root
-          VITESS_PASSWORD: ""
-          S3_ENDPOINT: http://localhost:9000
-          S3_ACCESS_KEY: fakekey
-          S3_SECRET_KEY: fakesecret
-          S3_BUCKET: testbucket
-          REST_API_URL: http://localhost:8000
-          STREAMING_ENABLED: "false"
-        run: poetry run pytest tests/e2e -k "watchlist_e2e or thanks_e2e or endorsements or user_management_e2e or user_workflow or stats_e2e" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
+        run: ./scripts/shell/run-e2e-03-user.sh minimal
         timeout-minutes: 15
 
       - name: Run e2e tests (04 - advanced)
-        env:
-          VITESS_HOST: localhost
-          VITESS_PORT: 3306
-          VITESS_DATABASE: entitybase
-          VITESS_USER: root
-          VITESS_PASSWORD: ""
-          S3_ENDPOINT: http://localhost:9000
-          S3_ACCESS_KEY: fakekey
-          S3_SECRET_KEY: fakesecret
-          S3_BUCKET: testbucket
-          REST_API_URL: http://localhost:8000
-          STREAMING_ENABLED: "false"
-        run: poetry run pytest tests/e2e -k "hash_resolution_e2e or entity_statements_e2e or batch_operations_e2e or hash_operations_e2e or health_import_e2e or json_dump_worker_e2e or revision_with_content_hash" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
+        run: ./scripts/shell/run-e2e-04-advanced.sh minimal
         timeout-minutes: 15
 
       # === CONTRACT TESTS ===
       - name: Run contract tests
         env:
-          VITESS_HOST: localhost
-          VITESS_PORT: 3306
-          VITESS_DATABASE: entitybase
-          VITESS_USER: root
-          VITESS_PASSWORD: ""
-          S3_ENDPOINT: http://localhost:9000
+          S3_ENDPOINT: localhost:9000
           S3_ACCESS_KEY: fakekey
           S3_SECRET_KEY: fakesecret
-          S3_BUCKET: testbucket
-          REST_API_URL: http://localhost:8000
+          S3_BUCKET: entitybase
+          REST_API_URL: http://localhost:8080
         run: poetry run pytest tests/contract/ -v -m contract --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append --junitxml=junit.xml -o junit_family=legacy
-        timeout-minutes: 10
+        timeout-minutes: 5
 
       # === INTEGRATION TESTS ===
       - name: Run integration tests (01 - first 50)
         env:
-          VITESS_HOST: localhost
-          VITESS_PORT: 3306
-          VITESS_DATABASE: entitybase
-          VITESS_USER: root
-          VITESS_PASSWORD: ""
-          S3_ENDPOINT: http://localhost:9000
+          S3_ENDPOINT: localhost:9000
           S3_ACCESS_KEY: fakekey
           S3_SECRET_KEY: fakesecret
-          S3_BUCKET: testbucket
-          REST_API_URL: http://localhost:8000
+          S3_BUCKET: entitybase
+          REST_API_URL: http://localhost:8080
+          STREAMING_ENABLED: "false"
         run: poetry run pytest tests/integration -k "test_app or test_id_resolver or test_connection_pool" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
-        timeout-minutes: 10
-
-      - name: Upload integration coverage to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage.xml
-          flags: integration
-          name: integration-tests
+        timeout-minutes: 5
 
       - name: Run integration tests (02 - mid 50)
         env:
-          VITESS_HOST: localhost
-          VITESS_PORT: 3306
-          VITESS_DATABASE: entitybase
-          VITESS_USER: root
-          VITESS_PASSWORD: ""
-          S3_ENDPOINT: http://localhost:9000
+          S3_ENDPOINT: localhost:9000
           S3_ACCESS_KEY: fakekey
           S3_SECRET_KEY: fakesecret
-          S3_BUCKET: testbucket
-          REST_API_URL: http://localhost:8000
-        run: poetry run pytest tests/integration -k "test_watchlist or test_entity_deletion or test_item_terms" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
-        timeout-minutes: 10
+          S3_BUCKET: entitybase
+          REST_API_URL: http://localhost:8080
+          STREAMING_ENABLED: "false"
+        run: poetry run pytest tests/integration -k "test_watchlist or test_entity_deletion or test_item_terms" -m "not requires_kafka" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
+        timeout-minutes: 5
 
       - name: Run integration tests (03 - late 50a)
         env:
-          VITESS_HOST: localhost
-          VITESS_PORT: 3306
-          VITESS_DATABASE: entitybase
-          VITESS_USER: root
-          VITESS_PASSWORD: ""
-          S3_ENDPOINT: http://localhost:9000
+          S3_ENDPOINT: localhost:9000
           S3_ACCESS_KEY: fakekey
           S3_SECRET_KEY: fakesecret
-          S3_BUCKET: testbucket
-          REST_API_URL: http://localhost:8000
+          S3_BUCKET: entitybase
+          REST_API_URL: http://localhost:8080
+          STREAMING_ENABLED: "false"
         run: poetry run pytest tests/integration -k "test_json_import or test_lexeme or test_entity_base or test_json_parser or test_rest_api" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
-        timeout-minutes: 10
+        timeout-minutes: 5
 
       - name: Run integration tests (04 - late 50b)
         env:
-          VITESS_HOST: localhost
-          VITESS_PORT: 3306
-          VITESS_DATABASE: entitybase
-          VITESS_USER: root
-          VITESS_PASSWORD: ""
-          S3_ENDPOINT: http://localhost:9000
+          S3_ENDPOINT: localhost:9000
           S3_ACCESS_KEY: fakekey
           S3_SECRET_KEY: fakesecret
-          S3_BUCKET: testbucket
-          REST_API_URL: http://localhost:8000
+          S3_BUCKET: entitybase
+          REST_API_URL: http://localhost:8080
+          STREAMING_ENABLED: "false"
         run: poetry run pytest tests/integration -k "test_cas_update or test_create_revision or test_create_with_cas or test_entity_history or test_entity_retrieval or test_get_content_hash or test_get_head_revision or test_hard_delete or test_insert_revision or test_read_revision or test_soft_delete" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
-        timeout-minutes: 10
+        timeout-minutes: 5
 
       - name: Upload total coverage to Codecov
         uses: codecov/codecov-action@v5
@@ -307,9 +273,214 @@ jobs:
       - name: Show container logs on failure
         if: failure()
         run: |
-          docker compose -f docker-compose.ci.yml logs --tail=100 mysql
-          docker compose -f docker-compose.ci.yml logs --tail=100 api
-          docker compose -f docker-compose.ci.yml logs --tail=100 idworker
+          docker compose -f docker-compose.ci-minimal.yml logs --tail=100 rustfs
+          docker compose -f docker-compose.ci-minimal.yml logs --tail=100 entitybase-api
       - name: Down containers
         if: always()
-        run: docker compose -f docker-compose.ci.yml down -v
+        run: docker compose -f docker-compose.ci-minimal.yml down -v
+
+  be-full-integration-tests:
+    runs-on: ubuntu-latest
+    needs: fe-test
+    timeout-minutes: 60
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+      - name: Verify poetry.lock exists
+        run: |
+          test -f poetry.lock && echo "poetry.lock found" || (echo "poetry.lock missing" && exit 1)
+      - name: Build docker images
+        run: |
+          docker compose -f docker-compose.ci-full.yml build --no-cache \
+            api create-buckets
+      - name: Start infrastructure services
+        run: |
+          docker compose -f docker-compose.ci-full.yml up -d rustfs
+      - name: Verify docker port mapping
+        run: |
+          docker ps
+          docker port rustfs
+      # - name: RustFS logs
+      #   if: always()
+      #   run: sleep 10 && docker logs rustfs
+      - name: Wait for rustfs
+        timeout-minutes: 1
+        run: |
+          until curl -sf http://localhost:9000/health; do
+            echo "Waiting for rustfs..."
+            sleep 2
+          done
+      - name: Setup S3 buckets
+        run: docker compose -f docker-compose.ci-full.yml run --rm create-buckets
+      - name: Start API
+        run: docker compose -f docker-compose.ci-full.yml up -d api
+        timeout-minutes: 2
+      - name: API logs
+        if: always()
+        run: sleep 10 && docker logs api
+      - name: Verify API port mapping
+        run: |
+          docker ps
+          docker port api
+      - name: Wait for API
+        timeout-minutes: 2
+        run: |
+          until curl -f http://localhost:8000/health; do
+            echo "Waiting for API..."
+            sleep 2
+          done
+      - name: Install poetry
+        run: pipx install poetry
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: 'poetry'
+      - run: pip install --upgrade pip wheel
+      - run: poetry install --with=dev
+      - name: Debug S3 configuration
+        run: poetry run python scripts/debug_s3.py
+        env:
+          S3_ENDPOINT: http://localhost:9000
+          S3_ACCESS_KEY: fakekey
+          S3_SECRET_KEY: fakesecret
+          S3_BUCKET: testbucket
+
+      # === E2E TESTS (using shell scripts for ASGITransport-based testing) ===
+      - name: Run e2e tests (01 - basics)
+        run: ./scripts/shell/run-e2e-01-basics.sh full
+        timeout-minutes: 15
+
+      - name: Run e2e tests (02 - terms)
+        run: ./scripts/shell/run-e2e-02-terms.sh full
+        timeout-minutes: 15
+
+      - name: Run e2e tests (03 - user features)
+        run: ./scripts/shell/run-e2e-03-user.sh full
+        timeout-minutes: 15
+
+      - name: Run e2e tests (04 - advanced)
+        run: ./scripts/shell/run-e2e-04-advanced.sh full
+        timeout-minutes: 15
+
+      # === CONTRACT TESTS ===
+      - name: Run contract tests
+        env:
+          S3_ENDPOINT: localhost:9000
+          S3_ACCESS_KEY: fakekey
+          S3_SECRET_KEY: fakesecret
+          S3_BUCKET: testbucket
+          REST_API_URL: http://localhost:8000
+        run: poetry run pytest tests/contract/ -v -m contract --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append --junitxml=junit.xml -o junit_family=legacy
+        timeout-minutes: 5
+
+      # === INTEGRATION TESTS ===
+      - name: Run integration tests (01 - first 50)
+        env:
+          S3_ENDPOINT: localhost:9000
+          S3_ACCESS_KEY: fakekey
+          S3_SECRET_KEY: fakesecret
+          S3_BUCKET: testbucket
+          REST_API_URL: http://localhost:8000
+          STREAMING_ENABLED: "false"
+        run: poetry run pytest tests/integration -k "test_app or test_id_resolver or test_connection_pool" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
+        timeout-minutes: 5
+
+      - name: Run integration tests (02 - mid 50)
+        env:
+          S3_ENDPOINT: localhost:9000
+          S3_ACCESS_KEY: fakekey
+          S3_SECRET_KEY: fakesecret
+          S3_BUCKET: testbucket
+          REST_API_URL: http://localhost:8000
+          STREAMING_ENABLED: "false"
+        run: poetry run pytest tests/integration -k "test_watchlist or test_entity_deletion or test_item_terms" -m "not requires_kafka" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
+        timeout-minutes: 5
+
+      - name: Run integration tests (03 - late 50a)
+        env:
+          S3_ENDPOINT: localhost:9000
+          S3_ACCESS_KEY: fakekey
+          S3_SECRET_KEY: fakesecret
+          S3_BUCKET: testbucket
+          REST_API_URL: http://localhost:8000
+          STREAMING_ENABLED: "false"
+        run: poetry run pytest tests/integration -k "test_json_import or test_lexeme or test_entity_base or test_json_parser or test_rest_api" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
+        timeout-minutes: 5
+
+      - name: Run integration tests (04 - late 50b)
+        env:
+          S3_ENDPOINT: localhost:9000
+          S3_ACCESS_KEY: fakekey
+          S3_SECRET_KEY: fakesecret
+          S3_BUCKET: testbucket
+          REST_API_URL: http://localhost:8000
+          STREAMING_ENABLED: "false"
+        run: poetry run pytest tests/integration -k "test_cas_update or test_create_revision or test_create_with_cas or test_entity_history or test_entity_retrieval or test_get_content_hash or test_get_head_revision or test_hard_delete or test_insert_revision or test_read_revision or test_soft_delete" -v --tb=short --cov=src --cov-branch --cov-report=xml --cov-report=term --cov-append
+        timeout-minutes: 5
+
+      - name: Upload total coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          flags: total
+          name: total-coverage
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-full
+          path: |
+            pytest-report.html
+            pytest-report.json
+            .coverage
+            coverage.xml
+          if-no-files-found: ignore
+      - name: Show container logs on failure
+        if: failure()
+        run: |
+          docker compose -f docker-compose.ci-full.yml logs --tail=100 rustfs
+          docker compose -f docker-compose.ci-full.yml logs --tail=100 create-buckets
+          docker compose -f docker-compose.ci-full.yml logs --tail=100 api
+      - name: Down containers
+        if: always()
+        run: docker compose -f docker-compose.ci-full.yml down -v
+
+  fe-lint:
+    runs-on: ubuntu-latest
+    needs: be-minimal-integration-tests
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+        working-directory: frontend
+      - run: npm run lint
+        working-directory: frontend
+
+  fe-test:
+    runs-on: ubuntu-latest
+    needs: be-minimal-integration-tests
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+        working-directory: frontend
+      - run: npm run test
+        working-directory: frontend

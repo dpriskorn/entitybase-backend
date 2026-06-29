@@ -64,7 +64,7 @@ All settings can be overridden using environment variables with the same name.
 ### `s3_endpoint`
 
 - **Type**: `str`
-- **Default**: `'http://minio:9000'`
+- **Default**: `'http://rustfs:9000'`
 - **Description**: s3
 
 ### `s3_access_key`
@@ -124,8 +124,9 @@ All settings can be overridden using environment variables with the same name.
 ### `s3_dump_bucket`
 
 - **Type**: `str`
-- **Default**: `'wikibase-dumps'`
-- **Description**: No description available
+- **Default**: `'entitybase-dumps'`
+- **Env**: `S3_DUMP_BUCKET`
+- **Description**: S3 bucket for JSON/TTL dumps exports
 
 ## API Settings
 
@@ -151,6 +152,24 @@ All settings can be overridden using environment variables with the same name.
 
 - **Type**: `int`
 - **Default**: `9200`
+- **Description**: No description available
+
+### `meilisearch_host`
+
+- **Type**: `str`
+- **Default**: `'localhost'`
+- **Description**: No description available
+
+### `meilisearch_port`
+
+- **Type**: `int`
+- **Default**: `7700`
+- **Description**: No description available
+
+### `meilisearch_api_key`
+
+- **Type**: `str`
+- **Default**: `''`
 - **Description**: No description available
 
 ## Workers Settings
@@ -199,7 +218,8 @@ All settings can be overridden using environment variables with the same name.
 
 - **Type**: `str`
 - **Default**: `'wikidata'`
-- **Description**: rdf
+- **Env**: `WIKIBASE_REPOSITORY_NAME`
+- **Description**: RDF repository name (semantic reference to Wikidata data model)
 
 ### `property_registry_path`
 
@@ -223,13 +243,15 @@ All settings can be overridden using environment variables with the same name.
 
 - **Type**: `str`
 - **Default**: `''`
-- **Description**: No description available
+- **Env**: `KAFKA_ENTITYCHANGE_JSON_TOPIC`
+- **Description**: Kafka topic for entity change events (e.g., `entitybase.entity_change`)
 
 ### `kafka_entity_diff_topic`
 
 - **Type**: `str`
 - **Default**: `''`
-- **Description**: No description available
+- **Env**: `KAFKA_ENTITY_DIFF_TOPIC`
+- **Description**: Kafka topic for RDF diff events (e.g., `entitybase.entity_diff`)
 
 ### `kafka_userchange_json_topic`
 
@@ -405,6 +427,42 @@ All settings can be overridden using environment variables with the same name.
 - **Default**: `'entitybase-elasticsearch-indexer'`
 - **Description**: No description available
 
+### `meilisearch_enabled`
+
+- **Type**: `bool`
+- **Default**: `False`
+- **Description**: Meilisearch worker
+
+### `meilisearch_index`
+
+- **Type**: `str`
+- **Default**: `'entitybase'`
+- **Description**: No description available
+
+### `meilisearch_consumer_group`
+
+- **Type**: `str`
+- **Default**: `'entitybase-meilisearch-indexer'`
+- **Description**: No description available
+
+### `purge_enabled`
+
+- **Type**: `bool`
+- **Default**: `True`
+- **Description**: Purge worker
+
+### `purge_schedule`
+
+- **Type**: `str`
+- **Default**: `'0 0 * * *'`
+- **Description**: No description available
+
+### `purge_batch_size`
+
+- **Type**: `int`
+- **Default**: `100`
+- **Description**: No description available
+
 ## Usage Example
 
 ```python
@@ -424,6 +482,6 @@ Key settings for Docker deployment:
 
 - `VITESS_HOST`: Vitess database host (default: vitess)
 - `VITESS_PORT`: Vitess database port (default: 15309)
-- `S3_ENDPOINT`: S3-compatible storage endpoint (default: http://minio:9000)
+- `S3_ENDPOINT`: S3-compatible storage endpoint (default: http://rustfs:9000)
 - `KAFKA_BROKERS`: Kafka broker addresses for change streaming
 

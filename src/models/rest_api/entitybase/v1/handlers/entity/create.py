@@ -29,10 +29,28 @@ class EntityCreateHandler(EntityHandler):
         self,
         request: EntityCreateRequest,
         edit_headers: EditHeaders,
+        user_id: int = 0,
         validator: Any | None = None,
         auto_assign_id: bool = False,
     ) -> EntityResponse:
-        """Create a new entity. Fails if entity already exists."""
+        """Create a new entity. Fails if entity already exists.
+
+        Creates a new entity with the first revision. If auto_assign_id is
+        true, generates a new ID from the ID worker. Otherwise uses the ID
+        provided in request.id.
+
+        Args:
+            request: Entity data with type, labels, claims, etc.
+            edit_headers: User ID and edit summary
+            auto_assign_id: Whether to auto-generate entity ID (default false)
+            validator: Optional JSON schema validator
+
+        Returns:
+            EntityResponse with new entity ID and revision ID
+
+        Raises:
+            HTTPException 400 if entity ID already exists
+        """
         if auto_assign_id:
             if self.enumeration_service is None:
                 raise_validation_error(
@@ -61,19 +79,19 @@ class EntityCreateHandler(EntityHandler):
         )
 
         # Check if entity already exists - for create, this should fail
-        entity_existed = self.state.vitess_client.entity_exists(entity_id)
+        entity_existed = self.state.mysql_client.entity_exists(entity_id)
         logger.debug(
-            f"[create_entity] vitess_client={id(self.state.vitess_client)}, id_resolver={id(self.state.vitess_client.id_resolver)}, entity_existed={entity_existed}"
+            f"[create_entity] mysql_client={id(self.state.mysql_client)}, id_resolver={id(self.state.mysql_client.id_resolver)}, entity_existed={entity_existed}"
         )
         if entity_existed:
             logger.error(f"Entity {entity_id} already exists, cannot create")
             raise_validation_error("Entity already exists", status_code=409)
 
         # Register the new entity
-        self.state.vitess_client.register_entity(entity_id)
+        self.state.mysql_client.register_entity(entity_id)
 
         # Check deletion status
-        is_deleted = self.state.vitess_client.is_entity_deleted(entity_id)
+        is_deleted = self.state.mysql_client.is_entity_deleted(entity_id)
         if is_deleted:
             raise_validation_error(
                 f"Entity {entity_id} has been deleted", status_code=410
@@ -91,20 +109,19 @@ class EntityCreateHandler(EntityHandler):
             entity_type=EntityType(request.type),
             edit_type=request.edit_type,
             edit_headers=edit_headers,
+            user_id=user_id,
             is_creation=True,
             validator=validator,
         )
         response = await self.process_entity_revision_new(ctx)
 
         # Log activity
-        if edit_headers.x_user_id > 0:
-            activity_result = (
-                self.state.vitess_client.user_repository.log_user_activity(
-                    user_id=edit_headers.x_user_id,
-                    activity_type=UserActivityType.ENTITY_CREATE,
-                    entity_id=entity_id,
-                    revision_id=response.revision_id,
-                )
+        if user_id > 0:
+            activity_result = self.state.mysql_client.user_repository.log_user_activity(
+                user_id=user_id,
+                activity_type=UserActivityType.ENTITY_CREATE,
+                entity_id=entity_id,
+                revision_id=response.revision_id,
             )
             if not activity_result.success:
                 logger.warning(f"Failed to log user activity: {activity_result.error}")

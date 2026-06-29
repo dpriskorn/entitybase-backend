@@ -1,0 +1,170 @@
+services:
+  rustfs:
+    image: rustfs/rustfs:1.0.0-beta.8
+    container_name: rustfs
+    ports:
+      - "9000:9000"
+    volumes:
+      - rustfs-data:/data
+      - rustfs-logs:/logs
+    environment:
+      RUSTFS_USER: fakekey
+      RUSTFS_PASSWORD: fakesecret
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    mem_limit: 512m
+    cpus: 0.5
+
+  redpanda:
+    image: redpanda:redpanda
+    container_name: redpanda
+    command:
+      - redpanda
+      - start
+      - --kafka-addr PLAINTEXT://0.0.0.0:9092
+      - --advertise-kafka-addr PLAINTEXT://redpanda:9092
+    ports:
+      - "9092:9092"
+      - "9644:9644"
+    healthcheck:
+      test: ["CMD-SHELL", "rpk cluster health && rpk topic list"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    mem_limit: 256m
+    cpus: 0.25
+
+  meilisearch:
+    image: getmeili/meilisearch:latest
+    container_name: meilisearch
+    environment:
+      MEILI_ENV: development
+      MEILI_MASTER_KEY: ""
+    ports:
+      - "7700:7700"
+    volumes:
+      - meilisearch-data:/meili_data
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:7700/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    mem_limit: 512m
+    cpus: 0.5
+
+  create-buckets:
+    container_name: create-buckets
+    build:
+      context: .
+      dockerfile: docker/containers/Dockerfile.api
+    environment:
+      RUSTFS_ENDPOINT: rustfs:9000
+      RUSTFS_ACCESS_KEY: fakekey
+      RUSTFS_SECRET_KEY: fakesecret
+      CI: "true"
+    depends_on:
+      rustfs:
+        condition: service_healthy
+    command: python -m models.workers.create buckets setup
+    mem_limit: 512m
+    cpus: 0.5
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/containers/Dockerfile.api
+    container_name: api
+    ports:
+      - "8000:8000"
+    depends_on:
+      rustfs:
+        condition: service_healthy
+      create-buckets:
+        condition: service_completed_successfully
+    environment:
+      S3_ENDPOINT: rustfs:9000
+      S3_ACCESS_KEY: fakekey
+      S3_SECRET_KEY: fakesecret
+      S3_BUCKET: testbucket
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: entitybase
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ""
+
+      ENTITY_JSON_VERSION: "2.0.0"
+      S3_REVISION_VERSION: "3.0.0"
+      S3_STATEMENT_VERSION: "1.0.0"
+      S3_QUALIFIER_VERSION: "1.0.0"
+      S3_REFERENCE_VERSION: "1.0.0"
+      S3_SNAK_VERSION: "1.0.0"
+      S3_SITELINK_VERSION: "1.0.0"
+      STREAMING_ENTITYCHANGE_VERSION: "1.0.0"
+      STREAMING_ENDORSECHANGE_VERSION: "1.0.0"
+      STREAMING_NEWTHANK_VERSION: "1.0.0"
+      STREAMING_ENTITY_CHANGE_VERSION: "1.0.0"
+      STREAMING_ENTITY_DIFF_VERSION: "2.0.0"
+
+      STREAMING_ENABLED: "true"
+      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      KAFKA_ENTITYCHANGE_JSON_TOPIC: entity_change
+      KAFKA_ENTITY_DIFF_TOPIC: entity_diff
+      LOG_LEVEL: "DEBUG"
+      ENVIRONMENT: "dev"
+      CI: "true"
+    command: uvicorn models.rest_api.main:app --host 0.0.0.0 --port 8000
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8000/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    mem_limit: 1g
+
+  meilisearch-indexer-worker:
+    build:
+      context: .
+      dockerfile: docker/containers/Dockerfile.api
+    container_name: meilisearch-indexer-worker
+    ports:
+      - "8007:8007"
+    environment:
+      WORKER_ID: meilisearch_indexer_worker_1
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: entitybase
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ""
+      S3_ENDPOINT: rustfs:9000
+      S3_ACCESS_KEY: fakekey
+      S3_SECRET_KEY: fakesecret
+      MEILISEARCH_HOST: meilisearch
+      MEILISEARCH_PORT: 7700
+      MEILISEARCH_API_KEY: ""
+      MEILISEARCH_INDEX: entitybase
+      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      KAFKA_ENTITYCHANGE_JSON_TOPIC: entity_change
+      MEILISEARCH_CONSUMER_GROUP: entitybase-meilisearch-indexer
+      LOG_LEVEL: "INFO"
+      CI: "true"
+    depends_on:
+      api:
+        condition: service_healthy
+      meilisearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8007/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    mem_limit: 512m
+    cpus: 0.5
+    command: ["python", "-m", "models.workers.meilisearch_indexer.meilisearch_indexer_worker"]
+
+volumes:
+  meilisearch-data:

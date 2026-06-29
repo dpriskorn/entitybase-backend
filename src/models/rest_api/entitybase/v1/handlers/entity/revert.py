@@ -31,8 +31,32 @@ class EntityRevertHandler(Handler):
         entity_id: str,
         request: EntityRevertRequest,
         edit_headers: EditHeaders,
+        user_id: int = 0,
     ) -> EntityRevertResponse:
-        """Revert an entity to a specified revision."""
+        """Revert an entity to a specified revision.
+
+        Moves the database pointer (head revision) to an earlier revision hash
+        stored in S3. Does NOT copy data - uses internal deduplicated revision
+        storage. The target revision hash becomes the new head.
+
+        Args:
+            entity_id: Entity ID to revert
+            request: EntityRevertRequest with target revision ID
+            edit_headers: User ID and edit summary
+
+        Returns:
+            EntityRevertResponse with reverted entity data
+
+        Raises:
+            HTTPException 404: Entity or target revision not found
+            HTTPException 409: Base revision conflict (stale revision provided)
+
+        Notes:
+            - Looks up revision hash from target revision ID in S3
+            - Updates head revision in database to point to that S3 hash
+            - Emits change events for downstream consumers
+            - Uses base revision ID from edit_headers for conflict detection
+        """
         logger.debug(
             f"Reverting entity {entity_id} to revision {request.to_revision_id}"
         )
@@ -52,7 +76,11 @@ class EntityRevertHandler(Handler):
         logger.debug(f"New revision ID: {new_revision_id}")
 
         new_revision_data = await self._create_revision_data(
-            entity_id, target_revision_data, new_revision_id, edit_headers
+            entity_id,
+            target_revision_data,
+            new_revision_id,
+            edit_headers,
+            user_id=user_id,
         )
 
         content_hash = await self._store_revision(
@@ -60,18 +88,16 @@ class EntityRevertHandler(Handler):
         )
 
         await self._publish_change_event(
-            entity_id, new_revision_id, head_revision, edit_headers
+            entity_id, new_revision_id, head_revision, edit_headers, user_id=user_id
         )
 
         # Log activity
-        if edit_headers.x_user_id > 0:
-            activity_result = (
-                self.state.vitess_client.user_repository.log_user_activity(
-                    user_id=edit_headers.x_user_id,
-                    activity_type=UserActivityType.ENTITY_REVERT,
-                    entity_id=entity_id,
-                    revision_id=new_revision_id,
-                )
+        if user_id > 0:
+            activity_result = self.state.mysql_client.user_repository.log_user_activity(
+                user_id=user_id,
+                activity_type=UserActivityType.ENTITY_REVERT,
+                entity_id=entity_id,
+                revision_id=new_revision_id,
             )
             if not activity_result.success:
                 logger.warning(f"Failed to log user activity: {activity_result.error}")
@@ -87,7 +113,7 @@ class EntityRevertHandler(Handler):
         """Resolve internal entity ID from entity ID."""
         logger.debug("Resolving internal entity ID")
         internal_entity_id = cast(
-            int, self.state.vitess_client.id_resolver.resolve_id(entity_id)
+            int, self.state.mysql_client.id_resolver.resolve_id(entity_id)
         )
         if internal_entity_id == 0:
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)
@@ -99,7 +125,7 @@ class EntityRevertHandler(Handler):
         """Get target revision from database."""
         target_revision = cast(
             RevisionData,
-            self.state.vitess_client.revision_repository.get_revision(
+            self.state.mysql_client.revision_repository.get_revision(
                 internal_entity_id, to_revision_id
             ),
         )
@@ -121,7 +147,7 @@ class EntityRevertHandler(Handler):
 
     async def _get_head_revision(self, internal_entity_id: int) -> int:
         """Get current head revision."""
-        head_result = self.state.vitess_client.head_repository.get_head_revision(
+        head_result = self.state.mysql_client.head_repository.get_head_revision(
             internal_entity_id
         )
         if not head_result.success:
@@ -147,6 +173,7 @@ class EntityRevertHandler(Handler):
         target_data: S3RevisionData,
         new_revision_id: int,
         edit_headers: EditHeaders,
+        user_id: int = 0,
     ) -> RevisionData:
         """Create new revision data from target revision."""
         logger.debug("Creating new revision data from target revision")
@@ -193,7 +220,7 @@ class EntityRevertHandler(Handler):
             entity_type=EntityType.ITEM,
             edit=EditData(
                 type=EditType.MANUAL_UPDATE,
-                user_id=edit_headers.x_user_id,
+                user_id=user_id,
                 summary=f"Revert to revision {new_revision_id - 1}",
                 at=datetime.now(timezone.utc).isoformat(),
             ),
@@ -237,8 +264,8 @@ class EntityRevertHandler(Handler):
         logger.debug("Storing revision to S3")
         self.state.s3_client.store_revision(content_hash, s3_revision_data)
 
-        logger.debug("Inserting revision in Vitess")
-        revision_created = self.state.vitess_client.insert_revision(
+        logger.debug("Inserting revision in database")
+        revision_created = self.state.mysql_client.insert_revision(
             entity_id,
             new_revision_id,
             new_revision_data,
@@ -247,7 +274,7 @@ class EntityRevertHandler(Handler):
         if not revision_created:
             from models.rest_api.utils import raise_validation_error
 
-            current_head = self.state.vitess_client.get_head(entity_id)
+            current_head = self.state.mysql_client.get_head(entity_id)
             raise_validation_error(
                 f"Conflict: entity was modified by another edit. "
                 f"Please retry with the latest revision ID.",
@@ -262,6 +289,7 @@ class EntityRevertHandler(Handler):
         new_revision_id: int,
         head_revision: int,
         edit_headers: EditHeaders,
+        user_id: int = 0,
     ) -> None:
         """Publish entity change event."""
         if self.state.entity_change_stream_producer:
@@ -271,7 +299,7 @@ class EntityRevertHandler(Handler):
                 type=ChangeType.REVERT,
                 from_rev=head_revision,
                 at=datetime.now(timezone.utc),
-                user=str(edit_headers.x_user_id),
+                user=str(user_id),
                 summary=edit_headers.x_edit_summary,
             )
             if settings.streaming_enabled:

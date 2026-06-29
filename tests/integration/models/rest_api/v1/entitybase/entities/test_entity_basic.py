@@ -21,7 +21,7 @@ async def test_health_check() -> None:
         data = response.json()
         assert data["status"] == "ok"
         assert data["s3"] == "connected"
-        assert data["vitess"] == "connected"
+        assert data["mysql"] == "connected"
         logger.info("✓ Health check passed")
 
 

@@ -1,3 +1,3 @@
 #!/bin/bash
-source .venv/bin/activate
-python scripts/download_wikidata_entity.py "$@"
+cd "$(dirname "$0")/../.."
+poetry run python scripts/download_wikidata_entity.py "$@"

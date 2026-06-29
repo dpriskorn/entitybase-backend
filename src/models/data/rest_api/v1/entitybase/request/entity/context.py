@@ -26,6 +26,13 @@ class TermUpdateContext(BaseModel):
     value: str = Field(..., description="Term value")
 
 
+class AliasContext(BaseModel):
+    """Context for alias update operations."""
+
+    language_code: str = Field(..., description="Language code")
+    aliases: list[str] = Field(..., description="List of alias values")
+
+
 class GeneralStatisticsContext(BaseModel):
     """Context for general statistics insertion."""
 
@@ -38,6 +45,9 @@ class GeneralStatisticsContext(BaseModel):
     total_properties: int = Field(..., description="Total number of properties")
     total_sitelinks: int = Field(..., description="Total number of sitelinks")
     total_terms: int = Field(..., description="Total number of terms")
+    total_edits: int = Field(
+        ..., description="Total number of edits (entity revisions)"
+    )
     terms_per_language: Dict[str, int] = Field(
         default_factory=dict, description="Terms count per language"
     )
@@ -69,6 +79,7 @@ class ProcessEntityRevisionContext(BaseModel):
     entity_type: Any = Field(..., description="Entity type enum")
     edit_type: Any = Field(default=None, description="Edit type")
     edit_headers: Any = Field(..., description="Edit headers")
+    user_id: int = Field(default=0, description="User ID")
     is_creation: bool = Field(
         default=False, description="Whether this is a creation operation"
     )
@@ -85,6 +96,7 @@ class CreationTransactionContext(BaseModel):
     request_data: Any = Field(..., description="Prepared request data")
     request: Any = Field(..., description="Original create request")
     edit_headers: Any = Field(..., description="Edit headers")
+    user_id: int = Field(default=0, description="User ID")
     validator: Any = Field(default=None, description="Validator instance")
 
 
@@ -102,14 +114,39 @@ class RevisionContext(BaseModel):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    entity_id: str
-    request_data: Dict[str, Any]
-    entity_type: EntityType
-    edit_type: EditType | None = Field(default=None)
-    edit_summary: str = ""
-    base_revision_id: int = 0
-    is_creation: bool = False
-    vitess_client: Any
-    s3_client: Any
-    stream_producer: Any = Field(default=None)
-    validator: Any | None = Field(default=None)
+    entity_id: str = Field(..., description="Entity ID being processed")
+    request_data: Dict[str, Any] = Field(
+        ..., description="Request data dictionary for the entity operation"
+    )
+    entity_type: EntityType = Field(
+        ..., description="Type of entity (item, property, lexeme)"
+    )
+    edit_type: EditType | None = Field(
+        default=None, description="Type of edit being performed"
+    )
+    edit_summary: str = Field(
+        default="", description="Edit summary text for the revision"
+    )
+    base_revision_id: int = Field(
+        default=0, description="Base revision ID for conflict detection"
+    )
+    is_creation: bool = Field(
+        default=False, description="Whether this is a new entity creation"
+    )
+    mysql_client: Any = Field(
+        default=None, description="Mysql database client instance"
+    )
+    s3_client: Any = Field(default=None, description="S3 storage client instance")
+    stream_producer: Any = Field(
+        default=None, description="Kafka stream producer instance"
+    )
+    validator: Any | None = Field(default=None, description="Validator instance")
+    edit_headers: Any = Field(default=None, description="Edit headers")
+    user_id: int = Field(default=0, description="User ID")
+
+
+class EditOperationContext(BaseModel):
+    """Context for edit operations, bundling edit_headers and user_id."""
+
+    edit_headers: Any = Field(..., description="Edit headers")
+    user_id: int = Field(default=0, description="User ID")

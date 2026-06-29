@@ -14,6 +14,7 @@ from models.data.rest_api.v1.entitybase.request import LexemeUpdateRequest
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
 from models.data.rest_api.v1.entitybase.request.entity.context import (
+    EditOperationContext,
     EventPublishContext,
 )
 from models.data.rest_api.v1.entitybase.response import EntityResponse
@@ -37,6 +38,7 @@ class EntityUpdateLexemeMixin(BaseModel):
         entity_id: str,
         request: LexemeUpdateRequest,
         edit_headers: EditHeaders,
+        user_id: int = 0,
         validator: Any | None = None,
     ) -> EntityResponse:
         """Update a lexeme with proper transaction handling for S3 lexeme terms.
@@ -61,20 +63,20 @@ class EntityUpdateLexemeMixin(BaseModel):
                 status_code=400,
             )
 
-        if not self.state.vitess_client.entity_exists(entity_id):
+        if not self.state.mysql_client.entity_exists(entity_id):
             raise_validation_error("Entity not found", status_code=404)
 
-        if self.state.vitess_client.is_entity_deleted(entity_id):
+        if self.state.mysql_client.is_entity_deleted(entity_id):
             raise_validation_error("Entity deleted", status_code=410)
 
-        if self.state.vitess_client.is_entity_locked(entity_id):
+        if self.state.mysql_client.is_entity_locked(entity_id):
             raise_validation_error("Entity locked", status_code=423)
 
         tx = UpdateTransaction(state=self.state)
         tx.entity_id = entity_id
 
         try:
-            head_revision_id = tx.state.vitess_client.get_head(entity_id)
+            head_revision_id = tx.state.mysql_client.get_head(entity_id)
 
             request_data = request.data.model_copy()
             request_data.id = entity_id
@@ -94,12 +96,15 @@ class EntityUpdateLexemeMixin(BaseModel):
                 entity_id=entity_id,
                 request_data=prepared,
                 entity_type=EntityType(request.type),
-                edit_headers=edit_headers,
+                edit_operation_context=EditOperationContext(
+                    edit_headers=edit_headers,
+                    user_id=user_id,
+                ),
                 hash_result=hash_result,
             )
 
             edit_context = EditContext(
-                user_id=edit_headers.x_user_id,
+                user_id=user_id,
                 edit_summary=edit_headers.x_edit_summary,
             )
             event_context = EventPublishContext(
@@ -111,10 +116,10 @@ class EntityUpdateLexemeMixin(BaseModel):
             )
             await tx.publish_event(event_context, edit_context)
 
-            if edit_headers.x_user_id:
+            if user_id:
                 activity_result = await (
-                    self.state.vitess_client.user_repository.log_user_activity(
-                        user_id=edit_headers.x_user_id,
+                    self.state.mysql_client.user_repository.log_user_activity(
+                        user_id=user_id,
                         activity_type=UserActivityType.ENTITY_EDIT,
                         entity_id=entity_id,
                         revision_id=response.revision_id,

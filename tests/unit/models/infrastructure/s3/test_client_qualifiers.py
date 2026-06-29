@@ -28,8 +28,8 @@ class TestS3ClientQualifiers:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_qualifiers = MagicMock()
-            client.vitess_qualifiers.store_qualifier.return_value = MagicMock(
+            client.mysql_qualifiers = MagicMock()
+            client.mysql_qualifiers.store_qualifier.return_value = MagicMock(
                 success=True
             )
 
@@ -38,7 +38,7 @@ class TestS3ClientQualifiers:
             )
             client.store_qualifier(12345, qual_data)
 
-            client.vitess_qualifiers.store_qualifier.assert_called_once()
+            client.mysql_qualifiers.store_qualifier.assert_called_once()
 
     def test_load_qualifier_success(self):
         """Test successful qualifier load."""
@@ -56,9 +56,9 @@ class TestS3ClientQualifiers:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_qualifiers = MagicMock()
+            client.mysql_qualifiers = MagicMock()
 
-            client.vitess_qualifiers.load_qualifier.return_value = S3QualifierData(
+            client.mysql_qualifiers.load_qualifier.return_value = S3QualifierData(
                 qualifier={"id": "q1"}, hash=12345, created_at="2023-01-01T12:00:00Z"
             )
 
@@ -82,8 +82,8 @@ class TestS3ClientQualifiers:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_qualifiers = MagicMock()
-            client.vitess_qualifiers.load_qualifiers_batch.return_value = [
+            client.mysql_qualifiers = MagicMock()
+            client.mysql_qualifiers.load_qualifiers_batch.return_value = [
                 None,
                 {"id": "q2"},
             ]
@@ -93,7 +93,7 @@ class TestS3ClientQualifiers:
             assert len(result) == 2
 
     def test_store_qualifier_not_configured(self):
-        """Test store_qualifier raises error when Vitess not configured."""
+        """Test store_qualifier raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -130,8 +130,8 @@ class TestS3ClientQualifiers:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_qualifiers = MagicMock()
-            client.vitess_qualifiers.store_qualifier.return_value = MagicMock(
+            client.mysql_qualifiers = MagicMock()
+            client.mysql_qualifiers.store_qualifier.return_value = MagicMock(
                 success=False, error="Database error"
             )
 
@@ -142,7 +142,7 @@ class TestS3ClientQualifiers:
                 client.store_qualifier(12345, qual_data)
 
     def test_load_qualifier_not_configured(self):
-        """Test load_qualifier raises error when Vitess not configured."""
+        """Test load_qualifier raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -176,14 +176,14 @@ class TestS3ClientQualifiers:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_qualifiers = MagicMock()
-            client.vitess_qualifiers.load_qualifier.return_value = None
+            client.mysql_qualifiers = MagicMock()
+            client.mysql_qualifiers.load_qualifier.return_value = None
 
             with pytest.raises(Exception):
                 client.load_qualifier(12345)
 
     def test_load_qualifiers_batch_not_configured(self):
-        """Test load_qualifiers_batch raises error when Vitess not configured."""
+        """Test load_qualifiers_batch raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",

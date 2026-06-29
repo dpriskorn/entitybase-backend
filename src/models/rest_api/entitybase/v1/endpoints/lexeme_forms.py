@@ -2,7 +2,7 @@
 
 import logging
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 from models.data.rest_api.v1.entitybase.request import (
     AddStatementRequest,
@@ -28,6 +28,8 @@ from models.rest_api.entitybase.v1.endpoints.lexeme_utils import (
 )
 
 from models.data.rest_api.v1.entitybase.request.headers import EditHeadersType
+from models.rest_api.auth.dependencies import auth_to_edit_headers, verify_auth
+from models.rest_api.auth.models import AuthenticatedRequest
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +57,7 @@ async def create_lexeme_form(
     lexeme_id: str,
     request: FormCreateRequest,
     req: Request,
-    headers: EditHeadersType,
+    auth: AuthenticatedRequest = Depends(verify_auth),
 ) -> EntityResponse:
     """Create a new form for a lexeme."""
     logger.debug(f"Creating form for lexeme {lexeme_id}")
@@ -98,11 +100,13 @@ async def create_lexeme_form(
         id=lexeme_id, type="lexeme", **current_entity.entity_data.revision
     )
 
+    headers = auth_to_edit_headers(auth)
     return await update_handler.update_lexeme(
         lexeme_id,
         update_request,
         edit_headers=headers,
         validator=validator,
+        user_id=auth.user.user_id,
     )
 
 
@@ -169,7 +173,7 @@ async def add_form_representation(
     langcode: str,
     request: TermUpdateRequest,
     req: Request,
-    headers: EditHeadersType,
+    auth: AuthenticatedRequest = Depends(verify_auth),
 ) -> TermHashResponse:
     """Add a new form representation for language."""
     logger.debug(f"Adding representation for form {form_id}, language {langcode}")
@@ -216,11 +220,13 @@ async def add_form_representation(
         id=lexeme_id, type="lexeme", **current_entity.entity_data.revision
     )
 
+    headers = auth_to_edit_headers(auth)
     await update_handler.update_lexeme(
         lexeme_id,
         update_request,
         edit_headers=headers,
         validator=validator,
+        user_id=auth.user.user_id,
     )
 
     hash_value = MetadataExtractor.hash_string(request.value)
@@ -292,6 +298,7 @@ async def update_form_representation(
         update_request,
         edit_headers=headers,
         validator=validator,
+        user_id=0,
     )
 
     hash_value = MetadataExtractor.hash_string(request.value)
@@ -337,6 +344,7 @@ async def delete_form(
         update_request,
         edit_headers=headers,
         validator=validator,
+        user_id=0,
     )
 
 
@@ -391,6 +399,7 @@ async def delete_form_representation(
         update_request,
         edit_headers=headers,
         validator=validator,
+        user_id=0,
     )
 
     return DeleteResponse(success=True)
@@ -404,7 +413,7 @@ async def add_form_statement(
     form_id: str,
     request: AddStatementRequest,
     req: Request,
-    headers: EditHeadersType,
+    auth: AuthenticatedRequest = Depends(verify_auth),
 ) -> EntityResponse:
     """Add a statement to a form."""
     logger.debug(f"Adding statement to form {form_id}")
@@ -446,9 +455,11 @@ async def add_form_statement(
         id=lexeme_id, type="lexeme", **current_entity.entity_data.revision
     )
 
+    headers = auth_to_edit_headers(auth)
     return await update_handler.update_lexeme(
         lexeme_id,
         update_request,
         edit_headers=headers,
         validator=validator,
+        user_id=auth.user.user_id,
     )

@@ -14,15 +14,15 @@ class TestUserActivityHandler:
     """Unit tests for UserActivityHandler"""
 
     @pytest.fixture
-    def mock_vitess_client(self) -> MagicMock:
-        """Mock Vitess client"""
+    def mock_mysql_client(self) -> MagicMock:
+        """Mock Sql client"""
         client = MagicMock()
         client.user_repository = MagicMock()
         return client
 
     @pytest.fixture
-    def handler(self, mock_vitess_client: MagicMock) -> UserActivityHandler:
+    def handler(self, mock_mysql_client: MagicMock) -> UserActivityHandler:
         """Create handler instance"""
         state = MagicMock()
-        state.vitess_client = mock_vitess_client
+        state.mysql_client = mock_mysql_client
         return UserActivityHandler(state=state)

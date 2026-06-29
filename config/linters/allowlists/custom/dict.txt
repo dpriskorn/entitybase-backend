@@ -2,13 +2,17 @@
 # Format: file_path:line_number
 # These functions are allowed to return dict types
 
-src/models/infrastructure/vitess/storage/base.py:46
-src/models/infrastructure/vitess/storage/base.py:65
+src/models/infrastructure/mysql/storage/base.py:46
+src/models/infrastructure/mysql/storage/base.py:65
 src/models/rest_api/entitybase/v1/endpoints/debug.py:14
 src/models/rest_api/entitybase/v1/endpoints/debug.py:43
 src/models/rest_api/main.py:209
+src/models/rest_api/main.py:220
 src/models/rest_api/main.py:228
 src/models/rest_api/main.py:231
+src/models/rest_api/main.py:249
+src/models/rest_api/main.py:252
+src/models/rest_api/main.py:224
 src/models/rest_api/entitybase/v1/handlers/entity/revert.py:83
 src/models/rest_api/entitybase/v1/handlers/entity/revert.py:91
 src/models/internal_representation/statement_backlink_extractor.py:13
@@ -16,3 +20,10 @@ src/models/json_parser/entity_parser.py:77
 src/models/rest_api/entitybase/v1/endpoints/lexeme_utils.py:69
 src/models/rest_api/entitybase/v1/endpoints/lexeme_utils.py:141
 src/models/rest_api/entitybase/v1/routes/resolve.py:196
+src/models/rest_api/main.py:296
+src/models/rest_api/main.py:300
+src/models/rest_api/entitybase/v1/services/status_service.py:260
+src/models/rest_api/main.py:316
+src/models/rest_api/main.py:323
+src/models/rest_api/main.py:332
+src/models/rest_api/main.py:365

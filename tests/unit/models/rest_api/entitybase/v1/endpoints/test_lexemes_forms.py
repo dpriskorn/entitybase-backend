@@ -17,7 +17,7 @@ class TestFormsAndSensesEndpoints:
             get_lexeme_forms,
         )
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
 
         mock_revision_data = S3RevisionData(
             schema="1.0.0",
@@ -56,7 +56,7 @@ class TestFormsAndSensesEndpoints:
             get_lexeme_senses,
         )
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
 
         mock_revision_data = S3RevisionData(
             schema="1.0.0",
@@ -91,7 +91,7 @@ class TestFormsAndSensesEndpoints:
     async def test_get_form_by_id_full_format(self, mock_entity_read_state):
         from models.rest_api.entitybase.v1.endpoints.lexeme_forms import get_form_by_id
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
 
         mock_revision_data = S3RevisionData(
             schema="1.0.0",
@@ -123,7 +123,7 @@ class TestFormsAndSensesEndpoints:
     async def test_get_form_by_id_not_found(self, mock_entity_read_state):
         from models.rest_api.entitybase.v1.endpoints.lexeme_forms import get_form_by_id
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
 
         mock_revision_data = S3RevisionData(
             schema="1.0.0",
@@ -147,7 +147,7 @@ class TestFormsAndSensesEndpoints:
             get_sense_by_id,
         )
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
 
         mock_revision_data = S3RevisionData(
             schema="1.0.0",
@@ -179,7 +179,7 @@ class TestFormsAndSensesEndpoints:
             get_sense_by_id,
         )
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
 
         mock_revision_data = S3RevisionData(
             schema="1.0.0",
@@ -206,7 +206,7 @@ class TestFormsAndSensesEndpoints:
         )
         from models.data.rest_api.v1.entitybase.request import TermUpdateRequest
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
 
         mock_revision_data = S3RevisionData(
             schema="1.0.0",
@@ -250,7 +250,7 @@ class TestFormsAndSensesEndpoints:
         )
         from models.data.rest_api.v1.entitybase.request import TermUpdateRequest
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
 
         mock_revision_data = S3RevisionData(
             schema="1.0.0",

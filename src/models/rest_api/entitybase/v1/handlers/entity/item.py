@@ -11,6 +11,7 @@ from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
 from models.data.rest_api.v1.entitybase.request.entity.context import (
+    EditOperationContext,
     EventPublishContext,
     CreationTransactionContext,
 )
@@ -30,7 +31,7 @@ class ItemCreateHandler(EntityCreateHandler):
         """Resolve or auto-assign entity ID."""
         entity_id = request.id
         if entity_id:
-            exists = self.state.vitess_client.id_resolver.entity_exists(entity_id)
+            exists = self.state.mysql_client.id_resolver.entity_exists(entity_id)
             logger.debug(f"🔍 HANDLER: Entity exists check: {exists}")
             if exists:
                 logger.error(f"🔍 HANDLER: Entity {entity_id} already exists")
@@ -74,13 +75,16 @@ class ItemCreateHandler(EntityCreateHandler):
             entity_id=ctx.entity_id,
             request_data=ctx.request_data,
             entity_type=EntityType.ITEM,
-            edit_headers=ctx.edit_headers,
+            edit_operation_context=EditOperationContext(
+                edit_headers=ctx.edit_headers,
+                user_id=ctx.user_id,
+            ),
             hash_result=hash_result,
         )
         logger.debug(f"🔍 HANDLER: Revision created: {response}")
 
         edit_context = EditContext(
-            user_id=ctx.edit_headers.x_user_id,
+            user_id=ctx.user_id,
             edit_summary=ctx.edit_headers.x_edit_summary,
         )
         event_context = EventPublishContext(
@@ -91,7 +95,6 @@ class ItemCreateHandler(EntityCreateHandler):
             changed_at=datetime.now(),
         )
         await ctx.tx.publish_event(event_context, edit_context)
-        logger.debug("🔍 HANDLER: Event published successfully")
 
         ctx.tx.commit()
         logger.debug("🔍 HANDLER: Transaction committed successfully")
@@ -102,6 +105,7 @@ class ItemCreateHandler(EntityCreateHandler):
         self,
         request: EntityCreateRequest,
         edit_headers: EditHeaders,
+        user_id: int = 0,
         validator: Any | None = None,
         auto_assign_id: bool = False,
     ) -> EntityResponse:
@@ -125,6 +129,7 @@ class ItemCreateHandler(EntityCreateHandler):
                 request_data=request_data,
                 request=request,
                 edit_headers=edit_headers,
+                user_id=user_id,
                 validator=validator,
             )
             response = await self._execute_creation_transaction(tx_ctx)

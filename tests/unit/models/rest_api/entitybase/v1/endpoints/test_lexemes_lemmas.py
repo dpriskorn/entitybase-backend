@@ -15,7 +15,7 @@ class TestLemmasEndpoints:
     async def test_get_lexeme_lemmas(self, mock_entity_read_state):
         from models.rest_api.entitybase.v1.endpoints.lexemes import get_lexeme_lemmas
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
 
         mock_revision_data = S3RevisionData(
             schema="1.0.0",
@@ -46,7 +46,7 @@ class TestLemmasEndpoints:
     async def test_get_lexeme_lemma_by_language(self, mock_entity_read_state):
         from models.rest_api.entitybase.v1.endpoints.lexemes import get_lexeme_lemma
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
 
         mock_revision_data = S3RevisionData(
             schema="1.0.0",
@@ -71,7 +71,7 @@ class TestLemmasEndpoints:
     async def test_get_lexeme_lemma_not_found(self, mock_entity_read_state):
         from models.rest_api.entitybase.v1.endpoints.lexemes import get_lexeme_lemma
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
 
         mock_revision_data = S3RevisionData(
             schema="1.0.0",
@@ -98,7 +98,7 @@ class TestLemmasEndpoints:
     async def test_delete_lexeme_lemma_last_lemma_fails(self, mock_entity_read_state):
         from models.rest_api.entitybase.v1.endpoints.lexemes import delete_lexeme_lemma
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
 
         mock_revision_data = S3RevisionData(
             schema="1.0.0",
@@ -134,7 +134,7 @@ class TestFormRepresentationUpdates:
     async def test_update_form_representation(self, mock_entity_read_state):
         from models.data.infrastructure.s3 import S3RevisionData
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
         mock_update_handler = AsyncMock()
         mock_entity = Mock()
         mock_entity.data = {
@@ -195,7 +195,7 @@ class TestFormRepresentationUpdates:
     ):
         from models.data.infrastructure.s3 import S3RevisionData
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
         mock_entity = Mock()
         mock_entity.data = {
             "forms": [
@@ -253,7 +253,7 @@ class TestFormRepresentationUpdates:
             delete_form_representation,
         )
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
 
         mock_revision_data = S3RevisionData(
             schema="1.0.0",
@@ -287,7 +287,7 @@ class TestFormRepresentationUpdates:
             delete_sense_gloss,
         )
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
         mock_entity = Mock()
         mock_entity.id = "L42"
         mock_entity.data = {
@@ -335,7 +335,7 @@ class TestFormRepresentationUpdates:
             delete_sense_gloss,
         )
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
 
         mock_revision_data = S3RevisionData(
             schema="1.0.0",
@@ -367,7 +367,7 @@ class TestFormRepresentationUpdates:
             delete_sense_gloss,
         )
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
         mock_entity = Mock()
         mock_entity.id = "L42"
         mock_entity.data = {
@@ -418,7 +418,7 @@ class TestFormRepresentationUpdates:
             add_sense_gloss,
         )
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
         mock_entity = Mock()
         mock_entity.id = "L42"
         mock_entity.data = {
@@ -463,7 +463,7 @@ class TestFormRepresentationUpdates:
                 "de",
                 TermUpdateRequest(language="de", value="Antwort"),
                 mock_req,
-                headers=Mock(x_user_id=123, x_edit_summary="add gloss"),
+                auth=Mock(edit_summary="add gloss", base_revision_id=0),
             )
 
         assert result.hash is not None
@@ -476,7 +476,7 @@ class TestFormRepresentationUpdates:
             add_sense_gloss,
         )
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
         mock_entity = Mock()
         mock_entity.id = "L42"
         mock_entity.data = {
@@ -516,7 +516,7 @@ class TestFormRepresentationUpdates:
                 "en",
                 TermUpdateRequest(language="en", value="reply"),
                 mock_req,
-                headers=Mock(x_user_id=123, x_edit_summary="add gloss"),
+                auth=Mock(edit_summary="add gloss", base_revision_id=0),
             )
 
         assert exc.value.status_code == 409
@@ -527,7 +527,7 @@ class TestFormRepresentationUpdates:
         from models.data.infrastructure.s3 import S3RevisionData
         from models.rest_api.entitybase.v1.endpoints.lexeme_forms import delete_form
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
 
         mock_revision_data = S3RevisionData(
             schema="1.0.0",
@@ -556,7 +556,7 @@ class TestFormRepresentationUpdates:
         from models.data.infrastructure.s3 import S3RevisionData
         from models.rest_api.entitybase.v1.endpoints.lexeme_senses import delete_sense
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
 
         mock_revision_data = S3RevisionData(
             schema="1.0.0",

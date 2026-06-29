@@ -4,6 +4,8 @@ import unittest
 from typing import Any
 
 from models.internal_representation.reference_hasher import ReferenceHasher
+from models.internal_representation.references import Reference, ReferenceValue
+from models.internal_representation.values.string_value import StringValue
 
 
 class TestReferenceHasher(unittest.TestCase):
@@ -50,6 +52,19 @@ class TestReferenceHasher(unittest.TestCase):
         hash1 = ReferenceHasher.compute_hash(ref1)
         hash2 = ReferenceHasher.compute_hash(ref2)
         self.assertNotEqual(hash1, hash2)
+
+    def test_compute_hash_from_reference_object(self) -> None:
+        """Test computing hash from a Reference object (not dict)."""
+        ref_value = ReferenceValue(
+            property="P854",
+            value=StringValue(value="http://example.com"),
+        )
+        reference = Reference(hash="abc123", snaks=[ref_value])
+
+        hash_value = ReferenceHasher.compute_hash(reference)
+
+        self.assertIsInstance(hash_value, int)
+        self.assertNotEqual(hash_value, 0)
 
 
 if __name__ == "__main__":

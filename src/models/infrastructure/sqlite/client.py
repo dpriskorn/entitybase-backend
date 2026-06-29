@@ -12,15 +12,15 @@ from models.infrastructure.sqlite.connection import (
     SqliteConnectionManager,
     SqliteCursorContextManager,
 )
-from models.infrastructure.vitess.id_resolver import IdResolver
-from models.infrastructure.vitess.repositories.backlink import BacklinkRecord
+from models.infrastructure.mysql.id_resolver import IdResolver
+from models.infrastructure.mysql.repositories.backlink import BacklinkRecord
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
 
 
 class SqliteClient(Client):
-    """SQLite database client with the same interface as VitessClient."""
+    """SQLite database client with the same interface as MysqlClient."""
 
     connection_manager: SqliteConnectionManager | None = Field(
         default=None, init=False, exclude=True
@@ -33,7 +33,7 @@ class SqliteClient(Client):
         logger.info("=== SqliteClient.model_post_init() START ===")
         self.connection_manager = SqliteConnectionManager(config=self.config)
         self.connection_manager.connect()
-        self.id_resolver = IdResolver(vitess_client=self)
+        self.id_resolver = IdResolver(mysql_client=self)
         logger.info("=== SqliteClient.model_post_init() END ===")
 
     @property
@@ -60,88 +60,88 @@ class SqliteClient(Client):
     @property
     def entity_repository(self) -> Any:
         """Get entity repository."""
-        from models.infrastructure.vitess.repositories.entity import (
+        from models.infrastructure.mysql.repositories.entity import (
             EntityRepository,
         )
 
-        return EntityRepository(vitess_client=self)
+        return EntityRepository(mysql_client=self)
 
     @property
     def revision_repository(self) -> Any:
         """Get revision repository."""
-        from models.infrastructure.vitess.repositories.revision import (
+        from models.infrastructure.mysql.repositories.revision import (
             RevisionRepository,
         )
 
-        return RevisionRepository(vitess_client=self)
+        return RevisionRepository(mysql_client=self)
 
     @property
     def head_repository(self) -> Any:
         """Get head repository."""
-        from models.infrastructure.vitess.repositories.head import HeadRepository
+        from models.infrastructure.mysql.repositories.head import HeadRepository
 
-        return HeadRepository(vitess_client=self)
+        return HeadRepository(mysql_client=self)
 
     @property
     def user_repository(self) -> Any:
         """Get user repository."""
-        from models.infrastructure.vitess.repositories.user import UserRepository
+        from models.infrastructure.mysql.repositories.user import UserRepository
 
-        return UserRepository(vitess_client=self)
+        return UserRepository(mysql_client=self)
 
     @property
     def watchlist_repository(self) -> Any:
         """Get watchlist repository."""
-        from models.infrastructure.vitess.repositories.watchlist import (
+        from models.infrastructure.mysql.repositories.watchlist import (
             WatchlistRepository,
         )
 
-        return WatchlistRepository(vitess_client=self)
+        return WatchlistRepository(mysql_client=self)
 
     @property
     def endorsement_repository(self) -> Any:
         """Get endorsement repository."""
-        from models.infrastructure.vitess.repositories.endorsement import (
+        from models.infrastructure.mysql.repositories.endorsement import (
             EndorsementRepository,
         )
 
-        return EndorsementRepository(vitess_client=self)
+        return EndorsementRepository(mysql_client=self)
 
     @property
     def thanks_repository(self) -> Any:
         """Get thanks repository."""
-        from models.infrastructure.vitess.repositories.thanks import (
+        from models.infrastructure.mysql.repositories.thanks import (
             ThanksRepository,
         )
 
-        return ThanksRepository(vitess_client=self)
+        return ThanksRepository(mysql_client=self)
 
     @property
     def redirect_repository(self) -> Any:
         """Get redirect repository."""
-        from models.infrastructure.vitess.repositories.redirect import (
+        from models.infrastructure.mysql.repositories.redirect import (
             RedirectRepository,
         )
 
-        return RedirectRepository(vitess_client=self)
+        return RedirectRepository(mysql_client=self)
 
     @property
     def statement_repository(self) -> Any:
         """Get statement repository."""
-        from models.infrastructure.vitess.repositories.statement import (
+        from models.infrastructure.mysql.repositories.statement import (
             StatementRepository,
         )
 
-        return StatementRepository(vitess_client=self)
+        return StatementRepository(mysql_client=self)
 
     @property
     def backlink_repository(self) -> Any:
         """Get backlink repository."""
-        from models.infrastructure.vitess.repositories.backlink import (
+        from models.infrastructure.mysql.repositories.backlink import (
             BacklinkRepository,
         )
 
-        return BacklinkRepository(vitess_client=self)
+        return BacklinkRepository(mysql_client=self)
 
     def get_backlinks(
         self, referenced_internal_id: int, limit: int = 100, offset: int = 0
@@ -182,8 +182,17 @@ class SqliteClient(Client):
             SqliteSchemaRepository,
         )
 
-        schema_repository = SqliteSchemaRepository(vitess_client=self)
+        schema_repository = SqliteSchemaRepository(mysql_client=self)
         schema_repository.create_tables()
+
+    def run_migrations(self) -> None:
+        """Run SQLite database migrations."""
+        from models.infrastructure.sqlite.repositories.schema import (
+            SqliteSchemaRepository,
+        )
+
+        schema_repository = SqliteSchemaRepository(mysql_client=self)
+        schema_repository.run_migrations()
 
     def entity_exists(self, entity_id: str) -> bool:
         return self.id_resolver.entity_exists(entity_id)  # type: ignore[union-attr,no-any-return]
@@ -273,9 +282,7 @@ class SqliteClient(Client):
         """Revert a redirect by clearing the redirect target."""
         self.set_redirect_target(entity_id=entity_id, redirects_to_entity_id="")
 
-    def get_orphaned_statements(
-        self, older_than_days: int, limit: int
-    ) -> list[int]:
+    def get_orphaned_statements(self, older_than_days: int, limit: int) -> list[int]:
         """Get orphaned statement content hashes."""
         from models.data.common import OperationResult
 

@@ -9,30 +9,24 @@ from typing import Any
 import uvicorn
 from fastapi import FastAPI
 
-
 from models.data.rest_api.v1.entitybase.response import WorkerHealthCheckResponse
 from models.data.rest_api.v1.entitybase.response.id_response import IdResponse
 from models.rest_api.entitybase.v1.services.enumeration_service import (
     EnumerationService,
 )
-from models.workers.notification_cleanup.main import VitessWorker
+from models.workers.notification_cleanup.main import MysqlWorker
 
 logger = logging.getLogger(__name__)
 
 
-class IdGeneratorWorker(VitessWorker):
-    """Asynchronous worker service for generating Wikibase entity IDs using range-based allocation.
-
-    This worker reserves blocks (ranges) of IDs from the database to minimize contention
-    during high-volume entity creation. It monitors range status, handles graceful shutdown,
-    and provides health checks for monitoring.
-
-    The worker initializes Vitess and Enumeration services, then runs a continuous loop
-    checking ID range availability. IDs are allocated from pre-reserved ranges to ensure
-    efficient, low-latency ID generation.
-    """
+class IdGeneratorWorker(MysqlWorker):
+    """Generates Wikibase entity IDs using range-based allocation."""
 
     enumeration_service: Any = None
+
+    def get_enabled_setting(self) -> bool:
+        """Check if the ID generation worker is enabled."""
+        return True
 
     def model_post_init(self, context: Any) -> None:
         # Setup signal handlers for graceful shutdown
@@ -55,8 +49,8 @@ class IdGeneratorWorker(VitessWorker):
     async def start(self) -> None:
         """Start the ID generation worker and begin the main processing loop.
 
-        Initializes VitessClient and EnumerationService with configuration from
-        environment variables (VITESS_HOST, VITESS_PORT, etc.). Runs a continuous
+        Initializes MysqlClient and EnumerationService with configuration from
+        environment variables (MYSQL_HOST, MYSQL_PORT, etc.). Runs a continuous
         loop monitoring ID range status every 60 seconds.
 
         Raises:
@@ -68,22 +62,22 @@ class IdGeneratorWorker(VitessWorker):
         logger.info(f"Starting ID Generator Worker {self.worker_id}")
 
         try:
-            # Initialize Vitess client with default config
-            from models.data.config.vitess import VitessConfig
-            from models.infrastructure.vitess.client import VitessClient
+            # Initialize database client with default config
+            from models.data.config.mysql import MysqlConfig
+            from models.infrastructure.mysql.client import MysqlClient
 
-            vitess_config = VitessConfig(
-                host=os.getenv("VITESS_HOST", "vitess"),
-                port=int(os.getenv("VITESS_PORT", "15309")),
-                database=os.getenv("VITESS_DATABASE", "page"),
-                user=os.getenv("VITESS_USER", "root"),
-                password=os.getenv("VITESS_PASSWORD", ""),
+            mysql_config = MysqlConfig(
+                host=os.getenv("MYSQL_HOST", "mysql"),
+                port=int(os.getenv("MYSQL_PORT", "15309")),
+                database=os.getenv("MYSQL_DATABASE", "page"),
+                user=os.getenv("MYSQL_USER", "root"),
+                password=os.getenv("MYSQL_PASSWORD", ""),
             )
-            self.vitess_client = VitessClient(config=vitess_config)
+            self.db_client = MysqlClient(config=mysql_config)
 
             # Initialize enumeration service
             self.enumeration_service = EnumerationService(
-                worker_id=self.worker_id, vitess_client=self.vitess_client
+                worker_id=self.worker_id, mysql_client=self.db_client
             )
 
             logger.info("ID Generator Worker initialized successfully")
@@ -120,7 +114,7 @@ class IdGeneratorWorker(VitessWorker):
         """
         logger.info("Shutting down ID Generator Worker")
 
-        if self.vitess_client:
+        if self.db_client:
             # Close database connections
             pass
 
@@ -177,7 +171,34 @@ async def run_worker(worker: IdGeneratorWorker) -> None:
 
 async def run_server(app: FastAPI) -> None:
     """Run the FastAPI server."""
-    config = uvicorn.Config(app, host="0.0.0.0", port=8001, loop="asyncio")
+    log_level = os.getenv("LOG_LEVEL", "INFO").upper()
+    logging_config = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "default": {
+                "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+                "datefmt": "%Y-%m-%d %H:%M:%S",
+            },
+        },
+        "handlers": {
+            "default": {
+                "class": "logging.StreamHandler",
+                "formatter": "default",
+            },
+        },
+        "root": {
+            "handlers": ["default"],
+            "level": log_level,
+        },
+    }
+    config = uvicorn.Config(
+        app,
+        host="0.0.0.0",
+        port=8001,
+        loop="asyncio",
+        log_config=logging_config,
+    )
     server = uvicorn.Server(config)
     await server.serve()
 
@@ -190,7 +211,7 @@ async def main() -> None:
 
     Environment Variables:
         WORKER_ID: Unique worker identifier.
-        VITESS_HOST, VITESS_PORT, VITESS_DATABASE, VITESS_USER, VITESS_PASSWORD:
+        MYSQL_HOST, MYSQL_PORT, MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD:
         Database connection parameters.
         LOG_LEVEL: Logging level (DEBUG, INFO, WARNING, ERROR). Defaults to INFO.
     """
@@ -198,6 +219,7 @@ async def main() -> None:
     logging.basicConfig(
         level=getattr(logging, log_level.upper(), logging.INFO),
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
     )
 
     # Create worker

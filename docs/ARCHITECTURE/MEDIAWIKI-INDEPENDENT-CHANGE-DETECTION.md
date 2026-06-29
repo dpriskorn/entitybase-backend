@@ -284,10 +284,10 @@ def format_json_diff(diff):
 | Option | Description | Default |
 |---------|-------------|---------|
 | `vitess_host` | Vitess VTGate host | localhost:15991 |
-| `s3_bucket` | S3 bucket for snapshots | wikibase-revisions |
+| `s3_bucket` | S3 bucket for snapshots | revisions |
 | `poll_interval` | How often to poll entity_head for changes | 300s (5 minutes) |
 | `batch_size` | Entities to process in parallel | 1000 |
-| `kafka_topic` | Topic to emit RDF changes | wikibase.rdf_change |
+| `kafka_topic` | Topic to emit RDF changes | entitybase.rdf_change |
 | `change_detection_enabled` | Enable/disable change detection | true |
 | `use_mediawiki_events` | Consume MediaWiki events directly | false |
 | `checkpoint_file` | File to store processing checkpoint | checkpoint.json |

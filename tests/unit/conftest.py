@@ -14,13 +14,13 @@ os.environ["TEST_DATA_DIR"] = str(Path(__file__).parent.parent.parent / "test_da
 
 # Mock S3 and DB before importing app to prevent connection attempts
 with (
-    patch("boto3.client") as mock_boto_client,
+    patch("minio.Minio") as mock_minio_client,
     patch("pymysql.connect") as mock_db_connect,
 ):
     mock_client = MagicMock()
-    mock_boto_client.return_value = mock_client
-    mock_client.head_bucket.return_value = None  # Assume bucket exists
-    mock_client.create_bucket.return_value = None
+    mock_minio_client.return_value = mock_client
+    mock_client.bucket_exists.return_value = True  # Assume bucket exists
+    mock_client.make_bucket.return_value = None
     mock_conn = MagicMock()
     mock_db_connect.return_value = mock_conn
     from models.rest_api.main import app
@@ -81,7 +81,7 @@ def mock_aiokafka():
 def mock_pymysql_connect():
     """Mock pymysql.connect to prevent real database connections in unit tests.
 
-    This patch ensures that VitessClient and related infrastructure components
+    This patch ensures that MysqlClient and related infrastructure components
     don't attempt to connect to a real MySQL database during unit testing.
     Integration tests should use the real database connection.
     """
@@ -96,14 +96,14 @@ def mock_pymysql_connect():
 
 
 @pytest.fixture
-def mock_vitess_connection_manager():
-    """Mock VitessConnectionManager to prevent pool operations.
+def mock_mysql_connection_manager():
+    """Mock SqlConnectionManager to prevent pool operations.
 
     This fixture patches the connect and acquire methods to return a mock connection,
     preventing the connection manager from attempting real database connections
     or pool operations during unit tests.
     """
-    from models.infrastructure.vitess.connection import VitessConnectionManager
+    from models.infrastructure.mysql.connection import SqlConnectionManager
 
     mock_connection = MagicMock()
     mock_cursor = MagicMock()
@@ -115,9 +115,9 @@ def mock_vitess_connection_manager():
     mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
     mock_cursor.__exit__ = MagicMock(return_value=None)
 
-    with patch.object(VitessConnectionManager, "connect", return_value=mock_connection):
+    with patch.object(SqlConnectionManager, "connect", return_value=mock_connection):
         with patch.object(
-            VitessConnectionManager, "acquire", return_value=mock_connection
+            SqlConnectionManager, "acquire", return_value=mock_connection
         ):
             yield mock_connection, mock_cursor
 

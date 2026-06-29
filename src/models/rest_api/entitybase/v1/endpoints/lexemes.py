@@ -2,7 +2,7 @@
 
 import logging
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 from models.data.rest_api.v1.entitybase.request import (
     EntityCreateRequest,
@@ -33,6 +33,8 @@ from models.rest_api.entitybase.v1.endpoints.lexeme_utils import (
 )
 
 from models.data.rest_api.v1.entitybase.request.headers import EditHeadersType
+from models.rest_api.auth.dependencies import auth_to_edit_headers, verify_auth
+from models.rest_api.auth.models import AuthenticatedRequest
 from models.rest_api.utils import validate_qid
 
 logger = logging.getLogger(__name__)
@@ -50,16 +52,18 @@ def _validate_qid(value: str, field_name: str) -> str:
 async def create_lexeme(
     request: EntityCreateRequest,
     req: Request,
-    headers: EditHeadersType,
+    auth: AuthenticatedRequest = Depends(verify_auth),
 ) -> EntityResponse:
     """Create a new lexeme entity."""
     state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator
     enumeration_service = req.app.state.state_handler.enumeration_service
     handler = LexemeCreateHandler(enumeration_service=enumeration_service, state=state)
+    headers = auth_to_edit_headers(auth)
     return await handler.create_entity(
         request=request,
         edit_headers=headers,
+        user_id=auth.user.user_id,
         validator=validator,
     )
 
@@ -109,6 +113,7 @@ async def update_lexeme_language(
         update_request,
         edit_headers=headers,
         validator=validator,
+        user_id=0,
     )
 
 
@@ -165,6 +170,7 @@ async def update_lexeme_lexicalcategory(
         update_request,
         edit_headers=headers,
         validator=validator,
+        user_id=0,
     )
 
 
@@ -216,7 +222,7 @@ async def add_lexeme_lemma(
     langcode: str,
     request: TermUpdateRequest,
     req: Request,
-    headers: EditHeadersType,
+    auth: AuthenticatedRequest = Depends(verify_auth),
 ) -> TermHashResponse:
     """Add a new lemma for language."""
     logger.debug(f"Adding lemma for lexeme {lexeme_id}, language {langcode}")
@@ -249,11 +255,13 @@ async def add_lexeme_lemma(
         id=lexeme_id, type="lexeme", **current_entity.entity_data.revision
     )
 
+    headers = auth_to_edit_headers(auth)
     await update_handler.update_lexeme(
         lexeme_id,
         update_request,
         edit_headers=headers,
         validator=validator,
+        user_id=auth.user.user_id,
     )
 
     hash_value = MetadataExtractor.hash_string(request.value)
@@ -304,6 +312,7 @@ async def update_lexeme_lemma(
         update_request,
         edit_headers=headers,
         validator=validator,
+        user_id=0,
     )
 
     hash_value = MetadataExtractor.hash_string(request.value)
@@ -355,6 +364,7 @@ async def delete_lexeme_lemma(
         update_request,
         edit_headers=headers,
         validator=validator,
+        user_id=0,
     )
 
     return DeleteResponse(success=True)

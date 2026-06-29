@@ -3,7 +3,7 @@
 import logging
 from typing import Any
 
-from models.infrastructure.vitess.repository import Repository
+from models.infrastructure.mysql.repository import Repository
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -24,12 +24,12 @@ class SqliteSchemaRepository(Repository):
     def create_tables(self) -> None:  # noqa: PLR0915
         """Create all required database tables using SQLite-compatible DDL."""
         logger.debug("Creating SQLite database tables")
-        if not self.vitess_client:
+        if not self.mysql_client:
             raise_validation_error(message="Database client not initialized")
-        if not self.vitess_client.connection_manager:
+        if not self.mysql_client.connection_manager:
             raise_validation_error(message="Connection manager not initialized")
 
-        with self.vitess_client.cursor as cursor:
+        with self.mysql_client.cursor as cursor:
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS entity_id_mapping (
                     entity_id TEXT PRIMARY KEY,
@@ -154,6 +154,7 @@ class SqliteSchemaRepository(Repository):
                     created_at TEXT DEFAULT (datetime('now'))
                 )
             """)
+            logger.info("Created entity and backlink tables")
 
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS user_daily_stats (
@@ -175,11 +176,28 @@ class SqliteSchemaRepository(Repository):
                     total_properties INTEGER NOT NULL,
                     total_sitelinks INTEGER NOT NULL,
                     total_terms INTEGER NOT NULL,
+                    total_edits INTEGER NOT NULL,
                     terms_per_language TEXT NOT NULL,
                     terms_by_type TEXT NOT NULL,
                     created_at TEXT DEFAULT (datetime('now'))
                 )
             """)
+
+    def run_migrations(self) -> None:
+        """Run migrations for existing tables to add missing columns."""
+        with self.mysql_client.cursor as cursor:
+            cursor.execute("PRAGMA table_info(general_daily_stats)")
+            columns = [row[1] for row in cursor.fetchall()]
+            if "total_edits" not in columns:
+                logger.info(
+                    "Running migration: adding total_edits column to general_daily_stats"
+                )
+                cursor.execute(
+                    """
+                    ALTER TABLE general_daily_stats
+                    ADD COLUMN total_edits INTEGER NOT NULL DEFAULT 0
+                    """
+                )
 
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS metadata_content (
@@ -266,7 +284,10 @@ class SqliteSchemaRepository(Repository):
 
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS users (
-                    user_id INTEGER PRIMARY KEY,
+                    user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT UNIQUE NOT NULL,
+                    password_hash TEXT NOT NULL,
+                    role TEXT NOT NULL DEFAULT 'default',
                     created_at TEXT DEFAULT (datetime('now')),
                     preferences TEXT,
                     watchlist_enabled INTEGER DEFAULT 1,
@@ -325,6 +346,7 @@ class SqliteSchemaRepository(Repository):
             cursor.execute(
                 "CREATE INDEX IF NOT EXISTS idx_activity_entity ON user_activity(entity_id)"
             )
+            logger.info("Created user-related tables")
 
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS user_thanks (
@@ -389,3 +411,4 @@ class SqliteSchemaRepository(Repository):
             cursor.execute(
                 "CREATE INDEX IF NOT EXISTS idx_lex_lang ON lexeme_terms(language)"
             )
+            logger.info("Created lexeme term tables and all indexes")

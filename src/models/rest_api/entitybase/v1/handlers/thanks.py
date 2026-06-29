@@ -27,12 +27,10 @@ class ThanksHandler(Handler):
         logger.debug(
             f"Sending thank from user {from_user_id} for {entity_id}:{revision_id}"
         )
-        # Validate user exists
-        if not self.state.vitess_client.user_repository.user_exists(from_user_id):
+        if not self.state.mysql_client.user_repository.user_exists(from_user_id):
             raise_validation_error("User not registered", status_code=404)
 
-        # Send thank via repository
-        result = self.state.vitess_client.thanks_repository.send_thank(
+        result = self.state.mysql_client.thanks_repository.send_thank_and_get(
             from_user_id, entity_id, revision_id
         )
         if not result.success:
@@ -40,28 +38,9 @@ class ThanksHandler(Handler):
                 result.error or "Failed to send thank", status_code=400
             )
 
-        # Get the thank details for response
-        revision_thanks = (
-            self.state.vitess_client.thanks_repository.get_revision_thanks(
-                entity_id, revision_id
-            )
-        )
-        if not revision_thanks.success:
-            raise_validation_error("Failed to retrieve thank details", status_code=500)
+        created_thank = result.data
 
-        # Find the thank we just created
-        thanks = revision_thanks.data
-        if not thanks:
-            raise_validation_error("Failed to retrieve thank details", status_code=500)
-
-        created_thank = next(
-            (t for t in thanks if t.from_user_id == from_user_id), None
-        )
-        if not created_thank:
-            raise_validation_error("Failed to retrieve created thank", status_code=500)
-
-        # Log activity
-        activity_result = self.state.vitess_client.user_repository.log_user_activity(
+        activity_result = self.state.mysql_client.user_repository.log_user_activity(
             user_id=from_user_id,
             activity_type=UserActivityType.THANK_SENT,
             entity_id=entity_id,
@@ -84,10 +63,10 @@ class ThanksHandler(Handler):
     ) -> ThanksListResponse:
         """Get thanks received by user."""
         # Validate user exists
-        if not self.state.vitess_client.user_repository.user_exists(user_id):
+        if not self.state.mysql_client.user_repository.user_exists(user_id):
             raise_validation_error("User not registered", status_code=404)
 
-        result = self.state.vitess_client.thanks_repository.get_thanks_received(
+        result = self.state.mysql_client.thanks_repository.get_thanks_received(
             user_id, request.hours, request.limit, request.offset
         )
         if not result.success:
@@ -108,10 +87,10 @@ class ThanksHandler(Handler):
     ) -> ThanksListResponse:
         """Get thanks sent by user."""
         # Validate user exists
-        if not self.state.vitess_client.user_repository.user_exists(user_id):
+        if not self.state.mysql_client.user_repository.user_exists(user_id):
             raise_validation_error("User not registered", status_code=404)
 
-        result = self.state.vitess_client.thanks_repository.get_thanks_sent(
+        result = self.state.mysql_client.thanks_repository.get_thanks_sent(
             user_id, request.hours, request.limit, request.offset
         )
         if not result.success:
@@ -131,7 +110,7 @@ class ThanksHandler(Handler):
         self, entity_id: str, revision_id: int
     ) -> ThanksListResponse:
         """Get all thanks for a specific revision."""
-        result = self.state.vitess_client.thanks_repository.get_revision_thanks(
+        result = self.state.mysql_client.thanks_repository.get_revision_thanks(
             entity_id, revision_id
         )
         if not result.success:

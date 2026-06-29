@@ -24,6 +24,7 @@ class LexemeCreateHandler(EntityCreateHandler):
         self,
         request: EntityCreateRequest,
         edit_headers: EditHeaders,
+        user_id: int = 0,
         validator: Any | None = None,
         auto_assign_id: bool = False,
     ) -> EntityResponse:
@@ -45,6 +46,7 @@ class LexemeCreateHandler(EntityCreateHandler):
         response = await super().create_entity(
             request,
             edit_headers,
+            user_id,
             validator,
             auto_assign_id=True,
         )

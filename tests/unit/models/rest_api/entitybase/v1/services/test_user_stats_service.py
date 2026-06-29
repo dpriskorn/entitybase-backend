@@ -11,7 +11,7 @@ class TestUserStatsService:
     def mock_state(self):
         """Create a mock state object."""
         state = MagicMock()
-        state.vitess_client = MagicMock()
+        state.mysql_client = MagicMock()
         return state
 
     @pytest.fixture
@@ -28,7 +28,7 @@ class TestUserStatsService:
         """Test get_total_users returns count."""
         mock_cursor = MagicMock()
         mock_cursor.fetchone.return_value = [100]
-        mock_state.vitess_client.cursor.__enter__.return_value = mock_cursor
+        mock_state.mysql_client.cursor.__enter__.return_value = mock_cursor
 
         result = service.get_total_users()
         assert result == 100
@@ -37,7 +37,7 @@ class TestUserStatsService:
         """Test get_active_users returns count."""
         mock_cursor = MagicMock()
         mock_cursor.fetchone.return_value = [50]
-        mock_state.vitess_client.cursor.__enter__.return_value = mock_cursor
+        mock_state.mysql_client.cursor.__enter__.return_value = mock_cursor
 
         result = service.get_active_users()
         assert result == 50

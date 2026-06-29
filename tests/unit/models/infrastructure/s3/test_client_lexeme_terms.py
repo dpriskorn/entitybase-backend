@@ -27,12 +27,12 @@ class TestS3ClientLexemeTerms:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_metadata = MagicMock()
-            client.vitess_metadata.store_lemma.return_value = MagicMock(success=True)
+            client.mysql_metadata = MagicMock()
+            client.mysql_metadata.store_lemma.return_value = MagicMock(success=True)
 
             client.store_lemma("test lemma", 12345)
 
-            client.vitess_metadata.store_lemma.assert_called_once_with(
+            client.mysql_metadata.store_lemma.assert_called_once_with(
                 12345, "test lemma"
             )
 
@@ -52,14 +52,14 @@ class TestS3ClientLexemeTerms:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_metadata = MagicMock()
-            client.vitess_metadata.store_form_representation.return_value = MagicMock(
+            client.mysql_metadata = MagicMock()
+            client.mysql_metadata.store_form_representation.return_value = MagicMock(
                 success=True
             )
 
             client.store_form_representation("test form", 12345)
 
-            client.vitess_metadata.store_form_representation.assert_called_once()
+            client.mysql_metadata.store_form_representation.assert_called_once()
 
     def test_store_sense_gloss_success(self):
         """Test successful sense gloss storage."""
@@ -77,14 +77,14 @@ class TestS3ClientLexemeTerms:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_metadata = MagicMock()
-            client.vitess_metadata.store_sense_gloss.return_value = MagicMock(
+            client.mysql_metadata = MagicMock()
+            client.mysql_metadata.store_sense_gloss.return_value = MagicMock(
                 success=True
             )
 
             client.store_sense_gloss("test gloss", 12345)
 
-            client.vitess_metadata.store_sense_gloss.assert_called_once()
+            client.mysql_metadata.store_sense_gloss.assert_called_once()
 
     def test_load_lemmas_batch(self):
         """Test loading lemmas batch."""
@@ -102,8 +102,8 @@ class TestS3ClientLexemeTerms:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_metadata = MagicMock()
-            client.vitess_metadata.load_lemmas_batch.return_value = [
+            client.mysql_metadata = MagicMock()
+            client.mysql_metadata.load_lemmas_batch.return_value = [
                 "lemma1",
                 "lemma2",
             ]
@@ -128,8 +128,8 @@ class TestS3ClientLexemeTerms:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_metadata = MagicMock()
-            client.vitess_metadata.load_form_representations_batch.return_value = [
+            client.mysql_metadata = MagicMock()
+            client.mysql_metadata.load_form_representations_batch.return_value = [
                 "form1",
                 "form2",
             ]
@@ -154,8 +154,8 @@ class TestS3ClientLexemeTerms:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_metadata = MagicMock()
-            client.vitess_metadata.load_sense_glosses_batch.return_value = [
+            client.mysql_metadata = MagicMock()
+            client.mysql_metadata.load_sense_glosses_batch.return_value = [
                 "gloss1",
                 "gloss2",
             ]
@@ -165,7 +165,7 @@ class TestS3ClientLexemeTerms:
             assert result == ["gloss1", "gloss2"]
 
     def test_store_lemma_not_configured(self):
-        """Test store_lemma raises error when Vitess not configured."""
+        """Test store_lemma raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -199,8 +199,8 @@ class TestS3ClientLexemeTerms:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_metadata = MagicMock()
-            client.vitess_metadata.store_lemma.return_value = MagicMock(
+            client.mysql_metadata = MagicMock()
+            client.mysql_metadata.store_lemma.return_value = MagicMock(
                 success=False, error="Database error"
             )
 
@@ -208,7 +208,7 @@ class TestS3ClientLexemeTerms:
                 client.store_lemma("test lemma", 12345)
 
     def test_store_form_representation_not_configured(self):
-        """Test store_form_representation raises error when Vitess not configured."""
+        """Test store_form_representation raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -242,8 +242,8 @@ class TestS3ClientLexemeTerms:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_metadata = MagicMock()
-            client.vitess_metadata.store_form_representation.return_value = MagicMock(
+            client.mysql_metadata = MagicMock()
+            client.mysql_metadata.store_form_representation.return_value = MagicMock(
                 success=False, error="Database error"
             )
 
@@ -251,7 +251,7 @@ class TestS3ClientLexemeTerms:
                 client.store_form_representation("test form", 12345)
 
     def test_store_sense_gloss_not_configured(self):
-        """Test store_sense_gloss raises error when Vitess not configured."""
+        """Test store_sense_gloss raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -285,8 +285,8 @@ class TestS3ClientLexemeTerms:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_metadata = MagicMock()
-            client.vitess_metadata.store_sense_gloss.return_value = MagicMock(
+            client.mysql_metadata = MagicMock()
+            client.mysql_metadata.store_sense_gloss.return_value = MagicMock(
                 success=False, error="Database error"
             )
 
@@ -294,7 +294,7 @@ class TestS3ClientLexemeTerms:
                 client.store_sense_gloss("test gloss", 12345)
 
     def test_load_lemmas_batch_not_configured(self):
-        """Test load_lemmas_batch raises error when Vitess not configured."""
+        """Test load_lemmas_batch raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -313,7 +313,7 @@ class TestS3ClientLexemeTerms:
                 client.load_lemmas_batch([111, 222])
 
     def test_load_form_representations_batch_not_configured(self):
-        """Test load_form_representations_batch raises error when Vitess not configured."""
+        """Test load_form_representations_batch raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -332,7 +332,7 @@ class TestS3ClientLexemeTerms:
                 client.load_form_representations_batch([111, 222])
 
     def test_load_sense_glosses_batch_not_configured(self):
-        """Test load_sense_glosses_batch raises error when Vitess not configured."""
+        """Test load_sense_glosses_batch raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",

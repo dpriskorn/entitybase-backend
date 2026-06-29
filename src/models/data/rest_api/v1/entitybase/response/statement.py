@@ -1,10 +1,11 @@
 """Statement response models."""
 
-from typing import Any, Dict
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from models.data.infrastructure.s3.property_counts import PropertyCounts
+from models.data.infrastructure.s3.statement import StatementData
 
 
 class StatementResponse(BaseModel):
@@ -18,7 +19,7 @@ class StatementResponse(BaseModel):
     content_hash: int = Field(
         alias="hash", description="Hash of the statement content. Example: 123456789."
     )
-    statement: Dict[str, Any] = Field(
+    statement: StatementData = Field(
         description="Full statement JSON object. Example: {'id': 'P31', 'value': 'Q5'}."
     )
     created_at: str = Field(
@@ -79,7 +80,7 @@ class StatementHashResult(BaseModel):
         default_factory=dict,
         description="Dict mapping property ID to count of statements. Example: {'P31': 5}.",
     )
-    full_statements: list[Dict[str, Any]] = Field(
+    full_statements: list[dict[str, Any]] = Field(
         alias="full_statements",
         default_factory=list,
         description="List of full statement dicts (parallel with hashes). Example: [{'id': 'P31', 'value': 'Q5'}].",

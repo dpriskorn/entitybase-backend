@@ -2,9 +2,10 @@
 
 import logging
 
-from botocore.exceptions import ClientError  # type: ignore[import-untyped]
+from minio.error import S3Error  # type: ignore[import-untyped]
 from typing import Any, cast
 
+from models.data.infrastructure.s3.statement import StatementData
 from models.rest_api.entitybase.v1.handler import Handler
 from models.data.rest_api.v1.entitybase.request import CleanupOrphanedRequest
 from models.data.rest_api.v1.entitybase.request import StatementBatchRequest
@@ -26,6 +27,50 @@ logger = logging.getLogger(__name__)
 class StatementHandler(Handler):
     """Handles all statement operations."""
 
+    def _reconstruct_mainsnak(
+        self,
+        statement_dict: dict[str, Any],
+        snak_handler: SnakHandler,
+        content_hash: int,
+    ) -> StatementData:
+        """Reconstruct mainsnak from hash reference in statement.
+
+        Args:
+            statement_dict: Statement dictionary with mainsnak hash reference
+            snak_handler: Handler for retrieving snaks
+            content_hash: Statement content hash for logging
+
+        Returns:
+            Statement data with reconstructed mainsnak
+        """
+        mainsnak_hash = self._extract_mainsnak_hash(statement_dict["mainsnak"])
+
+        retrieved_snak = snak_handler.get_snak(mainsnak_hash)
+        if retrieved_snak:
+            statement_dict["mainsnak"] = retrieved_snak
+            logger.debug(
+                f"Reconstructed mainsnak {mainsnak_hash} for statement {content_hash}"
+            )
+        else:
+            logger.warning(
+                f"Snak {mainsnak_hash} not found for statement {content_hash}"
+            )
+        return StatementData(**statement_dict)
+
+    def _extract_mainsnak_hash(self, mainsnak_input: Any) -> int:
+        """Extract mainsnak hash from statement mainsnak field.
+
+        Args:
+            mainsnak_input: The mainsnak value from statement (either a hash int
+                or a dict with a 'hash' key)
+
+        Returns:
+            The mainsnak hash as int
+        """
+        if isinstance(mainsnak_input, dict) and "hash" in mainsnak_input:
+            return cast(int, mainsnak_input["hash"])
+        return cast(int, mainsnak_input)
+
     def get_statement(self, content_hash: int) -> StatementResponse:
         """Get a single statement by its hash.
 
@@ -45,24 +90,10 @@ class StatementHandler(Handler):
             statement_data = self.state.s3_client.read_statement(content_hash)
             logger.debug(f"Successfully retrieved statement {content_hash} from S3")
 
-            # Reconstruct mainsnak from hash
-            statement_dict = statement_data.statement.copy()
-            mainsnak_hash_input = statement_dict["mainsnak"]
-            if isinstance(mainsnak_hash_input, dict) and "hash" in mainsnak_hash_input:
-                mainsnak_hash = cast(int, mainsnak_hash_input["hash"])
-            else:
-                mainsnak_hash = cast(int, mainsnak_hash_input)
             snak_handler = SnakHandler(state=self.state)
-            retrieved_snak = snak_handler.get_snak(mainsnak_hash)
-            if retrieved_snak:
-                statement_dict["mainsnak"] = retrieved_snak
-                logger.debug(
-                    f"Reconstructed mainsnak {mainsnak_hash} for statement {content_hash}"
-                )
-            else:
-                logger.warning(
-                    f"Snak {mainsnak_hash} not found for statement {content_hash}"
-                )
+            statement_dict = self._reconstruct_mainsnak(
+                statement_data.statement.copy(), snak_handler, content_hash
+            )
 
             return StatementResponse(  # type: ignore[call-arg]
                 schema=statement_data.schema_version,
@@ -113,26 +144,9 @@ class StatementHandler(Handler):
                     f"[STMT_GET_BATCH] Successfully loaded statement: hash={content_hash}"
                 )
 
-                # Reconstruct mainsnak from hash
-                statement_dict = statement_data.statement.copy()
-                mainsnak_hash_input = statement_dict["mainsnak"]
-                if (
-                    isinstance(mainsnak_hash_input, dict)
-                    and "hash" in mainsnak_hash_input
-                ):
-                    mainsnak_hash = cast(int, mainsnak_hash_input["hash"])
-                else:
-                    mainsnak_hash = cast(int, mainsnak_hash_input)
-                retrieved_snak = snak_handler.get_snak(mainsnak_hash)
-                if retrieved_snak:
-                    statement_dict["mainsnak"] = retrieved_snak
-                    logger.debug(
-                        f"[STMT_GET_BATCH] Reconstructed mainsnak {mainsnak_hash} for statement {content_hash}"
-                    )
-                else:
-                    logger.warning(
-                        f"[STMT_GET_BATCH] Snak {mainsnak_hash} not found for statement {content_hash}"
-                    )
+                statement_dict = self._reconstruct_mainsnak(
+                    statement_data.statement.copy(), snak_handler, content_hash
+                )
 
                 statements.append(
                     StatementResponse(  # type: ignore[call-arg]
@@ -142,7 +156,7 @@ class StatementHandler(Handler):
                         created_at=statement_data.created_at,
                     )
                 )
-            except (ClientError, Exception) as e:
+            except (S3Error, Exception) as e:
                 logger.warning(
                     f"[STMT_GET_BATCH] Failed to load statement hash={content_hash}: "
                     f"error={type(e).__name__}: {e}"
@@ -161,17 +175,17 @@ class StatementHandler(Handler):
 
         Returns sorted list of properties used in entity statements.
         """
-        if self.state.vitess_client is None:
-            raise_validation_error("Vitess not initialized", status_code=503)
+        if self.state.mysql_client is None:
+            raise_validation_error("database not initialized", status_code=503)
 
-        if not self.state.vitess_client.entity_exists(entity_id):
+        if not self.state.mysql_client.entity_exists(entity_id):
             raise_validation_error("Entity not found", status_code=404)
 
-        head_revision_id = self.state.vitess_client.get_head(entity_id)
+        head_revision_id = self.state.mysql_client.get_head(entity_id)
         if head_revision_id == 0:
             raise_validation_error("Entity has no revisions", status_code=404)
 
-        history = self.state.vitess_client.get_history(entity_id)
+        history = self.state.mysql_client.get_history(entity_id)
         revision_record = next(
             (r for r in history if r.revision_id == head_revision_id), None
         )
@@ -192,13 +206,13 @@ class StatementHandler(Handler):
 
         Returns dict mapping property ID -> count of statements.
         """
-        if self.state.vitess_client is None:
-            raise_validation_error("Vitess not initialized", status_code=503)
+        if self.state.mysql_client is None:
+            raise_validation_error("database not initialized", status_code=503)
 
-        if not self.state.vitess_client.entity_exists(entity_id):
+        if not self.state.mysql_client.entity_exists(entity_id):
             raise_validation_error("Entity not found", status_code=404)
 
-        head_revision_id = self.state.vitess_client.get_head(entity_id)
+        head_revision_id = self.state.mysql_client.get_head(entity_id)
         if head_revision_id == 0:
             raise_validation_error("Entity has no revisions", status_code=404)
 
@@ -223,7 +237,7 @@ class StatementHandler(Handler):
         logger.debug(f"get_entity_property_hashes called for entity {entity_id}")
         self._validate_entity_access(entity_id)
 
-        head_revision_id = self.state.vitess_client.get_head(entity_id)
+        head_revision_id = self.state.mysql_client.get_head(entity_id)
         revision_metadata = self.state.s3_client.read_full_revision(
             entity_id, head_revision_id
         )
@@ -241,13 +255,13 @@ class StatementHandler(Handler):
 
     def _validate_entity_access(self, entity_id: str) -> None:
         """Validate entity exists and is accessible."""
-        if self.state.vitess_client is None:
-            raise_validation_error("Vitess not initialized", status_code=503)
+        if self.state.mysql_client is None:
+            raise_validation_error("database not initialized", status_code=503)
 
-        if not self.state.vitess_client.entity_exists(entity_id):
+        if not self.state.mysql_client.entity_exists(entity_id):
             raise_validation_error("Entity not found", status_code=404)
 
-        head_revision_id = self.state.vitess_client.get_head(entity_id)
+        head_revision_id = self.state.mysql_client.get_head(entity_id)
         if head_revision_id == 0:
             raise_validation_error("Entity has no revisions", status_code=404)
 
@@ -276,11 +290,9 @@ class StatementHandler(Handler):
         """Get property ID for a statement."""
         statement_data = self.state.s3_client.read_statement(statement_hash)
 
-        mainsnak_hash_input = statement_data.statement["mainsnak"]
-        if isinstance(mainsnak_hash_input, dict) and "hash" in mainsnak_hash_input:
-            mainsnak_hash = cast(int, mainsnak_hash_input["hash"])
-        else:
-            mainsnak_hash = cast(int, mainsnak_hash_input)
+        mainsnak_hash = self._extract_mainsnak_hash(
+            statement_data.statement["mainsnak"]
+        )
 
         retrieved_snak = snak_handler.get_snak(mainsnak_hash)
         if retrieved_snak:
@@ -305,10 +317,10 @@ class StatementHandler(Handler):
         - limit: Maximum number of statements to return (1-10000, default 100)
         - min_ref_count: Minimum ref_count threshold (default 1)
         """
-        if self.state.vitess_client is None:
-            raise_validation_error("Vitess not initialized", status_code=503)
+        if self.state.mysql_client is None:
+            raise_validation_error("database not initialized", status_code=503)
 
-        statement_hashes = self.state.vitess_client.statement_repository.get_most_used(
+        statement_hashes = self.state.mysql_client.statement_repository.get_most_used(
             limit=limit, min_ref_count=min_ref_count
         )
         return MostUsedStatementsResponse(statements=statement_hashes)
@@ -322,14 +334,14 @@ class StatementHandler(Handler):
         Removes statements with ref_count <= 0 that are older than the specified days.
         Limited to the specified number to avoid long-running operations.
         """
-        if self.state.vitess_client is None:
-            raise_validation_error("Vitess not initialized", status_code=503)
+        if self.state.mysql_client is None:
+            raise_validation_error("database not initialized", status_code=503)
 
         if self.state.s3_client is None:
             raise_validation_error("S3 not initialized", status_code=503)
 
         # Get orphaned statements older than specified days
-        orphaned_hashes = self.state.vitess_client.get_orphaned_statements(
+        orphaned_hashes = self.state.mysql_client.get_orphaned_statements(
             request.older_than_days, request.limit
         )
 
@@ -341,8 +353,8 @@ class StatementHandler(Handler):
             try:
                 # Delete from S3 first
                 self.state.s3_client.delete_statement(statement_hash)
-                # Then delete from Vitess
-                self.state.vitess_client.delete_statement(statement_hash)
+                # Then delete from database
+                self.state.mysql_client.delete_statement(statement_hash)
                 cleaned_count += 1
                 logger.info(f"Cleaned up orphaned statement {statement_hash}")
             except Exception as e:

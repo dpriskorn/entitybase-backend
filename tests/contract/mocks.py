@@ -1,8 +1,8 @@
 """Mock classes for contract tests.
 
-This module provides mock implementations of VitessClient, S3Client, and StateHandler
+This module provides mock implementations of MysqlClient, S3Client, and StateHandler
 for use in contract tests. These mocks simulate the real clients without requiring
-external services (Vitess, S3).
+external services (Sql, S3).
 """
 
 import sys
@@ -19,7 +19,7 @@ class MockHistoryEntry:
 
 
 class MockConnectionManager:
-    """Mock Vitess connection manager."""
+    """Mock Sql connection manager."""
 
     def __init__(self) -> None:
         self._cursor = MockCursor()
@@ -92,8 +92,14 @@ class MockIdResolver:
 
 
 class MockUserRepository:
+    def __init__(self) -> None:
+        self._users: dict[int, dict] = {}
+
     def user_exists(self, user_id: int) -> bool:
-        return False
+        return user_id in self._users
+
+    def user_exists_by_username(self, username: str) -> bool:
+        return any(u.get("username") == username for u in self._users.values())
 
     def is_watchlist_enabled(self, user_id: int) -> bool:
         return False
@@ -102,6 +108,79 @@ class MockUserRepository:
         result = MagicMock()
         result.success = True
         return result
+
+    def verify_user_credentials(
+        self, username: str, password: str
+    ) -> tuple[bool, object | None]:
+        for u in self._users.values():
+            if u.get("username") == username:
+                from models.data.rest_api.v1.entitybase.response.user import (
+                    UserResponse,
+                )
+                from models.data.common.roles import UserRole
+
+                return True, UserResponse(
+                    user_id=u["user_id"],
+                    username=u["username"],
+                    role=UserRole(u.get("role", "default")),
+                    created_at=u.get("created_at", "2024-01-01T00:00:00Z"),
+                    preferences=u.get("preferences"),
+                )
+        return False, None
+
+    def create_user_with_password(
+        self, username: str, password_hash: str, role: str
+    ) -> MagicMock:
+        from models.data.common import OperationResult
+
+        if self.user_exists_by_username(username):
+            result = MagicMock(spec=OperationResult)
+            result.success = False
+            result.error = "Username already exists"
+            return result
+        user_id = max(self._users.keys(), default=0) + 1
+        self._users[user_id] = {
+            "user_id": user_id,
+            "username": username,
+            "password_hash": password_hash,
+            "role": role,
+            "created_at": "2024-01-01T00:00:00Z",
+            "preferences": None,
+        }
+        result = MagicMock()
+        result.success = True
+        result.data = {"user_id": user_id, "username": username}
+        return result
+
+    def delete_user(self, user_id: int) -> MagicMock:
+        from models.data.common import OperationResult
+
+        if user_id in self._users:
+            del self._users[user_id]
+            result = MagicMock(spec=OperationResult)
+            result.success = True
+            return result
+        result = MagicMock(spec=OperationResult)
+        result.success = False
+        result.error = "User not found"
+        return result
+
+    def get_user_by_username(self, username: str) -> object | None:
+        for u in self._users.values():
+            if u.get("username") == username:
+                from models.data.rest_api.v1.entitybase.response.user import (
+                    UserResponse,
+                )
+                from models.data.common.roles import UserRole
+
+                return UserResponse(
+                    user_id=u["user_id"],
+                    username=u["username"],
+                    role=UserRole(u.get("role", "default")),
+                    created_at=u.get("created_at", "2024-01-01T00:00:00Z"),
+                    preferences=u.get("preferences"),
+                )
+        return None
 
 
 class MockWatchlistRepository:
@@ -115,8 +194,8 @@ class MockWatchlistRepository:
 
 
 class MockEntityRepository:
-    def __init__(self, vitess_client: Any) -> None:
-        self.vitess_client = vitess_client
+    def __init__(self, mysql_client: Any) -> None:
+        self.mysql_client = mysql_client
 
     def list_entities_filtered(
         self,
@@ -127,7 +206,7 @@ class MockEntityRepository:
         return []
 
     def create_entity(self, entity_id: str) -> None:
-        self.vitess_client.id_resolver.register_entity(entity_id)
+        self.mysql_client.id_resolver.register_entity(entity_id)
 
     def delete_entity(self, entity_id: str) -> None:
         pass
@@ -151,13 +230,13 @@ class MockStatementRepository:
         return []
 
 
-class MockVitessClient:
+class MockMysqlClient:
     def __init__(self) -> None:
         self.id_resolver = MockIdResolver()
         self.connection_manager = MockConnectionManager()
         self.user_repository = MockUserRepository()
         self.watchlist_repository = MockWatchlistRepository()
-        self.entity_repository = MockEntityRepository(vitess_client=self)
+        self.entity_repository = MockEntityRepository(mysql_client=self)
         self.revision_repository = MockRevisionRepository()
         self.head_repository = MockHeadRepository()
         self.statement_repository = MockStatementRepository()
@@ -254,11 +333,11 @@ class MockS3Client:
         self.connection_manager = MockS3ConnectionManager()
         self._revisions: dict[int, dict[str, Any]] = {}
         self._revision_hashes: dict[tuple[str, int], int] = {}
-        self._vitess_client: Any = None
+        self._mysql_client: Any = None
         self._term_metadata: dict[int, tuple[str, str]] = {}  # hash -> (value, type)
 
-    def set_vitess_client(self, vitess_client: Any) -> None:
-        self._vitess_client = vitess_client
+    def set_mysql_client(self, mysql_client: Any) -> None:
+        self._mysql_client = mysql_client
 
     @property
     def healthy_connection(self) -> bool:
@@ -301,11 +380,11 @@ class MockS3Client:
             if hasattr(revision_data, "model_dump")
             else revision_data
         )
-        if self._vitess_client:
-            pending_revisions = self._vitess_client.get_pending_revisions()
+        if self._mysql_client:
+            pending_revisions = self._mysql_client.get_pending_revisions()
             for (entity_id, revision_id), hash_val in pending_revisions.items():
                 self._revision_hashes[(entity_id, revision_id)] = hash_val
-            self._vitess_client.clear_pending_revisions()
+            self._mysql_client.clear_pending_revisions()
 
     def delete_statement(self, hash_val: int) -> None:
         pass
@@ -342,33 +421,35 @@ class TestStateHandler:
     """Test StateHandler that uses mock clients.
 
     This class mimics the StateHandler interface but uses pre-configured
-    mock clients instead of real Vitess/S3 connections.
+    mock clients instead of real Sql/S3 connections.
     """
 
     model_config = {"arbitrary_types_allowed": True}
 
     def __init__(self) -> None:
-        self._vitess_client = MockVitessClient()
+        self._mysql_client = MockMysqlClient()
         self._s3_client = MockS3Client()
-        self._vitess_client.set_s3_client(self._s3_client)
-        self._s3_client.set_vitess_client(self._vitess_client)
+        self._mysql_client.set_s3_client(self._s3_client)
+        self._s3_client.set_mysql_client(self._mysql_client)
         self._validator = MockValidator()
         self._settings = MagicMock()
-        self._vitess_config = MagicMock()
-        self.cached_vitess_client: MockVitessClient | None = None
+        self._mysql_config = MagicMock()
+        self.cached_mysql_client: MockMysqlClient | None = None
         self.cached_s3_client: MockS3Client | None = None
         self.cached_enumeration_service: Any = None
         self.entity_change_stream_producer = None
+        self.entitydiff_stream_producer = None
+        self.user_change_stream_producer = None
 
     @property
     def settings(self) -> Any:
         return self._settings
 
     @property
-    def vitess_client(self) -> MockVitessClient:
-        if self.cached_vitess_client is None:
-            self.cached_vitess_client = self._vitess_client
-        return self.cached_vitess_client
+    def mysql_client(self) -> MockMysqlClient:
+        if self.cached_mysql_client is None:
+            self.cached_mysql_client = self._mysql_client
+        return self.cached_mysql_client
 
     @property
     def s3_client(self) -> MockS3Client:
@@ -381,8 +462,8 @@ class TestStateHandler:
         return self._validator
 
     @property
-    def vitess_config(self) -> Any:
-        return self._vitess_config
+    def mysql_config(self) -> Any:
+        return self._mysql_config
 
     @property
     def enumeration_service(self) -> Any:
@@ -429,12 +510,12 @@ class TestStateHandler:
                     return MagicMock()
 
             self.cached_enumeration_service = MockEnumerationServiceClass(
-                worker_id="test", vitess_client=self._vitess_client
+                worker_id="test", mysql_client=self._mysql_client
             )
         return self.cached_enumeration_service
 
     def disconnect(self) -> None:
-        if self._vitess_client:
-            self._vitess_client.disconnect()
+        if self._mysql_client:
+            self._mysql_client.disconnect()
         if self._s3_client:
             self._s3_client.disconnect()

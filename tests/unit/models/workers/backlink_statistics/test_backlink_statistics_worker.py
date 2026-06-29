@@ -3,6 +3,11 @@
 import pytest
 from unittest.mock import MagicMock, AsyncMock, patch
 
+from models.config.settings import settings
+from models.data.rest_api.v1.entitybase.response.entity.backlink_statistics import (
+    BacklinkStatisticsData,
+    TopEntityByBacklinks,
+)
 from models.workers.backlink_statistics.backlink_statistics_worker import (
     BacklinkStatisticsWorker,
 )
@@ -13,12 +18,8 @@ class TestBacklinkStatisticsWorker:
 
     def test_get_enabled_setting(self):
         """Test getting enabled setting."""
-        with patch(
-            "models.workers.backlink_statistics.backlink_statistics_worker.settings"
-        ) as mock_settings:
-            mock_settings.backlink_stats_enabled = True
-            worker = BacklinkStatisticsWorker(vitess_client=MagicMock())
-            assert worker.get_enabled_setting() is True
+        worker = BacklinkStatisticsWorker()
+        assert worker.get_enabled_setting() == settings.backlink_stats_worker_enabled
 
     def test_get_schedule_setting(self):
         """Test getting schedule setting."""
@@ -26,19 +27,19 @@ class TestBacklinkStatisticsWorker:
             "models.workers.backlink_statistics.backlink_statistics_worker.settings"
         ) as mock_settings:
             mock_settings.backlink_stats_schedule = "daily"
-            worker = BacklinkStatisticsWorker(vitess_client=MagicMock())
+            worker = BacklinkStatisticsWorker()
             assert worker.get_schedule_setting() == "daily"
 
     @pytest.mark.asyncio
     async def test_run_daily_computation_success(self):
         """Test successful daily computation."""
-        mock_vitess_client = MagicMock()
+        mock_db_client = MagicMock()
         mock_service = MagicMock()
         mock_service.compute_daily_stats.return_value = MagicMock(
             total_backlinks=100, unique_entities_with_backlinks=50
         )
 
-        worker = BacklinkStatisticsWorker(vitess_client=mock_vitess_client)
+        worker = BacklinkStatisticsWorker.model_construct(db_client=mock_db_client)
         worker._store_statistics = AsyncMock()
 
         with (
@@ -65,23 +66,23 @@ class TestBacklinkStatisticsWorker:
             assert worker.last_run is not None
 
     @pytest.mark.asyncio
-    async def test_run_daily_computation_no_vitess_client(self):
-        """Test daily computation with no vitess client."""
-        worker = BacklinkStatisticsWorker(vitess_client=None)
+    async def test_run_daily_computation_no_db_client(self):
+        """Test daily computation with no mysql client."""
+        worker = BacklinkStatisticsWorker()
 
         with patch(
             "models.workers.backlink_statistics.backlink_statistics_worker.logger"
         ) as mock_logger:
             await worker.run_daily_computation()
 
-            mock_logger.error.assert_called_once_with("Vitess client not initialized")
+            mock_logger.error.assert_called_once_with("Database client not initialized")
 
     @pytest.mark.asyncio
     async def test_run_daily_computation_exception(self):
         """Test daily computation with exception."""
-        mock_vitess_client = MagicMock()
+        mock_db_client = MagicMock()
 
-        worker = BacklinkStatisticsWorker(vitess_client=mock_vitess_client)
+        worker = BacklinkStatisticsWorker.model_construct(db_client=mock_db_client)
 
         with (
             patch(
@@ -97,3 +98,28 @@ class TestBacklinkStatisticsWorker:
                 await worker.run_daily_computation()
 
             mock_logger.error.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_store_statistics_with_db_client(self):
+        """Test storing statistics with mysql client."""
+        mock_db_client = MagicMock()
+        mock_db_client.backlink_repository = MagicMock()
+
+        worker = BacklinkStatisticsWorker.model_construct(db_client=mock_db_client)
+
+        stats = BacklinkStatisticsData(
+            total_backlinks=100,
+            unique_entities_with_backlinks=50,
+            top_entities_by_backlinks=[
+                TopEntityByBacklinks(entity_id="Q1", backlink_count=10)
+            ],
+        )
+
+        with patch(
+            "models.workers.backlink_statistics.backlink_statistics_worker.date"
+        ) as mock_date:
+            mock_date.today.return_value.isoformat.return_value = "2024-01-01"
+
+            await worker._store_statistics(stats)
+
+            mock_db_client.backlink_repository.insert_backlink_statistics.assert_called_once()

@@ -1,26 +1,21 @@
 FROM python:3.13-slim AS builder
 WORKDIR /app
-
-RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
-
-COPY requirements.txt ./
-COPY pyproject.toml /app/pyproject.toml
-
-RUN pip install --no-cache-dir -r requirements.txt
+COPY pyproject.toml poetry.lock ./
+RUN pip install --no-cache-dir poetry \
+    && POETRY_VIRTUALENVS_CREATE=false poetry install --no-root --no-interaction \
+    && poetry cache clear pypi --all || true \
+    && rm -rf /root/.cache/*
 
 FROM python:3.13-slim
 WORKDIR /app
-
 RUN apt-get update && apt-get install -y --no-install-recommends wget && rm -rf /var/lib/apt/lists/*
-
-ENV PYTHONPATH=/app
-
 COPY --from=builder /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
-
+COPY --from=builder /app/pyproject.toml /app/pyproject.toml
 COPY ./src/ ./
 COPY ./scripts/ ./scripts/
-
+ENV PYTHONPATH=/app
+ARG VERSION=v2026.4.8
+ENV VERSION=$VERSION
 EXPOSE 8080
-
 CMD ["uvicorn", "models.rest_api.main:app", "--host", "0.0.0.0", "--port", "8080"]

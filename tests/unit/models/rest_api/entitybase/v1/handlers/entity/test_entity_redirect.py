@@ -1,20 +1,61 @@
-"""Unit tests for redirect."""
+"""Unit tests for redirect.py."""
 
-# TODO: Implement comprehensive unit tests for redirect.py
-# This file was auto-generated to highlight missing test coverage
-# Priority: HIGH - Core functionality requiring tests
+from unittest.mock import AsyncMock, MagicMock
+import pytest
+
+from models.data.rest_api.v1.entitybase.request import (
+    EntityRedirectRequest,
+    RedirectRevertRequest,
+)
+from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+from models.rest_api.entitybase.v1.handlers.entity.redirect import RedirectHandler
 
 
-class TestRedirect:
-    """Placeholder test class for redirect."""
+class TestRedirectHandler:
+    """Tests for RedirectHandler methods."""
 
-    def test_placeholder(self):
-        """Placeholder test - replace with actual tests.
+    @pytest.fixture
+    def mock_state(self) -> MagicMock:
+        state = MagicMock()
+        state.redirect_service.create_redirect = AsyncMock(return_value=MagicMock())
+        state.redirect_service.revert_redirect = AsyncMock(return_value=MagicMock())
+        return state
 
-        This module contains logic that should be thoroughly tested:
-        - Core functionality and edge cases
-        - Error handling and validation
-        - Integration with dependencies
-        """
-        # Remove this placeholder when implementing real tests
-        assert True
+    @pytest.fixture
+    def handler(self, mock_state: MagicMock) -> RedirectHandler:
+        return RedirectHandler(state=mock_state)
+
+    @pytest.mark.asyncio
+    async def test_create_entity_redirect(
+        self, handler: RedirectHandler, mock_state: MagicMock
+    ) -> None:
+        request = EntityRedirectRequest(
+            redirect_from_id="Q1",
+            redirect_to_id="Q2",
+        )
+        headers = EditHeaders(x_edit_summary="create redirect")
+
+        mock_state.redirect_service.create_redirect.return_value = MagicMock()
+
+        result = await handler.create_entity_redirect(request, headers)
+
+        mock_state.redirect_service.create_redirect.assert_called_once_with(
+            request, headers
+        )
+        assert result is not None
+
+    @pytest.mark.asyncio
+    async def test_revert_entity_redirect(
+        self, handler: RedirectHandler, mock_state: MagicMock
+    ) -> None:
+        request = RedirectRevertRequest(revert_to_revision_id=5)
+        headers = EditHeaders(x_edit_summary="revert redirect")
+
+        mock_state.redirect_service.revert_redirect.return_value = MagicMock()
+
+        result = await handler.revert_entity_redirect("Q1", request, headers)
+
+        mock_state.redirect_service.revert_redirect.assert_called_once_with(
+            "Q1", 5, headers
+        )
+        assert result is not None

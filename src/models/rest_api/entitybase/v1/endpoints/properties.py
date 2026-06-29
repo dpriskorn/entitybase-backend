@@ -2,12 +2,14 @@
 
 import logging
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 
 from models.data.common import OperationResult
 from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
-from models.data.rest_api.v1.entitybase.request.headers import EditHeadersType
+from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.rest_api.v1.entitybase.response import EntityIdResult
+from models.rest_api.auth.dependencies import verify_auth
+from models.rest_api.auth.models import AuthenticatedRequest
 from models.rest_api.entitybase.v1.handlers.entity.property import PropertyCreateHandler
 from models.rest_api.utils import raise_validation_error
 
@@ -19,7 +21,7 @@ router = APIRouter()
 @router.post("/entities/properties", response_model=OperationResult[EntityIdResult])
 async def create_property(
     req: Request,
-    headers: EditHeadersType,
+    auth: AuthenticatedRequest = Depends(verify_auth),
 ) -> OperationResult[EntityIdResult]:
     """Create a new empty property entity."""
     logger.info("🔍 ENDPOINT: Received POST request to create property")
@@ -29,6 +31,11 @@ async def create_property(
         validator = req.app.state.state_handler.validator
         enumeration_service = req.app.state.state_handler.enumeration_service
 
+        headers = EditHeaders(
+            x_edit_summary=auth.edit_summary,
+            x_base_revision_id=auth.base_revision_id,
+        )
+
         entity_request = EntityCreateRequest(type="property")
 
         handler = PropertyCreateHandler(
@@ -37,7 +44,10 @@ async def create_property(
         logger.debug("🔍 ENDPOINT: Handler created, calling create_entity")
 
         result = await handler.create_entity(
-            entity_request, edit_headers=headers, validator=validator
+            entity_request,
+            edit_headers=headers,
+            user_id=auth.user.user_id,
+            validator=validator,
         )
         logger.info(f"🔍 ENDPOINT: Property creation successful: {result.id}")
 

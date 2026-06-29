@@ -10,9 +10,10 @@ from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
 from models.data.rest_api.v1.entitybase.request.entity.context import (
+    EditOperationContext,
     EventPublishContext,
 )
-from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.data.rest_api.v1.entitybase.response import StatementHashResult
 from models.rest_api.entitybase.v1.endpoints.lexeme_utils import (
@@ -55,7 +56,7 @@ class CreationTransaction(EntityTransaction):
         entity_id: str,
         request_data: PreparedRequestData,
         entity_type: Any,
-        edit_headers: EditHeaders,
+        edit_operation_context: EditOperationContext,
         hash_result: StatementHashResult,
     ) -> EntityResponse:
         """Create revision using new architecture components."""
@@ -104,8 +105,8 @@ class CreationTransaction(EntityTransaction):
             edit=EditData(
                 mass=False,
                 type=EditType.UNSPECIFIED,
-                user_id=edit_headers.x_user_id,
-                summary=edit_headers.x_edit_summary,
+                user_id=edit_operation_context.user_id,
+                summary=edit_operation_context.edit_headers.x_edit_summary,
                 at=created_at,
             ),
             state=EntityState(dangling=is_dangling),
@@ -121,20 +122,20 @@ class CreationTransaction(EntityTransaction):
         revision_json = json.dumps(revision_dict, sort_keys=True)
         content_hash = MetadataExtractor.hash_string(revision_json)
 
-        revision_created = self.state.vitess_client.create_revision(
+        revision_created = self.state.mysql_client.create_revision(
             entity_id=entity_id,
             entity_data=revision_data,
             revision_id=1,
             content_hash=content_hash,
-            expected_revision_id=edit_headers.x_base_revision_id,
+            expected_revision_id=edit_operation_context.edit_headers.x_base_revision_id,
         )
         if not revision_created:
             from models.rest_api.utils import raise_validation_error
 
-            current_head = self.state.vitess_client.get_head(entity_id)
+            current_head = self.state.mysql_client.get_head(entity_id)
             raise_validation_error(
                 f"Conflict: entity was modified by another edit. "
-                f"Expected base revision {edit_headers.x_base_revision_id}, but current revision is {current_head}. "
+                f"Expected base revision {edit_operation_context.edit_headers.x_base_revision_id}, but current revision is {current_head}. "
                 f"Please retry with the latest revision ID.",
                 status_code=409,
             )
@@ -215,9 +216,9 @@ class CreationTransaction(EntityTransaction):
     def _rollback_statement(self, hash_val: int) -> None:
         logger.info(f"[CreationTransaction] Rolling back statement {hash_val}")
         # Decrement ref_count
-        self.state.vitess_client.decrement_ref_count(hash_val)
+        self.state.mysql_client.decrement_ref_count(hash_val)
         # Check if orphaned and delete from S3
-        ref_count = self.state.vitess_client.get_ref_count(hash_val)
+        ref_count = self.state.mysql_client.get_ref_count(hash_val)
         if ref_count == 0:
             self.state.s3_client.delete_statement(hash_val)
 
@@ -226,5 +227,5 @@ class CreationTransaction(EntityTransaction):
             f"[CreationTransaction] Rolling back revision {revision_id} for {entity_id}"
         )
         # Delete from entity_revisions and entity_head
-        self.state.vitess_client.delete_revision(entity_id, revision_id)
-        # S3 deletion if needed, but assume Vitess handles it or add s3_client.delete_revision
+        self.state.mysql_client.delete_revision(entity_id, revision_id)
+        # S3 deletion if needed, but assume Mysql handles it or add s3_client.delete_revision

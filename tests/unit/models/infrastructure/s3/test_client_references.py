@@ -28,8 +28,8 @@ class TestS3ClientReferences:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_references = MagicMock()
-            client.vitess_references.store_reference.return_value = MagicMock(
+            client.mysql_references = MagicMock()
+            client.mysql_references.store_reference.return_value = MagicMock(
                 success=True
             )
 
@@ -38,7 +38,7 @@ class TestS3ClientReferences:
             )
             client.store_reference(12345, ref_data)
 
-            client.vitess_references.store_reference.assert_called_once()
+            client.mysql_references.store_reference.assert_called_once()
 
     def test_load_reference_success(self):
         """Test successful reference load."""
@@ -56,9 +56,9 @@ class TestS3ClientReferences:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_references = MagicMock()
+            client.mysql_references = MagicMock()
 
-            client.vitess_references.load_reference.return_value = S3ReferenceData(
+            client.mysql_references.load_reference.return_value = S3ReferenceData(
                 reference={"id": "ref1"}, hash=12345, created_at="2023-01-01T12:00:00Z"
             )
 
@@ -82,8 +82,8 @@ class TestS3ClientReferences:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_references = MagicMock()
-            client.vitess_references.load_references_batch.return_value = [
+            client.mysql_references = MagicMock()
+            client.mysql_references.load_references_batch.return_value = [
                 None,
                 {"id": "ref2"},
             ]
@@ -94,7 +94,7 @@ class TestS3ClientReferences:
             assert result[0] is None
 
     def test_store_reference_not_configured(self):
-        """Test store_reference raises error when Vitess not configured."""
+        """Test store_reference raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -131,8 +131,8 @@ class TestS3ClientReferences:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_references = MagicMock()
-            client.vitess_references.store_reference.return_value = MagicMock(
+            client.mysql_references = MagicMock()
+            client.mysql_references.store_reference.return_value = MagicMock(
                 success=False, error="Database error"
             )
 
@@ -143,7 +143,7 @@ class TestS3ClientReferences:
                 client.store_reference(12345, ref_data)
 
     def test_load_reference_not_configured(self):
-        """Test load_reference raises error when Vitess not configured."""
+        """Test load_reference raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -177,14 +177,14 @@ class TestS3ClientReferences:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_references = MagicMock()
-            client.vitess_references.load_reference.return_value = None
+            client.mysql_references = MagicMock()
+            client.mysql_references.load_reference.return_value = None
 
             with pytest.raises(Exception):
                 client.load_reference(12345)
 
     def test_load_references_batch_not_configured(self):
-        """Test load_references_batch raises error when Vitess not configured."""
+        """Test load_references_batch raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",

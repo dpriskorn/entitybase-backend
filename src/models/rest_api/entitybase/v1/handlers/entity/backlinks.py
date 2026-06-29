@@ -20,10 +20,23 @@ class BacklinkHandler(Handler):
         limit: int = 100,
         offset: int = 0,
     ) -> BacklinksResponse:
-        """Get backlinks for an entity."""
+        """Get backlinks for an entity.
+
+        Returns entities that reference this entity in their statements.
+        A backlink consists of the referencing entity ID, property used,
+        and statement rank (normal/preferred/deprecated).
+
+        Args:
+            entity_id: Entity ID to get backlinks for
+            limit: Maximum number of backlinks (default 100)
+            offset: Number of backlinks to skip for pagination
+
+        Returns:
+            BacklinksResponse with list of backlinks
+        """
         logger.debug(f"Getting backlinks for entity {entity_id}, limit {limit}")
         logger.debug(f"Resolving entity_id: {entity_id}")
-        internal_id = self.state.vitess_client.id_resolver.resolve_id(entity_id)
+        internal_id = self.state.mysql_client.id_resolver.resolve_id(entity_id)
         logger.debug(f"Resolved internal_id: {internal_id}")
         if not internal_id:
             raise HTTPException(status_code=404, detail="Entity not found")
@@ -31,13 +44,13 @@ class BacklinkHandler(Handler):
         logger.debug(
             f"Calling get_backlinks with internal_id={internal_id}, limit={limit}, offset={offset}"
         )
-        backlinks = self.state.vitess_client.get_backlinks(internal_id, limit, offset)
+        backlinks = self.state.mysql_client.get_backlinks(internal_id, limit, offset)
         logger.debug(f"Got {len(backlinks)} backlinks")
 
         backlink_models = []
         for b in backlinks:
             referencing_entity_id = (
-                self.state.vitess_client.id_resolver.resolve_entity_id(
+                self.state.mysql_client.id_resolver.resolve_entity_id(
                     b.referencing_internal_id
                 )
             )

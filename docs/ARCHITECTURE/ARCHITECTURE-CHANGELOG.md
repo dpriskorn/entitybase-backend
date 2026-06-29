@@ -2,6 +2,174 @@
 
 This file tracks architectural changes, feature additions, and modifications to entitybase-backend.
 
+## [2026-06-27] JWT Authentication System with Admin Bootstrap
+
+### Summary
+
+Added JWT-based authentication system to replace the legacy X-User-ID header. All POST and PATCH endpoints now require authenticated requests with Bearer tokens and X-Edit-Summary headers.
+
+### Changes
+
+1. **UserRole Enum** (`src/models/data/common/roles.py`):
+   - New enum with `ADMIN` and `DEFAULT` roles
+   - Provides type-safe role validation throughout codebase
+
+2. **Auth Module** (`src/models/rest_api/auth/`):
+   - `models.py` - User and AuthenticatedRequest Pydantic models
+   - `utils.py` - JWT token creation/decoding, bcrypt password hashing, env-based admin bootstrap
+   - `dependencies.py` - FastAPI dependencies: verify_auth, require_role, auth_to_edit_headers
+
+3. **Auth Endpoints** (`src/models/rest_api/entitybase/v1/routes/auth.py`):
+   - `POST /auth/login` - Returns JWT token (unauthenticated)
+   - `POST /auth/register` - Creates new user (admin only)
+   - `DELETE /auth/users/{user_id}` - Deletes user (admin or self)
+
+4. **Database Schema Updates**:
+   - Added `username`, `password_hash`, `role` columns to users table
+   - User IDs now auto-increment (removed from INSERT statements)
+   - Files: `schema.py` (vitess), `schema.py` (sqlite)
+
+5. **UserRepository Updates** (`vitess/repositories/user.py`):
+   - `create_user_with_password()` - Creates user with bcrypt-hashed password
+   - `get_user_by_username()` - Lookup by username
+   - `verify_user_credentials()` - Verify username/password, returns UserResponse
+   - `user_exists_by_username()` - Check if username exists
+
+6. **Removed X-User-ID Header** (`src/models/data/rest_api/v1/entitybase/request/headers.py`):
+   - Removed `x_user_id` field from EditHeaders
+   - User identity now determined by JWT token, not request header
+
+7. **Admin Bootstrap** (`src/models/rest_api/main.py`):
+   - On startup, reads `ADMIN_NAME` and `ADMIN_PASSWORD` from environment
+   - Creates admin user in database if not exists
+   - Uses bcrypt for secure password hashing
+
+8. **Environment Variables** (`.env`, `.env.example`):
+   - `ADMIN_NAME` - Initial admin username
+   - `ADMIN_PASSWORD` - Initial admin password
+   - `JWT_SECRET` - Secret key for JWT signing (change in production)
+
+### API Changes
+
+| Method | Path | Auth Required |
+|--------|------|---------------|
+| POST | `/v1/auth/login` | No |
+| POST | `/v1/auth/register` | Admin only |
+| DELETE | `/v1/auth/users/{user_id}` | Authenticated |
+| All POST/PATCH endpoints | Various | Bearer token + X-Edit-Summary |
+
+### Usage
+
+```bash
+# Login to get token
+curl -X POST /v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username": "admin", "password": "..."}'
+
+# Use token for authenticated requests
+curl -X POST /v1/entities/items \
+  -H "Authorization: Bearer <token>" \
+  -H "X-Edit-Summary: Creating new item"
+```
+
+### Backward Compatibility
+
+- **Breaking change**: All POST/PATCH endpoints now require Bearer token
+- **Removed**: X-User-ID header is no longer used
+- **Migration**: Existing users must re-authenticate via login endpoint
+
+## [2026-04-08] Meilisearch Integration and Search API Refactoring
+
+### Summary
+
+Added Meilisearch integration as a second search engine option and refactored search preview endpoints to fetch from database.
+
+### Changes
+
+1. **Meilisearch Worker** (`src/models/workers/meilisearch_indexer/`):
+   - New `MeilisearchIndexerWorker` class that consumes entity change events from Kafka
+   - Fetches entity data from S3, transforms using `transform_to_meilisearch()`, indexes to Meilisearch
+   - Runs on port 8009 with health check endpoint
+
+2. **Meilisearch Client and Transformer** (`src/models/services/meilisearch/`):
+   - `MeilisearchClient` - Client for interacting with Meilisearch (connect, index_document, delete_document, get_document)
+   - `transform_to_meilisearch()` - Transformer function (mirrors Elasticsearch transformer)
+   - Uses `meilisearch` Python library
+
+3. **Meilisearch Data Models** (`src/models/data/infrastructure/meilisearch/`):
+   - `FlattenedClaims` - Model for flattened claims mapping
+   - `MeilisearchDocument` - Model for Meilisearch document from Wikibase entity
+   - `MeilisearchDocumentResponse` - Response model for document retrieval
+
+4. **Configuration** (`src/models/config/settings.py`):
+   - Added `meilisearch_enabled`, `meilisearch_host`, `meilisearch_port`, `meilisearch_api_key`, `meilisearch_index`, `meilisearch_consumer_group`
+
+5. **REST API Endpoints** (`src/models/rest_api/entitybase/v1/endpoints/entities.py`):
+   - Changed `POST /entities/elasticsearch/preview` to `GET /entities/{entity_id}/elasticsearch`
+   - Changed `POST /entities/meilisearch/preview` to `GET /entities/{entity_id}/meilisearch`
+   - Both endpoints now fetch entity from database automatically and return transformed document
+   - No longer requires sending JSON body - just pass entity ID
+
+6. **Dependency Groups** (`pyproject.toml`):
+   - Added `meilisearch (>=0.40.0,<0.41.0)` to main dependencies
+   - Added `meilisearch` to `api` dependency group
+   - Added new `meilisearch-indexer-worker` dependency group
+
+7. **Logging Standardization**:
+   - Added `datefmt="%Y-%m-%d %H:%M:%S"` to all `logging.basicConfig` calls
+   - Added custom `log_config` dict to all `uvicorn.Config` instances
+   - Ensures consistent datetime format in logs across all workers
+
+### Documentation Updated
+
+- `docs/features/ENDPOINTS.md` - Updated endpoint table with new search endpoints
+- `docs/ARCHITECTURE/WORKERS.md` - Added Elasticsearch and Meilisearch worker documentation
+- `docs/ARCHITECTURE/CONFIGURATION.md` - Added Meilisearch configuration settings
+
+### Architecture Notes
+
+**Search Worker Pattern**: Both Elasticsearch and Meilisearch workers call transformer functions directly rather than using REST API endpoints. This is more efficient because:
+- No HTTP overhead between worker and transformer
+- Runs in the same process/container
+- Direct access to S3 for entity data
+
+**REST API Endpoints**: The `GET /entities/{entity_id}/elasticsearch` and `/meilisearch` endpoints are for manual testing/preview - humans can query them to see transformed documents without running a worker.
+
+## [2026-04-06] Purge Worker and Dependency Optimization
+
+### Summary
+
+Added dedicated purge worker and optimized Docker image sizes by using `--only` flag in poetry export.
+
+### Changes
+
+1. **New Purge Worker** (`src/models/workers/purge/purge_worker.py`):
+   - Cleans S3 buckets (revisions, wikibase-dumps)
+   - Truncates database tables for cleanup operations
+   - Runs on schedule (default: daily at 2 AM)
+
+2. **Dependency Groups** (`pyproject.toml`):
+   - Added `api` group for wikibaseintegrator (API-only dependency)
+   - Added `purge-worker` group for purge worker dependencies
+   - Worker groups now use `--only` flag instead of `--with` to exclude main dependencies
+
+3. **Export Script Removed** (`scripts/shell/export-requirements.sh`):
+   - Removed entirely; Dockerfiles now use `poetry install` directly in multi-stage builds
+   - No more pre-generated requirements files needed
+
+4. **Dockerfiles**:
+   - `Dockerfile.api` now uses `requirements-api.txt` instead of `requirements.txt`
+   - Worker Dockerfiles use leaner requirements (13-25 packages vs 58-64 before)
+
+### Image Size Reduction
+
+| Worker | Before (--with) | After (--only) |
+|--------|-----------------|----------------|
+| purge-worker | 64 deps | 13 deps |
+| idworker | 58 deps | 15 deps |
+| ttl-worker | 58 deps | 24 deps |
+| json-worker | 58 deps | 22 deps |
+
 ## [2026-03-13] Elasticsearch Transformer Pydantic Models
 
 ### Summary
@@ -765,7 +933,7 @@ Implemented two separate workers for generating weekly dumps of all entities in 
   - Container name: json-dump-worker
   - Port: 8002
   - Environment: all JSON dump configuration variables
-  - Dependencies: create-tables, create-buckets, minio
+  - Dependencies: create-tables, create-buckets, rustfs
   - Health check: `/health` endpoint
   - Command: runs json_dump_worker module
   - Resources: 1GB memory, 0.5 CPU
@@ -774,7 +942,7 @@ Implemented two separate workers for generating weekly dumps of all entities in 
   - Container name: ttl-dump-worker
   - Port: 8003
   - Environment: all TTL dump configuration variables plus PROPERTY_REGISTRY_PATH
-  - Dependencies: create-tables, create-buckets, minio
+  - Dependencies: create-tables, create-buckets, rustfs
   - Health check: `/health` endpoint
   - Command: runs ttl_dump_worker module
   - Resources: 1GB memory, 0.5 CPU

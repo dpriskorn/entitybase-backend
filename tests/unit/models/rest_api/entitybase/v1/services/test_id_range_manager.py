@@ -46,7 +46,7 @@ class TestIdRangeManager:
     def test_set_worker_id(self):
         """Test setting worker ID."""
         mock_client = MagicMock()
-        manager = IdRangeManager(vitess_client=mock_client)
+        manager = IdRangeManager(mysql_client=mock_client)
 
         manager.set_worker_id("worker-1")
         assert manager.worker_id == "worker-1"
@@ -54,7 +54,7 @@ class TestIdRangeManager:
     def test_default_values(self):
         """Test default values are applied correctly."""
         mock_client = MagicMock()
-        manager = IdRangeManager(vitess_client=mock_client)
+        manager = IdRangeManager(mysql_client=mock_client)
 
         assert manager.range_size == 1_000_000
         assert manager.min_ids == {}
@@ -94,7 +94,7 @@ class TestIdRangeManager:
     def test_get_range_status_empty(self):
         """Test get_range_status with no ranges."""
         mock_client = MagicMock()
-        manager = IdRangeManager(vitess_client=mock_client)
+        manager = IdRangeManager(mysql_client=mock_client)
 
         status = manager.get_range_status()
         assert status.ranges == {}
@@ -102,7 +102,7 @@ class TestIdRangeManager:
     def test_get_range_status_with_ranges(self):
         """Test get_range_status with allocated ranges."""
         mock_client = MagicMock()
-        manager = IdRangeManager(vitess_client=mock_client)
+        manager = IdRangeManager(mysql_client=mock_client)
 
         manager.local_ranges = {
             "Q": IdRange(
@@ -129,7 +129,7 @@ class TestIdRangeManager:
     def test_get_range_status_utilization(self):
         """Test utilization calculation in get_range_status."""
         mock_client = MagicMock()
-        manager = IdRangeManager(vitess_client=mock_client)
+        manager = IdRangeManager(mysql_client=mock_client)
 
         manager.local_ranges = {
             "Q": IdRange(
@@ -148,7 +148,7 @@ class TestIdRangeManager:
         """Test IdRangeManager model_dump."""
         mock_client = MagicMock()
         manager = IdRangeManager(
-            vitess_client=mock_client,
+            mysql_client=mock_client,
             range_size=500000,
             worker_id="test-worker",
         )
@@ -169,7 +169,7 @@ class TestIdRangeManager:
             (1000,),  # Second call returns max used
         ]
 
-        manager = IdRangeManager(vitess_client=mock_client)
+        manager = IdRangeManager(mysql_client=mock_client)
         manager.worker_id = "test-worker"
 
         manager._ensure_range_available("Q")
@@ -179,7 +179,7 @@ class TestIdRangeManager:
     def test_get_next_id_existing_range(self):
         """Test get_next_id returns ID from existing range."""
         mock_client = MagicMock()
-        manager = IdRangeManager(vitess_client=mock_client)
+        manager = IdRangeManager(mysql_client=mock_client)
 
         manager.local_ranges = {
             "Q": IdRange(
@@ -206,7 +206,7 @@ class TestIdRangeManager:
             (2000000, 1),  # Second call - range config update
         ]
 
-        manager = IdRangeManager(vitess_client=mock_client)
+        manager = IdRangeManager(mysql_client=mock_client)
         manager.worker_id = "test-worker"
 
         # Simulate range at 80% consumed
@@ -233,7 +233,7 @@ class TestIdRangeManager:
         mock_cursor.fetchone.return_value = (1000, 1)
         mock_cursor.rowcount = 1
 
-        manager = IdRangeManager(vitess_client=mock_client)
+        manager = IdRangeManager(mysql_client=mock_client)
         manager.worker_id = "test-worker"
 
         result = manager._allocate_new_range("Q")
@@ -251,7 +251,7 @@ class TestIdRangeManager:
 
         mock_cursor.fetchone.return_value = None
 
-        manager = IdRangeManager(vitess_client=mock_client)
+        manager = IdRangeManager(mysql_client=mock_client)
         manager.worker_id = "test-worker"
 
         result = manager._allocate_new_range("Q")
@@ -270,7 +270,7 @@ class TestIdRangeManager:
         mock_cursor.fetchone.return_value = (1000, 1)
         mock_cursor.rowcount = 0
 
-        manager = IdRangeManager(vitess_client=mock_client)
+        manager = IdRangeManager(mysql_client=mock_client)
         manager.worker_id = "test-worker"
 
         # The method should handle the conflict internally
@@ -290,7 +290,7 @@ class TestIdRangeManager:
         ]
         mock_cursor.fetchone.return_value = (50000,)
 
-        manager = IdRangeManager(vitess_client=mock_client)
+        manager = IdRangeManager(mysql_client=mock_client)
 
         with patch("time.time", return_value=12345):
             manager.initialize_from_database()
@@ -310,10 +310,136 @@ class TestIdRangeManager:
             (None,),  # Second call returns max used (none)
         ]
 
-        manager = IdRangeManager(vitess_client=mock_client)
+        manager = IdRangeManager(mysql_client=mock_client)
         manager.worker_id = "test-worker"
 
         entity_id = manager.get_next_id("Q")
 
         assert entity_id.startswith("Q")
         assert "Q" in manager.local_ranges
+
+    def test_get_next_id_alloc_failure_raises_runtime_error(self):
+        """Test get_next_id raises RuntimeError when allocation fails at 80%."""
+        from models.data.common import OperationResult
+
+        mock_client = MagicMock()
+        manager = IdRangeManager(mysql_client=mock_client)
+        manager.worker_id = "test-worker"
+
+        # Set up range at 80% consumed
+        manager.local_ranges = {
+            "Q": IdRange(
+                entity_type="Q",
+                current_start=1,
+                current_end=1000,
+                next_id=801,
+            ),
+        }
+
+        with patch.object(
+            manager,
+            "_allocate_new_range",
+            return_value=OperationResult(success=False, error="DB error"),
+        ):
+            with pytest.raises(RuntimeError, match="DB error"):
+                manager.get_next_id("Q")
+
+    def test_initialize_from_database_error(self):
+        """Test initialize_from_database re-raises exceptions."""
+        mock_client = MagicMock()
+        mock_client.cursor.__enter__ = MagicMock(
+            side_effect=Exception("Connection lost")
+        )
+
+        manager = IdRangeManager(mysql_client=mock_client)
+
+        with pytest.raises(Exception, match="Connection lost"):
+            manager.initialize_from_database()
+
+    def test_get_next_id_new_entity_type_alloc_failure(self):
+        """Test get_next_id for unknown entity type when allocation fails."""
+        mock_client = MagicMock()
+        mock_client.cursor.__enter__ = MagicMock(side_effect=Exception("DB error"))
+        mock_client.cursor.__exit__ = MagicMock(return_value=False)
+
+        manager = IdRangeManager(mysql_client=mock_client)
+        manager.worker_id = "test-worker"
+
+        with pytest.raises(Exception, match="DB error"):
+            manager.get_next_id("Q")
+
+    def test_get_next_id_new_entity_type_zero_range_config(self):
+        """Test get_next_id allocates with zero max used."""
+        mock_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_client.cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_client.cursor.__exit__ = MagicMock(return_value=False)
+
+        mock_cursor.fetchone.side_effect = [
+            (1, 1),  # First call - range config with version
+            (None,),  # Second call - max used is None (0)
+        ]
+
+        manager = IdRangeManager(mysql_client=mock_client)
+        manager.worker_id = "test-worker"
+
+        entity_id = manager.get_next_id("Q")
+
+        assert entity_id.startswith("Q")
+        assert "Q" in manager.local_ranges
+
+    def test_ensure_range_available_alloc_failure_result(self):
+        """Test _ensure_range_available raises RuntimeError when allocation returns failure."""
+        from models.data.common import OperationResult
+
+        mock_client = MagicMock()
+        manager = IdRangeManager(mysql_client=mock_client)
+        manager.worker_id = "test-worker"
+
+        with patch.object(
+            manager,
+            "_allocate_new_range",
+            return_value=OperationResult(success=False, error="no config"),
+        ):
+            with pytest.raises(RuntimeError, match="no config"):
+                manager.get_next_id("Q")
+
+    def test_allocate_new_range_version_conflict_early_attempt(self):
+        """Test _allocate_new_range version conflict on early attempt (hits break)."""
+        mock_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_client.cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_client.cursor.__exit__ = MagicMock(return_value=False)
+        mock_cursor.fetchone.return_value = (1000, 1)
+        mock_cursor.rowcount = 0  # Version conflict
+
+        manager = IdRangeManager(mysql_client=mock_client)
+        manager.worker_id = "test-worker"
+
+        result = manager._allocate_new_range("Q")
+
+        assert result.success is False
+        assert "Failed to allocate range" in result.error
+
+    def test_allocate_new_range_version_conflict_last_attempt(self):
+        """Test _allocate_new_range returns error on last attempt version conflict."""
+        mock_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_client.cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_client.cursor.__exit__ = MagicMock(return_value=False)
+
+        # Return success for first 2 calls, but rowcount=0 each time
+        # Note: fetchone is called at the beginning of each retry inside the for loop
+        # But with rowcount=0, the cursor will still return the same data
+        # We need fetchone to keep returning data so we don't get "no config"
+        mock_cursor.fetchone.return_value = (1000, 1)
+        # rowcount=0 simulates version conflict (no rows updated)
+
+        manager = IdRangeManager(mysql_client=mock_client)
+        manager.worker_id = "test-worker"
+
+        # Patch rowcount to be 0 for all 3 attempts (max_retries)
+        with patch.object(mock_cursor, "rowcount", 0):
+            result = manager._allocate_new_range("Q")
+
+        assert result.success is False

@@ -15,16 +15,25 @@ logger = logging.getLogger(__name__)
 class IdRange(BaseModel):
     """Represents an allocated range of IDs for a specific entity type."""
 
-    entity_type: str
-    current_start: int
-    current_end: int
-    next_id: int
+    entity_type: str = Field(..., description="Entity type (e.g., Q, P, L)")
+    current_start: int = Field(..., description="Start of the allocated range")
+    current_end: int = Field(..., description="End of the allocated range")
+    next_id: int = Field(..., description="Next available ID in the range")
 
 
 class IdRangeManager(BaseModel):
-    """Manages ID range allocation and local ID generation to prevent write hotspots."""
+    """Manages ID range allocation and local ID generation to prevent write hotspots.
 
-    vitess_client: Any
+    Allocates ID ranges from the ID worker (default 80% threshold for
+    reallocation). Generates local IDs from the allocated range to
+    avoid database write contention.
+
+    Attributes:
+        range_size: Number of IDs to allocate per range (default 1000000)
+        min_ids: Minimum ID values per entity type to avoid Wikidata conflicts
+    """
+
+    mysql_client: Any
     range_size: int = 1_000_000
     min_ids: Dict[str, int] = Field(default_factory=dict)
     local_ranges: Dict[str, IdRange] = {}
@@ -92,7 +101,7 @@ class IdRangeManager(BaseModel):
         for attempt in range(max_retries):
             try:
                 # Get current range end atomically
-                with self.vitess_client.cursor as cursor:
+                with self.mysql_client.cursor as cursor:
                     # Lock row for update
                     cursor.execute(
                         """
@@ -171,7 +180,7 @@ class IdRangeManager(BaseModel):
     def initialize_from_database(self) -> None:
         """Initialize local range state from database (for startup/recovery)."""
         try:
-            with self.vitess_client.cursor as cursor:
+            with self.mysql_client.cursor as cursor:
                 cursor.execute(
                     "SELECT entity_type, current_range_start, current_range_end FROM id_ranges"
                 )

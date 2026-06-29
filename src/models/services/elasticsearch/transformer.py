@@ -17,40 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 def transform_to_elasticsearch(entity_json: dict[str, Any]) -> ElasticsearchDocument:
-    """Transform Wikibase entity JSON to Elasticsearch document format.
-
-    Args:
-        entity_json: Entity JSON in Wikibase API format (with "entities" wrapper)
-
-    Returns:
-        Elasticsearch document with flattened structure
-
-    Example input:
-        {
-            "entities": {
-                "Q42": {
-                    "type": "item",
-                    "labels": {"en": {"language": "en", "value": "Douglas Adams"}},
-                    "descriptions": {...},
-                    "aliases": {...},
-                    "claims": {...}
-                }
-            }
-        }
-
-    Example output:
-        {
-            "entity_id": "Q42",
-            "entity_type": "item",
-            "labels": {"en": {"value": "Douglas Adams", "language": "en"}},
-            "descriptions": {...},
-            "aliases": {...},
-            "claims_flat": {"P31": ["Q5"], "P21": ["Q6581097"]},
-            "claims": {...},
-            "lastrevid": 2441354823,
-            "modified": "2025-12-12T17:50:31Z"
-        }
-    """
+    """Transform Wikibase entity JSON to Elasticsearch document format."""
     entities = entity_json.get("entities", {})
 
     if not entities:
@@ -118,21 +85,31 @@ def _flatten_claims(claims: dict[str, Any]) -> FlattenedClaims:
             snaktype = mainsnak.get("snaktype", "value")
 
             if snaktype == "value":
-                if isinstance(value, dict):
-                    if "id" in value:
-                        values.append(value["id"])
-                    elif "entity-type" in value and "id" in value:
-                        values.append(value["id"])
-                    elif "time" in value:
-                        values.append(value["time"])
-                    elif "amount" in value:
-                        values.append(str(value["amount"]))
-                    else:
-                        values.append(str(value))
-                else:
-                    values.append(str(value))
+                extracted = _extract_claim_value(value)
+                if extracted is not None:
+                    values.append(extracted)
 
         if values:
             flat[prop_id] = values
 
     return FlattenedClaims(data=flat)
+
+
+def _extract_claim_value(value: Any) -> str:
+    """Extract a string value from a claim datavalue.
+
+    Args:
+        value: The datavalue value dict
+
+    Returns:
+        String representation of the value, or empty string if not extractable
+    """
+    if isinstance(value, dict):
+        if "id" in value:
+            return str(value["id"]) if value["id"] is not None else ""
+        if "time" in value:
+            return str(value["time"]) if value["time"] is not None else ""
+        if "amount" in value:
+            return str(value["amount"])
+        return str(value)
+    return str(value)

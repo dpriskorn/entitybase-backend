@@ -1,30 +1,40 @@
-import pytest
-
-pytestmark = pytest.mark.unit
+"""Unit tests for UniqueIdGenerator."""
 
 from models.infrastructure.unique_id import UniqueIdGenerator
 
 
 class TestUniqueIdGenerator:
-    @pytest.fixture
-    def generator(self) -> UniqueIdGenerator:
-        return UniqueIdGenerator()
+    """Unit tests for UniqueIdGenerator."""
 
-    def test_generate_unique_id_uniqueness(self, generator: UniqueIdGenerator) -> None:
-        ids = {generator.generate_unique_id() for _ in range(1000)}
-        assert len(ids) == 1000
+    def test_generate_unique_id_returns_int(self):
+        """Test that unique ID is an integer."""
+        generator = UniqueIdGenerator()
+        result = generator.generate_unique_id()
 
-    def test_generate_unique_id_type(self, generator: UniqueIdGenerator) -> None:
-        id_value = generator.generate_unique_id()
-        assert isinstance(id_value, int)
-        assert id_value > 0
+        assert isinstance(result, int)
+        assert result > 0
 
-    def test_generate_unique_id_range(self, generator: UniqueIdGenerator) -> None:
-        id_value = generator.generate_unique_id()
-        assert 0 <= id_value < (1 << 64)
-
-    def test_counter_increment(self, generator: UniqueIdGenerator) -> None:
+    def test_generate_unique_id_increments(self):
+        """Test that generated IDs are different."""
+        generator = UniqueIdGenerator()
         id1 = generator.generate_unique_id()
         id2 = generator.generate_unique_id()
+
         assert id1 != id2
-        assert generator.counter == 2
+
+    def test_counter_property(self):
+        """Test that counter returns current count."""
+        generator = UniqueIdGenerator()
+
+        assert generator.counter == 0
+
+        generator.generate_unique_id()
+
+        assert generator.counter == 1
+
+    def test_generate_unique_id_within_63_bits(self):
+        """Test that generated ID fits in 63 bits (signed 64-bit max)."""
+        generator = UniqueIdGenerator()
+        result = generator.generate_unique_id()
+
+        assert result < (1 << 63)

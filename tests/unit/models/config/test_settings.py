@@ -25,4 +25,4 @@ class TestSettings:
     def test_defaults_when_env_not_set(self):
         """Test that defaults are used when env vars not set."""
         settings_instance = Settings()
-        assert settings_instance.s3_endpoint == "http://minio:9000"
+        assert settings_instance.s3_endpoint == "http://rustfs:9000"

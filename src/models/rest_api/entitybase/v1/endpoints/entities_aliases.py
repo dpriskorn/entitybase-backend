@@ -3,10 +3,17 @@
 import logging
 from typing import List
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
+
+from models.rest_api.auth.dependencies import auth_to_edit_headers, verify_auth
+from models.rest_api.auth.models import AuthenticatedRequest
 
 from models.data.rest_api.v1.entitybase.request.headers import EditHeadersType
 from models.data.rest_api.v1.entitybase.request import TermUpdateRequest
+from models.data.rest_api.v1.entitybase.request.entity.context import (
+    AliasContext,
+    EditOperationContext,
+)
 from models.data.rest_api.v1.entitybase.response import (
     TermHashResponse,
     TermHashesResponse,
@@ -76,9 +83,8 @@ async def update_entity_aliases(
     try:
         result = await update_handler.update_aliases(
             entity_id,
-            language_code,
-            aliases_data,
-            headers,
+            AliasContext(language_code=language_code, aliases=aliases_data),
+            EditOperationContext(edit_headers=headers, user_id=0),
             validator,
         )
         logger.info(f"ALIAS UPDATE SUCCESS: entity={entity_id}")
@@ -100,13 +106,14 @@ async def add_entity_alias(
     language_code: str,
     request: TermUpdateRequest,
     req: Request,
-    headers: EditHeadersType,
+    auth: AuthenticatedRequest = Depends(verify_auth),
 ) -> TermHashResponse:
     """Add a single alias to entity for language."""
     logger.info(
         f"📝 ALIAS ADD: Starting alias add for entity={entity_id}, language={language_code}"
     )
 
+    headers = auth_to_edit_headers(auth)
     if request.language != language_code:
         raise HTTPException(
             status_code=400,
@@ -119,9 +126,8 @@ async def add_entity_alias(
     update_handler = EntityUpdateHandler(state=state)
     await update_handler.add_alias(
         entity_id,
-        language_code,
-        request.value,
-        headers,
+        AliasContext(language_code=language_code, aliases=[request.value]),
+        EditOperationContext(edit_headers=headers, user_id=auth.user.user_id),
         validator,
     )
 
@@ -151,6 +157,7 @@ async def delete_entity_aliases(
         entity_id,
         language_code,
         headers,
+        0,
         validator,
     )
 

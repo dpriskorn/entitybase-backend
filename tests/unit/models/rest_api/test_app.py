@@ -39,7 +39,7 @@ class TestFastAPIApp:
 
         app_mock = FastAPI()
         mock_state_handler = mocker.Mock()
-        mock_state_handler.start.return_value = None
+        mock_state_handler.start = AsyncMock()
         mock_state_handler.async_shutdown = AsyncMock()
 
         mocker.patch(
@@ -63,7 +63,7 @@ class TestFastAPIApp:
 
         app_mock = FastAPI()
         mock_state_handler = mocker.Mock()
-        mock_state_handler.start.return_value = None
+        mock_state_handler.start = AsyncMock()
         mock_state_handler.async_shutdown = AsyncMock()
 
         mocker.patch(
@@ -88,7 +88,7 @@ class TestFastAPIApp:
 
         app_mock = FastAPI()
         mock_state_handler = mocker.Mock()
-        mock_state_handler.start.side_effect = RuntimeError("Startup failed")
+        mock_state_handler.start = AsyncMock(side_effect=RuntimeError("Startup failed"))
         mock_state_handler.async_shutdown = AsyncMock()
 
         mocker.patch(

@@ -7,13 +7,14 @@ from typing import Any, Literal
 
 from pydantic import Field
 
+from models.base import Base
 from models.data.config.sqlite import SqliteConfig
 from models.infrastructure.connection import ConnectionManager
 
 logger = logging.getLogger(__name__)
 
 
-class SqliteCursorWrapper:
+class SqliteCursorWrapper(Base):
     """Wraps a sqlite3 cursor to translate MySQL-style %s params to SQLite ? style.
 
     This allows existing repository code using %s placeholders to work
@@ -22,10 +23,9 @@ class SqliteCursorWrapper:
 
     def __init__(self, cursor: sqlite3.Cursor) -> None:
         self._cursor = cursor
+        super().__init__()
 
-    def execute(
-        self, sql: str, parameters: Any = None
-    ) -> "SqliteCursorWrapper":
+    def execute(self, sql: str, parameters: Any = None) -> "SqliteCursorWrapper":
         if parameters is not None:
             sql = sql.replace("%s", "?")
         if parameters is None:
@@ -34,9 +34,7 @@ class SqliteCursorWrapper:
             self._cursor.execute(sql, parameters)
         return self
 
-    def executemany(
-        self, sql: str, parameters: Any
-    ) -> "SqliteCursorWrapper":
+    def executemany(self, sql: str, parameters: Any) -> "SqliteCursorWrapper":
         sql = sql.replace("%s", "?")
         self._cursor.executemany(sql, parameters)
         return self
@@ -48,6 +46,7 @@ class SqliteCursorWrapper:
         return self._cursor.fetchall()
 
     def fetchmany(self, size: int | None = None) -> list[Any]:
+        # None uses cursor's arraysize (default behavior); 0 returns empty list
         return self._cursor.fetchmany(size)
 
     def close(self) -> None:
@@ -61,18 +60,21 @@ class SqliteCursorWrapper:
     def rowcount(self) -> int:
         return self._cursor.rowcount
 
+    @property
+    def lastrowid(self) -> int | None:
+        return self._cursor.lastrowid
+
     def __iter__(self) -> Any:
         return iter(self._cursor.fetchall())
 
 
-class SqliteCursorContextManager:
+class SqliteCursorContextManager(Base):
     """Context manager for SQLite cursors."""
 
-    def __init__(
-        self, connection_manager: "SqliteConnectionManager"
-    ) -> None:
+    def __init__(self, connection_manager: "SqliteConnectionManager") -> None:
         self.connection_manager = connection_manager
         self.cursor: SqliteCursorWrapper | None = None
+        super().__init__()
 
     def __enter__(self) -> SqliteCursorWrapper:
         self.cursor = self.connection_manager.cursor()
@@ -90,6 +92,22 @@ class SqliteCursorContextManager:
             except Exception as e:
                 logger.warning(f"Error closing SQLite cursor: {e}")
         return False
+
+
+class SqliteConnectionWrapper(Base):
+    """Wrapper for SQLite connection to provide MySQL-compatible interface.
+
+    This wrapper provides a cursor() method that returns a SqliteCursorWrapper,
+    allowing existing code using connection.cursor() to work with SQLite.
+    """
+
+    def __init__(self, connection_manager: "SqliteConnectionManager") -> None:
+        self.connection_manager = connection_manager
+        super().__init__()
+
+    def cursor(self) -> SqliteCursorWrapper:
+        """Create a cursor wrapper around the SQLite connection."""
+        return self.connection_manager.cursor()
 
 
 class SqliteConnectionManager(ConnectionManager):
@@ -139,6 +157,24 @@ class SqliteConnectionManager(ConnectionManager):
         if self.conn is None:
             raise RuntimeError("Failed to establish SQLite connection")
         return SqliteCursorWrapper(self.conn.cursor())
+
+    def acquire(self) -> SqliteConnectionWrapper:
+        """Acquire a connection wrapper for MySQL-compatible interface.
+
+        Returns a SqliteConnectionWrapper that provides a cursor() method,
+        allowing existing code using connection.cursor() to work with SQLite.
+        """
+        if self.conn is None:
+            self.connect()
+        return SqliteConnectionWrapper(connection_manager=self)
+
+    def release(self, connection: Any = None) -> None:
+        """Release a connection back to the pool.
+
+        For SQLite, this is a no-op since there's no connection pool.
+        The connection remains open for reuse.
+        """
+        pass
 
     def disconnect(self) -> None:
         """Close the SQLite connection."""

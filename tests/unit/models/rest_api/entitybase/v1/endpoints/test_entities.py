@@ -21,7 +21,7 @@ class TestEntityTTLRevisionEndpoint:
         """Test getting TTL revision data successfully."""
         from models.workers.entity_diff.rdf_serializer import RDFSerializer
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
 
         mock_revision_data = S3RevisionData(
             schema="1.0.0",
@@ -52,7 +52,7 @@ class TestEntityTTLRevisionEndpoint:
     @pytest.mark.asyncio
     async def test_get_entity_ttl_revision_s3_not_found(self, mock_entity_read_state):
         """Test getting TTL revision when S3 content is not found."""
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
 
         mock_s3.read_revision.side_effect = S3NotFoundError("Object not found: 123456")
 
@@ -74,7 +74,7 @@ class TestEntityTTLRevisionEndpoint:
         """Test getting TTL revision with different format options."""
         from models.workers.entity_diff.rdf_serializer import RDFSerializer
 
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
 
         mock_revision_data = S3RevisionData(
             schema="1.0.0",
@@ -114,7 +114,7 @@ class TestEntityJsonRevisionEndpoint:
     @pytest.mark.asyncio
     async def test_get_entity_json_revision_success(self, mock_entity_read_state):
         """Test getting JSON revision data successfully."""
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
 
         mock_revision_data = S3RevisionData(
             schema="1.0.0",
@@ -142,7 +142,7 @@ class TestEntityJsonRevisionEndpoint:
     @pytest.mark.asyncio
     async def test_get_entity_json_revision_s3_not_found(self, mock_entity_read_state):
         """Test getting JSON revision when S3 content is not found."""
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
 
         mock_s3.read_revision.side_effect = S3NotFoundError("Object not found: 123456")
 
@@ -162,7 +162,7 @@ class TestEntityJsonRevisionEndpoint:
         self, mock_entity_read_state
     ):
         """Test getting JSON revision with complex entity data."""
-        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_state, mock_mysql, mock_s3 = mock_entity_read_state
 
         mock_revision_data = S3RevisionData(
             schema="1.0.0",

@@ -1,10 +1,12 @@
 import json
 import logging
 import os
+import sqlite3
 import sys
+import tempfile
+from pathlib import Path
 from typing import Any
 
-import pymysql
 import pytest
 import requests
 
@@ -12,6 +14,11 @@ sys.path.insert(0, "src")
 
 os.environ["STREAMING_ENABLED"] = "false"
 os.environ.pop("KAFKA_BOOTSTRAP_SERVERS", None)
+
+DB_TYPE = os.getenv("DB_TYPE", "sqlite")
+
+if DB_TYPE == "sqlite":
+    os.environ["ID_WORKER_ENABLED"] = "false"
 
 logger = logging.getLogger(__name__)
 
@@ -42,44 +49,58 @@ def validate_e2e_env_vars():
     This fixture fails fast if required environment variables are missing,
     preventing long retry loops and confusing connection errors.
     """
-    required_vars = {
-        "VITESS_HOST": "Vitess database host",
-        "VITESS_PORT": "Vitess database port",
-        "VITESS_DATABASE": "Vitess database name",
-        "VITESS_USER": "Vitess database user",
-    }
+    if DB_TYPE == "mysql":
+        required_vars = {
+            "MYSQL_HOST": "Sql database host",
+            "MYSQL_PORT": "Sql database port",
+            "MYSQL_DATABASE": "Sql database name",
+            "MYSQL_USER": "Sql database user",
+        }
 
-    missing_vars = []
-    for var, description in required_vars.items():
-        value = os.getenv(var)
-        if not value or value == "":
-            missing_vars.append(f"  {var}: {description}")
+        missing_vars = []
+        for var, description in required_vars.items():
+            value = os.getenv(var)
+            if not value or value == "":
+                missing_vars.append(f"  {var}: {description}")
 
-    if missing_vars:
-        error_msg = (
-            "Required environment variables are not set:\n"
-            + "\n".join(missing_vars)
-            + "\n\nPlease set these environment variables before running E2E tests."
-        )
-        pytest.fail(error_msg)
+        if missing_vars:
+            error_msg = (
+                "Required environment variables are not set:\n"
+                + "\n".join(missing_vars)
+                + "\n\nPlease set these environment variables before running E2E tests."
+            )
+            pytest.fail(error_msg)
 
 
 @pytest.fixture(scope="session")
 def db_conn():
     """Database connection for cleanup."""
-    from models.config.settings import settings
+    if DB_TYPE == "sqlite":
+        temp_dir = tempfile.mkdtemp()
+        db_path = Path(temp_dir) / "test_e2e.db"
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        yield conn
+        if conn:
+            conn.close()
+        import shutil
 
-    conn = pymysql.connect(
-        host=settings.vitess_host,
-        port=settings.vitess_port,
-        user=settings.vitess_user,
-        password=settings.vitess_password,
-        database=settings.vitess_database,
-        connect_timeout=2,
-    )
-    yield conn
-    if conn:
-        conn.close()
+        shutil.rmtree(temp_dir, ignore_errors=True)
+    else:
+        import pymysql
+        from models.config.settings import settings
+
+        conn = pymysql.connect(
+            host=settings.mysql_host,
+            port=settings.mysql_port,
+            user=settings.mysql_user,
+            password=settings.mysql_password,
+            database=settings.mysql_database,
+            connect_timeout=2,
+        )
+        yield conn
+        if conn:
+            conn.close()
 
 
 @pytest.fixture(scope="class")
@@ -105,43 +126,83 @@ def db_cleanup(db_conn):
         "user_daily_stats",
         "general_daily_stats",
     ]
-    with db_conn.cursor() as cursor:
+    if DB_TYPE == "sqlite":
         for table in tables:
             try:
-                cursor.execute(f"DELETE FROM {table}")
-            except pymysql.err.ProgrammingError:
+                db_conn.execute(f"DELETE FROM {table}")
+            except sqlite3.OperationalError:
                 continue
-    db_conn.commit()
+        db_conn.commit()
+    else:
+        import pymysql
+
+        with db_conn.cursor() as cursor:
+            for table in tables:
+                try:
+                    cursor.execute(f"DELETE FROM {table}")
+                except pymysql.err.ProgrammingError:
+                    continue
+        db_conn.commit()
 
 
 @pytest.fixture(scope="session", autouse=True)
-def create_tables(vitess_client):
+def create_tables(db_client):
     """Create database tables before running E2E tests."""
-    from models.infrastructure.vitess.repositories.schema import SchemaRepository
-
-    schema_repository = SchemaRepository(vitess_client=vitess_client)
-    schema_repository.create_tables()
-    logger.info("Database tables created for E2E tests")
+    db_client.create_tables()
+    logger.info(f"Database tables created for E2E tests (DB_TYPE={DB_TYPE})")
 
 
 @pytest.fixture(scope="session")
-def vitess_client():
-    """Create a real VitessClient connected to test database."""
-    from models.infrastructure.vitess.client import VitessClient
-    from models.data.config.vitess import VitessConfig
+def db_client():
+    """Create a database client (SqliteClient or MysqlClient) connected to test database."""
     from models.config.settings import settings
 
-    vitess_config = VitessConfig(
-        host=settings.vitess_host,
-        port=settings.vitess_port,
-        database=settings.vitess_database,
-        user=settings.vitess_user,
-        password=settings.vitess_password,
+    if DB_TYPE == "sqlite":
+        from models.infrastructure.sqlite.client import SqliteClient
+
+        sqlite_config = settings.get_db_config
+        client = SqliteClient(config=sqlite_config)
+        yield client
+        client.disconnect()
+    else:
+        from models.infrastructure.mysql.client import MysqlClient
+        from models.data.config.mysql import MysqlConfig
+
+        mysql_config = MysqlConfig(
+            host=settings.mysql_host,
+            port=settings.mysql_port,
+            database=settings.mysql_database,
+            user=settings.mysql_user,
+            password=settings.mysql_password,
+            pool_size=20,
+            max_overflow=20,
+            pool_timeout=5,
+        )
+        client = MysqlClient(config=mysql_config)
+        yield client
+        client.disconnect()
+
+
+@pytest.fixture(scope="session")
+def mysql_client():
+    """Create a real MysqlClient connected to test database (for backwards compatibility)."""
+    if DB_TYPE != "mysql":
+        pytest.skip("mysql_client fixture requires DB_TYPE=mysql")
+    from models.infrastructure.mysql.client import MysqlClient
+    from models.data.config.mysql import MysqlConfig
+    from models.config.settings import settings
+
+    mysql_config = MysqlConfig(
+        host=settings.mysql_host,
+        port=settings.mysql_port,
+        database=settings.mysql_database,
+        user=settings.mysql_user,
+        password=settings.mysql_password,
         pool_size=20,
         max_overflow=20,
         pool_timeout=5,
     )
-    client = VitessClient(config=vitess_config)
+    client = MysqlClient(config=mysql_config)
     yield client
     client.disconnect()
 
@@ -157,39 +218,39 @@ def s3_config():
 @pytest.fixture(scope="session", autouse=True)
 def create_s3_buckets(s3_config):
     """Create S3 buckets before running E2E tests."""
-    import boto3
-    from botocore.exceptions import ClientError
+    from minio import Minio
+    from minio.error import S3Error
     from models.config.settings import settings
 
     required_buckets = [
         settings.s3_revisions_bucket,
     ]
 
-    s3 = boto3.client(
-        "s3",
-        endpoint_url=s3_config.endpoint_url,
-        aws_access_key_id=s3_config.access_key,
-        aws_secret_access_key=s3_config.secret_key,
+    endpoint = s3_config.endpoint_url
+    if endpoint.startswith("http://"):
+        endpoint = endpoint[7:]
+    elif endpoint.startswith("https://"):
+        endpoint = endpoint[8:]
+
+    s3 = Minio(
+        endpoint,
+        access_key=s3_config.access_key,
+        secret_key=s3_config.secret_key,
+        secure=False,
     )
 
     created_count = 0
     for bucket in required_buckets:
         try:
-            s3.head_bucket(Bucket=bucket)
-            logger.debug(f"Bucket already exists: {bucket}")
-        except ClientError as e:
-            error_code = e.response.get("Error", {}).get("Code")
-            if error_code in {"404", "NoSuchBucket"}:
-                try:
-                    s3.create_bucket(Bucket=bucket)
-                    logger.debug(f"Created bucket: {bucket}")
-                    created_count += 1
-                except Exception as create_error:
-                    logger.error(f"Failed to create bucket {bucket}: {create_error}")
-                    raise
+            if s3.bucket_exists(bucket):
+                logger.debug(f"Bucket already exists: {bucket}")
             else:
-                logger.error(f"Error checking bucket {bucket}: {error_code}")
-                raise
+                s3.make_bucket(bucket)
+                logger.debug(f"Created bucket: {bucket}")
+                created_count += 1
+        except S3Error as e:
+            logger.error(f"Error creating bucket {bucket}: {e}")
+            raise
 
     print(
         f"S3 buckets ready: {len(required_buckets)} buckets ({created_count} created)"
@@ -197,18 +258,18 @@ def create_s3_buckets(s3_config):
 
 
 @pytest.fixture(scope="session")
-def s3_client(s3_config, vitess_client):
+def s3_client(s3_config, db_client):
     """Create real MyS3Client connected to S3."""
     from models.infrastructure.s3.client import MyS3Client
 
-    client = MyS3Client(config=s3_config, vitess_client=vitess_client)
+    client = MyS3Client(config=s3_config, mysql_client=db_client)
     yield client
     client.disconnect()
     logger.debug("S3Client disconnected in s3_client fixture")
 
 
 @pytest.fixture(scope="session", autouse=True)
-def initialized_app(vitess_client, s3_client, create_s3_buckets):
+def initialized_app(db_client, s3_client, create_s3_buckets):
     """Initialize the FastAPI app with state_handler for E2E tests."""
     from models.rest_api.main import app
     from models.rest_api.entitybase.v1.handlers.state import StateHandler
@@ -218,9 +279,9 @@ def initialized_app(vitess_client, s3_client, create_s3_buckets):
     state_handler = StateHandler(settings=settings)
 
     # Inject pre-configured test clients instead of creating new ones
-    state_handler.cached_vitess_client = vitess_client
+    state_handler.cached_mysql_client = db_client
     state_handler.cached_s3_client = s3_client
-    logger.debug("Injected test Vitess and S3 clients into StateHandler")
+    logger.debug("Injected test Sql and S3 clients into StateHandler")
 
     logger.debug("StateHandler created, calling start()...")
     state_handler.start()
@@ -237,6 +298,35 @@ def initialized_app(vitess_client, s3_client, create_s3_buckets):
     if state_handler:
         state_handler.disconnect()
         logger.debug("StateHandler disconnected in initialized_app fixture")
+
+
+@pytest.fixture(scope="session", autouse=True)
+def mock_auth(initialized_app):
+    """Override auth dependency to use test user for all E2E tests.
+
+    This allows E2E tests to run without real JWT token authentication.
+    All authenticated endpoints will use a test user (user_id=0, role=default).
+    """
+    from models.rest_api.main import app
+    from models.rest_api.auth.dependencies import verify_auth
+    from models.rest_api.auth.models import AuthenticatedRequest, User
+    from models.data.common.roles import UserRole
+
+    test_user = User(user_id=0, username="test", role=UserRole.DEFAULT)
+    test_auth_request = AuthenticatedRequest(
+        user=test_user, edit_summary="E2E test", base_revision_id=0
+    )
+
+    async def override_verify_auth():
+        return test_auth_request
+
+    app.dependency_overrides[verify_auth] = override_verify_auth
+    logger.debug("Auth dependency overridden with test user for E2E tests")
+
+    yield
+
+    app.dependency_overrides.clear()
+    logger.debug("Auth dependency override cleared")
 
 
 @pytest.fixture

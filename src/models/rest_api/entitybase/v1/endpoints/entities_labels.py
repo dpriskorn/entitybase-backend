@@ -2,7 +2,10 @@
 
 import logging
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
+
+from models.rest_api.auth.dependencies import auth_to_edit_headers, verify_auth
+from models.rest_api.auth.models import AuthenticatedRequest
 from starlette.responses import JSONResponse
 
 from models.data.rest_api.v1.entitybase.request.headers import EditHeadersType
@@ -81,6 +84,7 @@ async def update_entity_label(
         entity_id,
         context,
         headers,
+        0,
         validator,
     )
 
@@ -110,6 +114,7 @@ async def delete_entity_label(
         entity_id,
         language_code,
         headers,
+        0,
         validator,
     )
 
@@ -124,13 +129,14 @@ async def add_entity_label(
     language_code: str,
     request: TermUpdateRequest,
     req: Request,
-    headers: EditHeadersType,
+    auth: AuthenticatedRequest = Depends(verify_auth),
 ) -> TermHashResponse:
     """Add a new label to entity for language (alias for PUT)."""
     logger.info(
         f"📝 LABEL ADD: Starting label add for entity={entity_id}, language={language_code}"
     )
 
+    headers = auth_to_edit_headers(auth)
     state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator
 
@@ -145,6 +151,7 @@ async def add_entity_label(
         entity_id,
         context,
         headers,
+        auth.user.user_id,
         validator,
     )
 

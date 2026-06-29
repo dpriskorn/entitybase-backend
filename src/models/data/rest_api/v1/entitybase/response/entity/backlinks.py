@@ -1,3 +1,5 @@
+"""Entity backlinks response models."""
+
 from pydantic import BaseModel, Field
 
 

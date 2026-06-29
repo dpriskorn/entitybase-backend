@@ -9,6 +9,7 @@ from httpx import ASGITransport, AsyncClient
 
 @pytest.mark.asyncio
 @pytest.mark.integration
+@pytest.mark.requires_kafka
 async def test_hard_delete_entity(api_prefix: str) -> None:
     """Test hard deleting an entity"""
     from models.rest_api.main import app

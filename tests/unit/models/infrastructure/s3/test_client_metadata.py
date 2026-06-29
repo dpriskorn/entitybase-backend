@@ -28,12 +28,12 @@ class TestS3ClientMetadata:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_metadata = MagicMock()
-            client.vitess_metadata.store_metadata.return_value = MagicMock(success=True)
+            client.mysql_metadata = MagicMock()
+            client.mysql_metadata.store_metadata.return_value = MagicMock(success=True)
 
             client.store_term_metadata("Test", 12345, "labels")
 
-            client.vitess_metadata.store_metadata.assert_called_once()
+            client.mysql_metadata.store_metadata.assert_called_once()
 
     def test_load_metadata_success(self):
         """Test successful metadata load."""
@@ -51,8 +51,8 @@ class TestS3ClientMetadata:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_metadata = MagicMock()
-            client.vitess_metadata.load_metadata.return_value = "Test value"
+            client.mysql_metadata = MagicMock()
+            client.mysql_metadata.load_metadata.return_value = "Test value"
 
             result = client.load_metadata(MetadataType.LABELS, 12345)
 
@@ -75,8 +75,8 @@ class TestS3ClientMetadata:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_metadata = MagicMock()
-            client.vitess_metadata.load_metadata.return_value = None
+            client.mysql_metadata = MagicMock()
+            client.mysql_metadata.load_metadata.return_value = None
 
             result = client.load_metadata(MetadataType.LABELS, 12345)
 
@@ -98,14 +98,12 @@ class TestS3ClientMetadata:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_sitelinks = MagicMock()
-            client.vitess_sitelinks.store_sitelink.return_value = MagicMock(
-                success=True
-            )
+            client.mysql_sitelinks = MagicMock()
+            client.mysql_sitelinks.store_sitelink.return_value = MagicMock(success=True)
 
             client.store_sitelink_metadata("Main_Page", 12345)
 
-            client.vitess_sitelinks.store_sitelink.assert_called_once()
+            client.mysql_sitelinks.store_sitelink.assert_called_once()
 
     def test_load_sitelink_metadata_success(self):
         """Test successful sitelink metadata load."""
@@ -123,15 +121,15 @@ class TestS3ClientMetadata:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_sitelinks = MagicMock()
-            client.vitess_sitelinks.load_sitelink.return_value = "Main_Page"
+            client.mysql_sitelinks = MagicMock()
+            client.mysql_sitelinks.load_sitelink.return_value = "Main_Page"
 
             result = client.load_sitelink_metadata(12345)
 
             assert result == "Main_Page"
 
     def test_load_sitelink_metadata_not_configured(self):
-        """Test load_sitelink_metadata raises error when Vitess not configured."""
+        """Test load_sitelink_metadata raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -165,8 +163,8 @@ class TestS3ClientMetadata:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_sitelinks = MagicMock()
-            client.vitess_sitelinks.load_sitelink.return_value = None
+            client.mysql_sitelinks = MagicMock()
+            client.mysql_sitelinks.load_sitelink.return_value = None
 
             with pytest.raises(Exception):
                 client.load_sitelink_metadata(12345)
@@ -187,17 +185,15 @@ class TestS3ClientMetadata:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_metadata = MagicMock()
-            client.vitess_metadata.delete_metadata.return_value = MagicMock(
-                success=True
-            )
+            client.mysql_metadata = MagicMock()
+            client.mysql_metadata.delete_metadata.return_value = MagicMock(success=True)
 
             client.delete_metadata(MetadataType.LABELS, 12345)
 
-            client.vitess_metadata.delete_metadata.assert_called_once()
+            client.mysql_metadata.delete_metadata.assert_called_once()
 
     def test_delete_metadata_not_configured(self):
-        """Test delete_metadata raises error when Vitess not configured."""
+        """Test delete_metadata raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -231,8 +227,8 @@ class TestS3ClientMetadata:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_metadata = MagicMock()
-            client.vitess_metadata.delete_metadata.return_value = MagicMock(
+            client.mysql_metadata = MagicMock()
+            client.mysql_metadata.delete_metadata.return_value = MagicMock(
                 success=False, error="Database error"
             )
 
@@ -240,7 +236,7 @@ class TestS3ClientMetadata:
                 client.delete_metadata(MetadataType.LABELS, 12345)
 
     def test_store_term_metadata_not_configured(self):
-        """Test store_term_metadata raises error when Vitess not configured."""
+        """Test store_term_metadata raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -274,8 +270,8 @@ class TestS3ClientMetadata:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_metadata = MagicMock()
-            client.vitess_metadata.store_metadata.return_value = MagicMock(
+            client.mysql_metadata = MagicMock()
+            client.mysql_metadata.store_metadata.return_value = MagicMock(
                 success=False, error="Database error"
             )
 
@@ -283,7 +279,7 @@ class TestS3ClientMetadata:
                 client.store_term_metadata("Test", 12345, "labels")
 
     def test_load_metadata_not_configured(self):
-        """Test load_metadata raises error when Vitess not configured."""
+        """Test load_metadata raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -302,7 +298,7 @@ class TestS3ClientMetadata:
                 client.load_metadata(MetadataType.LABELS, 12345)
 
     def test_store_sitelink_metadata_not_configured(self):
-        """Test store_sitelink_metadata raises error when Vitess not configured."""
+        """Test store_sitelink_metadata raises error when Sql not configured."""
         config = S3Config(
             endpoint_url="http://localhost:4566",
             access_key="test",
@@ -336,8 +332,8 @@ class TestS3ClientMetadata:
             return_value=mock_connection_manager,
         ):
             client = MyS3Client(config=config)
-            client.vitess_sitelinks = MagicMock()
-            client.vitess_sitelinks.store_sitelink.return_value = MagicMock(
+            client.mysql_sitelinks = MagicMock()
+            client.mysql_sitelinks.store_sitelink.return_value = MagicMock(
                 success=False, error="Database error"
             )
 

@@ -62,6 +62,6 @@ def validate_qid(value: str, field_name: str) -> None:
 
 
 def validate_state_clients(state: Any) -> None:
-    """Validate that state has required clients (vitess_client and s3_client)."""
-    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
+    """Validate that state has required clients (mysql_client and s3_client)."""
+    if not (hasattr(state, "mysql_client") and hasattr(state, "s3_client")):
         raise_validation_error("Invalid clients type", status_code=500)

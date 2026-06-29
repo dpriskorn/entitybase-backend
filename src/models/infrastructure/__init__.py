@@ -1,1 +1,1 @@
-"""Infrastructure components for external services (S3, Vitess, etc.)."""
+"""Infrastructure components for external services (S3, database, etc.)."""

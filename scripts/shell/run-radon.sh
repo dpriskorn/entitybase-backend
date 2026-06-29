@@ -28,4 +28,4 @@ fi
 
 echo ""
 echo "=== Duplicate Method Check ==="
-python scripts/run-radon.py
+poetry run python scripts/run-radon.py

@@ -1,6 +1,9 @@
 """Watchlist routes."""
 
-from fastapi import APIRouter, HTTPException, Request, Query
+from fastapi import APIRouter, Depends, HTTPException, Request, Query
+
+from models.rest_api.auth.dependencies import auth_to_edit_headers, verify_auth
+from models.rest_api.auth.models import AuthenticatedRequest
 
 from models.rest_api.entitybase.v1.handlers.watchlist import WatchlistHandler
 from models.data.rest_api.v1.entitybase.request.watchlist import (
@@ -20,9 +23,13 @@ watchlist_router = APIRouter(tags=["watchlist"])
 
 @watchlist_router.post("/users/{user_id}/watchlist", response_model=MessageResponse)
 def add_watch(
-    user_id: int, request: WatchlistAddRequest, req: Request
+    user_id: int,
+    request: WatchlistAddRequest,
+    req: Request,
+    auth: AuthenticatedRequest = Depends(verify_auth),
 ) -> MessageResponse:
     """Add a watchlist entry for user."""
+    headers = auth_to_edit_headers(auth)
     state = req.app.state.state_handler
     handler = WatchlistHandler(state=state)
     try:
@@ -36,9 +43,13 @@ def add_watch(
     "/users/{user_id}/watchlist/remove", response_model=MessageResponse
 )
 def remove_watch(
-    user_id: int, request: WatchlistRemoveRequest, req: Request
+    user_id: int,
+    request: WatchlistRemoveRequest,
+    req: Request,
+    auth: AuthenticatedRequest = Depends(verify_auth),
 ) -> MessageResponse:
     """Remove a watchlist entry for user."""
+    headers = auth_to_edit_headers(auth)
     state = req.app.state.state_handler
     handler = WatchlistHandler(state=state)
     try:

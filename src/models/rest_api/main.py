@@ -7,6 +7,7 @@ from contextlib import asynccontextmanager
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
 from jsonschema import ValidationError  # type: ignore[import-untyped]
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -21,18 +22,36 @@ from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.entitybase.v1.routes import include_routes
 from models.rest_api.utils import raise_validation_error
 
-aws_loggers = [
-    "botocore",
-    "boto3",
-    "urllib3",
-    "s3transfer",
-    "botocore.hooks",
-    "botocore.retryhandler",
-    "botocore.utils",
-    "botocore.parsers",
-    "botocore.endpoint",
-    "botocore.auth",
-]
+import logging.config
+
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
+API_PORT = int(os.environ.get("API_PORT", "8080"))
+API_WORKERS = int(os.environ.get("API_WORKERS", "1"))
+
+LOGGING_CONFIG = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "standard": {"format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s"},
+    },
+    "handlers": {
+        "default": {
+            "level": "INFO",
+            "formatter": "standard",
+            "class": "logging.StreamHandler",
+            "stream": "ext://sys.stdout",
+        },
+    },
+    "loggers": {
+        # ROOT logger
+        "": {"level": LOG_LEVEL, "handlers": ["default"], "propagate": False},
+        "uvicorn.error": {"level": "DEBUG", "handlers": ["default"]},
+        "uvicorn.access": {"level": "DEBUG", "handlers": ["default"]},
+    },
+}
+
+# We let uvicorn handle all logging
+# logging.config.dictConfig(LOGGING_CONFIG)
 
 aiokafka_loggers = [
     "aiokafka.conn",
@@ -42,9 +61,6 @@ aiokafka_loggers = [
     "aiokafka.coordinator.assignor",
     "aiokafka.coordinator.heartbeat",
 ]
-
-for logger_name in aws_loggers:
-    logging.getLogger(logger_name).setLevel(logging.INFO)
 
 for logger_name in aiokafka_loggers:
     logging.getLogger(logger_name).setLevel(logging.INFO)
@@ -87,7 +103,10 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan manager for startup and shutdown tasks."""
     try:
         state_handler = await _initialize_state_handler()
+        await _create_s3_buckets(state_handler)
         await _create_database_tables(state_handler)
+        await _run_database_migrations(state_handler)
+        await _bootstrap_admin_user(state_handler)
         await _initialize_app_state(app_, state_handler)
         yield
     except Exception as e:
@@ -102,25 +121,157 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
 async def _initialize_state_handler() -> StateHandler:
     """Initialize the state handler."""
     state_handler = StateHandler(settings=settings)
-    state_handler.start()
+    await state_handler.start()
     return state_handler
 
 
 async def _create_database_tables(state_handler: StateHandler) -> None:
     """Create database tables on startup."""
+    db_type = state_handler.settings.db_type
     try:
-        logger.debug("Creating database tables...")
-        state_handler.vitess_client.create_tables()
-        logger.info("Database tables created/verified")
+        logger.info(f"Creating database tables (db_type={db_type})...")
+        state_handler.mysql_client.create_tables()
+        logger.info(
+            f"Database tables created/verified successfully (db_type={db_type})"
+        )
+        await _verify_database_tables(state_handler)
     except Exception as e:
         logger.warning(f"Could not create database tables on startup: {e}")
         logger.info("Tables will be created when first accessed or in tests")
 
 
+async def _verify_database_tables(state_handler: StateHandler) -> None:
+    """Verify critical database tables exist after creation."""
+    db_type = state_handler.settings.db_type
+    critical_tables = [
+        "entity_id_mapping",
+        "entity_head",
+        "entity_revisions",
+        "entity_terms",
+        "statement_content",
+        "statements",
+        "metadata_content",
+    ]
+
+    try:
+        with state_handler.mysql_client.cursor as cursor:
+            if db_type == "sqlite":
+                cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+                existing = {row[0] for row in cursor.fetchall()}
+            else:
+                cursor.execute("SHOW TABLES")
+                existing = {row[0] for row in cursor.fetchall()}
+
+            missing = set(critical_tables) - existing
+            if missing:
+                logger.error(f"Missing critical tables: {missing}")
+                raise RuntimeError(f"Database tables not created: {missing}")
+            logger.info(f"All {len(critical_tables)} critical tables verified")
+    except Exception as e:
+        logger.error(f"Table verification failed: {e}")
+        raise
+
+
+async def _run_database_migrations(state_handler: StateHandler) -> None:
+    """Run database migrations on startup."""
+    db_type = state_handler.settings.db_type
+    logger.info(f"Running database migrations (db_type={db_type})...")
+    state_handler.mysql_client.run_migrations()
+    logger.info(f"Database migrations completed (db_type={db_type})")
+
+
+async def _bootstrap_admin_user(state_handler: StateHandler) -> None:
+    """Bootstrap admin user from environment variables if not exists."""
+    from models.rest_api.auth import get_env_bootstrap_config, hash_password
+    from models.data.common.roles import UserRole
+
+    config = get_env_bootstrap_config()
+    if config is None:
+        logger.debug("No admin bootstrap config found in environment")
+        return
+
+    user_repo = state_handler.mysql_client.user_repository
+
+    if user_repo.user_exists_by_username(config.admin_name):
+        logger.info(
+            f"Admin user '{config.admin_name}' already exists, skipping bootstrap"
+        )
+        return
+
+    try:
+        password_hash = hash_password(config.admin_password)
+        result = user_repo.create_user_with_password(
+            username=config.admin_name,
+            password_hash=password_hash,
+            role=UserRole.ADMIN.value,
+        )
+        if result.success:
+            logger.info(f"Admin user '{config.admin_name}' created successfully")
+        else:
+            logger.warning(f"Failed to create admin user: {result.error}")
+    except Exception as e:
+        logger.warning(f"Could not bootstrap admin user: {e}")
+
+
+async def _create_s3_buckets(state_handler: StateHandler) -> None:
+    """Create S3 buckets on startup if they don't exist."""
+    from minio import Minio
+    from minio.error import S3Error
+
+    s3_config = state_handler.s3_config
+    if s3_config is None:
+        logger.warning("S3 config not available, skipping bucket creation")
+        return
+
+    required_buckets = [
+        state_handler.settings.s3_revisions_bucket,
+        state_handler.settings.s3_dump_bucket,
+    ]
+
+    try:
+        logger.info("Creating S3 buckets if they don't exist...")
+        endpoint = s3_config.endpoint_url
+        if endpoint.startswith("http://"):
+            endpoint = endpoint[7:]
+        elif endpoint.startswith("https://"):
+            endpoint = endpoint[8:]
+        if "/" in endpoint:
+            endpoint = endpoint.split("/")[0]
+        client = Minio(
+            endpoint,
+            access_key=s3_config.access_key,
+            secret_key=s3_config.secret_key,
+            secure=False,
+        )
+
+        for bucket in required_buckets:
+            try:
+                if client.bucket_exists(bucket):
+                    logger.info(f"S3 bucket already exists: {bucket}")
+                else:
+                    try:
+                        client.make_bucket(bucket)
+                        logger.info(f"Created S3 bucket: {bucket}")
+                    except S3Error as create_error:
+                        logger.error(
+                            f"Failed to create bucket {bucket}: {create_error}"
+                        )
+            except S3Error as e:
+                logger.error(f"Error checking bucket {bucket}: {e.code}")
+
+        logger.info("S3 bucket setup completed")
+    except Exception as e:
+        logger.warning(f"Could not create S3 buckets on startup: {e}")
+        logger.info("Buckets will be created when first accessed")
+
+
 async def _initialize_app_state(app_: FastAPI, state_handler: StateHandler) -> None:
     """Initialize app state and log success."""
+    from datetime import datetime, timezone
+
     logger.info("Clients, validator, and enumeration service initialized successfully")
     app_.state.state_handler = state_handler
+    app_.state.start_time = datetime.now(timezone.utc).isoformat()
 
 
 async def _cleanup_app_state(app_: FastAPI) -> None:
@@ -142,6 +293,13 @@ if settings.api_description:
     app_kwargs["description"] = settings.api_description
 
 app = FastAPI(**app_kwargs)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.add_middleware(StartupMiddleware)
 
 
@@ -216,3 +374,15 @@ async def get_openapi() -> dict:
 async def redirect_to_docs() -> RedirectResponse:
     """Redirect to the OpenAPI docs."""
     return RedirectResponse(url="/docs")
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(
+        "models.rest_api.main:app",
+        host="0.0.0.0",
+        port=API_PORT,
+        log_config=LOGGING_CONFIG,
+        workers=API_WORKERS,
+    )

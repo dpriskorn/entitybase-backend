@@ -10,8 +10,20 @@ from models.data.infrastructure.s3.hashes.statements_hashes import StatementsHas
 
 
 class HashMaps(BaseModel):
-    labels: LabelsHashes | None = Field(default=None)
-    descriptions: DescriptionsHashes | None = Field(default=None)
-    aliases: AliasesHashes | None = Field(default=None)
-    sitelinks: SitelinkHashes | None = Field(default=None)
-    statements: StatementsHashes | None = Field(default=None)
+    """Container for all entity hash maps."""
+
+    labels: LabelsHashes | None = Field(
+        default=None, description="Label hashes by language"
+    )
+    descriptions: DescriptionsHashes | None = Field(
+        default=None, description="Description hashes by language"
+    )
+    aliases: AliasesHashes | None = Field(
+        default=None, description="Alias hashes by language"
+    )
+    sitelinks: SitelinkHashes | None = Field(
+        default=None, description="Sitelink hashes by site"
+    )
+    statements: StatementsHashes | None = Field(
+        default=None, description="Statement hashes by property"
+    )

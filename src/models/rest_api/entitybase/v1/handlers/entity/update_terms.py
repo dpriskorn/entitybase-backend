@@ -10,14 +10,16 @@ from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
 from models.data.rest_api.v1.entitybase.request.entity.context import (
+    EditOperationContext,
     TermUpdateContext,
+    AliasContext,
     EventPublishContext,
 )
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.request import UserActivityType
 from models.data.infrastructure.s3.enums import EntityType, MetadataType
-from models.infrastructure.vitess.repositories.terms import TermsRepository
+from models.infrastructure.mysql.repositories.terms import TermsRepository
 
 
 class TermTransactionContext(BaseModel):
@@ -28,6 +30,7 @@ class TermTransactionContext(BaseModel):
     updated_hashes: dict[str, Any]
     existing_revision: dict[str, Any]
     edit_headers: EditHeaders
+    user_id: int = 0
 
 
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
@@ -48,6 +51,7 @@ class EntityUpdateTermsMixin(BaseModel):
         entity_id: str,
         context: TermUpdateContext,
         edit_headers: EditHeaders,
+        user_id: int = 0,
         validator: Any | None = None,
     ) -> EntityResponse:
         """Update or add a label for a language."""
@@ -78,8 +82,11 @@ class EntityUpdateTermsMixin(BaseModel):
             entity_id,
             entity_dict,
             entity_type,
-            edit_headers,
-            validator,
+            edit_operation_context=EditOperationContext(
+                edit_headers=edit_headers,
+                user_id=user_id,
+            ),
+            validator=validator,
         )
 
     async def delete_label(
@@ -87,6 +94,7 @@ class EntityUpdateTermsMixin(BaseModel):
         entity_id: str,
         language_code: str,
         edit_headers: EditHeaders,
+        user_id: int = 0,
         validator: Any | None = None,
     ) -> EntityResponse:
         """Delete a label for a language (idempotent)."""
@@ -95,10 +103,10 @@ class EntityUpdateTermsMixin(BaseModel):
         if not entity_type:
             raise_validation_error("Invalid entity ID format", status_code=400)
 
-        if self.state.vitess_client.is_entity_deleted(entity_id):
+        if self.state.mysql_client.is_entity_deleted(entity_id):
             raise_validation_error("Entity deleted", status_code=410)
 
-        if self.state.vitess_client.is_entity_locked(entity_id):
+        if self.state.mysql_client.is_entity_locked(entity_id):
             raise_validation_error("Entity locked", status_code=423)
 
         read_handler = EntityReadHandler(state=self.state)
@@ -123,13 +131,14 @@ class EntityUpdateTermsMixin(BaseModel):
                 updated_hashes=updated_hashes,
                 existing_revision=current_entity.entity_data.revision,
                 edit_headers=edit_headers,
+                user_id=user_id,
             ),
             [int(removed_hash)],
         )
 
     def _decrement_term_ref_count(self, hash_value: int) -> None:
         """Decrement ref_count for a term hash and clean up if orphaned."""
-        terms_repo = TermsRepository(vitess_client=self.state.vitess_client)
+        terms_repo = TermsRepository(mysql_client=self.state.mysql_client)
         result = terms_repo.decrement_ref_count(hash_value)
         if not result.success:
             logger.warning(
@@ -165,12 +174,15 @@ class EntityUpdateTermsMixin(BaseModel):
         tx = UpdateTransaction(state=self.state)
         tx.entity_id = context.entity_id
         try:
-            head_revision_id = tx.state.vitess_client.get_head(context.entity_id)
+            head_revision_id = tx.state.mysql_client.get_head(context.entity_id)
 
             response = await tx.create_revision_with_hashes(
                 entity_id=context.entity_id,
                 entity_type=context.entity_type,
-                edit_headers=context.edit_headers,
+                edit_operation_context=EditOperationContext(
+                    edit_headers=context.edit_headers,
+                    user_id=context.user_id,
+                ),
                 existing_hashes=context.updated_hashes,
                 existing_revision=context.existing_revision,
             )
@@ -180,7 +192,7 @@ class EntityUpdateTermsMixin(BaseModel):
                     self._decrement_term_ref_count(hash_value)
 
             edit_context = EditContext(
-                user_id=context.edit_headers.x_user_id,
+                user_id=context.user_id,
                 edit_summary=context.edit_headers.x_edit_summary,
             )
             event_context = EventPublishContext(
@@ -192,10 +204,10 @@ class EntityUpdateTermsMixin(BaseModel):
             )
             await tx.publish_event(event_context, edit_context)
 
-            if context.edit_headers.x_user_id:
+            if context.user_id:
                 activity_result = await (
-                    self.state.vitess_client.user_repository.log_user_activity(
-                        user_id=context.edit_headers.x_user_id,
+                    self.state.mysql_client.user_repository.log_user_activity(
+                        user_id=context.user_id,
                         activity_type=UserActivityType.ENTITY_EDIT,
                         entity_id=context.entity_id,
                         revision_id=response.revision_id,
@@ -236,18 +248,21 @@ class EntityUpdateTermsMixin(BaseModel):
         tx = UpdateTransaction(state=self.state)
         tx.entity_id = context.entity_id
         try:
-            head_revision_id = tx.state.vitess_client.get_head(context.entity_id)
+            head_revision_id = tx.state.mysql_client.get_head(context.entity_id)
 
             response = await tx.create_revision_with_hashes(
                 entity_id=context.entity_id,
                 entity_type=context.entity_type,
-                edit_headers=context.edit_headers,
+                edit_operation_context=EditOperationContext(
+                    edit_headers=context.edit_headers,
+                    user_id=context.user_id,
+                ),
                 existing_hashes=context.updated_hashes,
                 existing_revision=context.existing_revision,
             )
 
             edit_context = EditContext(
-                user_id=context.edit_headers.x_user_id,
+                user_id=context.user_id,
                 edit_summary=context.edit_headers.x_edit_summary,
             )
             event_context = EventPublishContext(
@@ -259,10 +274,10 @@ class EntityUpdateTermsMixin(BaseModel):
             )
             await tx.publish_event(event_context, edit_context)
 
-            if context.edit_headers.x_user_id:
+            if context.user_id:
                 activity_result = await (
-                    self.state.vitess_client.user_repository.log_user_activity(
-                        user_id=context.edit_headers.x_user_id,
+                    self.state.mysql_client.user_repository.log_user_activity(
+                        user_id=context.user_id,
                         activity_type=UserActivityType.ENTITY_EDIT,
                         entity_id=context.entity_id,
                         revision_id=response.revision_id,
@@ -294,6 +309,7 @@ class EntityUpdateTermsMixin(BaseModel):
         entity_id: str,
         context: TermUpdateContext,
         edit_headers: EditHeaders,
+        user_id: int = 0,
         validator: Any | None = None,
     ) -> EntityResponse:
         """Update or add a description for a language."""
@@ -324,8 +340,11 @@ class EntityUpdateTermsMixin(BaseModel):
             entity_id,
             entity_dict,
             entity_type,
-            edit_headers,
-            validator,
+            edit_operation_context=EditOperationContext(
+                edit_headers=edit_headers,
+                user_id=user_id,
+            ),
+            validator=validator,
         )
 
     async def delete_description(
@@ -333,6 +352,7 @@ class EntityUpdateTermsMixin(BaseModel):
         entity_id: str,
         language_code: str,
         edit_headers: EditHeaders,
+        user_id: int = 0,
         validator: Any | None = None,
     ) -> EntityResponse:
         """Delete a description for a language (idempotent)."""
@@ -341,10 +361,10 @@ class EntityUpdateTermsMixin(BaseModel):
         if not entity_type:
             raise_validation_error("Invalid entity ID format", status_code=400)
 
-        if self.state.vitess_client.is_entity_deleted(entity_id):
+        if self.state.mysql_client.is_entity_deleted(entity_id):
             raise_validation_error("Entity deleted", status_code=410)
 
-        if self.state.vitess_client.is_entity_locked(entity_id):
+        if self.state.mysql_client.is_entity_locked(entity_id):
             raise_validation_error("Entity locked", status_code=423)
 
         read_handler = EntityReadHandler(state=self.state)
@@ -369,6 +389,7 @@ class EntityUpdateTermsMixin(BaseModel):
                 updated_hashes=updated_hashes,
                 existing_revision=current_entity.entity_data.revision,
                 edit_headers=edit_headers,
+                user_id=user_id,
             ),
             [int(removed_hash)],
         )
@@ -376,17 +397,16 @@ class EntityUpdateTermsMixin(BaseModel):
     async def update_aliases(
         self,
         entity_id: str,
-        language_code: str,
-        aliases: list[str],
-        edit_headers: EditHeaders,
+        context: AliasContext,
+        edit_operation_context: EditOperationContext,
         validator: Any | None = None,
     ) -> EntityResponse:
         """Replace all aliases for a language."""
         logger.info(
-            f"update_aliases: entity={entity_id}, lang={language_code}, count={len(aliases)}"
+            f"update_aliases: entity={entity_id}, lang={context.language_code}, count={len(context.aliases)}"
         )
         logger.debug(
-            f"[update_aliases] vitess_client={id(self.state.vitess_client)}, id_resolver={id(self.state.vitess_client.id_resolver)}"
+            f"[update_aliases] mysql_client={id(self.state.mysql_client)}, id_resolver={id(self.state.mysql_client.id_resolver)}"
         )
         entity_type = infer_entity_type_from_id(entity_id)
         if not entity_type:
@@ -402,9 +422,11 @@ class EntityUpdateTermsMixin(BaseModel):
 
         if "aliases" not in entity_dict:
             entity_dict["aliases"] = {}
-        entity_dict["aliases"][language_code] = [{"value": alias} for alias in aliases]
+        entity_dict["aliases"][context.language_code] = [
+            {"value": alias} for alias in context.aliases
+        ]
         logger.debug(
-            f"update_aliases: updated aliases for {language_code}: {entity_dict['aliases'].get(language_code)}"
+            f"update_aliases: updated aliases for {context.language_code}: {entity_dict['aliases'].get(context.language_code)}"
         )
 
         logger.debug(
@@ -414,16 +436,15 @@ class EntityUpdateTermsMixin(BaseModel):
             entity_id,
             entity_dict,
             entity_type,
-            edit_headers,
-            validator,
+            edit_operation_context=edit_operation_context,
+            validator=validator,
         )
 
     async def add_alias(
         self,
         entity_id: str,
-        language_code: str,
-        alias: str,
-        edit_headers: EditHeaders,
+        context: AliasContext,
+        edit_operation_context: EditOperationContext,
         validator: Any | None = None,
     ) -> EntityResponse:
         """Add a single alias to the existing list for a language.
@@ -431,24 +452,25 @@ class EntityUpdateTermsMixin(BaseModel):
         Uses hash-direct approach:
         1. Hash the new alias
         2. Check against existing alias hashes (no S3 read needed)
-        3. Store the new alias in S3/Vitess
+        3. Store the new alias in S3/database
         4. Create new revision with updated hash list
         """
         from models.internal_representation.metadata_extractor import MetadataExtractor
-        from models.infrastructure.vitess.repositories.terms import TermsRepository
+        from models.infrastructure.mysql.repositories.terms import TermsRepository
 
+        alias = context.aliases[0] if context.aliases else ""
         logger.debug(
-            f"Adding alias '{alias}' for entity {entity_id}, language {language_code}"
+            f"Adding alias '{alias}' for entity {entity_id}, language {context.language_code}"
         )
 
         entity_type = infer_entity_type_from_id(entity_id)
         if not entity_type:
             raise_validation_error("Invalid entity ID format", status_code=400)
 
-        if self.state.vitess_client.is_entity_deleted(entity_id):
+        if self.state.mysql_client.is_entity_deleted(entity_id):
             raise_validation_error("Entity deleted", status_code=410)
 
-        if self.state.vitess_client.is_entity_locked(entity_id):
+        if self.state.mysql_client.is_entity_locked(entity_id):
             raise_validation_error("Entity locked", status_code=423)
 
         read_handler = EntityReadHandler(state=self.state)
@@ -456,26 +478,26 @@ class EntityUpdateTermsMixin(BaseModel):
 
         existing_hashes = current_entity.entity_data.revision.get("hashes", {})
         aliases_hashes = existing_hashes.get("aliases", {})
-        existing_alias_hashes = list(aliases_hashes.get(language_code, []))
+        existing_alias_hashes = list(aliases_hashes.get(context.language_code, []))
 
         new_alias_hash = MetadataExtractor.hash_string(alias)
         if new_alias_hash in existing_alias_hashes:
             logger.warning(
-                f"Alias '{alias}' already exists for entity {entity_id}, language {language_code}"
+                f"Alias '{alias}' already exists for entity {entity_id}, language {context.language_code}"
             )
             raise_validation_error(
-                f"Alias '{alias}' already exists for language {language_code}",
+                f"Alias '{alias}' already exists for language {context.language_code}",
                 status_code=409,
             )
 
         self.state.s3_client.store_term_metadata(alias, new_alias_hash, "aliases")
-        if self.state.vitess_config:
-            terms_repo = TermsRepository(vitess_client=self.state.vitess_client)
+        if self.state.mysql_config:
+            terms_repo = TermsRepository(mysql_client=self.state.mysql_client)
             terms_repo.insert_term(new_alias_hash, alias, "alias")
 
         updated_alias_hashes = existing_alias_hashes + [new_alias_hash]
         updated_aliases_hashes = dict(aliases_hashes)
-        updated_aliases_hashes[language_code] = updated_alias_hashes
+        updated_aliases_hashes[context.language_code] = updated_alias_hashes
 
         updated_hashes = dict(existing_hashes)
         updated_hashes["aliases"] = updated_aliases_hashes
@@ -486,7 +508,8 @@ class EntityUpdateTermsMixin(BaseModel):
                 entity_type=entity_type,
                 updated_hashes=updated_hashes,
                 existing_revision=current_entity.entity_data.revision,
-                edit_headers=edit_headers,
+                edit_headers=edit_operation_context.edit_headers,
+                user_id=edit_operation_context.user_id,
             ),
         )
 
@@ -495,6 +518,7 @@ class EntityUpdateTermsMixin(BaseModel):
         entity_id: str,
         language_code: str,
         edit_headers: EditHeaders,
+        user_id: int = 0,
         validator: Any | None = None,
     ) -> EntityResponse:
         """Delete all aliases for a language (idempotent)."""
@@ -503,10 +527,10 @@ class EntityUpdateTermsMixin(BaseModel):
         if not entity_type:
             raise_validation_error("Invalid entity ID format", status_code=400)
 
-        if self.state.vitess_client.is_entity_deleted(entity_id):
+        if self.state.mysql_client.is_entity_deleted(entity_id):
             raise_validation_error("Entity deleted", status_code=410)
 
-        if self.state.vitess_client.is_entity_locked(entity_id):
+        if self.state.mysql_client.is_entity_locked(entity_id):
             raise_validation_error("Entity locked", status_code=423)
 
         read_handler = EntityReadHandler(state=self.state)
@@ -531,6 +555,7 @@ class EntityUpdateTermsMixin(BaseModel):
                 updated_hashes=updated_hashes,
                 existing_revision=current_entity.entity_data.revision,
                 edit_headers=edit_headers,
+                user_id=user_id,
             ),
             [int(h) for h in removed_hashes],
         )

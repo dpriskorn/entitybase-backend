@@ -3,12 +3,14 @@
 from typing import TYPE_CHECKING
 
 from . import (
+    auth,
     endorsements,
     entities,
     health,
     resolve,
     settings as settings_module,
     thanks,
+    uptime,
     users,
     version,
 )
@@ -22,8 +24,10 @@ def include_routes(app: "FastAPI") -> None:
     from models.config.settings import settings
 
     app.include_router(health.health_router)
+    app.include_router(uptime.uptime_router, prefix=settings.api_prefix)
     app.include_router(version.version_router)
     app.include_router(settings_module.settings_router)
+    app.include_router(auth.auth_router, prefix=settings.api_prefix)
     app.include_router(users.users_router, prefix=settings.api_prefix)
     app.include_router(thanks.thanks_router, prefix=settings.api_prefix)
     app.include_router(endorsements.endorsements_router, prefix=settings.api_prefix)

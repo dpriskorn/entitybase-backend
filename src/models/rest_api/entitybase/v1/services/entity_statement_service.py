@@ -18,7 +18,7 @@ from models.data.rest_api.v1.entitybase.response import (
 )
 from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.infrastructure.s3.exceptions import S3NotFoundError
-from models.infrastructure.vitess.repositories.statement import StatementRepository
+from models.infrastructure.mysql.repositories.statement import StatementRepository
 from models.internal_representation.statement_hasher import StatementHasher
 from models.rest_api.entitybase.v1.handlers.entity.handler import EntityHandler
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
@@ -108,14 +108,14 @@ class EntityStatementService(Service):
     ) -> OperationResult[RevisionIdResult]:
         """Remove a statement by hash from an entity."""
         logger.info(f"Entity {entity_id}: Removing statement {statement_hash}")
-        head_revision_id = self.state.vitess_client.get_head(entity_id)
+        head_revision_id = self.state.mysql_client.get_head(entity_id)
         revision_data = self._fetch_revision_data(entity_id, head_revision_id)
         result = self._remove_statement_from_revision(revision_data, statement_hash)
         if not result.success:
             return result
         self._decrement_statement_ref_count(statement_hash)
         new_revision_id = await self._store_updated_revision(
-            revision_data, entity_id, head_revision_id, edit_headers
+            revision_data, entity_id, head_revision_id, edit_headers, user_id=0
         )
         return OperationResult(
             success=True,
@@ -281,7 +281,7 @@ class EntityStatementService(Service):
 
     def _decrement_statement_ref_count(self, statement_hash: str) -> None:
         """Decrement ref_count for a statement."""
-        stmt_repo = StatementRepository(vitess_client=self.state.vitess_client)
+        stmt_repo = StatementRepository(mysql_client=self.state.mysql_client)
         result = stmt_repo.decrement_ref_count(int(statement_hash))
         if not result.success:
             raise_validation_error(
@@ -295,6 +295,7 @@ class EntityStatementService(Service):
         entity_id: str,
         head_revision_id: int,
         edit_headers: EditHeaders,
+        user_id: int = 0,
     ) -> int:
         """Store updated revision and return new revision ID."""
         logger.debug(f"Storing updated revision for entity {entity_id}")
@@ -304,7 +305,7 @@ class EntityStatementService(Service):
         revision_data.edit.edit_type = EditType.MANUAL_UPDATE
         revision_data.edit.edit_summary = edit_headers.x_edit_summary
         revision_data.edit.at = datetime.now(timezone.utc).isoformat()
-        revision_data.edit.user_id = edit_headers.x_user_id
+        revision_data.edit.user_id = user_id
         try:
             from models.data.infrastructure.s3.revision_data import S3RevisionData
 
@@ -323,8 +324,8 @@ class EntityStatementService(Service):
             )
             logger.debug("Storing revision to S3")
             self.state.s3_client.store_revision(content_hash, s3_revision_data)
-            logger.debug("Creating revision in Vitess")
-            revision_created = self.state.vitess_client.create_revision(
+            logger.debug("Creating revision in database")
+            revision_created = self.state.mysql_client.create_revision(
                 entity_id=entity_id,
                 entity_data=revision_data,
                 revision_id=new_revision_id,
@@ -332,7 +333,7 @@ class EntityStatementService(Service):
                 expected_revision_id=head_revision_id,
             )
             if not revision_created:
-                current_head = self.state.vitess_client.get_head(entity_id)
+                current_head = self.state.mysql_client.get_head(entity_id)
                 raise_validation_error(
                     f"Conflict: entity was modified by another edit. "
                     f"Expected base revision {head_revision_id}, but current revision is {current_head}. "
@@ -387,6 +388,7 @@ class EntityStatementService(Service):
             entity_type=entity_response.entity_data.revision.get("entity_type"),
             edit_type=EditType.UNSPECIFIED,
             edit_headers=edit_headers,
+            user_id=0,
             is_creation=False,
             validator=validator,
         )

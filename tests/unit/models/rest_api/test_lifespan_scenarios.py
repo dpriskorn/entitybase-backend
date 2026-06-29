@@ -169,7 +169,7 @@ class TestHealthCheckWithStateHandler:
         data = response.json()
         assert data["status"] == "starting"
         assert data["s3"] == "disconnected"
-        assert data["vitess"] == "disconnected"
+        assert data["mysql"] == "disconnected"
 
     def test_health_check_with_none_state_handler(self, api_client):
         """Test health check returns 503 when state_handler is None."""

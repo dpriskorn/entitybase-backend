@@ -13,7 +13,9 @@ sys.path.insert(0, "src")
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_sitelinks_response_schema(api_prefix: str) -> None:
+async def test_sitelinks_response_schema(
+    api_prefix: str, auth_headers: dict[str, str]
+) -> None:
     """Contract test: Sitelinks response structure."""
     from models.rest_api.main import app
 
@@ -22,7 +24,7 @@ async def test_sitelinks_response_schema(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]
@@ -35,7 +37,7 @@ async def test_sitelinks_response_schema(api_prefix: str) -> None:
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_sitelink_fields(api_prefix: str) -> None:
+async def test_sitelink_fields(api_prefix: str, auth_headers: dict[str, str]) -> None:
     """Contract test: Sitelink fields structure."""
     from models.rest_api.main import app
 
@@ -44,7 +46,7 @@ async def test_sitelink_fields(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]
@@ -60,7 +62,9 @@ async def test_sitelink_fields(api_prefix: str) -> None:
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_sitelinks_empty_structure(api_prefix: str) -> None:
+async def test_sitelinks_empty_structure(
+    api_prefix: str, auth_headers: dict[str, str]
+) -> None:
     """Contract test: Empty sitelinks returns dict not null."""
     from models.rest_api.main import app
 
@@ -69,7 +73,7 @@ async def test_sitelinks_empty_structure(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]
@@ -86,7 +90,7 @@ async def test_sitelinks_empty_structure(api_prefix: str) -> None:
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_sitelinks_by_site(api_prefix: str) -> None:
+async def test_sitelinks_by_site(api_prefix: str, auth_headers: dict[str, str]) -> None:
     """Contract test: Get sitelink for specific site."""
     from models.rest_api.main import app
 
@@ -95,7 +99,7 @@ async def test_sitelinks_by_site(api_prefix: str) -> None:
     ) as client:
         create_resp = await client.post(
             f"{api_prefix}/entities/items",
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            headers={"X-Edit-Summary": "test", **auth_headers},
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["data"]["entity_id"]

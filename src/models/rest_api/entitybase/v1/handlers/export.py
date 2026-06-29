@@ -23,13 +23,13 @@ class ExportHandler(Handler):
         """Get entity data in Turtle format."""
         logger.debug(f"Exporting entity {entity_id} to Turtle format")
 
-        if self.state.vitess_client is None:
-            raise_validation_error("Vitess not initialized", status_code=503)
+        if self.state.mysql_client is None:
+            raise_validation_error("database not initialized", status_code=503)
 
-        if not self.state.vitess_client.entity_exists(entity_id):
+        if not self.state.mysql_client.entity_exists(entity_id):
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)
 
-        head_revision_id = self.state.vitess_client.get_head(entity_id)
+        head_revision_id = self.state.mysql_client.get_head(entity_id)
         if head_revision_id == 0:
             raise_validation_error("Entity has no revisions", status_code=404)
 

@@ -1,17 +1,16 @@
-.PHONY: lint test test-fast coverage help ruff mypy radon vulture stop api api-no-cache api-vps vps-reset docs docs-generate docs-build docs-serve check release push-release ci
+.PHONY: be-lint be-test-fast be-coverage help ruff mypy radon vulture stop docs docs-generate docs-build docs-serve check release push-release ci fe-lint fe-tests fe-run be-tests be-test-unit be-test-e2e be-test-contract be-test-integration
 
 help:
 	@echo "Available targets:"
-	@echo "  make check         - Check if Docker services are running"
+	@echo "  make check         - Check if Docker services are running (uses test-minimal.env)"
 	@echo "  make api           - Run docker compose up and start the API locally using uvicorn with reload enabled"
 	@echo "  make api-no-cache  - Run docker compose up with --no-cache (force rebuild all layers)"
-	@echo "  make api-vps       - Run API on VPS (simplified, no rebuild, no docs generation)"
-	@echo "  make vps-reset     - Stop all containers, remove volumes, and restart API (for daily cleanup)"
+
 	@echo "  make ci            - Run CI simulation locally (mimics GitHub CI workflow)"
 	@echo "  make stop          - Stop docker and remove everything"
 	@echo "  make release       - Create tag locally (e.g., v2026.2.28)"
 	@echo "  make push-release - Create tag and push to trigger GitHub release workflow"
-	@echo "  make lint         - Run all linters"
+	@echo "  make be-lint         - Run all linters"
 	@echo "  make ruff         - Run ruff linter"
 	@echo "  make mypy         - Run mypy type checker"
 	@echo "  make radon        - Run radon complexity checker"
@@ -20,44 +19,47 @@ help:
 	@echo "  make docs-build   - Build static documentation site (uses zensical)"
 	@echo "  make docs-serve   - Serve documentation locally with live reload (uses zensical)"
 	@echo "  make docs         - Run docs-generate + docs-build + docs-serve"
-	@echo "  make lint-test-all - Run all lint + tests (unit -> E2E -> contract -> integration)"
-	@echo "  make lint-test-fast        - Run lint + fast tests (unit -> E2E -> contract)"
-	@echo "  make test-fast        - Run fast tests (unit -> E2E -> contract)"
-	@echo "  make tests        - Run all tests (unit -> E2E -> contract -> integration)"
-	@echo "  make test-unit   - Run unit tests only (fast feedback)"
-	@echo "  make test-e2e     - Run all e2e tests"
-	@echo "  make test-e2e-01 - Run e2e tests (basics)"
-	@echo "  make test-e2e-02 - Run e2e tests (terms)"
-	@echo "  make test-e2e-03 - Run e2e tests (user features)"
-	@echo "  make test-e2e-04 - Run e2e tests (advanced)"
-	@echo "  make test-contract - Run contract tests (API schema validation)"
-	@echo "  make test-integration-01 - Run integration tests (first 50)"
-	@echo "  make test-integration-02 - Run integration tests (mid 50)"
-	@echo "  make test-integration-03 - Run integration tests (late 50a)"
-	@echo "  make test-integration-04 - Run integration tests (late 50b)"
-	@echo "  make test-integration - Run all integration tests"
-	@echo "  make test-unit-01 - Run unit tests (config, data, services, validation, json_parser)"
-	@echo "  make test-unit-02 - Run unit tests (internal_representation, workers)"
-	@echo "  make test-unit-03 - Run unit tests (infrastructure, rdf_builder)"
-	@echo "  make test-unit-04 - Run unit tests (rest_api)"
-	@echo "  make coverage    - Run tests with coverage report"
+	@echo ""
+	@echo "  *** Minimal tests (SQLite, no MySQL required) ***"
+	@echo "  make be-test-fast-minimal   - Run fast tests (unit -> E2E -> contract) with SQLite"
+	@echo "  make be-test-e2e-minimal    - Run all e2e tests with SQLite (no docker required)"
+	@echo "  make be-test-e2e-01-minimal - Run e2e tests (basics) with SQLite"
+	@echo "  make be-test-e2e-02-minimal - Run e2e tests (terms) with SQLite"
+	@echo "  make be-test-e2e-03-minimal - Run e2e tests (user features) with SQLite"
+	@echo "  make be-test-e2e-04-minimal - Run e2e tests (advanced) with SQLite"
+	@echo "  make be-test-integration-minimal - Run all integration tests with SQLite"
+	@echo ""
+	@echo "  *** Full tests (MySQL + Docker required) ***"
+	@echo "  make be-test-fast-full   - Run fast tests with MySQL (requires docker)"
+	@echo "  make be-test-e2e-full   - Run all e2e tests with MySQL (requires docker)"
+	@echo "  make be-test-integration-full - Run all integration tests with MySQL (requires docker)"
+	@echo ""
+	@echo "  *** Legacy targets (use test-minimal.env by default) ***"
+	@echo "  make be-test-fast        - Run fast tests (unit -> E2E -> contract) - default minimal"
+	@echo "  make be-tests        - Run all tests (unit -> E2E -> contract -> integration) - default minimal"
+	@echo "  make be-test-unit   - Run unit tests only (fast feedback)"
+	@echo "  make be-test-e2e     - Run all e2e tests - default minimal"
+	@echo "  make be-test-e2e-01 - Run e2e tests (basics) - default minimal"
+	@echo "  make be-test-e2e-02 - Run e2e tests (terms) - default minimal"
+	@echo "  make be-test-e2e-03 - Run e2e tests (user features) - default minimal"
+	@echo "  make be-test-e2e-04 - Run e2e tests (advanced) - default minimal"
+	@echo "  make be-test-contract - Run contract tests (API schema validation)"
+	@echo "  make be-test-integration-01 - Run integration tests (first 50) - default minimal"
+	@echo "  make be-test-integration-02 - Run integration tests (mid 50) - default minimal"
+	@echo "  make be-test-integration-03 - Run integration tests (late 50a) - default minimal"
+	@echo "  make be-test-integration-04 - Run integration tests (late 50b) - default minimal"
+	@echo "  make be-test-integration - Run all integration tests - default minimal"
+	@echo "  make be-test-unit-01 - Run unit tests (config, data, services, validation, json_parser)"
+	@echo "  make be-test-unit-02 - Run unit tests (internal_representation, workers)"
+	@echo "  make be-test-unit-03 - Run unit tests (infrastructure, rdf_builder)"
+	@echo "  make be-test-unit-04 - Run unit tests (rest_api)"
+	@echo "  make be-coverage    - Run tests with coverage report"
+	@echo "  make fe-lint     - Run frontend linter (eslint/prettier)"
+	@echo "  make fe-test     - Run frontend tests (vitest)"
+	@echo "  make fe-run      - Run frontend dev server"
 
 check:
 	./scripts/shell/check-docker-services.sh
-
-api:
-	./scripts/shell/run-api-local.sh
-
-api-no-cache:
-	./scripts/shell/run-api-local.sh --no-cache
-
-api-vps:
-	./scripts/shell/run-api-vps.sh
-
-vps-reset:
-	@echo "🔄 Resetting VPS (stop + api-vps)..."
-	make stop
-	make api-vps
 
 ci:
 	./scripts/shell/run-ci-local.sh
@@ -71,7 +73,7 @@ release:
 push-release:
 	make release && git push origin $$(cat .release_version | cut -d= -f2) && rm -f .release_version
 
-lint:
+be-lint:
 	./scripts/shell/run-linters.sh
 
 ruff:
@@ -86,7 +88,7 @@ radon:
 vulture:
 	./scripts/shell/run-vulture.sh
 
-test-contract: check
+be-test-contract: check
 	./scripts/shell/run-contract.sh
 
 docs-generate:
@@ -100,57 +102,102 @@ docs-serve:
 
 docs: docs-generate docs-build docs-serve
 
-test-unit: test-unit-01 test-unit-02 test-unit-03 test-unit-04
+be-test-unit: be-test-unit-01 be-test-unit-02 be-test-unit-03 be-test-unit-04
 
-test-unit-01:
+be-test-unit-01:
 	./scripts/shell/run-unit-01-config-data.sh
 
-test-unit-02:
+be-test-unit-02:
 	./scripts/shell/run-unit-02-internal-workers.sh
 
-test-unit-03:
+be-test-unit-03:
 	./scripts/shell/run-unit-03-infra-rdf.sh
 
-test-unit-04:
+be-test-unit-04:
 	./scripts/shell/run-unit-04-rest-api.sh
 
-test-e2e-01:
-	./scripts/shell/run-e2e-01-basics.sh
+be-test-e2e-01:
+	./scripts/shell/run-e2e-01-basics.sh minimal
 
-test-e2e-02:
-	./scripts/shell/run-e2e-02-terms.sh
+be-test-e2e-02:
+	./scripts/shell/run-e2e-02-terms.sh minimal
 
-test-e2e-03:
-	./scripts/shell/run-e2e-03-user.sh
+be-test-e2e-03:
+	./scripts/shell/run-e2e-03-user.sh minimal
 
-test-e2e-04:
-	./scripts/shell/run-e2e-04-advanced.sh
+be-test-e2e-04:
+	./scripts/shell/run-e2e-04-advanced.sh minimal
 
-test-e2e: check test-e2e-01 test-e2e-02 test-e2e-03 test-e2e-04
+be-test-e2e-01-full:
+	./scripts/shell/run-e2e-01-basics.sh full
 
-test-unit-e2e-contract: test-unit test-e2e test-contract
+be-test-e2e-02-full:
+	./scripts/shell/run-e2e-02-terms.sh full
 
-test-integration-01:
-	./scripts/shell/run-integration-01-first50.sh
+be-test-e2e-03-full:
+	./scripts/shell/run-e2e-03-user.sh full
 
-test-integration-02:
-	./scripts/shell/run-integration-02-mid50.sh
+be-test-e2e-04-full:
+	./scripts/shell/run-e2e-04-advanced.sh full
 
-test-integration-03:
-	./scripts/shell/run-integration-03-late50a.sh
+be-test-e2e: check be-test-e2e-01 be-test-e2e-02 be-test-e2e-03 be-test-e2e-04
 
-test-integration-04:
-	./scripts/shell/run-integration-04-late50b.sh
+be-test-e2e-minimal: check be-test-e2e-01 be-test-e2e-02 be-test-e2e-03 be-test-e2e-04
 
-test-integration: check test-integration-01 test-integration-02 test-integration-03 test-integration-04
+be-test-e2e-full: check be-test-e2e-01-full be-test-e2e-02-full be-test-e2e-03-full be-test-e2e-04-full
 
-tests: check test-unit test-e2e test-contract test-integration
+be-test-unit-e2e-contract: be-test-unit be-test-e2e be-test-contract
 
-lint-test-all: lint tests
+be-test-integration-01:
+	./scripts/shell/run-integration-01-first50.sh minimal
 
-lint-test-fast: lint test-unit-e2e-contract
+be-test-integration-02:
+	./scripts/shell/run-integration-02-mid50.sh minimal
 
-test-fast: test-unit-e2e-contract
+be-test-integration-03:
+	./scripts/shell/run-integration-03-late50a.sh minimal
 
-coverage: check
+be-test-integration-04:
+	./scripts/shell/run-integration-04-late50b.sh minimal
+
+be-test-integration-01-full:
+	./scripts/shell/run-integration-01-first50.sh full
+
+be-test-integration-02-full:
+	./scripts/shell/run-integration-02-mid50.sh full
+
+be-test-integration-03-full:
+	./scripts/shell/run-integration-03-late50a.sh full
+
+be-test-integration-04-full:
+	./scripts/shell/run-integration-04-late50b.sh full
+
+be-test-integration: check be-test-integration-01 be-test-integration-02 be-test-integration-03 be-test-integration-04
+
+be-test-integration-minimal: check be-test-integration-01 be-test-integration-02 be-test-integration-03 be-test-integration-04
+
+be-test-integration-full: check be-test-integration-01-full be-test-integration-02-full be-test-integration-03-full be-test-integration-04-full
+
+be-tests: check be-test-unit be-test-e2e be-test-contract be-test-integration
+
+lint-test-all: be-lint be-tests
+
+lint-test-fast: be-lint be-test-unit-e2e-contract
+
+be-test-fast-minimal: be-test-unit be-test-e2e-minimal be-test-contract
+
+be-test-fast-full: check be-test-unit be-test-e2e-full be-test-contract
+
+be-test-fast: be-test-fast-minimal
+
+be-coverage: check
 	./scripts/shell/run-coverage.sh
+
+fe-lint:
+	cd frontend && npm run lint
+
+fe-tests:
+	cd frontend && npm run test
+
+fe-run:
+	cd frontend && npm run dev

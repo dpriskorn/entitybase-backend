@@ -1,13 +1,15 @@
-from typing import Any, Dict, List, Self
+from typing import TYPE_CHECKING, Any, Dict, List, Self
 
 from pydantic import AliasChoices, BaseModel, Field, model_validator
 
 from models.data.infrastructure.s3.entity_state import EntityState
 from models.data.infrastructure.s3.enums import EditType
 from models.rest_api.utils import raise_validation_error
-from wikibaseintegrator.models.claims import Claims
-from wikibaseintegrator.models.forms import Forms
-from wikibaseintegrator.models.senses import Senses
+
+if TYPE_CHECKING:
+    from wikibaseintegrator.models.claims import Claims
+    from wikibaseintegrator.models.forms import Forms
+    from wikibaseintegrator.models.senses import Senses
 
 
 class EntityRequestBase(BaseModel):
@@ -20,14 +22,30 @@ class EntityRequestBase(BaseModel):
     type: str = Field(
         default="item", description="Entity type (item, property, lexeme)"
     )
-    labels: Dict[str, Dict[str, str]] = {}
-    descriptions: Dict[str, Dict[str, str]] = {}
-    claims: Dict[str, Any] = {}
-    aliases: Dict[str, Any] = {}
-    sitelinks: Dict[str, Any] = {}
-    forms: List[Dict[str, Any]] = []
-    senses: List[Dict[str, Any]] = []
-    lemmas: Dict[str, Any] = {}
+    labels: Dict[str, Dict[str, str]] = Field(
+        default_factory=dict, description="Entity labels by language code"
+    )
+    descriptions: Dict[str, Dict[str, str]] = Field(
+        default_factory=dict, description="Entity descriptions by language code"
+    )
+    claims: Dict[str, Any] = Field(
+        default_factory=dict, description="Entity claims/statements by property"
+    )
+    aliases: Dict[str, Any] = Field(
+        default_factory=dict, description="Entity aliases by language code"
+    )
+    sitelinks: Dict[str, Any] = Field(
+        default_factory=dict, description="Entity sitelinks by site"
+    )
+    forms: List[Dict[str, Any]] = Field(
+        default_factory=list, description="Lexeme forms"
+    )
+    senses: List[Dict[str, Any]] = Field(
+        default_factory=list, description="Lexeme senses"
+    )
+    lemmas: Dict[str, Any] = Field(
+        default_factory=dict, description="Lexeme lemmas by language code"
+    )
     language: str = Field(
         default="",
         description="Lexeme language (QID)",
@@ -67,14 +85,18 @@ class EntityRequestBase(BaseModel):
         """Returns the model itself for type safety."""
         return self
 
-    def validate_claims_wbi(self) -> Claims:
+    def validate_claims_wbi(self) -> "Claims":
         """Validate claims using WBI model."""
+        from wikibaseintegrator.models.claims import Claims
+
         if not self.claims:
             return Claims()
         return Claims().from_json(self.claims)
 
-    def validate_forms_wbi(self) -> Forms:
+    def validate_forms_wbi(self) -> "Forms":
         """Validate forms using WBI model."""
+        from wikibaseintegrator.models.forms import Forms
+
         if not self.forms:
             return Forms()
         forms_with_defaults = []
@@ -91,8 +113,10 @@ class EntityRequestBase(BaseModel):
             forms_with_defaults.append(form_copy)
         return Forms().from_json(forms_with_defaults)
 
-    def validate_senses_wbi(self) -> Senses:
+    def validate_senses_wbi(self) -> "Senses":
         """Validate senses using WBI model."""
+        from wikibaseintegrator.models.senses import Senses
+
         if not self.senses:
             return Senses()
         senses_with_defaults = []

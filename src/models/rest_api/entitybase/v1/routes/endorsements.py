@@ -1,6 +1,6 @@
 """Endorsement-related routes."""
 
-from fastapi import APIRouter, Header, Query, Request
+from fastapi import APIRouter, Depends, Header, Query, Request
 
 from models.rest_api.entitybase.v1.handlers.endorsements import EndorsementHandler
 from models.data.rest_api.v1.entitybase.request import EndorsementListRequest
@@ -11,6 +11,8 @@ from models.data.rest_api.v1.entitybase.response import (
     EndorsementStatsResponse,
     SingleEndorsementStatsResponse,
 )
+from models.rest_api.auth.dependencies import verify_auth
+from models.rest_api.auth.models import AuthenticatedRequest
 from models.rest_api.utils import raise_validation_error, validate_state_clients
 
 
@@ -22,14 +24,14 @@ endorsements_router = APIRouter(tags=["interactions"])
     response_model=EndorsementResponse,
 )
 async def endorse_statement_endpoint(
-    req: Request, statement_hash: int, user_id: int = Header(..., alias="X-User-ID")
+    req: Request, statement_hash: int, auth: AuthenticatedRequest = Depends(verify_auth)
 ) -> EndorsementResponse:
     """Endorse a statement to signal trust."""
     state = req.app.state.state_handler
     validate_state_clients(state)
 
     handler = EndorsementHandler(state=state)
-    result = await handler.endorse_statement(statement_hash, user_id)
+    result = await handler.endorse_statement(statement_hash, auth.user.user_id)
     if not isinstance(result, EndorsementResponse):
         raise_validation_error("Invalid response type", status_code=500)
     return result

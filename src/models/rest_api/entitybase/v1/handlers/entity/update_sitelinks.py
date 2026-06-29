@@ -8,6 +8,7 @@ from pydantic import BaseModel
 
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.rest_api.v1.entitybase.request.entity.context import (
+    EditOperationContext,
     SitelinkUpdateContext,
 )
 from models.data.rest_api.v1.entitybase.response import EntityResponse
@@ -60,8 +61,11 @@ class EntityUpdateSitelinksMixin(BaseModel):
             ctx.entity_id,
             entity_dict,
             entity_type,
-            edit_headers,
-            validator,
+            edit_operation_context=EditOperationContext(
+                edit_headers=edit_headers,
+                user_id=0,
+            ),
+            validator=validator,
         )
 
     async def delete_sitelink(
@@ -94,6 +98,9 @@ class EntityUpdateSitelinksMixin(BaseModel):
             entity_id,
             entity_dict,
             entity_type,
-            edit_headers,
-            validator,
+            edit_operation_context=EditOperationContext(
+                edit_headers=edit_headers,
+                user_id=0,
+            ),
+            validator=validator,
         )

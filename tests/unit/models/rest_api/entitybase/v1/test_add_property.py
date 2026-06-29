@@ -13,10 +13,10 @@ class TestAddProperty(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         """Set up test fixtures."""
         self.mock_state = MagicMock()
-        self.mock_vitess = MagicMock()
+        self.mock_mysql = MagicMock()
         self.mock_s3 = MagicMock()
         self.mock_validator = MagicMock()
-        self.mock_state.vitess_client = self.mock_vitess
+        self.mock_state.mysql_client = self.mock_mysql
         self.mock_state.s3_client = self.mock_s3
         self.handler = EntityHandler(state=self.mock_state)
 

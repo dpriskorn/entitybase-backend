@@ -26,7 +26,7 @@ For domain-specific guidance, see these AGENTS.md files:
 ### Python Version and Dependencies
 - **Python**: >= 3.13, < 4.0
 - **Package Manager**: Poetry
-- **Key Dependencies**: FastAPI, Pydantic v2, boto3, uvicorn, rdflib
+- **Key Dependencies**: FastAPI, Pydantic v2, minio, uvicorn, rdflib
 
 ### Imports
 ```python
@@ -422,6 +422,7 @@ which python  # Must point to .venv/bin/python
 - Never use `sudo pip install` or install to system Python
 - If you see "permission denied" errors, you're not using the venv
 - Run `which python` to verify you're using the venv
+- **Never install Poetry in the venv** - use Poetry installed system-wide or from your IDE
 
 #### Docker Development
 ```bash
@@ -430,6 +431,15 @@ which python  # Must point to .venv/bin/python
 
 # Clean rebuild (removes volumes)
 ./run-docker-build-tests.sh  # With volume pruning
+```
+
+#### Building Docker Images
+Docker images use multi-stage builds with `poetry install` directly in the builder stage.
+No pre-generated requirements files are needed — `poetry.lock` handles dependency locking.
+
+Build with:
+```bash
+docker compose --file docker-compose.tests.yml build
 ```
 
 #### Local Development

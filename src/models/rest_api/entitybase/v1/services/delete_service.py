@@ -27,6 +27,7 @@ from models.data.rest_api.v1.entitybase.request import (
 )
 from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.infrastructure.stream.event import EntityChangeEvent
+from models.infrastructure.mysql.repositories.terms import TermsRepository
 from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.rest_api.entitybase.v1.service import Service
 from models.rest_api.utils import raise_validation_error
@@ -40,8 +41,8 @@ class DeleteService(Service):
 
     def validate_delete_preconditions(self) -> None:
         """Validate that required services are initialized."""
-        if self.vitess_client is None:
-            raise_validation_error("Vitess not initialized", status_code=503)
+        if self.mysql_client is None:
+            raise_validation_error("database not initialized", status_code=503)
 
         if self.state.s3_client is None:
             raise_validation_error("S3 not initialized", status_code=503)
@@ -58,15 +59,15 @@ class DeleteService(Service):
         Raises:
             ValueError: If entity doesn't exist or is already deleted
         """
-        if not self.vitess_client.entity_exists(entity_id):
+        if not self.mysql_client.entity_exists(entity_id):
             raise_validation_error("Entity not found", status_code=404)
 
-        if self.vitess_client.is_entity_deleted(entity_id):
+        if self.mysql_client.is_entity_deleted(entity_id):
             raise_validation_error(
                 f"Entity {entity_id} has been deleted", status_code=410
             )
 
-        head_revision_id = self.vitess_client.get_head(entity_id)
+        head_revision_id = self.mysql_client.get_head(entity_id)
         if head_revision_id == 0:
             raise_validation_error("Entity not found", status_code=404)
 
@@ -84,7 +85,7 @@ class DeleteService(Service):
         """
         from fastapi import HTTPException
 
-        protection_info = self.vitess_client.entity_repository.get_protection_info(
+        protection_info = self.mysql_client.entity_repository.get_protection_info(
             entity_id
         )
         logger.debug(f"Protection info for {entity_id}: {protection_info}")
@@ -188,11 +189,33 @@ class DeleteService(Service):
         """
         for statement_hash in statement_hashes:
             try:
-                self.vitess_client.decrement_ref_count(statement_hash)
+                self.mysql_client.decrement_ref_count(statement_hash)
             except Exception as e:
                 logger.warning(
                     f"Failed to decrement ref count for statement {statement_hash}: {e}"
                 )
+
+    def _decrement_and_delete_if_orphaned(
+        self,
+        terms_repo: TermsRepository,
+        hash_value: str,
+        term_type: str,
+    ) -> None:
+        """Decrement ref count and delete term if orphaned.
+
+        Args:
+            terms_repo: The terms repository
+            hash_value: Hash value to process
+            term_type: Type description for logging (e.g., 'label', 'description')
+        """
+        try:
+            result = terms_repo.decrement_ref_count(int(hash_value))
+            if result.success and result.data == 0:
+                terms_repo.delete_term(int(hash_value))
+        except Exception as e:
+            logger.warning(
+                f"Failed to decrement ref count for {term_type} {hash_value}: {e}"
+            )
 
     def decrement_term_references(
         self,
@@ -207,40 +230,19 @@ class DeleteService(Service):
             descriptions_hashes: Dict of language -> hash for descriptions
             aliases_hashes: Dict of language -> list of hashes for aliases
         """
-        from models.infrastructure.vitess.repositories.terms import TermsRepository
-
-        terms_repo = TermsRepository(vitess_client=self.vitess_client)
+        terms_repo = TermsRepository(mysql_client=self.mysql_client)
 
         for hash_value in labels_hashes.values():
-            try:
-                result = terms_repo.decrement_ref_count(int(hash_value))
-                if result.success and result.data == 0:
-                    terms_repo.delete_term(int(hash_value))
-            except Exception as e:
-                logger.warning(
-                    f"Failed to decrement ref count for label {hash_value}: {e}"
-                )
+            self._decrement_and_delete_if_orphaned(terms_repo, hash_value, "label")
 
         for hash_value in descriptions_hashes.values():
-            try:
-                result = terms_repo.decrement_ref_count(int(hash_value))
-                if result.success and result.data == 0:
-                    terms_repo.delete_term(int(hash_value))
-            except Exception as e:
-                logger.warning(
-                    f"Failed to decrement ref count for description {hash_value}: {e}"
-                )
+            self._decrement_and_delete_if_orphaned(
+                terms_repo, hash_value, "description"
+            )
 
         for alias_hashes in aliases_hashes.values():
             for hash_value in alias_hashes:
-                try:
-                    result = terms_repo.decrement_ref_count(int(hash_value))
-                    if result.success and result.data == 0:
-                        terms_repo.delete_term(int(hash_value))
-                except Exception as e:
-                    logger.warning(
-                        f"Failed to decrement ref count for alias {hash_value}: {e}"
-                    )
+                self._decrement_and_delete_if_orphaned(terms_repo, hash_value, "alias")
 
     def store_deletion_revision(
         self, revision_data: RevisionData
@@ -317,7 +319,7 @@ class DeleteService(Service):
             new_revision_id: The new revision ID
         """
         if user_id > 0:
-            activity_result = self.vitess_client.user_repository.log_user_activity(
+            activity_result = self.mysql_client.user_repository.log_user_activity(
                 user_id=user_id,
                 activity_type=UserActivityType.ENTITY_DELETE,
                 entity_id=entity_id,

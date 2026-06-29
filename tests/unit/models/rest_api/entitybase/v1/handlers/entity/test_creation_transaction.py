@@ -13,6 +13,7 @@ from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
 from models.data.rest_api.v1.entitybase.request.entity.context import (
+    EditOperationContext,
     EventPublishContext,
 )
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
@@ -30,14 +31,14 @@ class TestCreationTransaction:
     async def test_create_revision_success(self) -> None:
         """Test successful revision creation."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
 
         entity_id = "Q42"
         entity_type = EntityType.ITEM
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Test creation")
+        edit_headers = EditHeaders(x_edit_summary="Test creation")
 
         hash_result = StatementHashResult(
             statements=[1, 2, 3], properties=["P31"], property_counts={"P31": 1}
@@ -55,11 +56,16 @@ class TestCreationTransaction:
 
         transaction = CreationTransaction(state=mock_state, entity_id=entity_id)
 
+        edit_operation_context = EditOperationContext(
+            edit_headers=edit_headers,
+            user_id=123,
+        )
+
         result = await transaction.create_revision(
             entity_id=entity_id,
             request_data=request_data,
             entity_type=entity_type,
-            edit_headers=edit_headers,
+            edit_operation_context=edit_operation_context,
             hash_result=hash_result,
         )
 
@@ -67,21 +73,21 @@ class TestCreationTransaction:
         assert result.revision_id == 1
         assert isinstance(result.entity_data, object)
 
-        mock_vitess.create_revision.assert_called_once()
+        mock_mysql.create_revision.assert_called_once()
         mock_s3.store_revision.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_create_revision_with_properties(self) -> None:
         """Test revision creation with multiple properties."""
         mock_state = MagicMock()
-        mock_vitess = MagicMock()
+        mock_mysql = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.mysql_client = mock_mysql
         mock_state.s3_client = mock_s3
 
         entity_id = "Q1"
         entity_type = EntityType.ITEM
-        edit_headers = EditHeaders(x_user_id=1, x_edit_summary="Initial creation")
+        edit_headers = EditHeaders(x_edit_summary="Initial creation")
 
         hash_result = StatementHashResult(
             statements=[10, 20, 30],
@@ -101,18 +107,23 @@ class TestCreationTransaction:
 
         transaction = CreationTransaction(state=mock_state, entity_id=entity_id)
 
+        edit_operation_context = EditOperationContext(
+            edit_headers=edit_headers,
+            user_id=1,
+        )
+
         result = await transaction.create_revision(
             entity_id=entity_id,
             request_data=request_data,
             entity_type=entity_type,
-            edit_headers=edit_headers,
+            edit_operation_context=edit_operation_context,
             hash_result=hash_result,
         )
 
         assert result.id == entity_id
         assert result.revision_id == 1
 
-        call_args = mock_vitess.create_revision.call_args
+        call_args = mock_mysql.create_revision.call_args
         assert call_args[1]["entity_id"] == entity_id
         assert call_args[1]["revision_id"] == 1
         assert "properties" in call_args[1]["entity_data"].model_dump()
