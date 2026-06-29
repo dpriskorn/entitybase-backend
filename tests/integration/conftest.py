@@ -112,6 +112,7 @@ def db_conn():
         if conn:
             conn.close()
         import shutil
+
         shutil.rmtree(temp_dir, ignore_errors=True)
     else:
         logger.debug(
@@ -246,9 +247,7 @@ def db_client():
         from models.infrastructure.sqlite.client import SqliteClient
 
         sqlite_config = settings.get_db_config
-        logger.debug(
-            f"pytest:db_client: SQLite datadir='{sqlite_config.datadir}'"
-        )
+        logger.debug(f"pytest:db_client: SQLite datadir='{sqlite_config.datadir}'")
         client = SqliteClient(config=sqlite_config)
         logger.debug(
             f"=== db_client fixture SUCCESS (SQLite) in {(time_module.time() - start_time):.2f}s ==="
@@ -277,7 +276,9 @@ def db_client():
 
         client_start = time_module.time()
         client = MysqlClient(config=mysql_config)
-        logger.debug(f"MysqlClient created in {(time_module.time() - client_start):.2f}s")
+        logger.debug(
+            f"MysqlClient created in {(time_module.time() - client_start):.2f}s"
+        )
 
         logger.debug(
             f"=== db_client fixture END total time: {(time_module.time() - start_time):.2f}s ==="

@@ -84,6 +84,7 @@ def db_conn():
         if conn:
             conn.close()
         import shutil
+
         shutil.rmtree(temp_dir, ignore_errors=True)
     else:
         import pymysql
@@ -134,6 +135,7 @@ def db_cleanup(db_conn):
         db_conn.commit()
     else:
         import pymysql
+
         with db_conn.cursor() as cursor:
             for table in tables:
                 try:

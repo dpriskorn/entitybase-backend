@@ -15,7 +15,9 @@ logger = logging.getLogger(__name__)
 class SimpleIdCounter(BaseModel):
     """Simple in-memory ID counter for simple mode (no ID worker)."""
 
-    next_ids: dict[str, int] = Field(default_factory=lambda: {"Q": 1, "P": 1, "L": 1, "E": 1})
+    next_ids: dict[str, int] = Field(
+        default_factory=lambda: {"Q": 1, "P": 1, "L": 1, "E": 1}
+    )
 
     def get_next_id(self, entity_prefix: str) -> str:
         """Get next ID for entity prefix."""
@@ -36,7 +38,9 @@ class EnumerationService(BaseModel):
     mysql_client: Any
     id_worker_enabled: bool = True
     range_manager: Any = Field(default=None, exclude=True)
-    simple_counter: SimpleIdCounter = Field(default_factory=SimpleIdCounter, exclude=True)
+    simple_counter: SimpleIdCounter = Field(
+        default_factory=SimpleIdCounter, exclude=True
+    )
 
     def model_post_init(self, context: Any) -> None:
         if self.id_worker_enabled:
