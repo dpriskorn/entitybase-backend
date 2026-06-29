@@ -1,14 +1,18 @@
 import logging
 import os
+import sqlite3
 import sys
+import tempfile
 import time
+from pathlib import Path
 
-import pymysql
 import pytest
 import requests
 from minio.error import S3Error
 
 sys.path.insert(0, "src")
+
+DB_TYPE = os.getenv("DB_TYPE", "sqlite")
 
 # In CI, always disable streaming regardless of what test.env loaded
 if os.getenv("CI"):
@@ -51,14 +55,16 @@ def validate_env_vars():
     import os
 
     required_vars = {
-        "MYSQL_HOST": "Sql database host",
-        "MYSQL_PORT": "Sql database port",
-        "MYSQL_DATABASE": "Sql database name",
-        "MYSQL_USER": "Sql database user",
         "S3_ENDPOINT": "S3 storage endpoint URL",
         "S3_ACCESS_KEY": "S3 access key",
         "S3_SECRET_KEY": "S3 secret key",
     }
+
+    if DB_TYPE == "mysql":
+        required_vars["MYSQL_HOST"] = "Sql database host"
+        required_vars["MYSQL_PORT"] = "Sql database port"
+        required_vars["MYSQL_DATABASE"] = "Sql database name"
+        required_vars["MYSQL_USER"] = "Sql database user"
 
     missing_vars = []
     for var, description in required_vars.items():
@@ -93,60 +99,75 @@ def db_conn():
 
     start_time = time_module.time()
     logger.debug("=== db_conn fixture START ===")
-    logger.debug(
-        f"Attempting to connect to: host='{settings.mysql_host}', port={settings.mysql_port}, user='{settings.mysql_user}', database='{settings.mysql_database}'"
-    )
 
-    # Wait for DB to be ready - optimized retry logic
-    max_retries = 5
-    conn = None
-    for attempt in range(max_retries):
-        attempt_start = time_module.time()
-        try:
-            logger.debug(
-                f"Attempt {attempt + 1}/{max_retries}: Connecting to database..."
-            )
-            conn = pymysql.connect(
-                host=settings.mysql_host,
-                port=settings.mysql_port,
-                user=settings.mysql_user,
-                password=settings.mysql_password,
-                database=settings.mysql_database,
-                connect_timeout=2,
-            )
-            logger.debug(
-                f"Attempt {attempt + 1}/{max_retries}: Connection established in {(time_module.time() - attempt_start):.2f}s"
-            )
+    if DB_TYPE == "sqlite":
+        temp_dir = tempfile.mkdtemp()
+        db_path = Path(temp_dir) / "test_integration.db"
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        logger.debug(
+            f"=== db_conn fixture SUCCESS (SQLite) in {(time_module.time() - start_time):.2f}s ==="
+        )
+        yield conn
+        if conn:
+            conn.close()
+        import shutil
+        shutil.rmtree(temp_dir, ignore_errors=True)
+    else:
+        logger.debug(
+            f"Attempting to connect to: host='{settings.mysql_host}', port={settings.mysql_port}, user='{settings.mysql_user}', database='{settings.mysql_database}'"
+        )
 
-            # Test connection with a simple query
-            with conn.cursor() as cursor:
-                query_start = time_module.time()
-                cursor.execute("SELECT 1")
-                cursor.fetchone()
+        # Wait for DB to be ready - optimized retry logic
+        max_retries = 5
+        conn = None
+        for attempt in range(max_retries):
+            attempt_start = time_module.time()
+            try:
                 logger.debug(
-                    f"Attempt {attempt + 1}/{max_retries}: Query executed in {(time_module.time() - query_start):.2f}s"
+                    f"Attempt {attempt + 1}/{max_retries}: Connecting to database..."
+                )
+                conn = pymysql.connect(
+                    host=settings.mysql_host,
+                    port=settings.mysql_port,
+                    user=settings.mysql_user,
+                    password=settings.mysql_password,
+                    database=settings.mysql_database,
+                    connect_timeout=2,
+                )
+                logger.debug(
+                    f"Attempt {attempt + 1}/{max_retries}: Connection established in {(time_module.time() - attempt_start):.2f}s"
                 )
 
-            logger.debug(
-                f"=== db_conn fixture SUCCESS in {(time_module.time() - start_time):.2f}s ==="
-            )
-            break
-        except pymysql.Error as e:
-            attempt_time = time_module.time() - attempt_start
-            logger.debug(
-                f"Attempt {attempt + 1}/{max_retries} FAILED after {attempt_time:.2f}s: {e}"
-            )
-            if attempt == max_retries - 1:
-                logger.error(
-                    f"=== db_conn fixture FAILED after {(time_module.time() - start_time):.2f}s ==="
-                )
-                raise e
-            logger.debug(f"Waiting 1s before retry...")
-            time.sleep(1)
+                # Test connection with a simple query
+                with conn.cursor() as cursor:
+                    query_start = time_module.time()
+                    cursor.execute("SELECT 1")
+                    cursor.fetchone()
+                    logger.debug(
+                        f"Attempt {attempt + 1}/{max_retries}: Query executed in {(time_module.time() - query_start):.2f}s"
+                    )
 
-    yield conn
-    if conn:
-        conn.close()
+                logger.debug(
+                    f"=== db_conn fixture SUCCESS in {(time_module.time() - start_time):.2f}s ==="
+                )
+                break
+            except pymysql.Error as e:
+                attempt_time = time_module.time() - attempt_start
+                logger.debug(
+                    f"Attempt {attempt + 1}/{max_retries} FAILED after {attempt_time:.2f}s: {e}"
+                )
+                if attempt == max_retries - 1:
+                    logger.error(
+                        f"=== db_conn fixture FAILED after {(time_module.time() - start_time):.2f}s ==="
+                    )
+                    raise e
+                logger.debug(f"Waiting 1s before retry...")
+                time.sleep(1)
+
+        yield conn
+        if conn:
+            conn.close()
     logger.debug(
         f"=== db_conn fixture END total time: {(time_module.time() - start_time):.2f}s ==="
     )
@@ -176,117 +197,101 @@ def db_cleanup(db_conn):
         "user_daily_stats",
         "general_daily_stats",
     ]
-    with db_conn.cursor() as cursor:
-        cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
+    if DB_TYPE == "sqlite":
         for table in tables:
             try:
-                cursor.execute(f"TRUNCATE TABLE {table}")
-            except pymysql.err.ProgrammingError as e:
-                if "doesn't exist" in str(e):
-                    # Table doesn't exist, skip
-                    continue
-                else:
-                    raise
-        cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
-    db_conn.commit()
+                db_conn.execute(f"DELETE FROM {table}")
+            except sqlite3.OperationalError:
+                continue
+        db_conn.commit()
+    else:
+        with db_conn.cursor() as cursor:
+            cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
+            for table in tables:
+                try:
+                    cursor.execute(f"TRUNCATE TABLE {table}")
+                except pymysql.err.ProgrammingError as e:
+                    if "doesn't exist" in str(e):
+                        # Table doesn't exist, skip
+                        continue
+                    else:
+                        raise
+            cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
+        db_conn.commit()
 
 
 @pytest.fixture(scope="session", autouse=True)
-def create_tables(mysql_client):
+def create_tables(db_client):
     """Create database tables before running integration tests."""
     import time as time_module
 
     start_time = time_module.time()
     logger.debug("=== create_tables fixture START ===")
-    try:
-        from models.infrastructure.mysql.repositories.schema import SchemaRepository
-
-        schema_start = time_module.time()
-        schema_repository = SchemaRepository(mysql_client=mysql_client)
-        schema_repository.create_tables()
-        logger.debug(
-            f"Schema tables created in {(time_module.time() - schema_start):.2f}s"
-        )
-
-        print("Database tables created for integration tests")
-    except Exception as e:
-        logger.debug(f"Failed to create tables: {e}")
-        # Try to create tables using raw SQL as fallback using db_conn
-        try:
-            import pymysql
-            from models.config.settings import settings
-            import time as time_module
-
-            fallback_start = time_module.time()
-            conn = pymysql.connect(
-                host=settings.mysql_host,
-                port=settings.mysql_port,
-                user=settings.mysql_user,
-                password=settings.mysql_password,
-                database=settings.mysql_database,
-                connect_timeout=2,
-            )
-            with conn.cursor() as cursor:
-                # Create minimal tables needed for tests
-                cursor.execute("""
-                    CREATE TABLE IF NOT EXISTS entity_id_mapping (
-                        entity_id VARCHAR(50) PRIMARY KEY,
-                        internal_id BIGINT UNSIGNED NOT NULL UNIQUE
-                    )
-                """)
-                cursor.execute("""
-                    CREATE TABLE IF NOT EXISTS entity_revisions (
-                        internal_id BIGINT UNSIGNED NOT NULL,
-                        revision_id BIGINT NOT NULL,
-                        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                        is_mass_edit BOOLEAN DEFAULT FALSE,
-                        edit_type VARCHAR(100) DEFAULT '',
-                        statements JSON NOT NULL,
-                        properties JSON NOT NULL,
-                        property_counts JSON NOT NULL,
-                        labels_hashes JSON,
-                        descriptions_hashes JSON,
-                        aliases_hashes JSON,
-                        sitelinks_hashes JSON,
-                        user_id BIGINT UNSIGNED,
-                        edit_summary TEXT,
-                        content_hash BIGINT UNSIGNED NOT NULL,
-                        PRIMARY KEY (internal_id, revision_id)
-                    )
-                """)
-                # Add other essential tables as needed
-                cursor.execute("""
-                    CREATE TABLE IF NOT EXISTS entity_head (
-                        internal_id BIGINT UNSIGNED PRIMARY KEY,
-                        head_revision_id BIGINT NOT NULL,
-                        is_semi_protected BOOLEAN DEFAULT FALSE,
-                        is_locked BOOLEAN DEFAULT FALSE,
-                        is_archived BOOLEAN DEFAULT FALSE,
-                        is_dangling BOOLEAN DEFAULT FALSE,
-                        is_mass_edit_protected BOOLEAN DEFAULT FALSE,
-                        is_deleted BOOLEAN DEFAULT FALSE,
-                        is_redirect BOOLEAN DEFAULT FALSE,
-                        redirects_to BIGINT UNSIGNED NULL
-                    )
-                """)
-            conn.commit()
-            conn.close()
-            logger.debug(
-                f"Fallback SQL tables created in {(time_module.time() - fallback_start):.2f}s"
-            )
-            print("Created minimal tables using raw SQL")
-        except Exception as sql_e:
-            logger.debug(f"Failed to create tables with SQL: {sql_e}")
-            raise
-
+    db_client.create_tables()
     logger.debug(
         f"=== create_tables fixture END total time: {(time_module.time() - start_time):.2f}s ==="
     )
+    print(f"Database tables created for integration tests (DB_TYPE={DB_TYPE})")
+
+
+@pytest.fixture(scope="session")
+def db_client():
+    """Create a database client (SqliteClient or MysqlClient) connected to test database."""
+    import time as time_module
+
+    start_time = time_module.time()
+    logger.debug("=== db_client fixture START ===")
+
+    if DB_TYPE == "sqlite":
+        from models.infrastructure.sqlite.client import SqliteClient
+
+        sqlite_config = settings.get_db_config
+        logger.debug(
+            f"pytest:db_client: SQLite datadir='{sqlite_config.datadir}'"
+        )
+        client = SqliteClient(config=sqlite_config)
+        logger.debug(
+            f"=== db_client fixture SUCCESS (SQLite) in {(time_module.time() - start_time):.2f}s ==="
+        )
+        yield client
+        client.disconnect()
+    else:
+        logger.debug(f"pytest:db_client: Running")
+        from models.infrastructure.mysql.client import MysqlClient
+        from models.data.config.mysql import MysqlConfig
+
+        # Create a test-specific config with smaller pool for faster tests
+        mysql_config = MysqlConfig(
+            host=settings.mysql_host,
+            port=settings.mysql_port,
+            database=settings.mysql_database,
+            user=settings.mysql_user,
+            password=settings.mysql_password,
+            pool_size=20,
+            max_overflow=20,
+            pool_timeout=5,
+        )
+        logger.debug(
+            f"Sql config: host='{mysql_config.host}', port={mysql_config.port}, database='{mysql_config.database}'"
+        )
+
+        client_start = time_module.time()
+        client = MysqlClient(config=mysql_config)
+        logger.debug(f"MysqlClient created in {(time_module.time() - client_start):.2f}s")
+
+        logger.debug(
+            f"=== db_client fixture END total time: {(time_module.time() - start_time):.2f}s ==="
+        )
+        yield client
+
+        client.disconnect()
 
 
 @pytest.fixture(scope="session")
 def mysql_client():
-    """Create a real MysqlClient connected to test database."""
+    """Create a real MysqlClient connected to test database (for backwards compatibility)."""
+    if DB_TYPE != "mysql":
+        pytest.skip("mysql_client fixture requires DB_TYPE=mysql")
     import time as time_module
 
     start_time = time_module.time()
@@ -400,7 +405,7 @@ def create_s3_buckets(s3_config):
 
 
 @pytest.fixture(scope="session")
-def s3_client(s3_config, mysql_client):
+def s3_client(s3_config, db_client):
     """Create real MyS3Client connected to Minio."""
     import time as time_module
     from models.infrastructure.s3.client import MyS3Client
@@ -414,7 +419,7 @@ def s3_client(s3_config, mysql_client):
         attempt_start = time_module.time()
         try:
             logger.debug(f"Attempt {attempt + 1}/{max_retries}: Connecting to S3...")
-            client = MyS3Client(config=s3_config, mysql_client=mysql_client)
+            client = MyS3Client(config=s3_config, mysql_client=db_client)
             logger.debug(
                 f"pytest:s3_client: Connected to S3 at attempt {attempt + 1} in {(time_module.time() - attempt_start):.2f}s"
             )
@@ -438,7 +443,7 @@ def s3_client(s3_config, mysql_client):
 
 
 @pytest.fixture(scope="session", autouse=True)
-async def initialized_app(mysql_client, s3_client, create_s3_buckets):
+async def initialized_app(db_client, s3_client, create_s3_buckets):
     """Initialize the FastAPI app with state_handler for integration tests.
 
     This fixture ensures that app.state.state_handler is properly initialized
@@ -455,6 +460,7 @@ async def initialized_app(mysql_client, s3_client, create_s3_buckets):
 
     logger.debug("Creating StateHandler...")
     state_handler = StateHandler(settings=settings)
+    state_handler.cached_mysql_client = db_client
     logger.debug("StateHandler created, calling start()...")
     state_handler.start()
     logger.debug("StateHandler started")

@@ -1,10 +1,12 @@
 import json
 import logging
 import os
+import sqlite3
 import sys
+import tempfile
+from pathlib import Path
 from typing import Any
 
-import pymysql
 import pytest
 import requests
 
@@ -12,6 +14,8 @@ sys.path.insert(0, "src")
 
 os.environ["STREAMING_ENABLED"] = "false"
 os.environ.pop("KAFKA_BOOTSTRAP_SERVERS", None)
+
+DB_TYPE = os.getenv("DB_TYPE", "sqlite")
 
 logger = logging.getLogger(__name__)
 
@@ -42,44 +46,57 @@ def validate_e2e_env_vars():
     This fixture fails fast if required environment variables are missing,
     preventing long retry loops and confusing connection errors.
     """
-    required_vars = {
-        "MYSQL_HOST": "Sql database host",
-        "MYSQL_PORT": "Sql database port",
-        "MYSQL_DATABASE": "Sql database name",
-        "MYSQL_USER": "Sql database user",
-    }
+    if DB_TYPE == "mysql":
+        required_vars = {
+            "MYSQL_HOST": "Sql database host",
+            "MYSQL_PORT": "Sql database port",
+            "MYSQL_DATABASE": "Sql database name",
+            "MYSQL_USER": "Sql database user",
+        }
 
-    missing_vars = []
-    for var, description in required_vars.items():
-        value = os.getenv(var)
-        if not value or value == "":
-            missing_vars.append(f"  {var}: {description}")
+        missing_vars = []
+        for var, description in required_vars.items():
+            value = os.getenv(var)
+            if not value or value == "":
+                missing_vars.append(f"  {var}: {description}")
 
-    if missing_vars:
-        error_msg = (
-            "Required environment variables are not set:\n"
-            + "\n".join(missing_vars)
-            + "\n\nPlease set these environment variables before running E2E tests."
-        )
-        pytest.fail(error_msg)
+        if missing_vars:
+            error_msg = (
+                "Required environment variables are not set:\n"
+                + "\n".join(missing_vars)
+                + "\n\nPlease set these environment variables before running E2E tests."
+            )
+            pytest.fail(error_msg)
 
 
 @pytest.fixture(scope="session")
 def db_conn():
     """Database connection for cleanup."""
-    from models.config.settings import settings
+    if DB_TYPE == "sqlite":
+        temp_dir = tempfile.mkdtemp()
+        db_path = Path(temp_dir) / "test_e2e.db"
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        yield conn
+        if conn:
+            conn.close()
+        import shutil
+        shutil.rmtree(temp_dir, ignore_errors=True)
+    else:
+        import pymysql
+        from models.config.settings import settings
 
-    conn = pymysql.connect(
-        host=settings.mysql_host,
-        port=settings.mysql_port,
-        user=settings.mysql_user,
-        password=settings.mysql_password,
-        database=settings.mysql_database,
-        connect_timeout=2,
-    )
-    yield conn
-    if conn:
-        conn.close()
+        conn = pymysql.connect(
+            host=settings.mysql_host,
+            port=settings.mysql_port,
+            user=settings.mysql_user,
+            password=settings.mysql_password,
+            database=settings.mysql_database,
+            connect_timeout=2,
+        )
+        yield conn
+        if conn:
+            conn.close()
 
 
 @pytest.fixture(scope="class")
@@ -105,28 +122,67 @@ def db_cleanup(db_conn):
         "user_daily_stats",
         "general_daily_stats",
     ]
-    with db_conn.cursor() as cursor:
+    if DB_TYPE == "sqlite":
         for table in tables:
             try:
-                cursor.execute(f"DELETE FROM {table}")
-            except pymysql.err.ProgrammingError:
+                db_conn.execute(f"DELETE FROM {table}")
+            except sqlite3.OperationalError:
                 continue
-    db_conn.commit()
+        db_conn.commit()
+    else:
+        import pymysql
+        with db_conn.cursor() as cursor:
+            for table in tables:
+                try:
+                    cursor.execute(f"DELETE FROM {table}")
+                except pymysql.err.ProgrammingError:
+                    continue
+        db_conn.commit()
 
 
 @pytest.fixture(scope="session", autouse=True)
-def create_tables(mysql_client):
+def create_tables(db_client):
     """Create database tables before running E2E tests."""
-    from models.infrastructure.mysql.repositories.schema import SchemaRepository
+    db_client.create_tables()
+    logger.info(f"Database tables created for E2E tests (DB_TYPE={DB_TYPE})")
 
-    schema_repository = SchemaRepository(mysql_client=mysql_client)
-    schema_repository.create_tables()
-    logger.info("Database tables created for E2E tests")
+
+@pytest.fixture(scope="session")
+def db_client():
+    """Create a database client (SqliteClient or MysqlClient) connected to test database."""
+    from models.config.settings import settings
+
+    if DB_TYPE == "sqlite":
+        from models.infrastructure.sqlite.client import SqliteClient
+
+        sqlite_config = settings.get_db_config
+        client = SqliteClient(config=sqlite_config)
+        yield client
+        client.disconnect()
+    else:
+        from models.infrastructure.mysql.client import MysqlClient
+        from models.data.config.mysql import MysqlConfig
+
+        mysql_config = MysqlConfig(
+            host=settings.mysql_host,
+            port=settings.mysql_port,
+            database=settings.mysql_database,
+            user=settings.mysql_user,
+            password=settings.mysql_password,
+            pool_size=20,
+            max_overflow=20,
+            pool_timeout=5,
+        )
+        client = MysqlClient(config=mysql_config)
+        yield client
+        client.disconnect()
 
 
 @pytest.fixture(scope="session")
 def mysql_client():
-    """Create a real MysqlClient connected to test database."""
+    """Create a real MysqlClient connected to test database (for backwards compatibility)."""
+    if DB_TYPE != "mysql":
+        pytest.skip("mysql_client fixture requires DB_TYPE=mysql")
     from models.infrastructure.mysql.client import MysqlClient
     from models.data.config.mysql import MysqlConfig
     from models.config.settings import settings
@@ -197,18 +253,18 @@ def create_s3_buckets(s3_config):
 
 
 @pytest.fixture(scope="session")
-def s3_client(s3_config, mysql_client):
+def s3_client(s3_config, db_client):
     """Create real MyS3Client connected to S3."""
     from models.infrastructure.s3.client import MyS3Client
 
-    client = MyS3Client(config=s3_config, mysql_client=mysql_client)
+    client = MyS3Client(config=s3_config, mysql_client=db_client)
     yield client
     client.disconnect()
     logger.debug("S3Client disconnected in s3_client fixture")
 
 
 @pytest.fixture(scope="session", autouse=True)
-def initialized_app(mysql_client, s3_client, create_s3_buckets):
+def initialized_app(db_client, s3_client, create_s3_buckets):
     """Initialize the FastAPI app with state_handler for E2E tests."""
     from models.rest_api.main import app
     from models.rest_api.entitybase.v1.handlers.state import StateHandler
@@ -218,7 +274,7 @@ def initialized_app(mysql_client, s3_client, create_s3_buckets):
     state_handler = StateHandler(settings=settings)
 
     # Inject pre-configured test clients instead of creating new ones
-    state_handler.cached_mysql_client = mysql_client
+    state_handler.cached_mysql_client = db_client
     state_handler.cached_s3_client = s3_client
     logger.debug("Injected test Sql and S3 clients into StateHandler")
 
