@@ -134,9 +134,42 @@ async def _create_database_tables(state_handler: StateHandler) -> None:
         logger.info(
             f"Database tables created/verified successfully (db_type={db_type})"
         )
+        await _verify_database_tables(state_handler)
     except Exception as e:
         logger.warning(f"Could not create database tables on startup: {e}")
         logger.info("Tables will be created when first accessed or in tests")
+
+
+async def _verify_database_tables(state_handler: StateHandler) -> None:
+    """Verify critical database tables exist after creation."""
+    db_type = state_handler.settings.db_type
+    critical_tables = [
+        "entity_id_mapping",
+        "entity_head",
+        "entity_revisions",
+        "entity_terms",
+        "statement_content",
+        "statements",
+        "metadata_content",
+    ]
+
+    try:
+        with state_handler.mysql_client.cursor as cursor:
+            if db_type == "sqlite":
+                cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+                existing = {row[0] for row in cursor.fetchall()}
+            else:
+                cursor.execute("SHOW TABLES")
+                existing = {row[0] for row in cursor.fetchall()}
+
+            missing = set(critical_tables) - existing
+            if missing:
+                logger.error(f"Missing critical tables: {missing}")
+                raise RuntimeError(f"Database tables not created: {missing}")
+            logger.info(f"All {len(critical_tables)} critical tables verified")
+    except Exception as e:
+        logger.error(f"Table verification failed: {e}")
+        raise
 
 
 async def _run_database_migrations(state_handler: StateHandler) -> None:
