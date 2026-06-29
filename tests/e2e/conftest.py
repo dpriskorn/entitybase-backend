@@ -295,6 +295,35 @@ def initialized_app(db_client, s3_client, create_s3_buckets):
         logger.debug("StateHandler disconnected in initialized_app fixture")
 
 
+@pytest.fixture(scope="session", autouse=True)
+def mock_auth(initialized_app):
+    """Override auth dependency to use test user for all E2E tests.
+
+    This allows E2E tests to run without real JWT token authentication.
+    All authenticated endpoints will use a test user (user_id=0, role=default).
+    """
+    from models.rest_api.main import app
+    from models.rest_api.auth.dependencies import verify_auth
+    from models.rest_api.auth.models import AuthenticatedRequest, User
+    from models.data.common.roles import UserRole
+
+    test_user = User(user_id=0, username="test", role=UserRole.DEFAULT)
+    test_auth_request = AuthenticatedRequest(
+        user=test_user, edit_summary="E2E test", base_revision_id=0
+    )
+
+    async def override_verify_auth():
+        return test_auth_request
+
+    app.dependency_overrides[verify_auth] = override_verify_auth
+    logger.debug("Auth dependency overridden with test user for E2E tests")
+
+    yield
+
+    app.dependency_overrides.clear()
+    logger.debug("Auth dependency override cleared")
+
+
 @pytest.fixture
 def sample_item_data() -> dict[str, Any]:
     """Sample item entity data for testing - simple item without fixed ID."""
