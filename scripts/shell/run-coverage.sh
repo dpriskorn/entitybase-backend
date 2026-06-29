@@ -3,8 +3,9 @@ cd "$(dirname "$0")/../.."
 set -e
 
 THRESHOLD=80
+ENV_FILE="${1:-minimal}"
 
-source test.env
+source "test-${ENV_FILE}.env"
 
 echo "Cleaning up..."
 
@@ -14,7 +15,7 @@ rm coverage.xml || true
 find . -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
 find . -name "*.pyc" -delete 2>/dev/null || true
 
-echo "Running all tests with coverage..."
+echo "Running all tests with coverage (env=${ENV_FILE})..."
 poetry run pytest \
   -n "auto" \
   --cov=src \

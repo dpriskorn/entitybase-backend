@@ -11,6 +11,7 @@ NC='\033[0m' # No Color
 # Track overall status
 overall_status=0
 clean_connections=false
+env_file="test-minimal"
 
 # Parse arguments
 for arg in "$@"; do
@@ -19,10 +20,20 @@ for arg in "$@"; do
             clean_connections=true
             shift
             ;;
+        --env=minimal)
+            env_file="test-minimal"
+            shift
+            ;;
+        --env=full)
+            env_file="test-full"
+            shift
+            ;;
         -h|--help)
             echo "Usage: $0 [OPTIONS]"
             echo ""
             echo "Options:"
+            echo "  --env=minimal  Use test-minimal.env (SQLite, no MySQL required) - default"
+            echo "  --env=full     Use test-full.env (MySQL required)"
             echo "  --clean-connections  Kill idle MySQL connections before checking"
             echo "  -h, --help           Show this help message"
             exit 0
@@ -33,10 +44,10 @@ done
 # Load test environment variables
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-if [ -f "$PROJECT_ROOT/test.env" ]; then
-    source "$PROJECT_ROOT/test.env"
+if [ -f "$PROJECT_ROOT/test-${env_file}.env" ]; then
+    source "$PROJECT_ROOT/test-${env_file}.env"
 else
-    echo -e "${RED}❌ test.env not found at $PROJECT_ROOT/test.env${NC}"
+    echo -e "${RED}❌ test-${env_file}.env not found at $PROJECT_ROOT/test-${env_file}.env${NC}"
     exit 1
 fi
 
@@ -134,11 +145,17 @@ clean_idle_connections() {
 
 # Clean connections if requested (do this before other checks)
 if [ "$clean_connections" = true ]; then
-    clean_idle_connections
+    if [ "$DB_TYPE" = "mysql" ]; then
+        clean_idle_connections
+    else
+        echo -e "${YELLOW}⚠️  --clean-connections ignored: DB_TYPE is not mysql${NC}"
+    fi
 fi
 
 # Check all services
-check_running_service "mysql" || overall_status=1
+if [ "$DB_TYPE" = "mysql" ]; then
+    check_running_service "mysql" || overall_status=1
+fi
 check_running_service "rustfs" || overall_status=1
 check_running_service "redpanda" || overall_status=1
 check_running_service "idworker" || overall_status=1

@@ -3,20 +3,13 @@ cd "$(dirname "$0")/../.."
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+ENV_FILE="${1:-minimal}"
 
 # Check if test infrastructure is running (MySQL, S3, etc.)
-"$SCRIPT_DIR/check-docker-services.sh" --clean-connections
+"$SCRIPT_DIR/check-docker-services.sh" --env="${ENV_FILE}" --clean-connections
 
-source "$PROJECT_ROOT/test.env"
+source "$PROJECT_ROOT/test-${ENV_FILE}.env"
 source "$PROJECT_ROOT/e2e.env"
 
-echo "Running E2E tests (ASGITransport - no API server required)"
-# sdt out / logs
-#pytest -m integration -s --strict-markers
-
-# stop first failure
-#pytest -p no:xdist -m integration --exitfirst --capture=no --strict-markers
+echo "Running E2E tests (ASGITransport - no API server required) (env=${ENV_FILE})"
 poetry run pytest tests/e2e --capture=no --strict-markers --log-cli-level=DEBUG --log-cli-format="%(asctime)s - %(name)s - %(levelname)s - %(message)s" --durations=10
-
-# verbose
-#pytest -m integration -v --strict-markers

@@ -2,20 +2,12 @@
 cd "$(dirname "$0")/../.."
 set -e
 
+ENV_FILE="${1:-minimal}"
+
 # Check if test infrastructure is running (MySQL, S3, etc.)
-./check-docker-services.sh --clean-connections
+./check-docker-services.sh --env="${ENV_FILE}" --clean-connections
 
-source test.env
+source "test-${ENV_FILE}.env"
 
-echo "Running integration tests (ASGITransport - no server required)"
-#pytest -m integration
-
-# sdt out / logs
-#pytest -m integration -s --strict-markers
-
-# stop first failure
-#pytest -p no:xdist -m integration --exitfirst --capture=no --strict-markers
+echo "Running integration tests (ASGITransport - no server required) (env=${ENV_FILE})"
 poetry run pytest tests/integration --capture=no --strict-markers --log-cli-level=DEBUG --log-cli-format="%(asctime)s - %(name)s - %(levelname)s - %(message)s" --durations=10
-
-# verbose
-#pytest -m integration -v --strict-markers

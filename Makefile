@@ -2,7 +2,7 @@
 
 help:
 	@echo "Available targets:"
-	@echo "  make check         - Check if Docker services are running"
+	@echo "  make check         - Check if Docker services are running (uses test-minimal.env)"
 	@echo "  make api           - Run docker compose up and start the API locally using uvicorn with reload enabled"
 	@echo "  make api-no-cache  - Run docker compose up with --no-cache (force rebuild all layers)"
 
@@ -19,22 +19,36 @@ help:
 	@echo "  make docs-build   - Build static documentation site (uses zensical)"
 	@echo "  make docs-serve   - Serve documentation locally with live reload (uses zensical)"
 	@echo "  make docs         - Run docs-generate + docs-build + docs-serve"
-	@echo "  make be-lint-test-all - Run all lint + tests (unit -> E2E -> contract -> integration)"
-	@echo "  make be-lint-test-fast        - Run lint + fast tests (unit -> E2E -> contract)"
-	@echo "  make be-test-fast        - Run fast tests (unit -> E2E -> contract)"
-	@echo "  make be-tests        - Run all tests (unit -> E2E -> contract -> integration)"
+	@echo ""
+	@echo "  *** Minimal tests (SQLite, no MySQL required) ***"
+	@echo "  make be-test-fast-minimal   - Run fast tests (unit -> E2E -> contract) with SQLite"
+	@echo "  make be-test-e2e-minimal    - Run all e2e tests with SQLite (no docker required)"
+	@echo "  make be-test-e2e-01-minimal - Run e2e tests (basics) with SQLite"
+	@echo "  make be-test-e2e-02-minimal - Run e2e tests (terms) with SQLite"
+	@echo "  make be-test-e2e-03-minimal - Run e2e tests (user features) with SQLite"
+	@echo "  make be-test-e2e-04-minimal - Run e2e tests (advanced) with SQLite"
+	@echo "  make be-test-integration-minimal - Run all integration tests with SQLite"
+	@echo ""
+	@echo "  *** Full tests (MySQL + Docker required) ***"
+	@echo "  make be-test-fast-full   - Run fast tests with MySQL (requires docker)"
+	@echo "  make be-test-e2e-full   - Run all e2e tests with MySQL (requires docker)"
+	@echo "  make be-test-integration-full - Run all integration tests with MySQL (requires docker)"
+	@echo ""
+	@echo "  *** Legacy targets (use test-minimal.env by default) ***"
+	@echo "  make be-test-fast        - Run fast tests (unit -> E2E -> contract) - default minimal"
+	@echo "  make be-tests        - Run all tests (unit -> E2E -> contract -> integration) - default minimal"
 	@echo "  make be-test-unit   - Run unit tests only (fast feedback)"
-	@echo "  make be-test-e2e     - Run all e2e tests"
-	@echo "  make be-test-e2e-01 - Run e2e tests (basics)"
-	@echo "  make be-test-e2e-02 - Run e2e tests (terms)"
-	@echo "  make be-test-e2e-03 - Run e2e tests (user features)"
-	@echo "  make be-test-e2e-04 - Run e2e tests (advanced)"
+	@echo "  make be-test-e2e     - Run all e2e tests - default minimal"
+	@echo "  make be-test-e2e-01 - Run e2e tests (basics) - default minimal"
+	@echo "  make be-test-e2e-02 - Run e2e tests (terms) - default minimal"
+	@echo "  make be-test-e2e-03 - Run e2e tests (user features) - default minimal"
+	@echo "  make be-test-e2e-04 - Run e2e tests (advanced) - default minimal"
 	@echo "  make be-test-contract - Run contract tests (API schema validation)"
-	@echo "  make be-test-integration-01 - Run integration tests (first 50)"
-	@echo "  make be-test-integration-02 - Run integration tests (mid 50)"
-	@echo "  make be-test-integration-03 - Run integration tests (late 50a)"
-	@echo "  make be-test-integration-04 - Run integration tests (late 50b)"
-	@echo "  make be-test-integration - Run all integration tests"
+	@echo "  make be-test-integration-01 - Run integration tests (first 50) - default minimal"
+	@echo "  make be-test-integration-02 - Run integration tests (mid 50) - default minimal"
+	@echo "  make be-test-integration-03 - Run integration tests (late 50a) - default minimal"
+	@echo "  make be-test-integration-04 - Run integration tests (late 50b) - default minimal"
+	@echo "  make be-test-integration - Run all integration tests - default minimal"
 	@echo "  make be-test-unit-01 - Run unit tests (config, data, services, validation, json_parser)"
 	@echo "  make be-test-unit-02 - Run unit tests (internal_representation, workers)"
 	@echo "  make be-test-unit-03 - Run unit tests (infrastructure, rdf_builder)"
@@ -103,34 +117,66 @@ be-test-unit-04:
 	./scripts/shell/run-unit-04-rest-api.sh
 
 be-test-e2e-01:
-	./scripts/shell/run-e2e-01-basics.sh
+	./scripts/shell/run-e2e-01-basics.sh minimal
 
 be-test-e2e-02:
-	./scripts/shell/run-e2e-02-terms.sh
+	./scripts/shell/run-e2e-02-terms.sh minimal
 
 be-test-e2e-03:
-	./scripts/shell/run-e2e-03-user.sh
+	./scripts/shell/run-e2e-03-user.sh minimal
 
 be-test-e2e-04:
-	./scripts/shell/run-e2e-04-advanced.sh
+	./scripts/shell/run-e2e-04-advanced.sh minimal
+
+be-test-e2e-01-full:
+	./scripts/shell/run-e2e-01-basics.sh full
+
+be-test-e2e-02-full:
+	./scripts/shell/run-e2e-02-terms.sh full
+
+be-test-e2e-03-full:
+	./scripts/shell/run-e2e-03-user.sh full
+
+be-test-e2e-04-full:
+	./scripts/shell/run-e2e-04-advanced.sh full
 
 be-test-e2e: check be-test-e2e-01 be-test-e2e-02 be-test-e2e-03 be-test-e2e-04
+
+be-test-e2e-minimal: check be-test-e2e-01 be-test-e2e-02 be-test-e2e-03 be-test-e2e-04
+
+be-test-e2e-full: check be-test-e2e-01-full be-test-e2e-02-full be-test-e2e-03-full be-test-e2e-04-full
 
 be-test-unit-e2e-contract: be-test-unit be-test-e2e be-test-contract
 
 be-test-integration-01:
-	./scripts/shell/run-integration-01-first50.sh
+	./scripts/shell/run-integration-01-first50.sh minimal
 
 be-test-integration-02:
-	./scripts/shell/run-integration-02-mid50.sh
+	./scripts/shell/run-integration-02-mid50.sh minimal
 
 be-test-integration-03:
-	./scripts/shell/run-integration-03-late50a.sh
+	./scripts/shell/run-integration-03-late50a.sh minimal
 
 be-test-integration-04:
-	./scripts/shell/run-integration-04-late50b.sh
+	./scripts/shell/run-integration-04-late50b.sh minimal
+
+be-test-integration-01-full:
+	./scripts/shell/run-integration-01-first50.sh full
+
+be-test-integration-02-full:
+	./scripts/shell/run-integration-02-mid50.sh full
+
+be-test-integration-03-full:
+	./scripts/shell/run-integration-03-late50a.sh full
+
+be-test-integration-04-full:
+	./scripts/shell/run-integration-04-late50b.sh full
 
 be-test-integration: check be-test-integration-01 be-test-integration-02 be-test-integration-03 be-test-integration-04
+
+be-test-integration-minimal: check be-test-integration-01 be-test-integration-02 be-test-integration-03 be-test-integration-04
+
+be-test-integration-full: check be-test-integration-01-full be-test-integration-02-full be-test-integration-03-full be-test-integration-04-full
 
 be-tests: check be-test-unit be-test-e2e be-test-contract be-test-integration
 
@@ -138,7 +184,11 @@ lint-test-all: be-lint be-tests
 
 lint-test-fast: be-lint be-test-unit-e2e-contract
 
-be-test-fast: be-test-unit-e2e-contract
+be-test-fast-minimal: be-test-unit be-test-e2e-minimal be-test-contract
+
+be-test-fast-full: check be-test-unit be-test-e2e-full be-test-contract
+
+be-test-fast: be-test-fast-minimal
 
 be-coverage: check
 	./scripts/shell/run-coverage.sh

@@ -1,6 +1,8 @@
 set -e
 cd "$(dirname "$0")/../.."
 
+ENV_FILE="${1:-minimal}"
+
 if [ "$(docker ps -q | wc -l)" -gt 0 ]; then
   echo "Containers are running"
 else
@@ -8,17 +10,7 @@ else
   exit 1
 fi
 
-source test.env
+source "test-${ENV_FILE}.env"
 
-echo "Running all tests"
-#pytest -m integration
-
-# sdt out / logs
-#pytest -m integration -s --strict-markers
-
-# stop first failure
-#pytest -p no:xdist -m integration --exitfirst --capture=no --strict-markers
+echo "Running all tests (env=${ENV_FILE})"
 poetry run pytest tests/ --capture=no --strict-markers --log-cli-level=DEBUG --log-cli-format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-
-# verbose
-#pytest -m integration -v --strict-markers

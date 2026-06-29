@@ -2,6 +2,8 @@
 cd "$(dirname "$0")/../.."
 set -e
 
+ENV_FILE="${1:-full}"
+
 echo "🚀 Starting Docker services (MySQL, rustfs, Redpanda)..."
 docker compose -f docker-compose.tests.yml up -d mysql rustfs redpanda
 
@@ -13,7 +15,7 @@ docker compose -f docker-compose.tests.yml up create-buckets create-tables
 
 echo "✅ Setup complete! Starting API..."
 
-source test.env
+source "test-${ENV_FILE}.env"
 
 echo "🐍 Starting API with uvicorn..."
 exec poetry run uvicorn models.rest_api.main:app \
