@@ -9,7 +9,6 @@ ENV_FILE="${1:-minimal}"
 "$SCRIPT_DIR/check-docker-services.sh" --env="${ENV_FILE}" --clean-connections
 
 source "$PROJECT_ROOT/test-${ENV_FILE}.env"
-source "$PROJECT_ROOT/e2e.env"
 
 echo "Running E2E tests (ASGITransport - no API server required) (env=${ENV_FILE})"
 poetry run pytest tests/e2e --capture=no --strict-markers --log-cli-level=DEBUG --log-cli-format="%(asctime)s - %(name)s - %(levelname)s - %(message)s" --durations=10

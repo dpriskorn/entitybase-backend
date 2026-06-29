@@ -44,7 +44,6 @@ test_data/properties/*.json
 /site/
 /.cache/
 /draft/
-e2e.env
 /data/
 /entitybase.db
 
