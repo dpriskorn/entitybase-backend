@@ -12,6 +12,18 @@ from .id_range_manager import IdRangeManager
 logger = logging.getLogger(__name__)
 
 
+class SimpleIdCounter(BaseModel):
+    """Simple in-memory ID counter for simple mode (no ID worker)."""
+
+    next_ids: dict[str, int] = Field(default_factory=lambda: {"Q": 1, "P": 1, "L": 1, "E": 1})
+
+    def get_next_id(self, entity_prefix: str) -> str:
+        """Get next ID for entity prefix."""
+        next_num = self.next_ids.get(entity_prefix, 1)
+        self.next_ids[entity_prefix] = next_num + 1
+        return f"{entity_prefix}{next_num}"
+
+
 class EnumerationService(BaseModel):
     """Service for managing entity ID enumeration across different entity types.
 
@@ -22,33 +34,35 @@ class EnumerationService(BaseModel):
 
     worker_id: str
     mysql_client: Any
+    id_worker_enabled: bool = True
     range_manager: Any = Field(default=None, exclude=True)
+    simple_counter: SimpleIdCounter = Field(default_factory=SimpleIdCounter, exclude=True)
 
     def model_post_init(self, context: Any) -> None:
-        # Minimum IDs to avoid collisions with Wikidata.org
-        min_ids = {
-            "Q": 300_000_000,
-            "P": 30_000,
-            "L": 5_000_000,
-            "E": 50_000,
-        }
-        self.range_manager = IdRangeManager(
-            mysql_client=self.mysql_client, min_ids=min_ids
-        )
-        self.range_manager.set_worker_id(self.worker_id)
+        if self.id_worker_enabled:
+            min_ids = {
+                "Q": 300_000_000,
+                "P": 30_000,
+                "L": 5_000_000,
+                "E": 50_000,
+            }
+            self.range_manager = IdRangeManager(
+                mysql_client=self.mysql_client, min_ids=min_ids
+            )
+            self.range_manager.set_worker_id(self.worker_id)
 
-        # Initialize ranges from database
-        try:
-            self.range_manager.initialize_from_database()
-        except Exception as e:
-            # Log but don't fail - ranges will be allocated on demand
-            logger.warning(f"Failed to initialize ID ranges from database: {e}")
+            try:
+                self.range_manager.initialize_from_database()
+            except Exception as e:
+                logger.warning(f"Failed to initialize ID ranges from database: {e}")
+        else:
+            logger.info("ID worker disabled, using simple ID counter mode")
 
     def get_next_entity_id(self, entity_type: str) -> str:
         """Get next available entity ID for the given type.
 
-        Allocates IDs from a reserved range. If the current range is exhausted
-        (80% used), requests a new range from the ID worker.
+        When ID worker is enabled: allocates IDs from a reserved range.
+        When disabled: uses simple auto-increment from 1.
 
         Args:
             entity_type: Entity type (item, property, lexeme, entityschema)
@@ -58,12 +72,7 @@ class EnumerationService(BaseModel):
 
         Raises:
             HTTPException 400: If entity_type is invalid
-
-        Notes:
-            - Minimum IDs prevent conflicts with Wikidata (Q: 300M+, P: 100M+, etc.)
-            - Uses IdRangeManager for local ID generation
         """
-        # Map entity types to single-character codes
         type_mapping = {
             "item": "Q",
             "property": "P",
@@ -75,10 +84,16 @@ class EnumerationService(BaseModel):
             raise_validation_error(f"Unsupported entity type: {entity_type}")
 
         entity_prefix = type_mapping[entity_type]
-        return cast(str, self.range_manager.get_next_id(entity_prefix))
+
+        if self.id_worker_enabled:
+            return cast(str, self.range_manager.get_next_id(entity_prefix))
+        else:
+            return self.simple_counter.get_next_id(entity_prefix)
 
     def get_range_status(self) -> RangeStatuses:
         """Get status of ID ranges for monitoring."""
+        if not self.id_worker_enabled:
+            return RangeStatuses(ranges={})
         return cast(RangeStatuses, self.range_manager.get_range_status())
 
     @staticmethod

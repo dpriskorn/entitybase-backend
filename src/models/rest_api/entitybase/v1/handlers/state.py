@@ -299,7 +299,9 @@ class StateHandler(BaseModel):
     def enumeration_service(self) -> EnumerationService:
         if self.cached_enumeration_service is None:
             self.cached_enumeration_service = EnumerationService(
-                worker_id="rest-api", mysql_client=self.mysql_client
+                worker_id="rest-api",
+                mysql_client=self.mysql_client,
+                id_worker_enabled=self.settings.id_worker_enabled,
             )
         return self.cached_enumeration_service
 

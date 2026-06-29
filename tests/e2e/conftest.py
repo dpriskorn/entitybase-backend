@@ -17,6 +17,9 @@ os.environ.pop("KAFKA_BOOTSTRAP_SERVERS", None)
 
 DB_TYPE = os.getenv("DB_TYPE", "sqlite")
 
+if DB_TYPE == "sqlite":
+    os.environ["ID_WORKER_ENABLED"] = "false"
+
 logger = logging.getLogger(__name__)
 
 
