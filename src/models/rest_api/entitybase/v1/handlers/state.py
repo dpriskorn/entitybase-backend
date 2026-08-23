@@ -72,7 +72,7 @@ class StateHandler(BaseModel):
         if self.s3_config and self.s3_client.healthy_connection:
             logger.debug("S3 client connected successfully")
         else:
-            logger.warning("S3 client connection failed")
+            raise RuntimeError("S3 client connection failed — check S3_ENDPOINT, credentials, and bucket")
         logger.debug("Checking Vitess connection...")
         if self.vitess_config and self.vitess_client.healthy_connection:
             logger.debug("Vitess client connected successfully")
