@@ -440,46 +440,41 @@ poetry install --with dev
 Tell the user to start the API webserver if needed.
 ```
 
-### Makefile Commands
+### Justfile Commands
 
-Use `make help` to see all available targets. Key commands:
+Use `just --list` to see all available recipes. Key commands:
 
 ```bash
-# Development
-make api         # Run docker compose up and start API locally with uvicorn reload
-make stop        # Stop docker and remove everything
-make help        # Show all available targets
-
 # Linting and Type Checking
-make lint        # Run all linters (ruff, mypy, radon, vulture)
-make ruff        # Run ruff linter
-make mypy        # Run mypy type checker
-make radon       # Run radon complexity checker
-make vulture     # Run vulture dead code checker
+just lint        # Run all linters (ruff, mypy, radon, vulture)
+just ruff        # Run ruff linter
+just mypy        # Run mypy type checker
+just radon       # Run radon complexity checker
+just vulture     # Run vulture dead code checker
 
 # Testing
-make tests                    # Run all tests (unit -> E2E -> integration)
-make test-unit               # Run all unit tests
-make test-unit-01            # Run unit tests (config, data, services, validation, json_parser)
-make test-unit-02            # Run unit tests (internal_representation, workers)
-make test-unit-03            # Run unit tests (infrastructure, rdf_builder)
-make test-unit-04            # Run unit tests (rest_api)
-make test-e2e                # Run all e2e tests
-make test-e2e-01             # Run e2e tests (basics)
-make test-e2e-02             # Run e2e tests (terms)
-make test-e2e-03             # Run e2e tests (user features)
-make test-e2e-04             # Run e2e tests (advanced)
-make test-contract           # Run contract tests (API schema validation, requires docker)
-make test-integration        # Run all integration tests
-make test-integration-01      # Run integration tests (first 50)
-make test-integration-02      # Run integration tests (mid 50)
-make test-integration-03      # Run integration tests (late 50a)
-make test-integration-04      # Run integration tests (late 50b)
-make coverage                 # Run tests with coverage report
+just tests                    # Run all tests (unit -> E2E -> integration)
+just test-unit               # Run all unit tests
+just test-unit-01            # Run unit tests (config, data, services, validation, json_parser)
+just test-unit-02            # Run unit tests (internal_representation, workers)
+just test-unit-03            # Run unit tests (infrastructure, rdf_builder)
+just test-unit-04            # Run unit tests (rest_api)
+just test-e2e                # Run all e2e tests
+just test-e2e-01             # Run e2e tests (basics)
+just test-e2e-02             # Run e2e tests (terms)
+just test-e2e-03             # Run e2e tests (user features)
+just test-e2e-04             # Run e2e tests (advanced)
+just test-contract           # Run contract tests (API schema validation, requires docker)
+just test-integration        # Run all integration tests
+just test-integration-01      # Run integration tests (first 50)
+just test-integration-02      # Run integration tests (mid 50)
+just test-integration-03      # Run integration tests (late 50a)
+just test-integration-04      # Run integration tests (late 50b)
+just coverage                 # Run tests with coverage report
 
 # Combined commands
-make lint-test-all   # Run lint + all tests (unit -> E2E -> contract -> integration)
-make lint-test-fast # Run lint + fast tests (unit -> e2e)
+just lint-test-all   # Run lint + all tests (unit -> E2E -> contract -> integration)
+just lint-test-fast # Run lint + fast tests (unit -> e2e)
 ```
 
 ## Landing the Plane (Session Completion)
