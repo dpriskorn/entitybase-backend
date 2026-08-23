@@ -27,7 +27,7 @@ class TestEntityUpdateHandler:
         mock_vitess = MagicMock()
         mock_s3 = MagicMock()
         mock_user_repo = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = mock_s3
         mock_vitess.user_repository = mock_user_repo
 
@@ -71,7 +71,7 @@ class TestEntityUpdateHandler:
         """Test update when entity doesn't exist (404)."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = MagicMock()
 
         mock_vitess.entity_exists.return_value = False
@@ -94,7 +94,7 @@ class TestEntityUpdateHandler:
         """Test update when entity is deleted (410)."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = MagicMock()
         mock_state.entity_change_stream_producer = AsyncMock()
 
@@ -119,7 +119,7 @@ class TestEntityUpdateHandler:
         """Test update when entity is locked (423)."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = MagicMock()
         mock_state.entity_change_stream_producer = AsyncMock()
 
@@ -146,7 +146,7 @@ class TestEntityUpdateHandler:
         """Test updating a label successfully."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = MagicMock()
         mock_vitess.is_entity_deleted.return_value = False
         mock_vitess.is_entity_locked.return_value = False
@@ -235,7 +235,7 @@ class TestEntityUpdateHandler:
         """Test deleting a label successfully."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = MagicMock()
         mock_state.entity_change_stream_producer = AsyncMock()
 
@@ -275,7 +275,7 @@ class TestEntityUpdateHandler:
         """Test delete_label is idempotent when label doesn't exist."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = MagicMock()
 
         mock_vitess.is_entity_deleted.return_value = False
@@ -312,7 +312,7 @@ class TestEntityUpdateHandler:
         """Test updating a description successfully."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = MagicMock()
         mock_vitess.is_entity_deleted.return_value = False
         mock_vitess.is_entity_locked.return_value = False
@@ -390,7 +390,7 @@ class TestEntityUpdateHandler:
         """Test deleting a description successfully."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = MagicMock()
         mock_state.entity_change_stream_producer = AsyncMock()
 
@@ -431,7 +431,7 @@ class TestEntityUpdateHandler:
         """Test delete_description is idempotent when description doesn't exist."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = MagicMock()
 
         mock_vitess.is_entity_deleted.return_value = False
@@ -468,7 +468,7 @@ class TestEntityUpdateHandler:
         """Test updating aliases successfully."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = MagicMock()
         mock_vitess.is_entity_deleted.return_value = False
         mock_vitess.is_entity_locked.return_value = False
@@ -530,7 +530,7 @@ class TestEntityUpdateHandler:
         """Test updating a sitelink successfully."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = MagicMock()
         mock_vitess.is_entity_deleted.return_value = False
         mock_vitess.is_entity_locked.return_value = False
@@ -577,7 +577,7 @@ class TestEntityUpdateHandler:
         """Test updating an existing sitelink."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = MagicMock()
         mock_vitess.is_entity_deleted.return_value = False
         mock_vitess.is_entity_locked.return_value = False
@@ -640,7 +640,7 @@ class TestEntityUpdateHandler:
         """Test deleting a sitelink successfully."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = MagicMock()
         mock_vitess.is_entity_deleted.return_value = False
         mock_vitess.is_entity_locked.return_value = False
@@ -683,7 +683,7 @@ class TestEntityUpdateHandler:
         """Test delete_sitelink is idempotent when sitelink doesn't exist."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = MagicMock()
 
         mock_entity = MagicMock()

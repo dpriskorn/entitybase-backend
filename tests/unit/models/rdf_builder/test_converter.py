@@ -393,12 +393,12 @@ class TestEntityConverter:
         assert set(result) == {"Q100", "Q200"}
         mock_load_redirects.assert_called_once_with("Q42", temp_dir)
 
-    def test_fetch_redirects_vitess_client(self) -> None:
+    def test_fetch_redirects_db_client(self) -> None:
         """Test fetching redirects from Vitess client."""
         property_registry = PropertyRegistry(properties={})
         mock_vitess = MagicMock()
         converter = EntityConverter(
-            property_registry=property_registry, vitess_client=mock_vitess
+            property_registry=property_registry, db_client=mock_vitess
         )
 
         mock_vitess.get_incoming_redirects.return_value = ["Q100"]
@@ -413,7 +413,7 @@ class TestEntityConverter:
         property_registry = PropertyRegistry(properties={})
         mock_vitess = MagicMock()
         converter = EntityConverter(
-            property_registry=property_registry, vitess_client=mock_vitess
+            property_registry=property_registry, db_client=mock_vitess
         )
 
         mock_vitess.get_incoming_redirects.side_effect = Exception("Vitess error")

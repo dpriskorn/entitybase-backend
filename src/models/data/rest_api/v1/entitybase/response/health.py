@@ -14,9 +14,14 @@ class HealthResponse(BaseModel):
 class HealthCheckResponse(BaseModel):
     """Detailed response model for health check."""
 
+    model_config = {"populate_by_name": True}
+
     status: str = Field(description="Overall health status")
     s3: str = Field(description="S3 service health status. Example: 'healthy'.")
-    vitess: str = Field(description="Vitess service health status. Example: 'healthy'.")
+    mysql: str = Field(
+        alias="vitess",
+        description="MySQL service health status. Example: 'healthy'.",
+    )
     timestamp: str = Field(description="Timestamp of health check")
 
 

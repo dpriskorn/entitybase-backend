@@ -22,7 +22,7 @@ class TestBacklinkHandler:
     def handler(self, mock_vitess: MagicMock) -> BacklinkHandler:
         """Create handler instance"""
         state = MagicMock()
-        state.vitess_client = mock_vitess
+        state.db_client = mock_vitess
         return BacklinkHandler(state=state)
 
     @pytest.mark.asyncio

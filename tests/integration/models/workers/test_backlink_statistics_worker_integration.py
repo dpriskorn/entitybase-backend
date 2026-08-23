@@ -15,21 +15,21 @@ class TestBacklinkStatisticsWorkerIntegration:
     """Integration tests for BacklinkStatisticsWorker with mocked dependencies"""
 
     @pytest.fixture
-    def mock_vitess_client(self) -> MagicMock:
+    def mock_db_client(self) -> MagicMock:
         """Mock Vitess client with backlink repository"""
         client = MagicMock()
         client.backlink_repository = MagicMock()
         return client
 
     @pytest.fixture
-    def worker(self, mock_vitess_client: MagicMock) -> BacklinkStatisticsWorker:
+    def worker(self, mock_db_client: MagicMock) -> BacklinkStatisticsWorker:
         """Create worker instance with mocked client"""
-        worker = BacklinkStatisticsWorker(vitess_client=mock_vitess_client)
+        worker = BacklinkStatisticsWorker(db_client=mock_db_client)
         return worker
 
     @pytest.mark.asyncio
     async def test_statistics_computation_failure(
-        self, worker: BacklinkStatisticsWorker, mock_vitess_client: MagicMock
+        self, worker: BacklinkStatisticsWorker, mock_db_client: MagicMock
     ) -> None:
         """Test handling of statistics computation failure"""
         with patch(
@@ -47,11 +47,11 @@ class TestBacklinkStatisticsWorkerIntegration:
             assert "Computation failed" in str(exc_info.value)
 
             # Repository should not be called
-            mock_vitess_client.backlink_repository.insert_backlink_statistics.assert_not_called()
+            mock_db_client.backlink_repository.insert_backlink_statistics.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_statistics_storage_failure(
-        self, worker: BacklinkStatisticsWorker, mock_vitess_client: MagicMock
+        self, worker: BacklinkStatisticsWorker, mock_db_client: MagicMock
     ) -> None:
         """Test handling of statistics storage failure"""
         # Mock successful computation
@@ -61,7 +61,7 @@ class TestBacklinkStatisticsWorkerIntegration:
         mock_stats.top_entities_by_backlinks = []
 
         # Mock repository failure
-        mock_vitess_client.backlink_repository.insert_backlink_statistics.side_effect = Exception(
+        mock_db_client.backlink_repository.insert_backlink_statistics.side_effect = Exception(
             "Storage failed"
         )
 
@@ -84,14 +84,14 @@ class TestBacklinkStatisticsWorkerIntegration:
             assert "Storage failed" in str(exc_info.value)
 
             # Verify repository was called
-            mock_vitess_client.backlink_repository.insert_backlink_statistics.assert_called_once()
+            mock_db_client.backlink_repository.insert_backlink_statistics.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_worker_without_vitess_client(
+    async def test_worker_without_db_client(
         self, worker: BacklinkStatisticsWorker
     ) -> None:
         """Test behavior when vitess client is not available"""
-        worker.vitess_client = None
+        worker.db_client = None
 
         # Should not crash, just skip
         await worker.run_daily_computation()

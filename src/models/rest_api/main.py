@@ -49,6 +49,8 @@ for logger_name in aws_loggers:
 for logger_name in aiokafka_loggers:
     logging.getLogger(logger_name).setLevel(logging.INFO)
 
+logging.basicConfig(level=settings.get_log_level())
+
 logger = logging.getLogger(__name__)
 
 
@@ -88,6 +90,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
     try:
         state_handler = await _initialize_state_handler()
         await _ensure_s3_bucket_exists(state_handler)
+        state_handler.health_check()
         await _create_database_tables(state_handler)
         await _initialize_app_state(app_, state_handler)
         yield
@@ -129,7 +132,7 @@ async def _create_database_tables(state_handler: StateHandler) -> None:
     """Create database tables on startup."""
     try:
         logger.debug("Creating database tables...")
-        state_handler.vitess_client.create_tables()
+        state_handler.db_client.create_tables()
         logger.info("Database tables created/verified")
     except Exception as e:
         logger.warning(f"Could not create database tables on startup: {e}")

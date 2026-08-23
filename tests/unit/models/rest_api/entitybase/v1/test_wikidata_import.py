@@ -28,11 +28,11 @@ class TestEntityJsonImportHandler:
     @pytest.fixture
     def mock_clients(self) -> tuple[MagicMock, MagicMock, AsyncMock, MagicMock]:
         """Create mock clients for testing."""
-        vitess_client = MagicMock()
+        db_client = MagicMock()
         s3_client = MagicMock()
         stream_producer = AsyncMock()
         validator = MagicMock()
-        return vitess_client, s3_client, stream_producer, validator
+        return db_client, s3_client, stream_producer, validator
 
     @pytest.fixture
     def sample_entity_json(self) -> dict[str, Any]:

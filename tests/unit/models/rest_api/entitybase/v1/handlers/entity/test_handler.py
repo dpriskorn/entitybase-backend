@@ -35,7 +35,7 @@ class TestEntityHandler:
         mock_state = MagicMock()
         mock_vitess = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = mock_s3
 
         handler = EntityHandler(state=mock_state)
@@ -55,7 +55,7 @@ class TestEntityHandler:
             edit_type=EditType.MANUAL_UPDATE,
             edit_summary="Test",
             is_creation=True,
-            vitess_client=mock_vitess,
+            db_client=mock_vitess,
             s3_client=mock_s3,
         )
 
@@ -91,7 +91,7 @@ class TestEntityHandler:
             edit_type=EditType.MANUAL_UPDATE,
             edit_summary="Test",
             is_creation=True,
-            vitess_client=mock_vitess,
+            db_client=mock_vitess,
             s3_client=mock_s3,
         )
 
@@ -115,7 +115,7 @@ class TestEntityHandler:
             edit_type=EditType.MANUAL_UPDATE,
             edit_summary="Test",
             is_creation=True,
-            vitess_client=mock_vitess,
+            db_client=mock_vitess,
             s3_client=mock_s3,
         )
 
@@ -130,7 +130,7 @@ class TestEntityHandler:
         mock_state = MagicMock()
         mock_vitess = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = mock_s3
 
         s3_revision_data = S3RevisionData(
@@ -167,7 +167,7 @@ class TestEntityHandler:
             edit_type=EditType.MANUAL_UPDATE,
             edit_summary="Test",
             is_creation=True,
-            vitess_client=mock_vitess,
+            db_client=mock_vitess,
             s3_client=mock_s3,
         )
 
@@ -183,7 +183,7 @@ class TestEntityHandler:
         mock_state = MagicMock()
         mock_vitess = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = mock_s3
 
         s3_revision_data = S3RevisionData(
@@ -220,7 +220,7 @@ class TestEntityHandler:
             edit_type=EditType.MANUAL_UPDATE,
             edit_summary="Test",
             is_creation=True,
-            vitess_client=mock_vitess,
+            db_client=mock_vitess,
             s3_client=mock_s3,
         )
 
@@ -238,7 +238,7 @@ class TestEntityHandler:
         mock_state = MagicMock()
         mock_vitess = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = mock_s3
 
         handler = EntityHandler(state=mock_state)
@@ -259,7 +259,7 @@ class TestEntityHandler:
             edit_type=EditType.MANUAL_UPDATE,
             edit_summary="Test",
             is_creation=True,
-            vitess_client=mock_vitess,
+            db_client=mock_vitess,
             s3_client=mock_s3,
         )
 
@@ -273,7 +273,7 @@ class TestEntityHandler:
         mock_state = MagicMock()
         mock_vitess = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = mock_s3
 
         handler = EntityHandler(state=mock_state)
@@ -291,7 +291,7 @@ class TestEntityHandler:
             edit_type=EditType.MANUAL_UPDATE,
             edit_summary="Test",
             is_creation=True,
-            vitess_client=mock_vitess,
+            db_client=mock_vitess,
             s3_client=mock_s3,
         )
 
@@ -308,7 +308,7 @@ class TestEntityHandler:
         mock_state = MagicMock()
         mock_vitess = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = mock_s3
 
         handler = EntityHandler(state=mock_state)
@@ -324,7 +324,7 @@ class TestEntityHandler:
             edit_type=EditType.MANUAL_UPDATE,
             edit_summary="Test",
             is_creation=True,
-            vitess_client=mock_vitess,
+            db_client=mock_vitess,
             s3_client=mock_s3,
         )
 
@@ -338,7 +338,7 @@ class TestEntityHandler:
         mock_state = MagicMock()
         mock_vitess = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = mock_s3
 
         mock_s3.read_revision.side_effect = S3NotFoundError("Object not found: 123456")
@@ -353,7 +353,7 @@ class TestEntityHandler:
             edit_type=EditType.MANUAL_UPDATE,
             edit_summary="Test",
             is_creation=True,
-            vitess_client=mock_vitess,
+            db_client=mock_vitess,
             s3_client=mock_s3,
         )
 

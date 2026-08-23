@@ -21,7 +21,7 @@ def extract_schema_from_database() -> List[Dict[str, str]]:
     tables = []
 
     # Find all CREATE TABLE statements in repository files
-    repos_dir = Path("src/models/infrastructure/vitess/repositories")
+    repos_dir = Path("src/models/infrastructure/db/repositories")
     if repos_dir.exists():
         for repo_file in repos_dir.glob("*.py"):
             if repo_file.name == "__init__.py":
@@ -152,7 +152,7 @@ def generate_markdown(tables: List[Dict[str, str]]) -> str:
         "## Summary\n",
         f"- **Total Tables**: {len(tables)}",
         "- **Database**: MySQL (via Vitess)",
-        "- **Schema Location**: Distributed across repository files in `src/models/infrastructure/vitess/repositories/`\n",
+        "- **Schema Location**: Distributed across repository files in `src/models/infrastructure/db/repositories/`\n",
     ]
 
     # Entity Tables

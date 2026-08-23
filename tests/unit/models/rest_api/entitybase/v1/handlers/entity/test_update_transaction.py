@@ -33,7 +33,7 @@ class TestUpdateTransaction:
         mock_state = MagicMock()
         mock_vitess = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = mock_s3
         mock_vitess.get_head.return_value = 1
 
@@ -78,7 +78,7 @@ class TestUpdateTransaction:
         mock_state = MagicMock()
         mock_vitess = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = mock_s3
         mock_vitess.get_head.return_value = 1
 

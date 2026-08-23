@@ -12,7 +12,7 @@ class TestUserHandlerMethods:
     def mock_state(self):
         """Create a mock state object."""
         state = MagicMock()
-        state.vitess_client = MagicMock()
+        state.db_client = MagicMock()
         state.user_change_stream_producer = None
         return state
 
@@ -30,7 +30,7 @@ class TestUserHandlerMethods:
         from models.data.rest_api.v1.entitybase.request import WatchlistToggleRequest
 
         mock_request = WatchlistToggleRequest(enabled=True)
-        mock_state.vitess_client.user_repository.set_watchlist_enabled.return_value = (
+        mock_state.db_client.user_repository.set_watchlist_enabled.return_value = (
             True
         )
 
@@ -45,7 +45,7 @@ class TestUserHandlerMethods:
         from models.data.rest_api.v1.entitybase.request import WatchlistToggleRequest
 
         mock_request = WatchlistToggleRequest(enabled=False)
-        mock_state.vitess_client.user_repository.set_watchlist_enabled.return_value = (
+        mock_state.db_client.user_repository.set_watchlist_enabled.return_value = (
             True
         )
 

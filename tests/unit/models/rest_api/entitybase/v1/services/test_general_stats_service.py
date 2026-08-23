@@ -11,7 +11,7 @@ class TestGeneralStatsService:
     def mock_state(self):
         """Create a mock state object."""
         state = MagicMock()
-        state.vitess_client = MagicMock()
+        state.db_client = MagicMock()
         return state
 
     @pytest.fixture
@@ -28,7 +28,7 @@ class TestGeneralStatsService:
         """Test get_total_statements returns count."""
         mock_cursor = MagicMock()
         mock_cursor.fetchone.return_value = [100]
-        mock_state.vitess_client.cursor.__enter__.return_value = mock_cursor
+        mock_state.db_client.cursor.__enter__.return_value = mock_cursor
 
         result = service.get_total_statements()
         assert result == 100
@@ -37,7 +37,7 @@ class TestGeneralStatsService:
         """Test get_total_qualifiers returns count."""
         mock_cursor = MagicMock()
         mock_cursor.fetchone.return_value = [50]
-        mock_state.vitess_client.cursor.__enter__.return_value = mock_cursor
+        mock_state.db_client.cursor.__enter__.return_value = mock_cursor
 
         result = service.get_total_qualifiers()
         assert result == 50
@@ -46,7 +46,7 @@ class TestGeneralStatsService:
         """Test get_total_references returns count."""
         mock_cursor = MagicMock()
         mock_cursor.fetchone.return_value = [25]
-        mock_state.vitess_client.cursor.__enter__.return_value = mock_cursor
+        mock_state.db_client.cursor.__enter__.return_value = mock_cursor
 
         result = service.get_total_references()
         assert result == 25
@@ -55,7 +55,7 @@ class TestGeneralStatsService:
         """Test get_total_items returns count."""
         mock_cursor = MagicMock()
         mock_cursor.fetchone.return_value = [200]
-        mock_state.vitess_client.cursor.__enter__.return_value = mock_cursor
+        mock_state.db_client.cursor.__enter__.return_value = mock_cursor
 
         result = service.get_total_items()
         assert result == 200
@@ -64,7 +64,7 @@ class TestGeneralStatsService:
         """Test get_total_lexemes returns count."""
         mock_cursor = MagicMock()
         mock_cursor.fetchone.return_value = [75]
-        mock_state.vitess_client.cursor.__enter__.return_value = mock_cursor
+        mock_state.db_client.cursor.__enter__.return_value = mock_cursor
 
         result = service.get_total_lexemes()
         assert result == 75
@@ -73,7 +73,7 @@ class TestGeneralStatsService:
         """Test get_total_properties returns count."""
         mock_cursor = MagicMock()
         mock_cursor.fetchone.return_value = [30]
-        mock_state.vitess_client.cursor.__enter__.return_value = mock_cursor
+        mock_state.db_client.cursor.__enter__.return_value = mock_cursor
 
         result = service.get_total_properties()
         assert result == 30
@@ -82,7 +82,7 @@ class TestGeneralStatsService:
         """Test get_total_sitelinks returns count."""
         mock_cursor = MagicMock()
         mock_cursor.fetchone.return_value = [150]
-        mock_state.vitess_client.cursor.__enter__.return_value = mock_cursor
+        mock_state.db_client.cursor.__enter__.return_value = mock_cursor
 
         result = service.get_total_sitelinks()
         assert result == 150
@@ -91,7 +91,7 @@ class TestGeneralStatsService:
         """Test get_total_terms returns count."""
         mock_cursor = MagicMock()
         mock_cursor.fetchone.return_value = [500]
-        mock_state.vitess_client.cursor.__enter__.return_value = mock_cursor
+        mock_state.db_client.cursor.__enter__.return_value = mock_cursor
 
         result = service.get_total_terms()
         assert result == 500
@@ -104,7 +104,7 @@ class TestDeduplicationStats:
     def mock_state(self):
         """Create a mock state object."""
         state = MagicMock()
-        state.vitess_client = MagicMock()
+        state.db_client = MagicMock()
         return state
 
     @pytest.fixture
@@ -121,7 +121,7 @@ class TestDeduplicationStats:
         """Test _get_table_deduplication_stats returns correct stats."""
         mock_cursor = MagicMock()
         mock_cursor.fetchone.return_value = [100, 500]
-        mock_state.vitess_client.cursor.__enter__.return_value = mock_cursor
+        mock_state.db_client.cursor.__enter__.return_value = mock_cursor
 
         result = service._get_table_deduplication_stats("statements")
 
@@ -134,7 +134,7 @@ class TestDeduplicationStats:
         """Test _get_table_deduplication_stats returns zeros when no data."""
         mock_cursor = MagicMock()
         mock_cursor.fetchone.return_value = [0, 0]
-        mock_state.vitess_client.cursor.__enter__.return_value = mock_cursor
+        mock_state.db_client.cursor.__enter__.return_value = mock_cursor
 
         result = service._get_table_deduplication_stats("statements")
 
@@ -145,7 +145,7 @@ class TestDeduplicationStats:
 
     def test_get_table_deduplication_stats_exception(self, service, mock_state):
         """Test _get_table_deduplication_stats handles exceptions."""
-        mock_state.vitess_client.cursor.__enter__.side_effect = Exception(
+        mock_state.db_client.cursor.__enter__.side_effect = Exception(
             "Table not found"
         )
 
@@ -163,7 +163,7 @@ class TestDeduplicationStats:
             [30, 60],
             [20, 40],
         ]
-        mock_state.vitess_client.cursor.__enter__.return_value = mock_cursor
+        mock_state.db_client.cursor.__enter__.return_value = mock_cursor
 
         result = service._get_terms_deduplication_stats()
 
@@ -176,7 +176,7 @@ class TestDeduplicationStats:
         """Test _get_terms_deduplication_stats when tables don't exist."""
         mock_cursor = MagicMock()
         mock_cursor.fetchone.side_effect = Exception("Table not found")
-        mock_state.vitess_client.cursor.__enter__.return_value = mock_cursor
+        mock_state.db_client.cursor.__enter__.return_value = mock_cursor
 
         result = service._get_terms_deduplication_stats()
 
@@ -196,7 +196,7 @@ class TestDeduplicationStats:
             [30, 60],
             [20, 40],
         ]
-        mock_state.vitess_client.cursor.__enter__.return_value = mock_cursor
+        mock_state.db_client.cursor.__enter__.return_value = mock_cursor
 
         result = service.compute_deduplication_stats()
 
@@ -215,7 +215,7 @@ class TestComputeDailyStats:
     def mock_state(self):
         """Create a mock state object."""
         state = MagicMock()
-        state.vitess_client = MagicMock()
+        state.db_client = MagicMock()
         return state
 
     @pytest.fixture
@@ -241,7 +241,7 @@ class TestExceptionHandling:
     def mock_state(self):
         """Create a mock state object."""
         state = MagicMock()
-        state.vitess_client = MagicMock()
+        state.db_client = MagicMock()
         return state
 
     @pytest.fixture
@@ -256,7 +256,7 @@ class TestExceptionHandling:
 
     def test_get_total_statements_exception(self, service, mock_state):
         """Test get_total_statements returns 0 on exception."""
-        mock_state.vitess_client.cursor.__enter__.side_effect = Exception(
+        mock_state.db_client.cursor.__enter__.side_effect = Exception(
             "Table not found"
         )
 
@@ -265,7 +265,7 @@ class TestExceptionHandling:
 
     def test_get_total_qualifiers_exception(self, service, mock_state):
         """Test get_total_qualifiers returns 0 on exception."""
-        mock_state.vitess_client.cursor.__enter__.side_effect = Exception(
+        mock_state.db_client.cursor.__enter__.side_effect = Exception(
             "Table not found"
         )
 
@@ -274,7 +274,7 @@ class TestExceptionHandling:
 
     def test_get_total_references_exception(self, service, mock_state):
         """Test get_total_references returns 0 on exception."""
-        mock_state.vitess_client.cursor.__enter__.side_effect = Exception(
+        mock_state.db_client.cursor.__enter__.side_effect = Exception(
             "Table not found"
         )
 
@@ -283,7 +283,7 @@ class TestExceptionHandling:
 
     def test_get_total_sitelinks_exception(self, service, mock_state):
         """Test get_total_sitelinks returns 0 on exception."""
-        mock_state.vitess_client.cursor.__enter__.side_effect = Exception(
+        mock_state.db_client.cursor.__enter__.side_effect = Exception(
             "Table not found"
         )
 
@@ -292,7 +292,7 @@ class TestExceptionHandling:
 
     def test_get_total_terms_exception(self, service, mock_state):
         """Test get_total_terms returns 0 on exception."""
-        mock_state.vitess_client.cursor.__enter__.side_effect = Exception(
+        mock_state.db_client.cursor.__enter__.side_effect = Exception(
             "Table not found"
         )
 
@@ -307,7 +307,7 @@ class TestTermsPerLanguage:
     def mock_state(self):
         """Create a mock state object."""
         state = MagicMock()
-        state.vitess_client = MagicMock()
+        state.db_client = MagicMock()
         return state
 
     @pytest.fixture
@@ -328,7 +328,7 @@ class TestTermsPerLanguage:
             [["en", 80], ["de", 30]],
             [["en", 20], ["de", 10]],
         ]
-        mock_state.vitess_client.cursor.__enter__.return_value = mock_cursor
+        mock_state.db_client.cursor.__enter__.return_value = mock_cursor
 
         result = service.get_terms_per_language()
 
@@ -350,7 +350,7 @@ class TestTermsPerLanguage:
 
         mock_cursor = MagicMock()
         mock_cursor.fetchall.side_effect = fetchall_side_effect
-        mock_state.vitess_client.cursor.__enter__.return_value = mock_cursor
+        mock_state.db_client.cursor.__enter__.return_value = mock_cursor
 
         result = service.get_terms_per_language()
 
@@ -358,7 +358,7 @@ class TestTermsPerLanguage:
 
     def test_get_terms_per_language_outer_exception(self, service, mock_state):
         """Test get_terms_per_language handles outer exception."""
-        mock_state.vitess_client.cursor.__enter__.side_effect = Exception(
+        mock_state.db_client.cursor.__enter__.side_effect = Exception(
             "Connection error"
         )
 
@@ -373,7 +373,7 @@ class TestTermsByType:
     def mock_state(self):
         """Create a mock state object."""
         state = MagicMock()
-        state.vitess_client = MagicMock()
+        state.db_client = MagicMock()
         return state
 
     @pytest.fixture
@@ -394,7 +394,7 @@ class TestTermsByType:
             ["descriptions", 500],
             ["aliases", 300],
         ]
-        mock_state.vitess_client.cursor.__enter__.return_value = mock_cursor
+        mock_state.db_client.cursor.__enter__.return_value = mock_cursor
 
         result = service.get_terms_by_type()
 
@@ -417,7 +417,7 @@ class TestTermsByType:
 
         mock_cursor = MagicMock()
         mock_cursor.fetchone.side_effect = fetchone_side_effect
-        mock_state.vitess_client.cursor.__enter__.return_value = mock_cursor
+        mock_state.db_client.cursor.__enter__.return_value = mock_cursor
 
         result = service.get_terms_by_type()
 
@@ -426,7 +426,7 @@ class TestTermsByType:
 
     def test_get_terms_by_type_outer_exception(self, service, mock_state):
         """Test get_terms_by_type handles outer exception."""
-        mock_state.vitess_client.cursor.__enter__.side_effect = Exception(
+        mock_state.db_client.cursor.__enter__.side_effect = Exception(
             "Connection error"
         )
 

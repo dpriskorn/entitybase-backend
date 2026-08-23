@@ -26,18 +26,18 @@ from models.infrastructure.client import Client
 from models.infrastructure.s3.connection import S3ConnectionManager
 from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.infrastructure.s3.storage.revision_storage import RevisionStorage
-from models.infrastructure.vitess.repositories.revision import RevisionRepository
-from models.infrastructure.vitess.storage.qualifier_storage import (
+from models.infrastructure.db.repositories.revision import RevisionRepository
+from models.infrastructure.db.storage.qualifier_storage import (
     QualifierVitessStorage,
 )
-from models.infrastructure.vitess.storage.reference_storage import (
+from models.infrastructure.db.storage.reference_storage import (
     ReferenceVitessStorage,
 )
-from models.infrastructure.vitess.storage.snak_storage import SnakVitessStorage
-from models.infrastructure.vitess.storage.statement_storage import (
+from models.infrastructure.db.storage.snak_storage import SnakVitessStorage
+from models.infrastructure.db.storage.statement_storage import (
     StatementVitessStorage,
 )
-from models.infrastructure.vitess.storage.metadata_storage import (
+from models.infrastructure.db.storage.metadata_storage import (
     MetadataVitessStorage,
     SitelinkVitessStorage,
 )
@@ -50,7 +50,7 @@ logger = logging.getLogger(__name__)
 class MyS3Client(Client):
     """Client for S3 storage operations."""
 
-    vitess_client: Optional[Any] = Field(default=None, exclude=True)
+    db_client: Optional[Any] = Field(default=None, exclude=True)
     vitess_statements: Any = Field(default=None, exclude=True)
     vitess_qualifiers: Any = Field(default=None, exclude=True)
     vitess_references: Any = Field(default=None, exclude=True)
@@ -77,22 +77,22 @@ class MyS3Client(Client):
         self.revisions = RevisionStorage(connection_manager=self.connection_manager)
 
         # Initialize Vitess storage components (statements, qualifiers, refs, snaks, metadata)
-        if self.vitess_client is not None:
+        if self.db_client is not None:
             self.vitess_statements = StatementVitessStorage(
-                vitess_client=self.vitess_client
+                db_client=self.db_client
             )
             self.vitess_qualifiers = QualifierVitessStorage(
-                vitess_client=self.vitess_client
+                db_client=self.db_client
             )
             self.vitess_references = ReferenceVitessStorage(
-                vitess_client=self.vitess_client
+                db_client=self.db_client
             )
-            self.vitess_snaks = SnakVitessStorage(vitess_client=self.vitess_client)
+            self.vitess_snaks = SnakVitessStorage(db_client=self.db_client)
             self.vitess_metadata = MetadataVitessStorage(
-                vitess_client=self.vitess_client
+                db_client=self.db_client
             )
             self.vitess_sitelinks = SitelinkVitessStorage(
-                vitess_client=self.vitess_client
+                db_client=self.db_client
             )
 
     def write_revision(
@@ -119,14 +119,14 @@ class MyS3Client(Client):
 
     def read_revision(self, entity_id: str, revision_id: int) -> S3RevisionData:
         """Read S3 object and return parsed JSON."""
-        if self.vitess_client is None:
+        if self.db_client is None:
             raise_validation_error("Vitess client not configured", status_code=503)
-        vitess_client = cast(Any, self.vitess_client)
-        internal_id = vitess_client.id_resolver.resolve_id(entity_id)
+        db_client = cast(Any, self.db_client)
+        internal_id = db_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             raise_validation_error("Entity not found", status_code=404)
 
-        revision_repo = RevisionRepository(vitess_client=self.vitess_client)
+        revision_repo = RevisionRepository(db_client=self.db_client)
         content_hash = revision_repo.get_content_hash(internal_id, revision_id)
         if content_hash == 0:
             raise_validation_error("Revision not found", status_code=404)

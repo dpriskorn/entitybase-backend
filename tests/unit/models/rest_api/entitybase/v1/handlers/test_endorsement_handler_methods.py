@@ -12,7 +12,7 @@ class TestEndorsementHandlerMethods:
     def mock_state(self):
         """Create a mock state object."""
         state = MagicMock()
-        state.vitess_client = MagicMock()
+        state.db_client = MagicMock()
         return state
 
     @pytest.fixture
@@ -27,7 +27,7 @@ class TestEndorsementHandlerMethods:
 
     def test_validate_user_not_found(self, handler, mock_state):
         """Test _validate_user raises 404 when user not found."""
-        mock_state.vitess_client.user_repository.user_exists.return_value = False
+        mock_state.db_client.user_repository.user_exists.return_value = False
 
         with pytest.raises(HTTPException) as exc_info:
             handler._validate_user(99999)

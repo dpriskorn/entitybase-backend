@@ -15,7 +15,7 @@ class TestEntityReadHandler:
         """Test entity retrieval when entity doesn't exist."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = MagicMock()
 
         mock_vitess.entity_exists.return_value = False
@@ -31,7 +31,7 @@ class TestEntityReadHandler:
         """Test entity retrieval when no head revision exists."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = MagicMock()
 
         mock_vitess.entity_exists.return_value = True
@@ -45,7 +45,7 @@ class TestEntityReadHandler:
     def test_get_entity_vitess_not_initialized(self) -> None:
         """Test entity retrieval when Vitess client is not initialized."""
         mock_state = MagicMock()
-        mock_state.vitess_client = None
+        mock_state.db_client = None
 
         handler = EntityReadHandler(state=mock_state)
 
@@ -56,7 +56,7 @@ class TestEntityReadHandler:
         """Test entity retrieval when S3 client is not initialized."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = None
 
         mock_vitess.entity_exists.return_value = True
@@ -72,7 +72,7 @@ class TestEntityReadHandler:
         mock_state = MagicMock()
         mock_vitess = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = mock_s3
 
         mock_vitess.entity_exists.return_value = True
@@ -89,7 +89,7 @@ class TestEntityReadHandler:
         mock_state = MagicMock()
         mock_vitess = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = mock_s3
 
         mock_vitess.entity_exists.return_value = True
@@ -105,7 +105,7 @@ class TestEntityReadHandler:
         """Test successful entity history retrieval."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
 
         mock_vitess.entity_exists.return_value = True
         mock_history = [
@@ -125,7 +125,7 @@ class TestEntityReadHandler:
         """Test entity history retrieval when entity doesn't exist."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
 
         mock_vitess.entity_exists.return_value = False
 
@@ -138,7 +138,7 @@ class TestEntityReadHandler:
         """Test entity history retrieval when Vitess fails."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
 
         mock_vitess.entity_exists.return_value = True
         mock_vitess.get_entity_history.side_effect = Exception("Vitess query failed")

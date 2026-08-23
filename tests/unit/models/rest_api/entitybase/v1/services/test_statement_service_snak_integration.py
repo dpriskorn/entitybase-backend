@@ -16,7 +16,7 @@ class TestStatementServiceSnakIntegration:
         """Create mock state object."""
         state = Mock()
         state.s3_client = Mock()
-        state.vitess_client = Mock()
+        state.db_client = Mock()
         return state
 
     @pytest.fixture
@@ -68,7 +68,7 @@ class TestStatementServiceSnakIntegration:
 
         service = StatementService(state=mock_state)
         mock_state.s3_client.read_statement.side_effect = Exception("Not found")
-        mock_state.vitess_client.insert_statement_content.return_value = True
+        mock_state.db_client.insert_statement_content.return_value = True
 
         with patch(
             "models.rest_api.entitybase.v1.services.statement_service.SnakHandler"
@@ -96,7 +96,7 @@ class TestStatementServiceSnakIntegration:
 
         mock_state.s3_client.read_statement.side_effect = Exception("Not found")
         mock_state.s3_client.write_statement.side_effect = capture_statement
-        mock_state.vitess_client.insert_statement_content.return_value = True
+        mock_state.db_client.insert_statement_content.return_value = True
 
         with patch(
             "models.rest_api.entitybase.v1.services.statement_service.SnakHandler"

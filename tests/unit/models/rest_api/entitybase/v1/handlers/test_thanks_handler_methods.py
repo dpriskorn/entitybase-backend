@@ -12,7 +12,7 @@ class TestThanksHandlerMethods:
     def mock_state(self):
         """Create a mock state object."""
         state = MagicMock()
-        state.vitess_client = MagicMock()
+        state.db_client = MagicMock()
         return state
 
     @pytest.fixture
@@ -27,7 +27,7 @@ class TestThanksHandlerMethods:
         """Test get_thanks_received raises 404 when user not found."""
         from models.data.rest_api.v1.entitybase.request import ThanksListRequest
 
-        mock_state.vitess_client.user_repository.user_exists.return_value = False
+        mock_state.db_client.user_repository.user_exists.return_value = False
         mock_request = ThanksListRequest(hours=24, limit=50, offset=0)
 
         with pytest.raises(HTTPException) as exc_info:
@@ -39,7 +39,7 @@ class TestThanksHandlerMethods:
         """Test get_thanks_sent raises 404 when user not found."""
         from models.data.rest_api.v1.entitybase.request import ThanksListRequest
 
-        mock_state.vitess_client.user_repository.user_exists.return_value = False
+        mock_state.db_client.user_repository.user_exists.return_value = False
         mock_request = ThanksListRequest(hours=24, limit=50, offset=0)
 
         with pytest.raises(HTTPException) as exc_info:

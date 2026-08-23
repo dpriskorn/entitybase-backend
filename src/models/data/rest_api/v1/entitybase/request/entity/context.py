@@ -109,7 +109,7 @@ class RevisionContext(BaseModel):
     edit_summary: str = ""
     base_revision_id: int = 0
     is_creation: bool = False
-    vitess_client: Any
+    db_client: Any
     s3_client: Any
     stream_producer: Any = Field(default=None)
     validator: Any | None = Field(default=None)

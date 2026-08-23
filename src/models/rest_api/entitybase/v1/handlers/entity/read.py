@@ -23,18 +23,18 @@ class EntityReadHandler(Handler):
     ) -> EntityResponse:
         """Get entity by ID."""
         logger.debug(f"get_entity({entity_id}) called")
-        if self.state.vitess_client is None:
-            raise_validation_error("Vitess not initialized", status_code=503)
+        if self.state.db_client is None:
+            raise_validation_error("Database not initialized", status_code=503)
 
         if self.state.s3_client is None:
             raise_validation_error("S3 not initialized", status_code=503)
 
-        entity_exists = self.state.vitess_client.entity_exists(entity_id)
+        entity_exists = self.state.db_client.entity_exists(entity_id)
         logger.debug(f"get_entity({entity_id}): entity_exists = {entity_exists}")
         if not entity_exists:
             raise_validation_error("Entity not found", status_code=404)
 
-        head_revision_id = self.state.vitess_client.get_head(entity_id)
+        head_revision_id = self.state.db_client.get_head(entity_id)
         logger.debug(f"get_entity({entity_id}): head_revision_id = {head_revision_id}")
         if head_revision_id == 0:
             raise_validation_error("Entity not found", status_code=404)
@@ -83,14 +83,14 @@ class EntityReadHandler(Handler):
         offset: int = 0,
     ) -> list[EntityHistoryEntry]:
         """Get entity revision history."""
-        if self.state.vitess_client is None:
-            raise_validation_error("Vitess not initialized", status_code=503)
+        if self.state.db_client is None:
+            raise_validation_error("Database not initialized", status_code=503)
 
-        if not self.state.vitess_client.entity_exists(entity_id):
+        if not self.state.db_client.entity_exists(entity_id):
             raise_validation_error("Entity not found", status_code=404)
 
         try:
-            return self.state.vitess_client.get_entity_history(entity_id, limit, offset)  # type: ignore[no-any-return]
+            return self.state.db_client.get_entity_history(entity_id, limit, offset)  # type: ignore[no-any-return]
         except Exception as e:
             logger.error(f"Failed to get entity history for {entity_id}: {e}")
             raise_validation_error(

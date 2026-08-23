@@ -31,7 +31,7 @@ class BacklinkService(Service):
         """
         logger.debug(f"Extracting backlinks from entity {entity_id}")
 
-        referencing_internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
+        referencing_internal_id = self.db_client.id_resolver.resolve_id(entity_id)
         if not referencing_internal_id:
             logger.warning(f"Could not resolve internal ID for entity {entity_id}")
             return []
@@ -42,7 +42,7 @@ class BacklinkService(Service):
             for statement in statement_list:
                 extracted = StatementBacklinkExtractor.extract_backlink_data(statement)
                 for referenced_entity_id, prop_id, rank in extracted:
-                    referenced_internal_id = self.vitess_client.id_resolver.resolve_id(
+                    referenced_internal_id = self.db_client.id_resolver.resolve_id(
                         referenced_entity_id
                     )
                     if not referenced_internal_id:
@@ -93,7 +93,7 @@ class BacklinkService(Service):
             return OperationResult(success=True)
 
         result: OperationResult = (
-            self.vitess_client.backlink_repository.insert_backlinks(backlinks)
+            self.db_client.backlink_repository.insert_backlinks(backlinks)
         )
 
         if result.success:

@@ -16,7 +16,7 @@ class TestAddProperty(unittest.IsolatedAsyncioTestCase):
         self.mock_vitess = MagicMock()
         self.mock_s3 = MagicMock()
         self.mock_validator = MagicMock()
-        self.mock_state.vitess_client = self.mock_vitess
+        self.mock_state.db_client = self.mock_vitess
         self.mock_state.s3_client = self.mock_s3
         self.handler = EntityHandler(state=self.mock_state)
 

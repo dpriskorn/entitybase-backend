@@ -22,7 +22,7 @@ class TestThanksHandler:
         """Test get_thanks_received raises error when user not found."""
         from models.rest_api.entitybase.v1.handlers.thanks import ThanksHandler
 
-        mock_state.vitess_client.user_repository.user_exists.return_value = False
+        mock_state.db_client.user_repository.user_exists.return_value = False
 
         handler = ThanksHandler(state=mock_state)
         request = ThanksListRequest()
@@ -36,7 +36,7 @@ class TestThanksHandler:
         """Test get_thanks_received success case."""
         from models.rest_api.entitybase.v1.handlers.thanks import ThanksHandler
 
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
+        mock_state.db_client.user_repository.user_exists.return_value = True
 
         mock_result = MagicMock()
         mock_result.success = True
@@ -45,7 +45,7 @@ class TestThanksHandler:
             "total_count": 0,
             "has_more": False,
         }
-        mock_state.vitess_client.thanks_repository.get_thanks_received.return_value = (
+        mock_state.db_client.thanks_repository.get_thanks_received.return_value = (
             mock_result
         )
 
@@ -61,7 +61,7 @@ class TestThanksHandler:
         """Test get_thanks_sent raises error when user not found."""
         from models.rest_api.entitybase.v1.handlers.thanks import ThanksHandler
 
-        mock_state.vitess_client.user_repository.user_exists.return_value = False
+        mock_state.db_client.user_repository.user_exists.return_value = False
 
         handler = ThanksHandler(state=mock_state)
         request = ThanksListRequest()
@@ -75,7 +75,7 @@ class TestThanksHandler:
         """Test get_thanks_sent success case."""
         from models.rest_api.entitybase.v1.handlers.thanks import ThanksHandler
 
-        mock_state.vitess_client.user_repository.user_exists.return_value = True
+        mock_state.db_client.user_repository.user_exists.return_value = True
 
         mock_result = MagicMock()
         mock_result.success = True
@@ -84,7 +84,7 @@ class TestThanksHandler:
             "total_count": 0,
             "has_more": False,
         }
-        mock_state.vitess_client.thanks_repository.get_thanks_sent.return_value = (
+        mock_state.db_client.thanks_repository.get_thanks_sent.return_value = (
             mock_result
         )
 
@@ -112,7 +112,7 @@ class TestThanksHandler:
                 "created_at": datetime.now(timezone.utc),
             }
         ]
-        mock_state.vitess_client.thanks_repository.get_revision_thanks.return_value = (
+        mock_state.db_client.thanks_repository.get_revision_thanks.return_value = (
             mock_result
         )
 
@@ -130,7 +130,7 @@ class TestThanksHandler:
         mock_result = MagicMock()
         mock_result.success = False
         mock_result.error = "Database error"
-        mock_state.vitess_client.thanks_repository.get_revision_thanks.return_value = (
+        mock_state.db_client.thanks_repository.get_revision_thanks.return_value = (
             mock_result
         )
 

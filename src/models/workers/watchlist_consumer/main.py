@@ -11,12 +11,12 @@ from models.data.workers.notification import NotificationData
 from models.infrastructure.stream.consumer import StreamConsumerClient
 from models.data.infrastructure.stream.consumer import EntityChangeEventData
 from models.data.config.stream_consumer import StreamConsumerConfig
-from models.workers.vitess_worker import VitessWorker
+from models.workers.vitess_worker import DbWorker
 
 logger = logging.getLogger(__name__)
 
 
-class WatchlistConsumerWorker(VitessWorker):
+class WatchlistConsumerWorker(DbWorker):
     """Worker that consumes entity change events and creates notifications for watchers."""
 
     consumer: StreamConsumerClient | None = None
@@ -27,7 +27,7 @@ class WatchlistConsumerWorker(VitessWorker):
         try:
             # Initialize clients
             # s3_config = settings.to_s3_config()
-            # vitess_config = settings.to_vitess_config()
+            # mysql_config = settings.to_mysql_config()
             kafka_brokers = (
                 [b.strip() for b in settings.kafka_bootstrap_servers.split(",")]
                 if settings.kafka_bootstrap_servers
@@ -91,8 +91,8 @@ class WatchlistConsumerWorker(VitessWorker):
             )
 
             # Get watchers for this entity
-            assert self.vitess_client is not None
-            watchers = self.vitess_client.watchlist_repository.get_watchers_for_entity(
+            assert self.db_client is not None
+            watchers = self.db_client.watchlist_repository.get_watchers_for_entity(
                 entity_id
             )
 
@@ -147,8 +147,8 @@ class WatchlistConsumerWorker(VitessWorker):
         """Create a notification record in the database."""
         # For now, insert into user_notifications table
         # In a real system, this might trigger email/webhook
-        assert self.vitess_client is not None
-        with self.vitess_client.connection_manager.connection.cursor() as cursor:
+        assert self.db_client is not None
+        with self.db_client.connection_manager.conn.cursor() as cursor:
             cursor.execute(
                 """
                 INSERT INTO user_notifications

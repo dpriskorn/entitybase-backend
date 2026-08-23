@@ -22,7 +22,7 @@ class TestEntityStatementService:
         """Test adding claims to a new property."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
 
         service = EntityStatementService(state=mock_state)
         current_data = MagicMock()
@@ -40,7 +40,7 @@ class TestEntityStatementService:
         """Test that remove_statement decrements reference count."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_cursor = MagicMock()
         mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
         mock_cursor.__exit__ = MagicMock(return_value=False)
@@ -58,7 +58,7 @@ class TestEntityStatementService:
         """Test patching statement when it doesn't exist."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
 
         service = EntityStatementService(state=mock_state)
         current_data = MagicMock()

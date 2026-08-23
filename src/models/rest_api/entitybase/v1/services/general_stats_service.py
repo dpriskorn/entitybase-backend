@@ -48,7 +48,7 @@ class GeneralStatsService(Service):
     def get_total_statements(self) -> int:
         """Count total statements."""
         try:
-            with self.state.vitess_client.cursor as cursor:
+            with self.state.db_client.cursor as cursor:
                 cursor.execute("SELECT COUNT(*) FROM statements")
                 result = cursor.fetchone()
                 return result[0] if result else 0
@@ -59,7 +59,7 @@ class GeneralStatsService(Service):
     def get_total_qualifiers(self) -> int:
         """Count total qualifiers."""
         try:
-            with self.state.vitess_client.cursor as cursor:
+            with self.state.db_client.cursor as cursor:
                 cursor.execute("SELECT COUNT(*) FROM qualifiers")
                 result = cursor.fetchone()
                 return result[0] if result else 0
@@ -70,7 +70,7 @@ class GeneralStatsService(Service):
     def get_total_references(self) -> int:
         """Count total references."""
         try:
-            with self.state.vitess_client.cursor as cursor:
+            with self.state.db_client.cursor as cursor:
                 cursor.execute("SELECT COUNT(*) FROM references")
                 result = cursor.fetchone()
                 return result[0] if result else 0
@@ -80,7 +80,7 @@ class GeneralStatsService(Service):
 
     def get_total_items(self) -> int:
         """Count total items."""
-        with self.state.vitess_client.cursor as cursor:
+        with self.state.db_client.cursor as cursor:
             cursor.execute(
                 """SELECT COUNT(*) FROM entity_revisions r
                    JOIN entity_id_mapping m ON r.internal_id = m.internal_id
@@ -91,7 +91,7 @@ class GeneralStatsService(Service):
 
     def get_total_lexemes(self) -> int:
         """Count total lexemes."""
-        with self.state.vitess_client.cursor as cursor:
+        with self.state.db_client.cursor as cursor:
             cursor.execute(
                 """SELECT COUNT(*) FROM entity_revisions r
                    JOIN entity_id_mapping m ON r.internal_id = m.internal_id
@@ -102,7 +102,7 @@ class GeneralStatsService(Service):
 
     def get_total_properties(self) -> int:
         """Count total properties."""
-        with self.state.vitess_client.cursor as cursor:
+        with self.state.db_client.cursor as cursor:
             cursor.execute(
                 """SELECT COUNT(*) FROM entity_revisions r
                    JOIN entity_id_mapping m ON r.internal_id = m.internal_id
@@ -114,7 +114,7 @@ class GeneralStatsService(Service):
     def get_total_sitelinks(self) -> int:
         """Count total sitelinks."""
         try:
-            with self.state.vitess_client.cursor as cursor:
+            with self.state.db_client.cursor as cursor:
                 cursor.execute("SELECT COUNT(*) FROM sitelinks")
                 result = cursor.fetchone()
                 return result[0] if result else 0
@@ -125,7 +125,7 @@ class GeneralStatsService(Service):
     def get_total_terms(self) -> int:
         """Count total terms."""
         try:
-            with self.state.vitess_client.cursor as cursor:
+            with self.state.db_client.cursor as cursor:
                 cursor.execute("SELECT COUNT(*) FROM terms")
                 result = cursor.fetchone()
                 return result[0] if result else 0
@@ -137,7 +137,7 @@ class GeneralStatsService(Service):
         """Count terms per language."""
         terms_per_lang: dict[str, int] = {}
         try:
-            with self.state.vitess_client.cursor as cursor:
+            with self.state.db_client.cursor as cursor:
                 try:
                     cursor.execute(
                         "SELECT language_code, COUNT(*) FROM labels GROUP BY language_code"
@@ -175,7 +175,7 @@ class GeneralStatsService(Service):
         """Count terms by type (labels, descriptions, aliases)."""
         data = {}
         try:
-            with self.state.vitess_client.cursor as cursor:
+            with self.state.db_client.cursor as cursor:
                 try:
                     cursor.execute("SELECT 'labels' AS type, COUNT(*) FROM labels")
                     result = cursor.fetchone()
@@ -228,7 +228,7 @@ class GeneralStatsService(Service):
     ) -> DeduplicationStatsByType:
         """Get deduplication stats for a specific table."""
         try:
-            with self.state.vitess_client.cursor as cursor:
+            with self.state.db_client.cursor as cursor:
                 cursor.execute(
                     f"SELECT COUNT(*), COALESCE(SUM(ref_count), 0) FROM {table_name}"
                 )
@@ -261,7 +261,7 @@ class GeneralStatsService(Service):
     def _get_terms_deduplication_stats(self) -> DeduplicationStatsByType:
         """Get deduplication stats for terms (labels, descriptions, aliases tables)."""
         try:
-            with self.state.vitess_client.cursor as cursor:
+            with self.state.db_client.cursor as cursor:
                 total_unique = 0
                 total_ref_count = 0
 

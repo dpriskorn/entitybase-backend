@@ -26,7 +26,7 @@ class EntityConverter(BaseModel):
     property_registry: PropertyRegistry
     entity_metadata_dir: Path | None = Field(default=None)
     redirects_dir: Path | None = Field(default=None)
-    vitess_client: Any = Field(default=None)
+    db_client: Any = Field(default=None)
     enable_deduplication: bool = True
 
     @property
@@ -190,16 +190,16 @@ class EntityConverter(BaseModel):
                 )
 
     def _fetch_redirects(self, entity_id: str) -> list[str]:
-        """Load entity redirects from Vitess or fallback to cache."""
+        """Load entity redirects from database or fallback to cache."""
         redirects = []
 
-        if self.vitess_client:
+        if self.db_client:
             try:
-                vitess_redirects = self.vitess_client.get_incoming_redirects(entity_id)
-                redirects.extend(vitess_redirects)
+                db_redirects = self.db_client.get_incoming_redirects(entity_id)
+                redirects.extend(db_redirects)
             except Exception as e:
                 logger.warning(
-                    f"Failed to load redirects from Vitess for {entity_id}: {e}"
+                    f"Failed to load redirects from database for {entity_id}: {e}"
                 )
 
         if self.redirects_dir:

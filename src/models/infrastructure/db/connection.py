@@ -1,0 +1,314 @@
+"""MySQL-compatible database connection management."""
+
+import logging
+import queue
+import threading
+import pymysql
+from typing import Any, Literal
+from pydantic import Field
+from pymysql.connections import Connection
+from pymysql.cursors import Cursor
+
+from models.data.config.mysql import MysqlConfig
+from models.infrastructure.connection import ConnectionManager
+
+logger = logging.getLogger(__name__)
+
+
+class MysqlConnectionManager(ConnectionManager):
+    """MySQL-compatible connection manager with connection pooling support."""
+
+    config: MysqlConfig
+    conn: Connection | None = Field(default=None)
+    pool: queue.Queue[Connection] | None = Field(default=None, exclude=True)
+    connection_semaphore: threading.Semaphore | None = Field(default=None, exclude=True)
+    overflow_connections: set[Connection] = Field(default_factory=set, exclude=True)
+    active_connections: set[Connection] = Field(default_factory=set, exclude=True)
+    pool_slots_created: int = Field(default=0, exclude=True)
+
+    def model_post_init(self, context: Any) -> None:
+        """Initialize the connection pool."""
+        logger.debug(
+            f"Creating MysqlConnectionManager with config: host='{self.config.host}', port={self.config.port}, database='{self.config.database}', user='{self.config.user}', password_length={len(self.config.password)}"
+        )
+        self.pool = queue.Queue(maxsize=self.config.pool_size)
+        self.connection_semaphore = threading.Semaphore(
+            self.config.pool_size + self.config.max_overflow
+        )
+
+    def _create_new_connection(self) -> Connection:
+        """Create a new database connection."""
+        logger.info(
+            f"Attempting database connection to {self.config.host}:{self.config.port}..."
+        )
+        logger.debug(
+            f"Connection parameters: user='{self.config.user}', database='{self.config.database}'"
+        )
+        try:
+            logger.debug("Calling pymysql.connect()...")
+            connection = pymysql.connect(
+                host=self.config.host,
+                port=self.config.port,
+                user=self.config.user,
+                passwd=self.config.password,
+                database=self.config.database,
+                autocommit=True,
+            )
+            logger.info(
+                f"Successfully connected to database at {self.config.host}:{self.config.port}"
+            )
+            return connection
+        except Exception as e:
+            logger.error(
+                f"Failed to connect to database at {self.config.host}:{self.config.port}: {e}"
+            )
+            raise
+
+    def _ensure_pool_initialized(self) -> None:
+        """Ensure connection pool and semaphore are initialized."""
+        if self.pool is None:
+            logger.debug("Creating new pool queue")
+            self.pool = queue.Queue(maxsize=self.config.pool_size)
+
+        if self.connection_semaphore is None:
+            self.connection_semaphore = threading.Semaphore(
+                self.config.pool_size + self.config.max_overflow
+            )
+
+    def _acquire_connection_from_pool(self) -> Connection:
+        """Get a connection from pool or create new one."""
+        self._ensure_pool_initialized()
+        if self.pool is None:
+            raise RuntimeError("Connection pool not initialized")
+        try:
+            logger.debug(
+                f"Attempting to get connection from pool, pool size: {self.pool.qsize()}"
+            )
+            connection = self.pool.get_nowait()
+            logger.debug(
+                f"Got connection from pool, checking if open: {connection.open}"
+            )
+            if not connection.open:
+                logger.warning("Acquired a closed connection, creating new one")
+                connection = self._create_new_connection()
+        except queue.Empty:
+            logger.debug("Pool empty, creating new connection")
+            connection = self._create_new_connection()
+
+        return connection
+
+    def acquire(self) -> Connection:
+        """Acquire a connection from pool."""
+        logger.debug("=== acquire() START ===")
+        self._ensure_pool_initialized()
+        if self.connection_semaphore is None:
+            raise RuntimeError("Connection semaphore not initialized")
+
+        try:
+            logger.debug(f"Acquiring semaphore (timeout={self.config.pool_timeout}s)")
+            if not self.connection_semaphore.acquire(timeout=self.config.pool_timeout):
+                logger.error(
+                    f"Connection pool exhausted (timeout: {self.config.pool_timeout}s)"
+                )
+                raise TimeoutError(
+                    f"Could not acquire database connection within {self.config.pool_timeout}s"
+                )
+        except ValueError:
+            logger.error("Failed to acquire semaphore")
+            raise TimeoutError(
+                f"Could not acquire database connection within {self.config.pool_timeout}s"
+            )
+
+        is_overflow = False
+        try:
+            connection = self._acquire_connection_from_pool()
+            is_overflow = self.pool_slots_created >= self.config.pool_size
+            if not is_overflow:
+                self.pool_slots_created += 1
+
+            if is_overflow:
+                self.overflow_connections.add(connection)
+
+            self.active_connections.add(connection)
+            logger.debug(
+                f"Successfully acquired connection, active connections: {len(self.active_connections)}"
+            )
+            return connection
+        except Exception:
+            logger.debug("Exception during acquire, releasing semaphore")
+            if self.connection_semaphore:
+                self.connection_semaphore.release()
+            raise
+
+    def release(self, connection: Connection) -> None:
+        """Release a connection back to pool."""
+        if self.pool is None:
+            self.pool = queue.Queue(maxsize=self.config.pool_size)
+
+        if not connection or not connection.open:
+            logger.warning(
+                "Attempted to release a closed or None connection, discarding"
+            )
+            self.active_connections.discard(connection)
+            if self.connection_semaphore:
+                try:
+                    self.connection_semaphore.release()
+                except ValueError:
+                    pass
+            return
+
+        is_overflow = connection in self.overflow_connections
+
+        if is_overflow:
+            self.overflow_connections.discard(connection)
+            connection.close()
+            logger.debug("Closed overflow connection")
+            self.active_connections.discard(connection)
+            self._release_semaphore()
+            return
+
+        if self.pool.qsize() >= self.config.pool_size:
+            connection.close()
+            logger.debug("Pool at capacity, closed excess connection")
+            self.active_connections.discard(connection)
+            self._release_semaphore()
+            return
+
+        try:
+            self.pool.put_nowait(connection)
+            logger.debug(f"Released connection to pool, pool size: {self.pool.qsize()}")
+        except queue.Full:
+            connection.close()
+            logger.debug("Pool full, closed excess connection")
+
+        self.active_connections.discard(connection)
+        self._release_semaphore()
+
+    def _release_semaphore(self) -> None:
+        """Release semaphore permit."""
+        if self.connection_semaphore:
+            try:
+                self.connection_semaphore.release()
+            except ValueError:
+                pass
+
+    @property
+    def healthy_connection(self) -> bool:
+        """Check if database connection is healthy."""
+        logger.debug("=== healthy_connection() START ===")
+        try:
+            logger.debug("Acquiring connection for health check...")
+            connection = self.acquire()
+            logger.debug("Connection acquired, creating cursor...")
+            cursor = connection.cursor()
+            logger.debug("Executing SELECT 1 query...")
+            cursor.execute("SELECT 1")
+            logger.debug("Fetching result...")
+            cursor.fetchone()
+            logger.debug("Closing cursor...")
+            cursor.close()
+            logger.debug("Releasing connection...")
+            self.release(connection)
+            logger.debug("=== healthy_connection() SUCCESS ===")
+            return True
+        except Exception as e:
+            logger.warning(f"Connection health check failed: {e}")
+            logger.debug("=== healthy_connection() FAILED ===")
+            return False
+
+    def connect(self) -> Connection:
+        """Establish a connection from pool and store it."""
+        logger.info("=== connect() START ===")
+        logger.info("Acquiring connection from pool and storing in conn field")
+        self.conn = self.acquire()
+        logger.info(f"Connection acquired and stored: {self.conn is not None}")
+        logger.info("=== connect() END ===")
+        return self.conn
+
+    def disconnect(self) -> None:
+        """Close all connections in pool."""
+        self._close_stored_connection()
+        self._drain_pool()
+        self._close_overflow_connections()
+        self._close_active_connections()
+        self.connection_semaphore = None
+        logger.info("Disconnected all pooled connections")
+
+    def _close_stored_connection(self) -> None:
+        """Close the stored connection if it exists."""
+        if self.conn is not None:
+            try:
+                if self.conn.open:
+                    self.conn.close()
+                self.conn = None
+            except Exception as e:
+                logger.warning(f"Error closing stored connection: {e}")
+
+    def _drain_pool(self) -> None:
+        """Drain all connections from the pool."""
+        if self.pool is not None:
+            while not self.pool.empty():
+                try:
+                    connection = self.pool.get_nowait()
+                    if connection.open:
+                        connection.close()
+                except Exception as e:
+                    logger.warning(f"Error closing pooled connection: {e}")
+            self.pool = None
+
+    def _close_overflow_connections(self) -> None:
+        """Close all overflow connections."""
+        for connection in list(self.overflow_connections):
+            try:
+                if connection.open:
+                    connection.close()
+            except Exception as e:
+                logger.warning(f"Error closing overflow connection: {e}")
+        self.overflow_connections.clear()
+
+    def _close_active_connections(self) -> None:
+        """Close all active connections."""
+        for connection in list(self.active_connections):
+            try:
+                if connection.open:
+                    connection.close()
+            except Exception as e:
+                logger.warning(f"Error closing active connection: {e}")
+        self.active_connections.clear()
+
+
+# Backward compatibility alias
+VitessConnectionManager = MysqlConnectionManager
+
+
+class CursorContextManager:
+    """Context manager for database cursors that properly handles connection lifecycle."""
+
+    def __init__(self, connection_manager: MysqlConnectionManager):
+        self.connection_manager = connection_manager
+        self.connection: Connection | None = None
+        self.cursor: Any | None = None
+
+    def __enter__(self) -> Cursor:
+        """Acquire connection from pool and create cursor."""
+        self.connection = self.connection_manager.acquire()
+        if self.connection is None:
+            raise RuntimeError("Failed to acquire connection from pool")
+        self.cursor = self.connection.cursor()
+        return self.cursor
+
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> Literal[False]:
+        """Close cursor and release connection back to pool."""
+        try:
+            if self.cursor:
+                self.cursor.close()
+        except Exception as e:
+            logger.warning(f"Error closing cursor: {e}")
+
+        try:
+            if self.connection and self.connection.open:
+                self.connection_manager.release(self.connection)
+        except Exception as e:
+            logger.warning(f"Error releasing connection: {e}")
+
+        return False

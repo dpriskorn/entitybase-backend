@@ -11,7 +11,7 @@ from typing import Any
 from pydantic import Field
 
 from models.config.settings import settings
-from models.infrastructure.vitess.client import VitessClient
+from models.infrastructure.db.client import MysqlClient
 from models.data.rest_api.v1.entitybase.response import WorkerHealthCheckResponse
 from models.workers.worker import Worker
 from models.workers.utils import calculate_seconds_until_next_run
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 class BaseStatsWorker(Worker, ABC):
     """Base class for statistics workers."""
 
-    vitess_client: Any
+    db_client: Any
     worker_id: str = Field(
         default_factory=lambda: os.getenv("WORKER_ID", f"stats-{os.getpid()}")
     )
@@ -32,7 +32,7 @@ class BaseStatsWorker(Worker, ABC):
     @property
     def state(self) -> SimpleNamespace:
         """Return state object for service compatibility."""
-        return SimpleNamespace(vitess_client=self.vitess_client)
+        return SimpleNamespace(db_client=self.db_client)
 
     @abstractmethod
     async def run_daily_computation(self) -> None:
@@ -47,9 +47,9 @@ class BaseStatsWorker(Worker, ABC):
 
         logger.info(f"Starting {self.__class__.__name__} {self.worker_id}")
 
-        # Initialize Vitess client
-        vitess_config = settings.get_vitess_config
-        self.vitess_client = VitessClient(config=vitess_config)
+        # Initialize database client
+        mysql_config = settings.get_mysql_config
+        self.db_client = MysqlClient(config=mysql_config)
 
         self.running = True
 

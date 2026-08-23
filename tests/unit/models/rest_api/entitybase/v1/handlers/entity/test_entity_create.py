@@ -20,7 +20,7 @@ class TestEntityCreateHandler:
         """Test creating an entity that already exists."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
 
         mock_vitess.entity_exists.return_value = True
 
@@ -41,7 +41,7 @@ class TestEntityCreateHandler:
         """Test creating an entity that is deleted."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
 
         mock_vitess.entity_exists.return_value = False
         mock_vitess.is_entity_deleted.return_value = True
@@ -94,7 +94,7 @@ class TestEntityCreateHandler:
         mock_state = MagicMock()
         mock_vitess = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = mock_s3
 
         mock_vitess.entity_exists.return_value = False

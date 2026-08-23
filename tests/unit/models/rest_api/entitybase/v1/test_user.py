@@ -16,17 +16,17 @@ class TestUserHandler:
     """Unit tests for UserHandler"""
 
     @pytest.fixture
-    def mock_vitess_client(self) -> MagicMock:
+    def mock_db_client(self) -> MagicMock:
         """Mock Vitess client"""
         client = MagicMock()
         client.user_repository = MagicMock()
         return client
 
     @pytest.fixture
-    def mock_state(self, mock_vitess_client: MagicMock) -> MagicMock:
+    def mock_state(self, mock_db_client: MagicMock) -> MagicMock:
         """Create handler instance"""
         state = MagicMock()
-        state.vitess_client = mock_vitess_client
+        state.db_client = mock_db_client
         state.user_change_stream_producer = None
         return state
 
@@ -37,40 +37,40 @@ class TestUserHandler:
 
     @pytest.mark.asyncio
     async def test_create_user_new(
-        self, handler: UserHandler, mock_vitess_client: MagicMock
+        self, handler: UserHandler, mock_db_client: MagicMock
     ) -> None:
         """Test creating a new user"""
         request = UserCreateRequest(user_id=12345)
 
-        mock_vitess_client.user_repository.user_exists.return_value = False
+        mock_db_client.user_repository.user_exists.return_value = False
 
         result = await handler.create_user(request)
 
         assert isinstance(result, UserCreateResponse)
         assert result.user_id == 12345
         assert result.created is True
-        mock_vitess_client.user_repository.user_exists.assert_called_once_with(12345)
-        mock_vitess_client.user_repository.create_user.assert_called_once_with(12345)
+        mock_db_client.user_repository.user_exists.assert_called_once_with(12345)
+        mock_db_client.user_repository.create_user.assert_called_once_with(12345)
 
     @pytest.mark.asyncio
     async def test_create_user_existing(
-        self, handler: UserHandler, mock_vitess_client: MagicMock
+        self, handler: UserHandler, mock_db_client: MagicMock
     ) -> None:
         """Test creating a user that already exists"""
         request = UserCreateRequest(user_id=12345)
 
-        mock_vitess_client.user_repository.user_exists.return_value = True
+        mock_db_client.user_repository.user_exists.return_value = True
 
         result = await handler.create_user(request)
 
         assert isinstance(result, UserCreateResponse)
         assert result.user_id == 12345
         assert result.created is False
-        mock_vitess_client.user_repository.user_exists.assert_called_once_with(12345)
-        mock_vitess_client.user_repository.create_user.assert_not_called()
+        mock_db_client.user_repository.user_exists.assert_called_once_with(12345)
+        mock_db_client.user_repository.create_user.assert_not_called()
 
     def test_get_user_found(
-        self, handler: UserHandler, mock_vitess_client: MagicMock
+        self, handler: UserHandler, mock_db_client: MagicMock
     ) -> None:
         """Test getting a user that exists"""
         from models.data.rest_api.v1.entitybase.response import UserResponse
@@ -80,16 +80,16 @@ class TestUserHandler:
             user_id=12345, created_at=datetime(2023, 1, 1), preferences=None
         )
 
-        mock_vitess_client.user_repository.get_user.return_value = mock_user
+        mock_db_client.user_repository.get_user.return_value = mock_user
 
         result = handler.get_user(12345)
 
         assert result == mock_user
-        mock_vitess_client.user_repository.get_user.assert_called_once_with(12345)
+        mock_db_client.user_repository.get_user.assert_called_once_with(12345)
 
     @pytest.mark.asyncio
     async def test_toggle_watchlist_success(
-        self, handler: UserHandler, mock_vitess_client: MagicMock
+        self, handler: UserHandler, mock_db_client: MagicMock
     ) -> None:
         """Test successful watchlist toggle"""
         from models.data.rest_api.v1.entitybase.request import WatchlistToggleRequest
@@ -97,8 +97,8 @@ class TestUserHandler:
 
         request = WatchlistToggleRequest(enabled=False)
 
-        mock_vitess_client.user_repository.user_exists.return_value = True
-        mock_vitess_client.user_repository.disable_watchlist.return_value = MagicMock(
+        mock_db_client.user_repository.user_exists.return_value = True
+        mock_db_client.user_repository.disable_watchlist.return_value = MagicMock(
             success=True
         )
 
@@ -107,7 +107,7 @@ class TestUserHandler:
         assert isinstance(result, WatchlistToggleResponse)
         assert result.user_id == 12345
         assert result.enabled is False
-        mock_vitess_client.user_repository.user_exists.assert_called_once_with(12345)
-        mock_vitess_client.user_repository.disable_watchlist.assert_called_once_with(
+        mock_db_client.user_repository.user_exists.assert_called_once_with(12345)
+        mock_db_client.user_repository.disable_watchlist.assert_called_once_with(
             12345
         )

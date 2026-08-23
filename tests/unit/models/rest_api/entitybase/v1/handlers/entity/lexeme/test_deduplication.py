@@ -57,7 +57,7 @@ def test_lexeme_storage_error_handling():
 
     # Create handler
     enumeration_service = EnumerationService(
-        worker_id="test", vitess_client=MagicMock()
+        worker_id="test", db_client=MagicMock()
     )
     handler = LexemeCreateHandler(
         state=mock_state, enumeration_service=enumeration_service

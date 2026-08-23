@@ -17,7 +17,7 @@ class TestEntityUpdateTermsMixin:
         """Create a mixin with mocked dependencies."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
 
         mock_s3_client = MagicMock()
         mock_state.s3_client = mock_s3_client
@@ -110,7 +110,7 @@ class TestUpdateLabelErrors:
         """Create a mixin with mocked dependencies."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
 
         mock_s3_client = MagicMock()
         mock_state.s3_client = mock_s3_client
@@ -167,7 +167,7 @@ class TestDeleteLabelErrors:
         """Create a mixin with mocked dependencies."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
 
         mock_s3_client = MagicMock()
         mock_state.s3_client = mock_s3_client
@@ -199,7 +199,7 @@ class TestDeleteLabelErrors:
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 
         mixin, mock_state = self._create_mixin_with_mocks()
-        mock_state.vitess_client.is_entity_deleted.return_value = True
+        mock_state.db_client.is_entity_deleted.return_value = True
 
         edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
 
@@ -216,8 +216,8 @@ class TestDeleteLabelErrors:
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 
         mixin, mock_state = self._create_mixin_with_mocks()
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.is_entity_locked.return_value = True
+        mock_state.db_client.is_entity_deleted.return_value = False
+        mock_state.db_client.is_entity_locked.return_value = True
 
         edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
 
@@ -235,7 +235,7 @@ class TestUpdateDescriptionErrors:
         """Create a mixin with mocked dependencies."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
 
         mock_s3_client = MagicMock()
         mock_state.s3_client = mock_s3_client
@@ -292,7 +292,7 @@ class TestDeleteDescriptionErrors:
         """Create a mixin with mocked dependencies."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
 
         mock_s3_client = MagicMock()
         mock_state.s3_client = mock_s3_client
@@ -324,7 +324,7 @@ class TestDeleteDescriptionErrors:
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 
         mixin, mock_state = self._create_mixin_with_mocks()
-        mock_state.vitess_client.is_entity_deleted.return_value = True
+        mock_state.db_client.is_entity_deleted.return_value = True
 
         edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
 
@@ -341,8 +341,8 @@ class TestDeleteDescriptionErrors:
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 
         mixin, mock_state = self._create_mixin_with_mocks()
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.is_entity_locked.return_value = True
+        mock_state.db_client.is_entity_deleted.return_value = False
+        mock_state.db_client.is_entity_locked.return_value = True
 
         edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
 
@@ -360,7 +360,7 @@ class TestUpdateAliasesErrors:
         """Create a mixin with mocked dependencies."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
 
         mock_s3_client = MagicMock()
         mock_state.s3_client = mock_s3_client
@@ -393,7 +393,7 @@ class TestAddAliasErrors:
         """Create a mixin with mocked dependencies."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
 
         mock_s3_client = MagicMock()
         mock_state.s3_client = mock_s3_client
@@ -425,7 +425,7 @@ class TestAddAliasErrors:
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 
         mixin, mock_state = self._create_mixin_with_mocks()
-        mock_state.vitess_client.is_entity_deleted.return_value = True
+        mock_state.db_client.is_entity_deleted.return_value = True
 
         edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
 
@@ -442,8 +442,8 @@ class TestAddAliasErrors:
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 
         mixin, mock_state = self._create_mixin_with_mocks()
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.is_entity_locked.return_value = True
+        mock_state.db_client.is_entity_deleted.return_value = False
+        mock_state.db_client.is_entity_locked.return_value = True
 
         edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
 
@@ -461,7 +461,7 @@ class TestDeleteAliasesErrors:
         """Create a mixin with mocked dependencies."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
 
         mock_s3_client = MagicMock()
         mock_state.s3_client = mock_s3_client
@@ -493,7 +493,7 @@ class TestDeleteAliasesErrors:
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 
         mixin, mock_state = self._create_mixin_with_mocks()
-        mock_state.vitess_client.is_entity_deleted.return_value = True
+        mock_state.db_client.is_entity_deleted.return_value = True
 
         edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
 
@@ -510,8 +510,8 @@ class TestDeleteAliasesErrors:
         from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 
         mixin, mock_state = self._create_mixin_with_mocks()
-        mock_state.vitess_client.is_entity_deleted.return_value = False
-        mock_state.vitess_client.is_entity_locked.return_value = True
+        mock_state.db_client.is_entity_deleted.return_value = False
+        mock_state.db_client.is_entity_locked.return_value = True
 
         edit_headers = EditHeaders(x_edit_summary="test", x_user_id="0")
 

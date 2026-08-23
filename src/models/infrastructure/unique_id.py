@@ -14,7 +14,7 @@ Example usage in tests:
     generator = UniqueIdGenerator()
 
     # Inject it into IdResolver (or any class that accepts it)
-    resolver = IdResolver(vitess_client=mock_client, unique_id_generator=generator)
+    resolver = IdResolver(db_client=mock_client, unique_id_generator=generator)
 
     # Now IDs are deterministic and controllable in tests
     id1 = generator.generate_unique_id()

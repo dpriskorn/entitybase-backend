@@ -41,21 +41,21 @@ class RedirectService(Service):
         if request.redirect_from_id == request.redirect_to_id:
             raise_validation_error("Cannot redirect to self", status_code=400)
 
-        existing_target = self.vitess_client.get_redirect_target(
+        existing_target = self.db_client.get_redirect_target(
             request.redirect_from_id
         )
         if existing_target:
             raise_validation_error("Redirect already exists", status_code=409)
 
-        if self.vitess_client.is_entity_deleted(request.redirect_from_id):
+        if self.db_client.is_entity_deleted(request.redirect_from_id):
             raise_validation_error("Source entity has been deleted", status_code=423)
 
-        if self.vitess_client.is_entity_deleted(request.redirect_to_id):
+        if self.db_client.is_entity_deleted(request.redirect_to_id):
             raise_validation_error("Target entity has been deleted", status_code=423)
 
-        if self.vitess_client.is_entity_locked(
+        if self.db_client.is_entity_locked(
             request.redirect_to_id
-        ) or self.vitess_client.is_entity_archived(request.redirect_to_id):
+        ) or self.db_client.is_entity_archived(request.redirect_to_id):
             raise_validation_error(
                 "Target entity is locked or archived", status_code=423
             )
@@ -77,11 +77,11 @@ class RedirectService(Service):
         """
         logger.debug("Getting head revisions for source and target entities")
 
-        to_head_revision_id = self.vitess_client.get_head(redirect_to_id)
+        to_head_revision_id = self.db_client.get_head(redirect_to_id)
         if to_head_revision_id == 0:
             raise_validation_error("Target entity has no revisions", status_code=404)
 
-        from_head_revision_id = self.vitess_client.get_head(redirect_from_id)
+        from_head_revision_id = self.db_client.get_head(redirect_from_id)
         redirect_revision_id = from_head_revision_id + 1 if from_head_revision_id else 1
 
         return from_head_revision_id, to_head_revision_id
@@ -166,8 +166,8 @@ class RedirectService(Service):
             from_head_revision_id,
         )
 
-        logger.debug("Creating revision in Vitess")
-        revision_created = self.vitess_client.create_revision(
+        logger.debug("Creating revision in database")
+        revision_created = self.db_client.create_revision(
             entity_id=request.redirect_from_id,
             revision_id=redirect_revision_data.revision_id,
             entity_data=redirect_revision_data,
@@ -177,7 +177,7 @@ class RedirectService(Service):
         if not revision_created:
             from models.rest_api.utils import raise_validation_error
 
-            current_head = self.vitess_client.get_head(request.redirect_from_id)
+            current_head = self.db_client.get_head(request.redirect_from_id)
             raise_validation_error(
                 f"Conflict: entity was modified by another edit. "
                 f"Expected base revision {from_head_revision_id}, but current revision is {current_head}. "
@@ -185,13 +185,13 @@ class RedirectService(Service):
                 status_code=409,
             )
 
-        self.vitess_client.create_redirect(
+        self.db_client.create_redirect(
             redirect_from_entity_id=request.redirect_from_id,
             redirect_to_entity_id=request.redirect_to_id,
             created_by=request.created_by,
         )
 
-        self.vitess_client.set_redirect_target(
+        self.db_client.set_redirect_target(
             entity_id=request.redirect_from_id,
             redirects_to_entity_id=request.redirect_to_id,
         )
@@ -228,17 +228,17 @@ class RedirectService(Service):
             entity_id,
             revert_to_revision_id,
         )
-        current_redirect_target = self.vitess_client.get_redirect_target(entity_id)
+        current_redirect_target = self.db_client.get_redirect_target(entity_id)
 
         if not current_redirect_target:
             raise_validation_error("Entity is not a redirect", status_code=404)
 
-        if self.vitess_client.is_entity_deleted(entity_id):
+        if self.db_client.is_entity_deleted(entity_id):
             raise_validation_error("Entity has been deleted", status_code=423)
 
-        if self.vitess_client.is_entity_locked(
+        if self.db_client.is_entity_locked(
             entity_id
-        ) or self.vitess_client.is_entity_archived(entity_id):
+        ) or self.db_client.is_entity_archived(entity_id):
             raise_validation_error("Entity is locked or archived", status_code=423)
 
         # Call general revert
@@ -257,6 +257,6 @@ class RedirectService(Service):
         )
 
         # Clear the redirect target
-        self.vitess_client.revert_redirect(entity_id)
+        self.db_client.revert_redirect(entity_id)
 
         return revert_result

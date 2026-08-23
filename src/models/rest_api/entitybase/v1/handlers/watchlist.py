@@ -26,16 +26,16 @@ class WatchlistHandler(Handler):
     def add_watch(self, user_id: int, request: WatchlistAddRequest) -> MessageResponse:
         """Add a watchlist entry."""
         # Check if user exists
-        if not self.state.vitess_client.user_repository.user_exists(user_id):
+        if not self.state.db_client.user_repository.user_exists(user_id):
             raise_validation_error("User not registered", status_code=404)
 
         # Check if watchlist is enabled
-        if not self.state.vitess_client.user_repository.is_watchlist_enabled(user_id):
+        if not self.state.db_client.user_repository.is_watchlist_enabled(user_id):
             raise_validation_error(
                 "Watchlist is disabled for this user", status_code=400
             )
 
-        result = self.state.vitess_client.watchlist_repository.add_watch(
+        result = self.state.db_client.watchlist_repository.add_watch(
             user_id, request.entity_id, request.properties
         )
         if not result.success:
@@ -44,7 +44,7 @@ class WatchlistHandler(Handler):
             )
 
         # Update activity
-        activity_result = self.state.vitess_client.user_repository.update_user_activity(
+        activity_result = self.state.db_client.user_repository.update_user_activity(
             user_id
         )
         if not activity_result.success:
@@ -56,7 +56,7 @@ class WatchlistHandler(Handler):
         self, user_id: int, request: WatchlistRemoveRequest
     ) -> MessageResponse:
         """Remove a watchlist entry."""
-        self.state.vitess_client.watchlist_repository.remove_watch(
+        self.state.db_client.watchlist_repository.remove_watch(
             user_id, request.entity_id, request.properties
         )
         return MessageResponse(message="Watch removed")
@@ -64,10 +64,10 @@ class WatchlistHandler(Handler):
     def remove_watch_by_id(self, user_id: int, watch_id: int) -> MessageResponse:
         """Remove a watchlist entry by ID."""
         # Check if user exists
-        if not self.state.vitess_client.user_repository.user_exists(user_id):
+        if not self.state.db_client.user_repository.user_exists(user_id):
             raise_validation_error("User not registered", status_code=404)
 
-        result = self.state.vitess_client.watchlist_repository.remove_watch_by_id(
+        result = self.state.db_client.watchlist_repository.remove_watch_by_id(
             watch_id
         )
         if not result.success:
@@ -79,20 +79,20 @@ class WatchlistHandler(Handler):
     def get_watches(self, user_id: int) -> WatchlistResponse:
         """Get user's watchlist."""
         # Check if user exists
-        if not self.state.vitess_client.user_repository.user_exists(user_id):
+        if not self.state.db_client.user_repository.user_exists(user_id):
             raise_validation_error("User not registered", status_code=404)
 
         # Check if watchlist is enabled
-        if not self.state.vitess_client.user_repository.is_watchlist_enabled(user_id):
+        if not self.state.db_client.user_repository.is_watchlist_enabled(user_id):
             raise_validation_error(
                 "Watchlist is disabled for this user", status_code=400
             )
 
-        watches = self.state.vitess_client.watchlist_repository.get_watches_for_user(
+        watches = self.state.db_client.watchlist_repository.get_watches_for_user(
             user_id
         )
         # Update activity
-        self.state.vitess_client.user_repository.update_user_activity(user_id)
+        self.state.db_client.user_repository.update_user_activity(user_id)
         return WatchlistResponse(user_id=user_id, watches=watches)
 
     def get_notifications(
@@ -104,29 +104,29 @@ class WatchlistHandler(Handler):
     ) -> NotificationResponse:
         """Get user's recent notifications within time span."""
         # Check if user exists
-        if not self.state.vitess_client.user_repository.user_exists(user_id):
+        if not self.state.db_client.user_repository.user_exists(user_id):
             raise_validation_error("User not registered", status_code=404)
 
         # Check if watchlist is enabled
-        if not self.state.vitess_client.user_repository.is_watchlist_enabled(user_id):
+        if not self.state.db_client.user_repository.is_watchlist_enabled(user_id):
             raise_validation_error(
                 "Watchlist is disabled for this user", status_code=400
             )
 
         notifications = (
-            self.state.vitess_client.watchlist_repository.get_user_notifications(
+            self.state.db_client.watchlist_repository.get_user_notifications(
                 user_id, hours, limit, offset
             )
         )
         # Update activity
-        self.state.vitess_client.user_repository.update_user_activity(user_id)
+        self.state.db_client.user_repository.update_user_activity(user_id)
         return NotificationResponse(user_id=user_id, notifications=notifications)
 
     def mark_checked(
         self, user_id: int, request: MarkCheckedRequest
     ) -> MessageResponse:
         """Mark a notification as checked."""
-        self.state.vitess_client.watchlist_repository.mark_notification_checked(
+        self.state.db_client.watchlist_repository.mark_notification_checked(
             request.notification_id, user_id
         )
         return MessageResponse(message="Notification marked as checked")
@@ -134,12 +134,12 @@ class WatchlistHandler(Handler):
     def get_watch_counts(self, user_id: int) -> WatchCounts:
         """Get user's watch counts."""
         entity_count = (
-            self.state.vitess_client.watchlist_repository.get_entity_watch_count(
+            self.state.db_client.watchlist_repository.get_entity_watch_count(
                 user_id
             )
         )
         property_count = (
-            self.state.vitess_client.watchlist_repository.get_property_watch_count(
+            self.state.db_client.watchlist_repository.get_property_watch_count(
                 user_id
             )
         )

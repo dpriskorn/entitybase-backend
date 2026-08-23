@@ -11,10 +11,10 @@ from models.config.settings import Settings
 from models.data.config.s3 import S3Config
 from models.data.config.sqlite import SqliteConfig
 from models.data.config.stream import StreamConfig
-from models.data.config.vitess import VitessConfig
+from models.data.config.mysql import MysqlConfig
 from models.infrastructure.s3.client import MyS3Client
 from models.infrastructure.stream.producer import StreamProducerClient
-from models.infrastructure.vitess.client import VitessClient
+from models.infrastructure.db.client import MysqlClient
 from models.rdf_builder.property_registry.loader import load_property_registry
 from models.rdf_builder.property_registry.registry import PropertyRegistry
 from models.rest_api.entitybase.v1.services.enumeration_service import (
@@ -33,7 +33,7 @@ class StateHandler(BaseModel):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
     settings: Settings
-    cached_vitess_client: VitessClient | None = Field(default=None, exclude=True)
+    cached_db_client: MysqlClient | None = Field(default=None, exclude=True)
     cached_s3_client: MyS3Client | None = Field(default=None, exclude=True)
     cached_enumeration_service: EnumerationService | None = Field(
         default=None, exclude=True
@@ -55,14 +55,12 @@ class StateHandler(BaseModel):
         logger.info("=== StateHandler.start() START ===")
         logger.info("Initializing clients...")
         logger.debug(f"S3 config: {self.settings.get_s3_config}")
-        logger.debug(f"Vitess config: {self.settings.get_vitess_config}")
+        logger.debug(f"MySQL config: {self.settings.get_mysql_config}")
         logger.debug(
             f"Kafka config: brokers={self.settings.kafka_bootstrap_servers}, topic={self.settings.kafka_entitychange_json_topic}"
         )
         if not self.settings.streaming_enabled:
             logger.info("Streaming is disabled")
-        logger.debug("Calling health_check()...")
-        self.health_check()
         logger.info("=== StateHandler.start() END ===")
 
     def health_check(self) -> None:
@@ -73,11 +71,11 @@ class StateHandler(BaseModel):
             logger.debug("S3 client connected successfully")
         else:
             raise RuntimeError("S3 client connection failed — check S3_ENDPOINT, credentials, and bucket")
-        logger.debug("Checking Vitess connection...")
-        if self.vitess_config and self.vitess_client.healthy_connection:
-            logger.debug("Vitess client connected successfully")
+        logger.debug("Checking MySQL connection...")
+        if self.mysql_config and self.db_client.healthy_connection:
+            logger.debug("MySQL client connected successfully")
         else:
-            logger.warning("Vitess client connection failed")
+            logger.warning("MySQL client connection failed")
         # todo create healthy_connection method
         # if self.streaming_enabled and self.entitychange_stream_producer.healthy_connection:
         #     logger.debug("Kafka entitychange client connected successfully")
@@ -108,37 +106,37 @@ class StateHandler(BaseModel):
         return self.settings.get_s3_config
 
     @property
-    def vitess_config(self) -> VitessConfig:
-        return self.settings.get_vitess_config
+    def mysql_config(self) -> MysqlConfig:
+        return self.settings.get_mysql_config
 
     @property
-    def vitess_client(self) -> "VitessClient":
+    def db_client(self) -> "MysqlClient":
         """Get or create a cached database client.
 
-        Returns a SqliteClient or VitessClient depending on DB_TYPE setting.
+        Returns a SqliteClient or MysqlClient depending on DB_TYPE setting.
         """
-        if self.cached_vitess_client is None:
+        if self.cached_db_client is None:
             if self.settings.db_type == "sqlite":
                 logger.debug(
-                    "=== vitess_client property: Creating new SqliteClient instance ==="
+                    "=== db_client property: Creating new SqliteClient instance ==="
                 )
                 from models.infrastructure.sqlite.client import SqliteClient
 
-                self.cached_vitess_client = SqliteClient(
+                self.cached_db_client = SqliteClient(
                     config=self.settings.get_db_config
                 )
             else:
                 logger.debug(
-                    "=== vitess_client property: Creating new VitessClient instance ==="
+                    "=== db_client property: Creating new MysqlClient instance ==="
                 )
-                from models.infrastructure.vitess.client import VitessClient
+                from models.infrastructure.db.client import MysqlClient
 
-                if self.vitess_config is None:
-                    raise_validation_error(message="No vitess config provided")
-                logger.debug("Instantiating VitessClient...")
-                self.cached_vitess_client = VitessClient(config=self.vitess_config)
-            logger.debug("=== vitess_client property: Database client created ===")
-        return self.cached_vitess_client
+                if self.mysql_config is None:
+                    raise_validation_error(message="No MySQL config provided")
+                logger.debug("Instantiating MysqlClient...")
+                self.cached_db_client = MysqlClient(config=self.mysql_config)
+            logger.debug("=== db_client property: Database client created ===")
+        return self.cached_db_client
 
     @property
     def s3_client(self) -> "MyS3Client":
@@ -147,9 +145,9 @@ class StateHandler(BaseModel):
             logger.debug("=== s3_client property: Creating new MyS3Client instance ===")
             from models.infrastructure.s3.client import MyS3Client
 
-            logger.debug("Creating MyS3Client with vitess_client dependency...")
+            logger.debug("Creating MyS3Client with db_client dependency...")
             self.cached_s3_client = MyS3Client(
-                config=self.s3_config, vitess_client=self.vitess_client
+                config=self.s3_config, db_client=self.db_client
             )
             logger.debug("=== s3_client property: MyS3Client created ===")
         return self.cached_s3_client
@@ -241,16 +239,16 @@ class StateHandler(BaseModel):
     def enumeration_service(self) -> EnumerationService:
         if self.cached_enumeration_service is None:
             self.cached_enumeration_service = EnumerationService(
-                worker_id="rest-api", vitess_client=self.vitess_client
+                worker_id="rest-api", db_client=self.db_client
             )
         return self.cached_enumeration_service
 
     def disconnect(self) -> None:
         """Disconnect all clients and release resources."""
-        if self.cached_vitess_client is not None:
-            self.cached_vitess_client.disconnect()
-            self.cached_vitess_client = None
-            logger.info("VitessClient disconnected")
+        if self.cached_db_client is not None:
+            self.cached_db_client.disconnect()
+            self.cached_db_client = None
+            logger.info("MysqlClient disconnected")
 
         if self.cached_s3_client is not None:
             self.cached_s3_client.disconnect()

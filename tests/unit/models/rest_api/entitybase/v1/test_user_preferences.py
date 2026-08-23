@@ -22,17 +22,17 @@ class TestUserPreferencesHandler:
     """Unit tests for UserPreferencesHandler"""
 
     @pytest.fixture
-    def mock_vitess_client(self) -> MagicMock:
+    def mock_db_client(self) -> MagicMock:
         """Mock Vitess client"""
         client = MagicMock()
         client.user_repository = MagicMock()
         return client
 
     @pytest.fixture
-    def mock_state(self, mock_vitess_client: MagicMock) -> MagicMock:
+    def mock_state(self, mock_db_client: MagicMock) -> MagicMock:
         """Create handler instance"""
         state = MagicMock()
-        state.vitess_client = mock_vitess_client
+        state.db_client = mock_db_client
         state.user_change_stream_producer = None
         return state
 
@@ -42,13 +42,13 @@ class TestUserPreferencesHandler:
         return UserPreferencesHandler(state=mock_state)
 
     def test_get_preferences_success(
-        self, handler: UserPreferencesHandler, mock_vitess_client: MagicMock
+        self, handler: UserPreferencesHandler, mock_db_client: MagicMock
     ) -> None:
         """Test getting user preferences successfully"""
-        mock_vitess_client.user_repository.user_exists.return_value = True
+        mock_db_client.user_repository.user_exists.return_value = True
         from models.data.common import OperationResult
 
-        mock_vitess_client.user_repository.get_user_preferences.return_value = (
+        mock_db_client.user_repository.get_user_preferences.return_value = (
             OperationResult(
                 success=True,
                 data={
@@ -66,13 +66,13 @@ class TestUserPreferencesHandler:
         assert result.retention_hours == 72
 
     def test_get_preferences_defaults(
-        self, handler: UserPreferencesHandler, mock_vitess_client: MagicMock
+        self, handler: UserPreferencesHandler, mock_db_client: MagicMock
     ) -> None:
         """Test getting default preferences when none set"""
-        mock_vitess_client.user_repository.user_exists.return_value = True
+        mock_db_client.user_repository.user_exists.return_value = True
         from models.data.common import OperationResult
 
-        mock_vitess_client.user_repository.get_user_preferences.return_value = (
+        mock_db_client.user_repository.get_user_preferences.return_value = (
             OperationResult(success=False, error="User preferences not found")
         )
 
@@ -85,11 +85,11 @@ class TestUserPreferencesHandler:
 
     @pytest.mark.asyncio
     async def test_update_preferences_success(
-        self, handler: UserPreferencesHandler, mock_vitess_client: MagicMock
+        self, handler: UserPreferencesHandler, mock_db_client: MagicMock
     ) -> None:
         """Test updating preferences successfully"""
         request = UserPreferencesRequest(notification_limit=200, retention_hours=168)
-        mock_vitess_client.user_repository.user_exists.return_value = True
+        mock_db_client.user_repository.user_exists.return_value = True
 
         result = await handler.update_preferences(12345, request)
 
@@ -97,6 +97,6 @@ class TestUserPreferencesHandler:
         assert result.user_id == 12345
         assert result.notification_limit == 200
         assert result.retention_hours == 168
-        mock_vitess_client.user_repository.update_user_preferences.assert_called_once_with(
+        mock_db_client.user_repository.update_user_preferences.assert_called_once_with(
             user_id=12345, notification_limit=200, retention_hours=168
         )

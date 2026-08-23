@@ -115,23 +115,23 @@ def db_cleanup(db_conn):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def create_tables(vitess_client):
+def create_tables(db_client):
     """Create database tables before running E2E tests."""
-    from models.infrastructure.vitess.repositories.schema import SchemaRepository
+    from models.infrastructure.db.repositories.schema import SchemaRepository
 
-    schema_repository = SchemaRepository(vitess_client=vitess_client)
+    schema_repository = SchemaRepository(db_client=db_client)
     schema_repository.create_tables()
     logger.info("Database tables created for E2E tests")
 
 
 @pytest.fixture(scope="session")
-def vitess_client():
-    """Create a real VitessClient connected to test database."""
-    from models.infrastructure.vitess.client import VitessClient
-    from models.data.config.vitess import VitessConfig
+def db_client():
+    """Create a real MysqlClient connected to test database."""
+    from models.infrastructure.db.client import MysqlClient
+    from models.data.config.mysql import MysqlConfig
     from models.config.settings import settings
 
-    vitess_config = VitessConfig(
+    mysql_config = MysqlConfig(
         host=settings.vitess_host,
         port=settings.vitess_port,
         database=settings.vitess_database,
@@ -141,7 +141,7 @@ def vitess_client():
         max_overflow=20,
         pool_timeout=5,
     )
-    client = VitessClient(config=vitess_config)
+    client = MysqlClient(config=mysql_config)
     yield client
     client.disconnect()
 
@@ -197,18 +197,18 @@ def create_s3_buckets(s3_config):
 
 
 @pytest.fixture(scope="session")
-def s3_client(s3_config, vitess_client):
+def s3_client(s3_config, db_client):
     """Create real MyS3Client connected to S3."""
     from models.infrastructure.s3.client import MyS3Client
 
-    client = MyS3Client(config=s3_config, vitess_client=vitess_client)
+    client = MyS3Client(config=s3_config, db_client=db_client)
     yield client
     client.disconnect()
     logger.debug("S3Client disconnected in s3_client fixture")
 
 
 @pytest.fixture(scope="session", autouse=True)
-def initialized_app(vitess_client, s3_client, create_s3_buckets):
+def initialized_app(db_client, s3_client, create_s3_buckets):
     """Initialize the FastAPI app with state_handler for E2E tests."""
     from models.rest_api.main import app
     from models.rest_api.entitybase.v1.handlers.state import StateHandler
@@ -218,7 +218,7 @@ def initialized_app(vitess_client, s3_client, create_s3_buckets):
     state_handler = StateHandler(settings=settings)
 
     # Inject pre-configured test clients instead of creating new ones
-    state_handler.cached_vitess_client = vitess_client
+    state_handler.cached_db_client = db_client
     state_handler.cached_s3_client = s3_client
     logger.debug("Injected test Vitess and S3 clients into StateHandler")
 

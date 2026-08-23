@@ -40,8 +40,8 @@ class DeleteService(Service):
 
     def validate_delete_preconditions(self) -> None:
         """Validate that required services are initialized."""
-        if self.vitess_client is None:
-            raise_validation_error("Vitess not initialized", status_code=503)
+        if self.db_client is None:
+            raise_validation_error("Database not initialized", status_code=503)
 
         if self.state.s3_client is None:
             raise_validation_error("S3 not initialized", status_code=503)
@@ -58,15 +58,15 @@ class DeleteService(Service):
         Raises:
             ValueError: If entity doesn't exist or is already deleted
         """
-        if not self.vitess_client.entity_exists(entity_id):
+        if not self.db_client.entity_exists(entity_id):
             raise_validation_error("Entity not found", status_code=404)
 
-        if self.vitess_client.is_entity_deleted(entity_id):
+        if self.db_client.is_entity_deleted(entity_id):
             raise_validation_error(
                 f"Entity {entity_id} has been deleted", status_code=410
             )
 
-        head_revision_id = self.vitess_client.get_head(entity_id)
+        head_revision_id = self.db_client.get_head(entity_id)
         if head_revision_id == 0:
             raise_validation_error("Entity not found", status_code=404)
 
@@ -84,7 +84,7 @@ class DeleteService(Service):
         """
         from fastapi import HTTPException
 
-        protection_info = self.vitess_client.entity_repository.get_protection_info(
+        protection_info = self.db_client.entity_repository.get_protection_info(
             entity_id
         )
         logger.debug(f"Protection info for {entity_id}: {protection_info}")
@@ -188,7 +188,7 @@ class DeleteService(Service):
         """
         for statement_hash in statement_hashes:
             try:
-                self.vitess_client.decrement_ref_count(statement_hash)
+                self.db_client.decrement_ref_count(statement_hash)
             except Exception as e:
                 logger.warning(
                     f"Failed to decrement ref count for statement {statement_hash}: {e}"
@@ -207,9 +207,9 @@ class DeleteService(Service):
             descriptions_hashes: Dict of language -> hash for descriptions
             aliases_hashes: Dict of language -> list of hashes for aliases
         """
-        from models.infrastructure.vitess.repositories.terms import TermsRepository
+        from models.infrastructure.db.repositories.terms import TermsRepository
 
-        terms_repo = TermsRepository(vitess_client=self.vitess_client)
+        terms_repo = TermsRepository(db_client=self.db_client)
 
         for hash_value in labels_hashes.values():
             try:
@@ -317,7 +317,7 @@ class DeleteService(Service):
             new_revision_id: The new revision ID
         """
         if user_id > 0:
-            activity_result = self.vitess_client.user_repository.log_user_activity(
+            activity_result = self.db_client.user_repository.log_user_activity(
                 user_id=user_id,
                 activity_type=UserActivityType.ENTITY_DELETE,
                 entity_id=entity_id,

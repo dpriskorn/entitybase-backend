@@ -77,7 +77,7 @@ class EntityStatusHandler(Handler):
         """Log user activity."""
         if edit_headers.x_user_id > 0:
             activity_result = (
-                self.state.vitess_client.user_repository.log_user_activity(
+                self.state.db_client.user_repository.log_user_activity(
                     user_id=edit_headers.x_user_id,
                     activity_type=activity_type,
                     entity_id=entity_id,

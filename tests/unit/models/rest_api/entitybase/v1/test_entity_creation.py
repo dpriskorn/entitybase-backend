@@ -30,18 +30,18 @@ class TestItemCreateHandler:
 
     @pytest.fixture
     def handler(
-        self, enumeration_service: EnumerationService, mock_vitess_client: MagicMock
+        self, enumeration_service: EnumerationService, mock_db_client: MagicMock
     ) -> ItemCreateHandler:
         """Create handler instance"""
         state = MagicMock()
-        state.vitess_client = mock_vitess_client
-        state.vitess_config = None
+        state.db_client = mock_db_client
+        state.mysql_config = None
         state.s3_client = MagicMock()
         state.entity_change_stream_producer = AsyncMock()
         return ItemCreateHandler(enumeration_service=enumeration_service, state=state)
 
     @pytest.fixture
-    def mock_vitess_client(self) -> MagicMock:
+    def mock_db_client(self) -> MagicMock:
         """Mock vitess client"""
         client = MagicMock()
         client.entity_exists.return_value = False
@@ -67,12 +67,12 @@ class TestItemCreateHandler:
     async def test_create_item_entity_exists(
         self,
         handler: ItemCreateHandler,
-        mock_vitess_client: MagicMock,
+        mock_db_client: MagicMock,
         mock_s3_client: MagicMock,
         mock_stream_producer: AsyncMock,
     ) -> None:
         """Test item creation fails if entity already exists"""
-        mock_vitess_client.id_resolver.entity_exists.return_value = True
+        mock_db_client.id_resolver.entity_exists.return_value = True
 
         request = EntityCreateRequest(id="Q123", type="item")
 
@@ -99,14 +99,14 @@ class TestPropertyCreateHandler:
     def handler(
         self,
         enumeration_service: EnumerationService,
-        mock_vitess_client: MagicMock,
+        mock_db_client: MagicMock,
         mock_s3_client: MagicMock,
         mock_stream_producer: MagicMock,
     ) -> PropertyCreateHandler:
         """Create handler instance"""
         state = MagicMock()
-        state.vitess_client = mock_vitess_client
-        state.vitess_config = None
+        state.db_client = mock_db_client
+        state.mysql_config = None
         state.s3_client = mock_s3_client
         state.entity_change_stream_producer = mock_stream_producer
         return PropertyCreateHandler(
@@ -114,7 +114,7 @@ class TestPropertyCreateHandler:
         )
 
     @pytest.fixture
-    def mock_vitess_client(self) -> MagicMock:
+    def mock_db_client(self) -> MagicMock:
         """Mock vitess client"""
         client = MagicMock()
         client.entity_exists.return_value = False

@@ -25,8 +25,8 @@ from typing import Any
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
 from models.infrastructure.s3.s3_client import MyS3Client  # type: ignore
-from models.infrastructure.vitess.vitess_client import VitessClient  # type: ignore
-from models.infrastructure.vitess.vitess_config import VitessConfig  # type: ignore
+from models.infrastructure.db.client import MysqlClient  # type: ignore
+from models.data.config.mysql import MysqlConfig  # type: ignore
 from models.infrastructure.s3.s3_config import S3Config  # type: ignore
 
 logger = logging.getLogger(__name__)
@@ -96,7 +96,7 @@ def extract_entity_references(statement_content: dict) -> list[str]:
     return referenced
 
 
-async def compute_backlinks(vitess_client: Any, s3_client: Any) -> None:
+async def compute_backlinks(db_client: Any, s3_client: Any) -> None:
     """Compute backlink statistics for all entities.
 
     Scans all statement hashes, retrieves statement content from S3,
@@ -104,14 +104,14 @@ async def compute_backlinks(vitess_client: Any, s3_client: Any) -> None:
     Stores daily global statistics in the backlink_statistics table.
 
     Args:
-        vitess_client: Initialized Vitess client
+        db_client: Initialized MySQL client
         s3_client: Initialized S3 client
     """
     logger.info("Starting backlink computation")
 
     # Get all statement hashes from statement_content table
-    statement_hashes = vitess_client.statement_repository.get_all_statement_hashes(
-        vitess_client.connection
+    statement_hashes = db_client.statement_repository.get_all_statement_hashes(
+        db_client.connection
     )
 
     logger.info(f"Found {len(statement_hashes)} statements to process")
@@ -156,8 +156,8 @@ async def compute_backlinks(vitess_client: Any, s3_client: Any) -> None:
 
     # Store results in backlink_statistics table
     today = datetime.now(timezone.utc).date().isoformat()
-    vitess_client.backlink_repository.insert_backlink_statistics(
-        vitess_client.connection,
+    db_client.backlink_repository.insert_backlink_statistics(
+        db_client.connection,
         today,
         total_backlinks,
         unique_entities_with_backlinks,
@@ -178,15 +178,15 @@ async def main() -> None:
     logger.info("Starting backlink statistics computation")
 
     try:
-        # Initialize Vitess client
-        vitess_config = VitessConfig(
+        # Initialize MySQL client
+        mysql_config = MysqlConfig(
             host=os.getenv("DB_HOST", "vitess"),
             port=int(os.getenv("DB_PORT", "15309")),
             database=os.getenv("DB_DATABASE", "page"),
             user=os.getenv("DB_USER", "root"),
             password=os.getenv("DB_PASSWORD", ""),
         )
-        vitess_client = VitessClient(config=vitess_config)
+        db_client = MysqlClient(config=mysql_config)
 
         # Initialize S3 client
         s3_config = S3Config(
@@ -198,7 +198,7 @@ async def main() -> None:
         s3_client = MyS3Client(config=s3_config)
 
         # Run computation
-        await compute_backlinks(vitess_client, s3_client)
+        await compute_backlinks(db_client, s3_client)
 
         logger.info("Backlink statistics computation finished successfully")
 

@@ -1,0 +1,210 @@
+"""Unit tests for RedirectRepository."""
+
+import pytest
+from unittest.mock import MagicMock
+
+from models.infrastructure.db.repositories.redirect import RedirectRepository
+
+
+class TestRedirectRepository:
+    """Unit tests for RedirectRepository."""
+
+    def test_set_target_success(self):
+        """Test successful redirect target setting."""
+        mock_db_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
+        mock_id_resolver = MagicMock()
+        mock_id_resolver.resolve_id.side_effect = [123, 456]  # from, to
+        mock_cursor.rowcount = 1
+        mock_db_client.cursor = mock_cursor
+        mock_db_client.id_resolver = mock_id_resolver
+
+        repo = RedirectRepository(db_client=mock_db_client)
+
+        result = repo.set_target("Q1", "Q2")
+
+        assert result.success is True
+
+    def test_set_target_entity_not_found(self):
+        """Test setting target when entity not found."""
+        mock_db_client = MagicMock()
+        mock_id_resolver = MagicMock()
+        mock_id_resolver.resolve_id.return_value = None
+        mock_db_client.id_resolver = mock_id_resolver
+
+        repo = RedirectRepository(db_client=mock_db_client)
+
+        result = repo.set_target("Q999", "Q2")
+
+        assert result.success is False
+        assert "not found" in result.error
+
+    def test_set_target_cas_failure(self):
+        """Test CAS failure in set_target."""
+        mock_db_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
+        mock_id_resolver = MagicMock()
+        mock_id_resolver.resolve_id.side_effect = [123, 456]
+        mock_cursor.rowcount = 0  # no rows affected
+        mock_db_client.cursor = mock_cursor
+        mock_db_client.id_resolver = mock_id_resolver
+
+        repo = RedirectRepository(db_client=mock_db_client)
+
+        result = repo.set_target("Q1", "Q2", expected_redirects_to=789)
+
+        assert result.success is False
+        assert "CAS failed" in result.error
+
+    def test_create_success(self):
+        """Test successful redirect creation."""
+        mock_db_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
+        mock_id_resolver = MagicMock()
+        mock_id_resolver.resolve_id.side_effect = [123, 456]
+        mock_db_client.cursor = mock_cursor
+        mock_db_client.id_resolver = mock_id_resolver
+
+        repo = RedirectRepository(db_client=mock_db_client)
+
+        repo.create("Q1", "Q2")
+
+        mock_cursor.execute.assert_called_once()
+
+    def test_create_source_not_found(self):
+        """Test redirect creation when source not found."""
+        mock_db_client = MagicMock()
+        mock_id_resolver = MagicMock()
+        mock_id_resolver.resolve_id.return_value = None
+        mock_db_client.id_resolver = mock_id_resolver
+
+        repo = RedirectRepository(db_client=mock_db_client)
+
+        with pytest.raises(Exception):  # raise_validation_error
+            repo.create("Q999", "Q2")
+
+    def test_get_incoming_redirects_success(self):
+        """Test getting incoming redirects."""
+        mock_db_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
+        mock_id_resolver = MagicMock()
+        mock_id_resolver.resolve_id.return_value = 123
+        mock_cursor.fetchall.return_value = [("Q1",), ("Q2",)]
+        mock_db_client.cursor = mock_cursor
+        mock_db_client.id_resolver = mock_id_resolver
+
+        repo = RedirectRepository(db_client=mock_db_client)
+
+        result = repo.get_incoming_redirects("Q3")
+
+        assert result == ["Q1", "Q2"]
+
+    def test_get_incoming_redirects_entity_not_found(self):
+        """Test getting redirects when entity not found."""
+        mock_db_client = MagicMock()
+        mock_id_resolver = MagicMock()
+        mock_id_resolver.resolve_id.return_value = None
+        mock_db_client.id_resolver = mock_id_resolver
+
+        repo = RedirectRepository(db_client=mock_db_client)
+
+        result = repo.get_incoming_redirects("Q999")
+
+        assert result == []
+
+    def test_get_target_found(self):
+        """Test getting redirect target when exists."""
+        mock_db_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
+        mock_id_resolver = MagicMock()
+        mock_id_resolver.resolve_id.return_value = 123
+        mock_cursor.fetchone.return_value = ("Q2",)
+        mock_db_client.cursor = mock_cursor
+        mock_db_client.id_resolver = mock_id_resolver
+
+        repo = RedirectRepository(db_client=mock_db_client)
+
+        result = repo.get_target("Q1")
+
+        assert result == "Q2"
+
+    def test_get_target_not_found(self):
+        """Test getting target when no redirect exists."""
+        mock_db_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
+        mock_id_resolver = MagicMock()
+        mock_id_resolver.resolve_id.return_value = 123
+        mock_cursor.fetchone.return_value = None
+        mock_db_client.cursor = mock_cursor
+        mock_db_client.id_resolver = mock_id_resolver
+
+        repo = RedirectRepository(db_client=mock_db_client)
+
+        result = repo.get_target("Q1")
+
+        assert result == ""
+
+    def test_set_target_no_redirects_to(self):
+        """Test setting target with no redirects_to."""
+        mock_db_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
+        mock_id_resolver = MagicMock()
+        mock_id_resolver.resolve_id.return_value = 123
+        mock_cursor.rowcount = 1
+        mock_db_client.cursor = mock_cursor
+        mock_db_client.id_resolver = mock_id_resolver
+
+        repo = RedirectRepository(db_client=mock_db_client)
+
+        result = repo.set_target("Q1")  # no redirects_to
+
+        assert result.success is True
+
+    def test_create_success_with_created_by(self):
+        """Test redirect creation with custom created_by."""
+        mock_db_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
+        mock_id_resolver = MagicMock()
+        mock_id_resolver.resolve_id.side_effect = [123, 456]
+        mock_db_client.cursor = mock_cursor
+        mock_db_client.id_resolver = mock_id_resolver
+
+        repo = RedirectRepository(db_client=mock_db_client)
+
+        repo.create("Q1", "Q2", "test-user")
+
+        mock_cursor.execute.assert_called_once()
+
+    def test_get_incoming_redirects_multiple(self):
+        """Test getting multiple incoming redirects."""
+        mock_db_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
+        mock_id_resolver = MagicMock()
+        mock_id_resolver.resolve_id.return_value = 123
+        mock_cursor.fetchall.return_value = [("Q1",), ("Q2",), ("Q3",)]
+        mock_db_client.cursor = mock_cursor
+        mock_db_client.id_resolver = mock_id_resolver
+
+        repo = RedirectRepository(db_client=mock_db_client)
+
+        result = repo.get_incoming_redirects("Q4")
+
+        assert result == ["Q1", "Q2", "Q3"]

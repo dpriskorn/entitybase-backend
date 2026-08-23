@@ -13,7 +13,7 @@ from models.config.version import ENTITYBASE_VERSION
 if TYPE_CHECKING:
     from models.data.config.s3 import S3Config
     from models.data.config.sqlite import SqliteConfig
-    from models.data.config.vitess import VitessConfig
+    from models.data.config.mysql import MysqlConfig
 
 logger = logging.getLogger(__name__)
 
@@ -129,7 +129,7 @@ class Settings(BaseModel):
         """
         self._load_s3_config()
         self._load_database_config()
-        self._load_vitess_config()
+        self._load_mysql_config()
         self._load_entity_config()
         self._load_streaming_config()
         self._load_other_config()
@@ -169,8 +169,8 @@ class Settings(BaseModel):
         self.db_type = os.getenv("DB_TYPE", self.db_type)
         self.datadir = os.getenv("DATADIR", self.datadir)
 
-    def _load_vitess_config(self) -> None:
-        """Load database connection configuration from environment variables."""
+    def _load_mysql_config(self) -> None:
+        """Load MySQL connection configuration from environment variables."""
         self.db_host = os.getenv("DB_HOST", self.db_host)
         logger.debug(f"self.db_host: {self.db_host}")
         self.db_port = int(os.getenv("DB_PORT", str(self.db_port)))
@@ -353,15 +353,15 @@ class Settings(BaseModel):
         )
 
     @property
-    def get_vitess_config(self) -> "VitessConfig":
-        """Convert settings to Vitess configuration object.
+    def get_mysql_config(self) -> "MysqlConfig":
+        """Convert settings to MySQL configuration object.
 
         Returns:
-            VitessConfig object with the settings.
+            MysqlConfig object with the settings.
         """
-        from models.data.config.vitess import VitessConfig
+        from models.data.config.mysql import MysqlConfig
 
-        return VitessConfig(
+        return MysqlConfig(
             host=self.db_host,
             port=self.db_port,
             database=self.db_database,
@@ -373,11 +373,11 @@ class Settings(BaseModel):
         )
 
     @property
-    def get_db_config(self) -> "SqliteConfig | VitessConfig":
+    def get_db_config(self) -> "SqliteConfig | MysqlConfig":
         """Convert settings to database configuration object.
 
         Returns:
-            SqliteConfig or VitessConfig depending on db_type setting.
+            SqliteConfig or MysqlConfig depending on db_type setting.
         """
         if self.db_type == "sqlite":
             from models.data.config.sqlite import SqliteConfig
@@ -385,7 +385,7 @@ class Settings(BaseModel):
             return SqliteConfig(
                 datadir=Path(self.datadir),
             )
-        return self.get_vitess_config
+        return self.get_mysql_config
 
     @property
     def get_entity_change_stream_config(self) -> "StreamConfig":

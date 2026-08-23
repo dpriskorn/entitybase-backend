@@ -34,7 +34,7 @@ package "Entity Processing" #LightGreen {
 ' Storage
 package "Storage Layer" #LightYellow {
     database "Vitess Repository\\n(Revision Metadata)" as DB
-    note right of DB: src/models/infrastructure/vitess/repositories/revision.py
+    note right of DB: src/models/infrastructure/db/repositories/revision.py
 
     storage "S3 Client\\n(Full Snapshots)" as S3
     note right of S3: src/models/infrastructure/s3/client.py

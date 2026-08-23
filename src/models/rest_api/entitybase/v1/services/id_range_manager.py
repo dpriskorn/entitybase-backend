@@ -24,7 +24,7 @@ class IdRange(BaseModel):
 class IdRangeManager(BaseModel):
     """Manages ID range allocation and local ID generation to prevent write hotspots."""
 
-    vitess_client: Any
+    db_client: Any
     range_size: int = 1_000_000
     min_ids: Dict[str, int] = Field(default_factory=dict)
     local_ranges: Dict[str, IdRange] = {}
@@ -92,7 +92,7 @@ class IdRangeManager(BaseModel):
         for attempt in range(max_retries):
             try:
                 # Get current range end atomically
-                with self.vitess_client.cursor as cursor:
+                with self.db_client.cursor as cursor:
                     # Lock row for update
                     cursor.execute(
                         """
@@ -171,7 +171,7 @@ class IdRangeManager(BaseModel):
     def initialize_from_database(self) -> None:
         """Initialize local range state from database (for startup/recovery)."""
         try:
-            with self.vitess_client.cursor as cursor:
+            with self.db_client.cursor as cursor:
                 cursor.execute(
                     "SELECT entity_type, current_range_start, current_range_end FROM id_ranges"
                 )

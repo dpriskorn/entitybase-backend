@@ -95,7 +95,7 @@ class TestIdGeneratorWorker:
     async def test_shutdown(self):
         """Test worker shutdown."""
         worker = IdGeneratorWorker()
-        worker.vitess_client = MagicMock()
+        worker.db_client = MagicMock()
         worker.running = True
 
         await worker._shutdown()

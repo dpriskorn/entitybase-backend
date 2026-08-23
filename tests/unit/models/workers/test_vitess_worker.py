@@ -14,7 +14,7 @@ class TestVitessWorker:
         """Test VitessWorker initialization with default values."""
         worker = VitessWorker()
 
-        assert worker.vitess_client is None
+        assert worker.db_client is None
         assert worker.worker_id is not None
         assert worker.running is False
 
@@ -22,23 +22,23 @@ class TestVitessWorker:
         """Test that VitessWorker inherits from Worker."""
         assert issubclass(VitessWorker, Worker)
 
-    def test_vitess_worker_with_custom_vitess_client(self):
-        """Test VitessWorker initialization with custom vitess_client."""
+    def test_vitess_worker_with_custom_db_client(self):
+        """Test VitessWorker initialization with custom db_client."""
         mock_client = object()
-        worker = VitessWorker(vitess_client=mock_client)
+        worker = VitessWorker(db_client=mock_client)
 
-        assert worker.vitess_client is mock_client
+        assert worker.db_client is mock_client
 
     def test_vitess_worker_with_custom_params(self):
         """Test VitessWorker initialization with custom parameters."""
         mock_client = object()
         worker = VitessWorker(
-            worker_id="test-vitess-worker", running=True, vitess_client=mock_client
+            worker_id="test-vitess-worker", running=True, db_client=mock_client
         )
 
         assert worker.worker_id == "test-vitess-worker"
         assert worker.running is True
-        assert worker.vitess_client is mock_client
+        assert worker.db_client is mock_client
 
     def test_vitess_worker_is_pydantic_model(self):
         """Test that VitessWorker is a Pydantic model."""
@@ -53,16 +53,16 @@ class TestVitessWorker:
 
         assert data["worker_id"] == "test-worker"
         assert data["running"] is True
-        assert data["vitess_client"] is None
+        assert data["db_client"] is None
 
     def test_vitess_worker_model_dump_with_client(self):
-        """Test that VitessWorker dumps with vitess_client."""
+        """Test that VitessWorker dumps with db_client."""
         mock_client = object()
-        worker = VitessWorker(worker_id="test-worker", vitess_client=mock_client)
+        worker = VitessWorker(worker_id="test-worker", db_client=mock_client)
         data = worker.model_dump()
 
         assert data["worker_id"] == "test-worker"
-        assert data["vitess_client"] is mock_client
+        assert data["db_client"] is mock_client
 
     def test_vitess_worker_running_state_can_be_modified(self):
         """Test that running state can be modified."""
@@ -74,11 +74,11 @@ class TestVitessWorker:
         worker.running = False
         assert worker.running is False
 
-    def test_vitess_worker_vitess_client_can_be_set(self):
-        """Test that vitess_client can be set."""
+    def test_vitess_worker_db_client_can_be_set(self):
+        """Test that db_client can be set."""
         worker = VitessWorker()
-        assert worker.vitess_client is None
+        assert worker.db_client is None
 
         mock_client = object()
-        worker.vitess_client = mock_client
-        assert worker.vitess_client is mock_client
+        worker.db_client = mock_client
+        assert worker.db_client is mock_client

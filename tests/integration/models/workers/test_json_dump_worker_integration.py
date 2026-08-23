@@ -18,10 +18,10 @@ class TestJsonDumpWorkerIntegration:
     """Integration tests for JsonDumpWorker with real services."""
 
     @pytest.fixture
-    def json_dump_worker(self, vitess_client, s3_client):
+    def json_dump_worker(self, db_client, s3_client):
         """Create JsonDumpWorker with real clients."""
         worker = JsonDumpWorker()
-        worker.vitess_client = vitess_client
+        worker.db_client = db_client
         worker.s3_client = s3_client
         return worker
 

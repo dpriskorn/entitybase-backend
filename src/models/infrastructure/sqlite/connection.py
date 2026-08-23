@@ -23,9 +23,7 @@ class SqliteCursorWrapper:
     def __init__(self, cursor: sqlite3.Cursor) -> None:
         self._cursor = cursor
 
-    def execute(
-        self, sql: str, parameters: Any = None
-    ) -> "SqliteCursorWrapper":
+    def execute(self, sql: str, parameters: Any = None) -> "SqliteCursorWrapper":
         if parameters is not None:
             sql = sql.replace("%s", "?")
         if parameters is None:
@@ -34,9 +32,7 @@ class SqliteCursorWrapper:
             self._cursor.execute(sql, parameters)
         return self
 
-    def executemany(
-        self, sql: str, parameters: Any
-    ) -> "SqliteCursorWrapper":
+    def executemany(self, sql: str, parameters: Any) -> "SqliteCursorWrapper":
         sql = sql.replace("%s", "?")
         self._cursor.executemany(sql, parameters)
         return self
@@ -68,9 +64,7 @@ class SqliteCursorWrapper:
 class SqliteCursorContextManager:
     """Context manager for SQLite cursors."""
 
-    def __init__(
-        self, connection_manager: "SqliteConnectionManager"
-    ) -> None:
+    def __init__(self, connection_manager: "SqliteConnectionManager") -> None:
         self.connection_manager = connection_manager
         self.cursor: SqliteCursorWrapper | None = None
 

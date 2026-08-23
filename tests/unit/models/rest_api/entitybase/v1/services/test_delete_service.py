@@ -19,7 +19,7 @@ class TestDeleteService:
         mock_state = MagicMock()
         mock_vitess = MagicMock()
         mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = mock_s3
 
         service = DeleteService(state=mock_state)
@@ -32,7 +32,7 @@ class TestDeleteService:
         from fastapi import HTTPException
 
         mock_state = MagicMock()
-        mock_state.vitess_client = None
+        mock_state.db_client = None
 
         service = DeleteService(state=mock_state)
 
@@ -46,7 +46,7 @@ class TestDeleteService:
 
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_state.s3_client = None
 
         service = DeleteService(state=mock_state)
@@ -60,7 +60,7 @@ class TestDeleteService:
         """Test validating entity state with valid entity."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_vitess.entity_exists.return_value = True
         mock_vitess.is_entity_deleted.return_value = False
         mock_vitess.get_head.return_value = 3
@@ -76,7 +76,7 @@ class TestDeleteService:
 
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_vitess.entity_exists.return_value = False
 
         service = DeleteService(state=mock_state)
@@ -91,7 +91,7 @@ class TestDeleteService:
 
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_vitess.entity_exists.return_value = True
         mock_vitess.is_entity_deleted.return_value = True
 
@@ -107,7 +107,7 @@ class TestDeleteService:
 
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_vitess.entity_exists.return_value = True
         mock_vitess.is_entity_deleted.return_value = False
         mock_vitess.get_head.return_value = 0
@@ -123,7 +123,7 @@ class TestDeleteService:
         """Test validating protection status when entity is not protected."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_vitess.entity_repository.get_protection_info.return_value = None
 
         service = DeleteService(state=mock_state)
@@ -138,7 +138,7 @@ class TestDeleteService:
         """Test decrementing statement references."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_vitess.decrement_ref_count = MagicMock()
 
         service = DeleteService(state=mock_state)
@@ -150,7 +150,7 @@ class TestDeleteService:
         """Test decrementing statement references handles failures gracefully."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_vitess.decrement_ref_count.side_effect = Exception("DB error")
 
         service = DeleteService(state=mock_state)
@@ -234,7 +234,7 @@ class TestDeleteService:
         mock_state = MagicMock()
         mock_vitess = MagicMock()
         mock_user_repo = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_vitess.user_repository = mock_user_repo
         mock_user_repo.log_user_activity.return_value = MagicMock(success=True)
 
@@ -248,7 +248,7 @@ class TestDeleteService:
         mock_state = MagicMock()
         mock_vitess = MagicMock()
         mock_user_repo = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_vitess.user_repository = mock_user_repo
 
         service = DeleteService(state=mock_state)
@@ -262,7 +262,7 @@ class TestDeleteService:
         mock_state = MagicMock()
         mock_vitess = MagicMock()
         mock_user_repo = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
         mock_vitess.user_repository = mock_user_repo
         mock_user_repo.log_user_activity.return_value = MagicMock(
             success=False, error="DB error"
@@ -274,12 +274,12 @@ class TestDeleteService:
         assert True  # No exception raised
 
     # decrement_term_references
-    @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
+    @patch("models.infrastructure.db.repositories.terms.TermsRepository")
     def test_decrement_term_references_success(self, mock_terms_repo_class) -> None:
         """Test decrementing term references for labels, descriptions, aliases."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
 
         mock_terms_repo = MagicMock()
         mock_terms_repo_class.return_value = mock_terms_repo
@@ -298,14 +298,14 @@ class TestDeleteService:
         assert mock_terms_repo.decrement_ref_count.call_count == 4
         mock_terms_repo.delete_term.assert_not_called()
 
-    @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
+    @patch("models.infrastructure.db.repositories.terms.TermsRepository")
     def test_decrement_term_references_deletes_orphaned(
         self, mock_terms_repo_class
     ) -> None:
         """Test that terms with ref_count=0 are deleted."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
 
         mock_terms_repo = MagicMock()
         mock_terms_repo_class.return_value = mock_terms_repo
@@ -324,14 +324,14 @@ class TestDeleteService:
         mock_terms_repo.decrement_ref_count.assert_called_once_with(12345)
         mock_terms_repo.delete_term.assert_called_once_with(12345)
 
-    @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
+    @patch("models.infrastructure.db.repositories.terms.TermsRepository")
     def test_decrement_term_references_handles_failure(
         self, mock_terms_repo_class
     ) -> None:
         """Test decrementing term references handles failures gracefully."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
+        mock_state.db_client = mock_vitess
 
         mock_terms_repo = MagicMock()
         mock_terms_repo_class.return_value = mock_terms_repo

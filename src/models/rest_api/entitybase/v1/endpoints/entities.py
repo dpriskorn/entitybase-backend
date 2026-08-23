@@ -513,7 +513,7 @@ async def get_entity_sitelink(entity_id: str, site: str, req: Request) -> Siteli
     badges = sitelink_hash_data.get("badges", [])
     logger.debug(f"Sitelink hash data: title_hash={title_hash}, badges={badges}")
 
-    # Load from Vitess (not S3-based MetadataStorage)
+    # Load from database (not S3-based MetadataStorage)
     title = state.s3_client.load_sitelink_metadata(title_hash)
 
     return SitelinkData(title=title, badges=badges)

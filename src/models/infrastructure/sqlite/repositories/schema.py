@@ -3,7 +3,7 @@
 import logging
 from typing import Any
 
-from models.infrastructure.vitess.repository import Repository
+from models.infrastructure.db.repository import Repository
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -24,12 +24,12 @@ class SqliteSchemaRepository(Repository):
     def create_tables(self) -> None:  # noqa: PLR0915
         """Create all required database tables using SQLite-compatible DDL."""
         logger.debug("Creating SQLite database tables")
-        if not self.vitess_client:
+        if not self.db_client:
             raise_validation_error(message="Database client not initialized")
-        if not self.vitess_client.connection_manager:
+        if not self.db_client.connection_manager:
             raise_validation_error(message="Connection manager not initialized")
 
-        with self.vitess_client.cursor as cursor:
+        with self.db_client.cursor as cursor:
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS entity_id_mapping (
                     entity_id TEXT PRIMARY KEY,

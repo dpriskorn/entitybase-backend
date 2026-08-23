@@ -16,7 +16,7 @@ class EnumerationService(BaseModel):
     """Service for managing entity ID enumeration across different entity types."""
 
     worker_id: str
-    vitess_client: Any
+    db_client: Any
     range_manager: Any = Field(default=None, exclude=True)
 
     def model_post_init(self, context: Any) -> None:
@@ -28,7 +28,7 @@ class EnumerationService(BaseModel):
             "E": 50_000,
         }
         self.range_manager = IdRangeManager(
-            vitess_client=self.vitess_client, min_ids=min_ids
+            db_client=self.db_client, min_ids=min_ids
         )
         self.range_manager.set_worker_id(self.worker_id)
 

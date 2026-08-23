@@ -12,7 +12,7 @@ def mock_entity_read_state():
     mock_vitess = MagicMock()
     mock_s3 = MagicMock()
 
-    mock_state.vitess_client = mock_vitess
+    mock_state.db_client = mock_vitess
     mock_state.s3_client = mock_s3
     mock_state.entity_change_stream_producer = AsyncMock()
 

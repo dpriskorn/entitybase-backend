@@ -61,20 +61,20 @@ class EntityUpdateLexemeMixin(BaseModel):
                 status_code=400,
             )
 
-        if not self.state.vitess_client.entity_exists(entity_id):
+        if not self.state.db_client.entity_exists(entity_id):
             raise_validation_error("Entity not found", status_code=404)
 
-        if self.state.vitess_client.is_entity_deleted(entity_id):
+        if self.state.db_client.is_entity_deleted(entity_id):
             raise_validation_error("Entity deleted", status_code=410)
 
-        if self.state.vitess_client.is_entity_locked(entity_id):
+        if self.state.db_client.is_entity_locked(entity_id):
             raise_validation_error("Entity locked", status_code=423)
 
         tx = UpdateTransaction(state=self.state)
         tx.entity_id = entity_id
 
         try:
-            head_revision_id = tx.state.vitess_client.get_head(entity_id)
+            head_revision_id = tx.state.db_client.get_head(entity_id)
 
             request_data = request.data.model_copy()
             request_data.id = entity_id
@@ -113,7 +113,7 @@ class EntityUpdateLexemeMixin(BaseModel):
 
             if edit_headers.x_user_id:
                 activity_result = await (
-                    self.state.vitess_client.user_repository.log_user_activity(
+                    self.state.db_client.user_repository.log_user_activity(
                         user_id=edit_headers.x_user_id,
                         activity_type=UserActivityType.ENTITY_EDIT,
                         entity_id=entity_id,

@@ -15,7 +15,7 @@ class TestStatementHandlerSnakReconstruction:
         """Create mock state object."""
         state = Mock()
         state.s3_client = Mock()
-        state.vitess_client = Mock()
+        state.db_client = Mock()
         return state
 
     @pytest.fixture
@@ -159,8 +159,8 @@ class TestStatementHandlerSnakReconstruction:
         """Test getting entity property hashes with hash-referenced snaks."""
         handler = StatementHandler(state=mock_state)
 
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.get_head.return_value = 1
+        mock_state.db_client.entity_exists.return_value = True
+        mock_state.db_client.get_head.return_value = 1
 
         mock_revision_metadata = Mock()
         mock_revision_metadata.revision = {

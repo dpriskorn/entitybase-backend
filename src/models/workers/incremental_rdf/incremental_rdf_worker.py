@@ -13,7 +13,7 @@ from models.data.infrastructure.stream.consumer import EntityChangeEventData
 from models.infrastructure.s3.client import MyS3Client
 from models.infrastructure.stream.consumer import StreamConsumerClient
 from models.infrastructure.stream.producer import StreamProducerClient
-from models.infrastructure.vitess.client import VitessClient
+from models.infrastructure.db.client import MysqlClient
 from models.internal_representation.entity_data import EntityData
 from models.rdf_builder.incremental_updater import IncrementalRDFUpdater
 from models.workers.worker import Worker
@@ -36,7 +36,7 @@ class IncrementalRDFWorker(Worker):
     5. Publishes RDF change events to incremental_rdf_diff Kafka topic
     """
 
-    vitess_client: Optional[VitessClient] = Field(default=None, exclude=True)
+    db_client: Optional[MysqlClient] = Field(default=None, exclude=True)
     s3_client: Optional[MyS3Client] = Field(default=None, exclude=True)
     consumer: Optional[StreamConsumerClient] = Field(default=None, exclude=True)
     producer: Optional[StreamProducerClient] = Field(default=None, exclude=True)
@@ -66,7 +66,7 @@ class IncrementalRDFWorker(Worker):
             logger.info("IncrementalRDFWorker stopped")
 
     async def _initialize_clients(self) -> None:
-        """Initialize Kafka consumer, producer, Vitess and S3 clients."""
+        """Initialize Kafka consumer, producer, database and S3 clients."""
         kafka_brokers = self._get_kafka_brokers()
 
         if kafka_brokers:
@@ -110,17 +110,17 @@ class IncrementalRDFWorker(Worker):
         )
 
     async def _initialize_storage_clients(self) -> None:
-        """Initialize Vitess and S3 clients."""
+        """Initialize database and S3 clients."""
         if not self.worker_enabled:
             return
 
-        vitess_config = settings.get_vitess_config
-        if vitess_config.host and vitess_config.port:
-            self.vitess_client = VitessClient(config=vitess_config)
-            logger.info("Vitess client initialized")
+        mysql_config = settings.get_mysql_config
+        if mysql_config.host and mysql_config.port:
+            self.db_client = MysqlClient(config=mysql_config)
+            logger.info("Database client initialized")
         else:
             logger.warning(
-                "Vitess not configured, worker cannot fetch revision metadata"
+                "Database not configured, worker cannot fetch revision metadata"
             )
 
         s3_config = settings.get_s3_config
@@ -136,8 +136,8 @@ class IncrementalRDFWorker(Worker):
             await self.consumer.stop()
         if self.producer:
             await self.producer.stop()
-        if self.vitess_client and self.vitess_client.connection_manager:
-            self.vitess_client.connection_manager.close()
+        if self.db_client and self.db_client.connection_manager:
+            self.db_client.connection_manager.close()
         logger.debug("All clients cleaned up")
 
     async def run(self) -> None:

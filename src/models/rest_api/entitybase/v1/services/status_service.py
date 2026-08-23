@@ -101,8 +101,8 @@ class StatusService(Service):
 
     def validate_preconditions(self) -> None:
         """Validate that required services are initialized."""
-        if self.vitess_client is None:
-            raise_validation_error("Vitess not initialized", status_code=503)
+        if self.db_client is None:
+            raise_validation_error("Database not initialized", status_code=503)
 
         if self.state.s3_client is None:
             raise_validation_error("S3 not initialized", status_code=503)
@@ -119,15 +119,15 @@ class StatusService(Service):
         Raises:
             HTTPException: If entity doesn't exist
         """
-        if not self.vitess_client.entity_exists(entity_id):
+        if not self.db_client.entity_exists(entity_id):
             raise_validation_error("Entity not found", status_code=404)
 
-        if self.vitess_client.is_entity_deleted(entity_id):
+        if self.db_client.is_entity_deleted(entity_id):
             raise_validation_error(
                 f"Entity {entity_id} has been deleted", status_code=410
             )
 
-        head_revision_id = self.vitess_client.get_head(entity_id)
+        head_revision_id = self.db_client.get_head(entity_id)
         if head_revision_id == 0:
             raise_validation_error("Entity not found", status_code=404)
 
@@ -207,7 +207,7 @@ class StatusService(Service):
 
         content_hash, s3_revision_data = self._store_revision(revision_data)
 
-        revision_created = self.state.vitess_client.create_revision(
+        revision_created = self.state.db_client.create_revision(
             entity_id=entity_id,
             revision_id=new_revision_id,
             entity_data=revision_data,
@@ -217,7 +217,7 @@ class StatusService(Service):
         if not revision_created:
             from models.rest_api.utils import raise_validation_error
 
-            current_head = self.state.vitess_client.get_head(entity_id)
+            current_head = self.state.db_client.get_head(entity_id)
             raise_validation_error(
                 f"Conflict: entity was modified by another edit. "
                 f"Expected base revision {head_revision_id}, but current revision is {current_head}. "

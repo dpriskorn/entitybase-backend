@@ -32,14 +32,14 @@ class BacklinkStatisticsService(Service):
 
     def get_total_backlinks(self) -> int:
         """Count total backlink relationships."""
-        cursor = self.state.vitess_client.cursor
+        cursor = self.state.db_client.cursor
         cursor.execute("SELECT COUNT(*) FROM entity_backlinks")
         result = cursor.fetchone()
         return result[0] if result else 0
 
     def get_entities_with_backlinks(self) -> int:
         """Count entities that have incoming backlinks."""
-        cursor = self.state.vitess_client.cursor
+        cursor = self.state.db_client.cursor
         cursor.execute(
             "SELECT COUNT(DISTINCT referenced_internal_id) FROM entity_backlinks"
         )
@@ -53,7 +53,7 @@ class BacklinkStatisticsService(Service):
         if not limit:
             limit = self.top_limit
         logger.debug("Getting top %d entities by backlinks", limit)
-        cursor = self.state.vitess_client.cursor
+        cursor = self.state.db_client.cursor
         cursor.execute(
             """
             SELECT
@@ -73,7 +73,7 @@ class BacklinkStatisticsService(Service):
             backlink_count = row[1]
 
             # Resolve entity ID
-            entity_id = self.state.vitess_client.id_resolver.resolve_entity_id(
+            entity_id = self.state.db_client.id_resolver.resolve_entity_id(
                 internal_id
             )
             if entity_id:

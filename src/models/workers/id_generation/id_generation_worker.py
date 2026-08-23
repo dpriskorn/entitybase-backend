@@ -15,19 +15,19 @@ from models.data.rest_api.v1.entitybase.response.id_response import IdResponse
 from models.rest_api.entitybase.v1.services.enumeration_service import (
     EnumerationService,
 )
-from models.workers.notification_cleanup.main import VitessWorker
+from models.workers.vitess_worker import DbWorker
 
 logger = logging.getLogger(__name__)
 
 
-class IdGeneratorWorker(VitessWorker):
+class IdGeneratorWorker(DbWorker):
     """Asynchronous worker service for generating Wikibase entity IDs using range-based allocation.
 
     This worker reserves blocks (ranges) of IDs from the database to minimize contention
     during high-volume entity creation. It monitors range status, handles graceful shutdown,
     and provides health checks for monitoring.
 
-    The worker initializes Vitess and Enumeration services, then runs a continuous loop
+    The worker initializes database and Enumeration services, then runs a continuous loop
     checking ID range availability. IDs are allocated from pre-reserved ranges to ensure
     efficient, low-latency ID generation.
     """
@@ -55,7 +55,7 @@ class IdGeneratorWorker(VitessWorker):
     async def start(self) -> None:
         """Start the ID generation worker and begin the main processing loop.
 
-        Initializes VitessClient and EnumerationService with configuration from
+        Initializes MysqlClient and EnumerationService with configuration from
         environment variables (DB_HOST, DB_PORT, etc.). Runs a continuous
         loop monitoring ID range status every 60 seconds.
 
@@ -68,22 +68,22 @@ class IdGeneratorWorker(VitessWorker):
         logger.info(f"Starting ID Generator Worker {self.worker_id}")
 
         try:
-            # Initialize Vitess client with default config
-            from models.data.config.vitess import VitessConfig
-            from models.infrastructure.vitess.client import VitessClient
+            # Initialize database client with default config
+            from models.data.config.mysql import MysqlConfig
+            from models.infrastructure.db.client import MysqlClient
 
-            vitess_config = VitessConfig(
+            mysql_config = MysqlConfig(
                 host=os.getenv("DB_HOST", "vitess"),
                 port=int(os.getenv("DB_PORT", "15309")),
                 database=os.getenv("DB_DATABASE", "page"),
                 user=os.getenv("DB_USER", "root"),
                 password=os.getenv("DB_PASSWORD", ""),
             )
-            self.vitess_client = VitessClient(config=vitess_config)
+            self.db_client = MysqlClient(config=mysql_config)
 
             # Initialize enumeration service
             self.enumeration_service = EnumerationService(
-                worker_id=self.worker_id, vitess_client=self.vitess_client
+                worker_id=self.worker_id, db_client=self.db_client
             )
 
             logger.info("ID Generator Worker initialized successfully")
@@ -120,7 +120,7 @@ class IdGeneratorWorker(VitessWorker):
         """
         logger.info("Shutting down ID Generator Worker")
 
-        if self.vitess_client:
+        if self.db_client:
             # Close database connections
             pass
 

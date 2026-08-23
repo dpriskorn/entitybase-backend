@@ -44,7 +44,7 @@ class UserActivityHandler(Handler):
     def _validate_user(self, user_id: int) -> None:
         """Validate user exists."""
         logger.debug(f"Validating user existence for user_id={user_id}")
-        if not self.state.vitess_client.user_repository.user_exists(user_id):
+        if not self.state.db_client.user_repository.user_exists(user_id):
             logger.warning(f"User {user_id} not found")
             raise_validation_error("User not registered", status_code=404)
 
@@ -94,7 +94,7 @@ class UserActivityHandler(Handler):
     ) -> list:
         """Fetch user activities from repository."""
         logger.debug(f"Fetching user activities from repository")
-        result = self.state.vitess_client.user_repository.get_user_activities(
+        result = self.state.db_client.user_repository.get_user_activities(
             user_id=user_id,
             activity_type=activity_type,
             hours=hours,

@@ -25,13 +25,13 @@ class TestStatementHandler:
         """Test _validate_entity_access with valid entity."""
         from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
 
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.get_head.return_value = 123
+        mock_state.db_client.entity_exists.return_value = True
+        mock_state.db_client.get_head.return_value = 123
 
         StatementHandler._validate_entity_access(mock_handler, "Q42")
 
-        mock_state.vitess_client.entity_exists.assert_called_once_with("Q42")
-        mock_state.vitess_client.get_head.assert_called_once_with("Q42")
+        mock_state.db_client.entity_exists.assert_called_once_with("Q42")
+        mock_state.db_client.get_head.assert_called_once_with("Q42")
 
     def test_validate_entity_access_vitess_not_initialized(
         self, mock_handler, mock_state
@@ -39,7 +39,7 @@ class TestStatementHandler:
         """Test _validate_entity_access when Vitess is not initialized."""
         from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
 
-        mock_state.vitess_client = None
+        mock_state.db_client = None
 
         with pytest.raises(HTTPException) as exc_info:
             StatementHandler._validate_entity_access(mock_handler, "Q42")
@@ -50,7 +50,7 @@ class TestStatementHandler:
         """Test _validate_entity_access when entity doesn't exist."""
         from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
 
-        mock_state.vitess_client.entity_exists.return_value = False
+        mock_state.db_client.entity_exists.return_value = False
 
         with pytest.raises(HTTPException) as exc_info:
             StatementHandler._validate_entity_access(mock_handler, "Q999")
@@ -62,8 +62,8 @@ class TestStatementHandler:
         """Test _validate_entity_access when entity has no revisions."""
         from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
 
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.get_head.return_value = 0
+        mock_state.db_client.entity_exists.return_value = True
+        mock_state.db_client.get_head.return_value = 0
 
         with pytest.raises(HTTPException) as exc_info:
             StatementHandler._validate_entity_access(mock_handler, "Q42")
@@ -128,8 +128,8 @@ class TestStatementHandler:
         # Just verify that validation passes
         from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
 
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.get_head.return_value = 123
+        mock_state.db_client.entity_exists.return_value = True
+        mock_state.db_client.get_head.return_value = 123
 
         # This should not raise
         StatementHandler._validate_entity_access(mock_handler, "Q42")
@@ -143,8 +143,8 @@ class TestStatementHandler:
         # Similar - just verify validation works
         from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
 
-        mock_state.vitess_client.entity_exists.return_value = True
-        mock_state.vitess_client.get_head.return_value = 123
+        mock_state.db_client.entity_exists.return_value = True
+        mock_state.db_client.get_head.return_value = 123
 
         StatementHandler._validate_entity_access(mock_handler, "Q42")
 

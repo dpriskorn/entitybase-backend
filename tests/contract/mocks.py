@@ -1,6 +1,6 @@
 """Mock classes for contract tests.
 
-This module provides mock implementations of VitessClient, S3Client, and StateHandler
+This module provides mock implementations of MysqlClient, S3Client, and StateHandler
 for use in contract tests. These mocks simulate the real clients without requiring
 external services (Vitess, S3).
 """
@@ -115,8 +115,8 @@ class MockWatchlistRepository:
 
 
 class MockEntityRepository:
-    def __init__(self, vitess_client: Any) -> None:
-        self.vitess_client = vitess_client
+    def __init__(self, db_client: Any) -> None:
+        self.db_client = db_client
 
     def list_entities_filtered(
         self,
@@ -127,7 +127,7 @@ class MockEntityRepository:
         return []
 
     def create_entity(self, entity_id: str) -> None:
-        self.vitess_client.id_resolver.register_entity(entity_id)
+        self.db_client.id_resolver.register_entity(entity_id)
 
     def delete_entity(self, entity_id: str) -> None:
         pass
@@ -151,13 +151,13 @@ class MockStatementRepository:
         return []
 
 
-class MockVitessClient:
+class MockMysqlClient:
     def __init__(self) -> None:
         self.id_resolver = MockIdResolver()
         self.connection_manager = MockConnectionManager()
         self.user_repository = MockUserRepository()
         self.watchlist_repository = MockWatchlistRepository()
-        self.entity_repository = MockEntityRepository(vitess_client=self)
+        self.entity_repository = MockEntityRepository(db_client=self)
         self.revision_repository = MockRevisionRepository()
         self.head_repository = MockHeadRepository()
         self.statement_repository = MockStatementRepository()
@@ -254,11 +254,11 @@ class MockS3Client:
         self.connection_manager = MockS3ConnectionManager()
         self._revisions: dict[int, dict[str, Any]] = {}
         self._revision_hashes: dict[tuple[str, int], int] = {}
-        self._vitess_client: Any = None
+        self._db_client: Any = None
         self._term_metadata: dict[int, tuple[str, str]] = {}  # hash -> (value, type)
 
-    def set_vitess_client(self, vitess_client: Any) -> None:
-        self._vitess_client = vitess_client
+    def set_db_client(self, db_client: Any) -> None:
+        self._db_client = db_client
 
     @property
     def healthy_connection(self) -> bool:
@@ -301,11 +301,11 @@ class MockS3Client:
             if hasattr(revision_data, "model_dump")
             else revision_data
         )
-        if self._vitess_client:
-            pending_revisions = self._vitess_client.get_pending_revisions()
+        if self._db_client:
+            pending_revisions = self._db_client.get_pending_revisions()
             for (entity_id, revision_id), hash_val in pending_revisions.items():
                 self._revision_hashes[(entity_id, revision_id)] = hash_val
-            self._vitess_client.clear_pending_revisions()
+            self._db_client.clear_pending_revisions()
 
     def delete_statement(self, hash_val: int) -> None:
         pass
@@ -348,14 +348,14 @@ class TestStateHandler:
     model_config = {"arbitrary_types_allowed": True}
 
     def __init__(self) -> None:
-        self._vitess_client = MockVitessClient()
+        self._db_client = MockMysqlClient()
         self._s3_client = MockS3Client()
-        self._vitess_client.set_s3_client(self._s3_client)
-        self._s3_client.set_vitess_client(self._vitess_client)
+        self._db_client.set_s3_client(self._s3_client)
+        self._s3_client.set_db_client(self._db_client)
         self._validator = MockValidator()
         self._settings = MagicMock()
-        self._vitess_config = MagicMock()
-        self.cached_vitess_client: MockVitessClient | None = None
+        self._mysql_config = MagicMock()
+        self.cached_db_client: MockMysqlClient | None = None
         self.cached_s3_client: MockS3Client | None = None
         self.cached_enumeration_service: Any = None
         self.entity_change_stream_producer = None
@@ -365,10 +365,10 @@ class TestStateHandler:
         return self._settings
 
     @property
-    def vitess_client(self) -> MockVitessClient:
-        if self.cached_vitess_client is None:
-            self.cached_vitess_client = self._vitess_client
-        return self.cached_vitess_client
+    def db_client(self) -> MockMysqlClient:
+        if self.cached_db_client is None:
+            self.cached_db_client = self._db_client
+        return self.cached_db_client
 
     @property
     def s3_client(self) -> MockS3Client:
@@ -381,8 +381,8 @@ class TestStateHandler:
         return self._validator
 
     @property
-    def vitess_config(self) -> Any:
-        return self._vitess_config
+    def mysql_config(self) -> Any:
+        return self._mysql_config
 
     @property
     def enumeration_service(self) -> Any:
@@ -429,12 +429,12 @@ class TestStateHandler:
                     return MagicMock()
 
             self.cached_enumeration_service = MockEnumerationServiceClass(
-                worker_id="test", vitess_client=self._vitess_client
+                worker_id="test", db_client=self._db_client
             )
         return self.cached_enumeration_service
 
     def disconnect(self) -> None:
-        if self._vitess_client:
-            self._vitess_client.disconnect()
+        if self._db_client:
+            self._db_client.disconnect()
         if self._s3_client:
             self._s3_client.disconnect()

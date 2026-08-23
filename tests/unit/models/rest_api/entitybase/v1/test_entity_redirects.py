@@ -15,7 +15,7 @@ from models.data.rest_api.v1.entitybase.response import (
 
 
 # noinspection PyUnusedLocal
-class MockVitessClient:
+class MockMysqlClient:
     """Mock Vitess client for testing without database"""
 
     def __init__(self) -> None:
@@ -148,10 +148,10 @@ class RedirectService:
     """Mock RedirectService for testing"""
 
     def __init__(
-        self, s3_client: MockS3Client, vitess_client: MockVitessClient
+        self, s3_client: MockS3Client, db_client: MockMysqlClient
     ) -> None:
         self.s3 = s3_client
-        self.vitess = vitess_client
+        self.vitess = db_client
 
     def create_redirect(self, request: EntityRedirectRequest) -> EntityRedirectResponse:
         vitess = self.vitess
@@ -281,7 +281,7 @@ class RedirectService:
 @pytest.fixture
 def redirect_service() -> RedirectService:
     """Fixture providing RedirectService with mock clients"""
-    vitess = MockVitessClient()
+    vitess = MockMysqlClient()
     s3 = MockS3Client()
 
     # Set up default Q42 entity for tests

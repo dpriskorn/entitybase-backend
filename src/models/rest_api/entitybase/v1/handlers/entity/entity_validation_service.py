@@ -23,7 +23,7 @@ class EntityValidationService(BaseModel):
     ) -> None:
         """Validate protection settings."""
         if is_mass_edit and is_not_autoconfirmed_user:
-            if self.state.vitess_client.is_entity_semi_protected(entity_id):
+            if self.state.db_client.is_entity_semi_protected(entity_id):
                 raise_validation_error(
                     "Semi-protected entity cannot be mass edited", status_code=403
                 )

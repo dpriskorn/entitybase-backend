@@ -145,7 +145,7 @@ def generate_markdown(repositories: List[Dict[str, Any]]) -> str:
 
 def main() -> None:
     """Main entry point."""
-    repo_dir = Path("src/models/infrastructure/vitess")
+    repo_dir = Path("src/models/infrastructure/db")
 
     if not repo_dir.exists():
         print("Error: Repository directory not found")

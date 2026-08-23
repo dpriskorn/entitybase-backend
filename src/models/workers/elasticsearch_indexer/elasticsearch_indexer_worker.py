@@ -11,7 +11,7 @@ from models.config.settings import settings
 from models.data.infrastructure.stream.consumer import EntityChangeEventData
 from models.infrastructure.s3.client import MyS3Client
 from models.infrastructure.stream.consumer import StreamConsumerClient
-from models.infrastructure.vitess.client import VitessClient
+from models.infrastructure.db.client import MysqlClient
 from models.services.elasticsearch import (
     ElasticsearchClient,
     transform_to_elasticsearch,
@@ -31,7 +31,7 @@ class ElasticsearchIndexerWorker(Worker):
     4. Indexes the document to OpenSearch
     """
 
-    vitess_client: Optional[VitessClient] = Field(default=None, exclude=True)
+    db_client: Optional[MysqlClient] = Field(default=None, exclude=True)
     s3_client: Optional[MyS3Client] = Field(default=None, exclude=True)
     consumer: Optional[StreamConsumerClient] = Field(default=None, exclude=True)
     elasticsearch_client: Any = Field(default=None, exclude=True)
@@ -99,17 +99,17 @@ class ElasticsearchIndexerWorker(Worker):
         )
 
     async def _initialize_storage_clients(self) -> None:
-        """Initialize S3 and Vitess clients."""
+        """Initialize S3 and database clients."""
         if not self.worker_enabled:
             return
 
-        vitess_config = settings.get_vitess_config
-        if vitess_config.host and vitess_config.port:
-            self.vitess_client = VitessClient(config=vitess_config)
-            logger.info("Vitess client initialized")
+        mysql_config = settings.get_mysql_config
+        if mysql_config.host and mysql_config.port:
+            self.db_client = MysqlClient(config=mysql_config)
+            logger.info("Database client initialized")
         else:
             logger.warning(
-                "Vitess not configured, worker cannot fetch revision metadata"
+                "Database not configured, worker cannot fetch revision metadata"
             )
 
         s3_config = settings.get_s3_config
@@ -142,8 +142,8 @@ class ElasticsearchIndexerWorker(Worker):
             await self.consumer.stop()
         if self.elasticsearch_client:
             self.elasticsearch_client.close()
-        if self.vitess_client and self.vitess_client.connection_manager:
-            self.vitess_client.connection_manager.close()
+        if self.db_client and self.db_client.connection_manager:
+            self.db_client.connection_manager.close()
         logger.debug("All clients cleaned up")
 
     async def run(self) -> None:

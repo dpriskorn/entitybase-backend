@@ -17,7 +17,7 @@ class TestBacklinkStatisticsWorker:
             "models.workers.backlink_statistics.backlink_statistics_worker.settings"
         ) as mock_settings:
             mock_settings.backlink_stats_enabled = True
-            worker = BacklinkStatisticsWorker(vitess_client=MagicMock())
+            worker = BacklinkStatisticsWorker(db_client=MagicMock())
             assert worker.get_enabled_setting() is True
 
     def test_get_schedule_setting(self):
@@ -26,19 +26,19 @@ class TestBacklinkStatisticsWorker:
             "models.workers.backlink_statistics.backlink_statistics_worker.settings"
         ) as mock_settings:
             mock_settings.backlink_stats_schedule = "daily"
-            worker = BacklinkStatisticsWorker(vitess_client=MagicMock())
+            worker = BacklinkStatisticsWorker(db_client=MagicMock())
             assert worker.get_schedule_setting() == "daily"
 
     @pytest.mark.asyncio
     async def test_run_daily_computation_success(self):
         """Test successful daily computation."""
-        mock_vitess_client = MagicMock()
+        mock_db_client = MagicMock()
         mock_service = MagicMock()
         mock_service.compute_daily_stats.return_value = MagicMock(
             total_backlinks=100, unique_entities_with_backlinks=50
         )
 
-        worker = BacklinkStatisticsWorker(vitess_client=mock_vitess_client)
+        worker = BacklinkStatisticsWorker(db_client=mock_db_client)
         worker._store_statistics = AsyncMock()
 
         with (
@@ -65,23 +65,23 @@ class TestBacklinkStatisticsWorker:
             assert worker.last_run is not None
 
     @pytest.mark.asyncio
-    async def test_run_daily_computation_no_vitess_client(self):
+    async def test_run_daily_computation_no_db_client(self):
         """Test daily computation with no vitess client."""
-        worker = BacklinkStatisticsWorker(vitess_client=None)
+        worker = BacklinkStatisticsWorker(db_client=None)
 
         with patch(
             "models.workers.backlink_statistics.backlink_statistics_worker.logger"
         ) as mock_logger:
             await worker.run_daily_computation()
 
-            mock_logger.error.assert_called_once_with("Vitess client not initialized")
+            mock_logger.error.assert_called_once_with("Database client not initialized")
 
     @pytest.mark.asyncio
     async def test_run_daily_computation_exception(self):
         """Test daily computation with exception."""
-        mock_vitess_client = MagicMock()
+        mock_db_client = MagicMock()
 
-        worker = BacklinkStatisticsWorker(vitess_client=mock_vitess_client)
+        worker = BacklinkStatisticsWorker(db_client=mock_db_client)
 
         with (
             patch(
