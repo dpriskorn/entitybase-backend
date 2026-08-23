@@ -14,6 +14,8 @@ class MysqlConfig(Config):
     pool_size: int = 10
     max_overflow: int = 10
     pool_timeout: int = 30
+    pool_enabled: bool = False
+    bulk_import_mode: bool = False
 
 
 # Backward compatibility alias

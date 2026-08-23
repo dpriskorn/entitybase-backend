@@ -52,6 +52,8 @@ class Settings(BaseModel):
     db_pool_size: int = 20
     db_max_overflow: int = 20
     db_pool_timeout: int = 30
+    db_pool_enabled: bool = False
+    db_bulk_import_mode: bool = False
 
     # rdf
     wikibase_repository_name: str = "wikidata"
@@ -177,6 +179,8 @@ class Settings(BaseModel):
         self.db_database = os.getenv("DB_DATABASE", self.db_database)
         self.db_user = os.getenv("DB_USER", self.db_user)
         self.db_password = os.getenv("DB_PASSWORD", self.db_password)
+        self.db_pool_enabled = os.getenv("DB_POOL_ENABLED", "false").lower() in ("true", "1", "yes")
+        self.db_bulk_import_mode = os.getenv("DB_BULK_IMPORT_MODE", "false").lower() in ("true", "1", "yes")
 
     def _load_entity_config(self) -> None:
         """Load entity version and API config from environment variables."""
@@ -370,6 +374,8 @@ class Settings(BaseModel):
             pool_size=self.db_pool_size,
             max_overflow=self.db_max_overflow,
             pool_timeout=self.db_pool_timeout,
+            pool_enabled=self.db_pool_enabled,
+            bulk_import_mode=self.db_bulk_import_mode,
         )
 
     @property

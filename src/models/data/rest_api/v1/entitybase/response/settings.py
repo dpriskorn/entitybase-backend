@@ -22,6 +22,8 @@ class SettingsResponse(BaseModel):
     vitess_pool_size: int
     vitess_max_overflow: int
     vitess_pool_timeout: int
+    vitess_pool_enabled: bool
+    vitess_bulk_import_mode: bool
     wikibase_repository_name: str
     property_registry_path: str
     log_level: str

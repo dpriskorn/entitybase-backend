@@ -31,6 +31,12 @@ class MysqlConnectionManager(ConnectionManager):
         logger.debug(
             f"Creating MysqlConnectionManager with config: host='{self.config.host}', port={self.config.port}, database='{self.config.database}', user='{self.config.user}', password_length={len(self.config.password)}"
         )
+        if self.config.bulk_import_mode:
+            logger.debug("Bulk import mode enabled, single connection will be reused")
+            return
+        if not self.config.pool_enabled:
+            logger.debug("Connection pool disabled, connections are created per-request")
+            return
         self.pool = queue.Queue(maxsize=self.config.pool_size)
         self.connection_semaphore = threading.Semaphore(
             self.config.pool_size + self.config.max_overflow
@@ -99,6 +105,14 @@ class MysqlConnectionManager(ConnectionManager):
 
     def acquire(self) -> Connection:
         """Acquire a connection from pool."""
+        if self.config.bulk_import_mode:
+            if self.conn is None or not self.conn.open:
+                self.conn = self._create_new_connection()
+            return self.conn
+
+        if not self.config.pool_enabled:
+            return self._create_new_connection()
+
         logger.debug("=== acquire() START ===")
         self._ensure_pool_initialized()
         if self.connection_semaphore is None:
@@ -142,6 +156,14 @@ class MysqlConnectionManager(ConnectionManager):
 
     def release(self, connection: Connection) -> None:
         """Release a connection back to pool."""
+        if self.config.bulk_import_mode:
+            return  # keep connection alive
+
+        if not self.config.pool_enabled:
+            if connection and connection.open:
+                connection.close()
+            return
+
         if self.pool is None:
             self.pool = queue.Queue(maxsize=self.config.pool_size)
 
@@ -228,10 +250,11 @@ class MysqlConnectionManager(ConnectionManager):
     def disconnect(self) -> None:
         """Close all connections in pool."""
         self._close_stored_connection()
-        self._drain_pool()
-        self._close_overflow_connections()
-        self._close_active_connections()
-        self.connection_semaphore = None
+        if self.config.pool_enabled:
+            self._drain_pool()
+            self._close_overflow_connections()
+            self._close_active_connections()
+            self.connection_semaphore = None
         logger.info("Disconnected all pooled connections")
 
     def _close_stored_connection(self) -> None:
