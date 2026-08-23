@@ -12,4 +12,4 @@ fi
 source test.env
 
 echo "Running tests 51-100"
-pytest tests/integration --capture=no --strict-markers --log-cli-level=DEBUG --log-cli-format="%(asctime)s - %(name)s - %(levelname)s - %(message)s" -k "test_watchlist or test_entity_deletion or test_item_terms" --durations=10
+poetry run pytest tests/integration --capture=no --strict-markers --log-cli-level=DEBUG --log-cli-format="%(asctime)s - %(name)s - %(levelname)s - %(message)s" -k "test_watchlist or test_entity_deletion or test_item_terms" --durations=10

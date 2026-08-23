@@ -2,8 +2,6 @@
 cd "$(dirname "$0")/../.."
 set -e
 
-source .venv/bin/activate
-
 echo "🚀 Starting Docker services (MySQL, MinIO, Redpanda)..."
 docker compose -f docker-compose.tests.yml up -d mysql minio redpanda
 
@@ -25,6 +23,6 @@ source test.env
 export PYTHONPATH=src
 
 echo "🐍 Starting API with uvicorn..."
-exec uvicorn models.rest_api.main:app \
+exec poetry run uvicorn models.rest_api.main:app \
   --host 0.0.0.0 \
   --port 8080

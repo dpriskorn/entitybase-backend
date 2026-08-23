@@ -2,7 +2,7 @@
 cd "$(dirname "$0")/../.."
 set -e
 
-source .venv/bin/activate
+
 
 echo "🚀 Starting docker containers..."
 ./scripts/shell/run-docker-build-tests.sh "$@"
@@ -54,7 +54,7 @@ export USER_AGENT="Entitybase/1.0 User:So9q"
 export PYTHONPATH=src
 
 echo "🐍 Starting API with uvicorn..."
-exec uvicorn models.rest_api.main:app \
+exec poetry run uvicorn models.rest_api.main:app \
   --host 0.0.0.0 \
   --port 8000 \
   --reload

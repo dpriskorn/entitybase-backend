@@ -1,4 +1,4 @@
 #!/bin/bash
 set -e
-source .venv/bin/activate
-PYTHONPATH=src pytest tests/contract/ -v -m contract
+export PYTHONPATH=src
+poetry run pytest tests/contract/ -v -m contract

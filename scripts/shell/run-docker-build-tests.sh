@@ -2,8 +2,6 @@
 cd "$(dirname "$0")/../.."
 set -e
 
-source .venv/bin/activate
-
 NO_CACHE=""
 if [ "$1" = "--no-cache" ]; then
     NO_CACHE="--no-cache"

@@ -6,7 +6,7 @@ THRESHOLD=30
 
 source test.env
 
-source .venv/bin/activate
+
 
 echo "Cleaning up..."
 
@@ -19,7 +19,7 @@ find . -name "*.pyc" -delete 2>/dev/null || true
 
 echo "Running all tests with coverage..."
 # Test
-pytest \
+poetry run pytest \
   -n "auto" \
   --cov=src \
   --cov-report=term-missing \
@@ -27,7 +27,7 @@ pytest \
 
 if [[ -f coverage.xml ]]; then
   echo "Coverage reports generated: coverage.txt, htmlcov/, coverage.xml"
-  python scripts/generate_coverage_report.py $THRESHOLD
+  poetry run python scripts/generate_coverage_report.py $THRESHOLD
 else
   echo "coverage.xml not found. Make sure pytest ran successfully."
   exit 1
