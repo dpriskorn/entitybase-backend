@@ -385,7 +385,7 @@ Revision Storage
 
 All settings managed via environment variables:
 
-**Database**: VITESS_HOST, VITESS_PORT, VITESS_DATABASE, VITESS_USER, VITESS_PASSWORD
+**Database**: DB_HOST, DB_PORT, DB_DATABASE, DB_USER, DB_PASSWORD
 
 **Storage**: S3_ENDPOINT, S3_ACCESS_KEY, S3_SECRET_KEY, S3_*_BUCKET
 

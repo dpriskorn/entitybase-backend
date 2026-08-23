@@ -46,10 +46,10 @@ def validate_env_vars():
     import os
 
     required_vars = {
-        "VITESS_HOST": "Vitess database host",
-        "VITESS_PORT": "Vitess database port",
-        "VITESS_DATABASE": "Vitess database name",
-        "VITESS_USER": "Vitess database user",
+        "DB_HOST": "Database host",
+        "DB_PORT": "Database port",
+        "DB_DATABASE": "Database name",
+        "DB_USER": "Database user",
         "S3_ENDPOINT": "S3 storage endpoint URL",
         "S3_ACCESS_KEY": "S3 access key",
         "S3_SECRET_KEY": "S3 secret key",

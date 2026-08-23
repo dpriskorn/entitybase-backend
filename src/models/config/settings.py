@@ -39,19 +39,19 @@ class Settings(BaseModel):
     s3_statement_version: str = "1.0.0"
     s3_schema_revision_version: str = "4.0.0"
 
-    # database type (sqlite or vitess)
+    # database type (sqlite, vitess, or mariadb)
     db_type: str = "sqlite"
     datadir: str = "data"
 
-    # vitess
-    vitess_host: str = ""
-    vitess_port: int = 0
-    vitess_database: str = ""
-    vitess_user: str = ""
-    vitess_password: str = ""
-    vitess_pool_size: int = 20
-    vitess_max_overflow: int = 20
-    vitess_pool_timeout: int = 30
+    # database connection
+    db_host: str = ""
+    db_port: int = 0
+    db_database: str = ""
+    db_user: str = ""
+    db_password: str = ""
+    db_pool_size: int = 20
+    db_max_overflow: int = 20
+    db_pool_timeout: int = 30
 
     # rdf
     wikibase_repository_name: str = "wikidata"
@@ -170,13 +170,13 @@ class Settings(BaseModel):
         self.datadir = os.getenv("DATADIR", self.datadir)
 
     def _load_vitess_config(self) -> None:
-        """Load Vitess configuration from environment variables."""
-        self.vitess_host = os.getenv("VITESS_HOST", self.vitess_host)
-        logger.debug(f"self.vitess_host: {self.vitess_host}")
-        self.vitess_port = int(os.getenv("VITESS_PORT", str(self.vitess_port)))
-        self.vitess_database = os.getenv("VITESS_DATABASE", self.vitess_database)
-        self.vitess_user = os.getenv("VITESS_USER", self.vitess_user)
-        self.vitess_password = os.getenv("VITESS_PASSWORD", self.vitess_password)
+        """Load database connection configuration from environment variables."""
+        self.db_host = os.getenv("DB_HOST", self.db_host)
+        logger.debug(f"self.db_host: {self.db_host}")
+        self.db_port = int(os.getenv("DB_PORT", str(self.db_port)))
+        self.db_database = os.getenv("DB_DATABASE", self.db_database)
+        self.db_user = os.getenv("DB_USER", self.db_user)
+        self.db_password = os.getenv("DB_PASSWORD", self.db_password)
 
     def _load_entity_config(self) -> None:
         """Load entity version and API config from environment variables."""
@@ -362,14 +362,14 @@ class Settings(BaseModel):
         from models.data.config.vitess import VitessConfig
 
         return VitessConfig(
-            host=self.vitess_host,
-            port=self.vitess_port,
-            database=self.vitess_database,
-            user=self.vitess_user,
-            password=self.vitess_password,
-            pool_size=self.vitess_pool_size,
-            max_overflow=self.vitess_max_overflow,
-            pool_timeout=self.vitess_pool_timeout,
+            host=self.db_host,
+            port=self.db_port,
+            database=self.db_database,
+            user=self.db_user,
+            password=self.db_password,
+            pool_size=self.db_pool_size,
+            max_overflow=self.db_max_overflow,
+            pool_timeout=self.db_pool_timeout,
         )
 
     @property

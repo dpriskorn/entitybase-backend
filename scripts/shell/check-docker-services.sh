@@ -72,7 +72,7 @@ check_completed_job() {
 # Check MySQL connectivity and connection count
 check_mysql_connectivity() {
     # Use docker exec to run mysql inside the container
-    if ! docker exec mysql mysql -u"$VITESS_USER" ${VITESS_PASSWORD:+-p"$VITESS_PASSWORD"} -e "SELECT 1" &>/dev/null; then
+    if ! docker exec mysql mysql -u"$DB_USER" ${DB_PASSWORD:+-p"$DB_PASSWORD"} -e "SELECT 1" &>/dev/null; then
         echo -e "${RED}❌ mysql - connection failed${NC}"
         return 1
     fi
@@ -80,7 +80,7 @@ check_mysql_connectivity() {
 
     # Check connection count
     local conn_info
-    conn_info=$(docker exec mysql mysql -u"$VITESS_USER" ${VITESS_PASSWORD:+-p"$VITESS_PASSWORD"} -N -e "SHOW STATUS LIKE 'Threads_connected'" 2>/dev/null)
+    conn_info=$(docker exec mysql mysql -u"$DB_USER" ${DB_PASSWORD:+-p"$DB_PASSWORD"} -N -e "SHOW STATUS LIKE 'Threads_connected'" 2>/dev/null)
     local current_connections=$(echo "$conn_info" | awk '{print $2}')
 
     if [ -n "$current_connections" ]; then
@@ -108,22 +108,22 @@ clean_idle_connections() {
     
     # Get current connection count before cleanup
     local before_count
-    before_count=$(docker exec mysql mysql -u"$VITESS_USER" ${VITESS_PASSWORD:+-p"$VITESS_PASSWORD"} -N -e "SHOW STATUS LIKE 'Threads_connected'" 2>/dev/null | awk '{print $2}')
+    before_count=$(docker exec mysql mysql -u"$DB_USER" ${DB_PASSWORD:+-p"$DB_PASSWORD"} -N -e "SHOW STATUS LIKE 'Threads_connected'" 2>/dev/null | awk '{print $2}')
     echo "   Before: $before_count connections"
     
     # Kill idle connections (Sleep state) that are older than 1 second
     # This targets connections from crashed/leaked test runs
-    docker exec mysql mysql -u"$VITESS_USER" ${VITESS_PASSWORD:+-p"$VITESS_PASSWORD"} -N -e "
+    docker exec mysql mysql -u"$DB_USER" ${DB_PASSWORD:+-p"$DB_PASSWORD"} -N -e "
         SELECT CONCAT('KILL ', id, ';') 
         FROM information_schema.processlist 
         WHERE Command = 'Sleep' 
         AND Time > 1
-        AND User = '$VITESS_USER'
-    " 2>/dev/null | docker exec -i mysql mysql -u"$VITESS_USER" ${VITESS_PASSWORD:+-p"$VITESS_PASSWORD"} 2>/dev/null || true
+        AND User = '$DB_USER'
+    " 2>/dev/null | docker exec -i mysql mysql -u"$DB_USER" ${DB_PASSWORD:+-p"$DB_PASSWORD"} 2>/dev/null || true
     
     # Get connection count after cleanup
     local after_count
-    after_count=$(docker exec mysql mysql -u"$VITESS_USER" ${VITESS_PASSWORD:+-p"$VITESS_PASSWORD"} -N -e "SHOW STATUS LIKE 'Threads_connected'" 2>/dev/null | awk '{print $2}')
+    after_count=$(docker exec mysql mysql -u"$DB_USER" ${DB_PASSWORD:+-p"$DB_PASSWORD"} -N -e "SHOW STATUS LIKE 'Threads_connected'" 2>/dev/null | awk '{print $2}')
     
     local cleaned=$((before_count - after_count))
     if [ "$cleaned" -gt 0 ]; then

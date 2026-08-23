@@ -38,10 +38,10 @@ COPY src/ ./
 # Set environment variables
 ENV PYTHONPATH=/app
 ENV WORKER_ID=id-worker
-ENV VITESS_HOST=vitess
-ENV VITESS_PORT=15309
-ENV VITESS_DATABASE=page
-ENV VITESS_USER=root
+ENV DB_HOST=vitess
+ENV DB_PORT=15309
+ENV DB_DATABASE=page
+ENV DB_USER=root
 
 # Expose health check port
 EXPOSE 8001

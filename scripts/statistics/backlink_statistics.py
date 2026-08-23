@@ -9,7 +9,7 @@ Usage:
     python scripts/statistics/backlink_statistics.py
 
 Environment Variables:
-    VITESS_HOST, VITESS_PORT, VITESS_DATABASE, VITESS_USER, VITESS_PASSWORD:
+    DB_HOST, DB_PORT, DB_DATABASE, DB_USER, DB_PASSWORD:
     Database connection parameters.
     MINIO_ENDPOINT, MINIO_ACCESS_KEY, MINIO_SECRET_KEY: S3 connection parameters.
 """
@@ -180,11 +180,11 @@ async def main() -> None:
     try:
         # Initialize Vitess client
         vitess_config = VitessConfig(
-            host=os.getenv("VITESS_HOST", "vitess"),
-            port=int(os.getenv("VITESS_PORT", "15309")),
-            database=os.getenv("VITESS_DATABASE", "page"),
-            user=os.getenv("VITESS_USER", "root"),
-            password=os.getenv("VITESS_PASSWORD", ""),
+            host=os.getenv("DB_HOST", "vitess"),
+            port=int(os.getenv("DB_PORT", "15309")),
+            database=os.getenv("DB_DATABASE", "page"),
+            user=os.getenv("DB_USER", "root"),
+            password=os.getenv("DB_PASSWORD", ""),
         )
         vitess_client = VitessClient(config=vitess_config)
 

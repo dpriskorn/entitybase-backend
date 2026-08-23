@@ -414,7 +414,7 @@ from models.config.settings import settings
 api_port = settings.api_port
 
 # Override via environment
-# export VITESS_HOST=my-custom-host
+# export DB_HOST=my-custom-host
 ```
 
 ## Docker Configuration
@@ -422,8 +422,8 @@ api_port = settings.api_port
 Key settings for Docker deployment:
 
 
-- `VITESS_HOST`: Vitess database host (default: vitess)
-- `VITESS_PORT`: Vitess database port (default: 15309)
+- `DB_HOST`: Database host (default: vitess)
+- `DB_PORT`: Database port (default: 15309)
 - `S3_ENDPOINT`: S3-compatible storage endpoint (default: http://minio:9000)
 - `KAFKA_BROKERS`: Kafka broker addresses for change streaming
 

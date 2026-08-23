@@ -144,14 +144,14 @@ def generate_markdown(
     # Usage example
     lines.append("## Usage Example\n")
     lines.append(
-        "```python\nfrom models.config.settings import settings\n\n# Access a setting\napi_port = settings.api_port\n\n# Override via environment\n# export VITESS_HOST=my-custom-host\n```\n"
+        "```python\nfrom models.config.settings import settings\n\n# Access a setting\napi_port = settings.api_port\n\n# Override via environment\n# export DB_HOST=my-custom-host\n```\n"
     )
 
     # Docker section
     lines.append("## Docker Configuration\n")
     lines.append("Key settings for Docker deployment:\n\n")
-    lines.append("- `VITESS_HOST`: Vitess database host (default: vitess)")
-    lines.append("- `VITESS_PORT`: Vitess database port (default: 15309)")
+    lines.append("- `DB_HOST`: Database host (default: vitess)")
+    lines.append("- `DB_PORT`: Database port (default: 15309)")
     lines.append(
         "- `S3_ENDPOINT`: S3-compatible storage endpoint (default: http://minio:9000)"
     )

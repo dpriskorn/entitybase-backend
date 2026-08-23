@@ -43,10 +43,10 @@ def validate_e2e_env_vars():
     preventing long retry loops and confusing connection errors.
     """
     required_vars = {
-        "VITESS_HOST": "Vitess database host",
-        "VITESS_PORT": "Vitess database port",
-        "VITESS_DATABASE": "Vitess database name",
-        "VITESS_USER": "Vitess database user",
+        "DB_HOST": "Database host",
+        "DB_PORT": "Database port",
+        "DB_DATABASE": "Database name",
+        "DB_USER": "Database user",
     }
 
     missing_vars = []

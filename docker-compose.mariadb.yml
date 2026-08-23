@@ -1,7 +1,7 @@
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: mysql
+  mariadb:
+    image: mariadb:11.4
+    container_name: mariadb
     environment:
       MYSQL_ROOT_PASSWORD: ""
       MYSQL_DATABASE: entitybase
@@ -9,7 +9,7 @@ services:
     ports:
       - "3306:3306"
     healthcheck:
-      test: ["CMD", "mysql", "-uroot", "-e", "SELECT 1"]
+      test: ["CMD", "mariadb", "-uroot", "-e", "SELECT 1"]
       interval: 10s
       timeout: 5s
       retries: 30
@@ -87,11 +87,11 @@ services:
       dockerfile: docker/containers/Dockerfile.api
     container_name: create-tables
     depends_on:
-      mysql:
+      mariadb:
         condition: service_healthy
     command: sh -c "sleep 20 && python -m models.workers.dev tables setup"
     environment:
-      DB_HOST: mysql
+      DB_HOST: mariadb
       DB_PORT: 3306
       DB_DATABASE: entitybase
       DB_USER: root
@@ -110,7 +110,7 @@ services:
     environment:
       WORKER_ID: id_worker_1
       WORKER_COUNT: 1
-      DB_HOST: mysql
+      DB_HOST: mariadb
       DB_PORT: 3306
       DB_DATABASE: entitybase
       DB_USER: root
@@ -120,8 +120,6 @@ services:
     depends_on:
       create-tables:
         condition: service_completed_successfully
-      # This is needed to make sure we don't
-      # start API before redpanda is up
       redpanda:
         condition: service_healthy
     healthcheck:
@@ -142,7 +140,7 @@ services:
       - "8002:8002"
     environment:
       WORKER_ID: json_dump_worker_1
-      DB_HOST: mysql
+      DB_HOST: mariadb
       DB_PORT: 3306
       DB_DATABASE: entitybase
       DB_USER: root
@@ -185,7 +183,7 @@ services:
       - "8003:8003"
     environment:
       WORKER_ID: ttl_dump_worker_1
-      DB_HOST: mysql
+      DB_HOST: mariadb
       DB_PORT: 3306
       DB_DATABASE: entitybase
       DB_USER: root
@@ -228,7 +226,7 @@ services:
       - "8004:8004"
     environment:
       WORKER_ID: backlink_stats_worker_1
-      DB_HOST: mysql
+      DB_HOST: mariadb
       DB_PORT: 3306
       DB_DATABASE: entitybase
       DB_USER: root
@@ -260,7 +258,7 @@ services:
       - "8005:8005"
     environment:
       WORKER_ID: general_stats_worker_1
-      DB_HOST: mysql
+      DB_HOST: mariadb
       DB_PORT: 3306
       DB_DATABASE: entitybase
       DB_USER: root
@@ -291,7 +289,7 @@ services:
       - "8006:8006"
     environment:
       WORKER_ID: user_stats_worker_1
-      DB_HOST: mysql
+      DB_HOST: mariadb
       DB_PORT: 3306
       DB_DATABASE: entitybase
       DB_USER: root
@@ -323,7 +321,7 @@ services:
     depends_on:
       minio:
         condition: service_healthy
-      mysql:
+      mariadb:
         condition: service_healthy
       idworker:
         condition: service_healthy
@@ -336,7 +334,7 @@ services:
       S3_ACCESS_KEY: fakekey
       S3_SECRET_KEY: fakesecret
       S3_BUCKET: testbucket
-      DB_HOST: mysql
+      DB_HOST: mariadb
       DB_PORT: 3306
       DB_DATABASE: entitybase
       DB_USER: root

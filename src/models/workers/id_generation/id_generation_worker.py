@@ -56,7 +56,7 @@ class IdGeneratorWorker(VitessWorker):
         """Start the ID generation worker and begin the main processing loop.
 
         Initializes VitessClient and EnumerationService with configuration from
-        environment variables (VITESS_HOST, VITESS_PORT, etc.). Runs a continuous
+        environment variables (DB_HOST, DB_PORT, etc.). Runs a continuous
         loop monitoring ID range status every 60 seconds.
 
         Raises:
@@ -73,11 +73,11 @@ class IdGeneratorWorker(VitessWorker):
             from models.infrastructure.vitess.client import VitessClient
 
             vitess_config = VitessConfig(
-                host=os.getenv("VITESS_HOST", "vitess"),
-                port=int(os.getenv("VITESS_PORT", "15309")),
-                database=os.getenv("VITESS_DATABASE", "page"),
-                user=os.getenv("VITESS_USER", "root"),
-                password=os.getenv("VITESS_PASSWORD", ""),
+                host=os.getenv("DB_HOST", "vitess"),
+                port=int(os.getenv("DB_PORT", "15309")),
+                database=os.getenv("DB_DATABASE", "page"),
+                user=os.getenv("DB_USER", "root"),
+                password=os.getenv("DB_PASSWORD", ""),
             )
             self.vitess_client = VitessClient(config=vitess_config)
 
@@ -190,7 +190,7 @@ async def main() -> None:
 
     Environment Variables:
         WORKER_ID: Unique worker identifier.
-        VITESS_HOST, VITESS_PORT, VITESS_DATABASE, VITESS_USER, VITESS_PASSWORD:
+        DB_HOST, DB_PORT, DB_DATABASE, DB_USER, DB_PASSWORD:
         Database connection parameters.
         LOG_LEVEL: Logging level (DEBUG, INFO, WARNING, ERROR). Defaults to INFO.
     """
