@@ -4,12 +4,12 @@ Every edit creates an immutable snapshot that can never be overwritten.
 
 ## Overview
 
-Entitybase follows an **append-only** model where every edit creates a new revision stored in S3. Once written, a revision can never be modified or deleted — it's permanent.
+Entitybase follows an **append-only** model where every edit creates a new revision stored in MariaDB. Once written, a revision can never be modified or deleted — it's permanent.
 
 ## How It Works
 
 1. When you create or update an entity, a new revision is created
-2. The revision is stored as an immutable object in S3
+2. The revision is stored as an immutable object in MariaDB
 3. A "head pointer" in Vitess points to the latest revision
 4. All previous revisions remain accessible
 
@@ -31,13 +31,16 @@ Entitybase follows an **append-only** model where every edit creates a new revis
 
 ## Comparison
 
-```
-Traditional database:     Entitybase:
-┌─────────────┐         Rev 1: Q1 ──▶ S3
-│    Q1       │         Rev 2: Q1 ──▶ S3  
-│  (current)  │         Rev 3: Q1 ──▶ S3
-└─────────────┘         (all preserved!)
-  (overwrites!)
+```mermaid
+graph LR
+    subgraph Traditional
+        A[Q1 current] -->|overwrites| B[(DB)]
+    end
+    subgraph Entitybase
+        C[Rev 1: Q1] -->|append| D[(MariaDB)]
+        E[Rev 2: Q1] -->|append| D
+        F[Rev 3: Q1] -->|append| D
+    end
 ```
 
 See also: [Architecture](../ARCHITECTURE/ARCHITECTURE.md)

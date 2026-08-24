@@ -212,9 +212,9 @@ class EntityStatementService(Service):
             raise_validation_error(f"Failed to fetch entity: {e}", status_code=400)
 
     def _fetch_revision_data(self, entity_id: str, revision_id: int) -> RevisionData:
-        """Fetch revision data from S3."""
+        """Fetch revision data from MariaDB."""
         try:
-            s3_revision_data = self.state.s3_client.read_revision(
+            s3_revision_data = self.state.read_revision_data(
                 entity_id, revision_id
             )
             from models.data.infrastructure.s3.revision_data import S3RevisionData
@@ -231,11 +231,6 @@ class EntityStatementService(Service):
                 if "is_mass_edit" in edit_dict:
                     edit_dict["mass"] = edit_dict.pop("is_mass_edit")
             return RevisionData.model_validate(revision_dict)  # type: ignore[no-any-return]
-        except S3NotFoundError:
-            raise_validation_error(
-                f"Revision not found: {entity_id} revision {revision_id}",
-                status_code=404,
-            )
         except Exception as e:
             raise_validation_error(f"Failed to fetch revision: {e}", status_code=400)
 
@@ -321,8 +316,9 @@ class EntityStatementService(Service):
                 hash=content_hash,
                 created_at=revision_data.created_at,
             )
-            logger.debug("Storing revision to S3")
-            self.state.s3_client.store_revision(content_hash, s3_revision_data)
+            logger.debug("Storing revision to MariaDB")
+            from models.infrastructure.db.repositories.revision_data import RevisionDataRepository
+            RevisionDataRepository(db_client=self.state.db_client).store(content_hash, s3_revision_data.model_dump(mode="json"))
             logger.debug("Creating revision in database")
             revision_created = self.state.db_client.create_revision(
                 entity_id=entity_id,

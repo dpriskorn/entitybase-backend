@@ -2,74 +2,62 @@
 
 ## Write atomicity model
 
-The system uses a **two-phase durable write** model with S3 as the system of record.
+The system uses a **single-database ACID transaction** model with MariaDB as the system of record.
 
 **Write order (strict):**
-1. Write immutable snapshot to S3
-2. Insert revision metadata into Vitess
+1. Write revision data to MariaDB
+2. Insert revision metadata
 3. Update entity head pointer
 
-S3 success is the definition of a successful revision creation.
+All writes happen within a single MariaDB database. ACID transactions guarantee atomicity — either all three steps succeed, or none do.
 
 ## Handling partial failures
 
-### Case: S3 write succeeds, Vitess fails
+### Case: Transaction fails (any step)
 
-- Snapshot exists and is immutable
-- No visible revision pointer yet
-- Snapshot is considered **unpublished**
+MariaDB rolls back the entire transaction atomically. No partial state is persisted.
 
 **Recovery strategy:**
-- Periodic reconciler job scans S3 for unpublished snapshots
-- Missing Vitess rows are reconstructed from snapshot metadata
-- Head pointer is updated if the revision is newer
+- Client receives an error and retries the full operation
+- No orphaned data, no reconciliation needed
 
-This makes the system **eventually consistent but never lossy**.
+This makes the system **strictly consistent** by design.
 
-### Case: Vitess insert succeeds, head update fails
+### Case: Head update fails (should not happen)
 
-- Revision exists but is not visible as head
-- Subsequent writes will advance the head correctly
+If the transaction commits successfully, the head pointer is always updated. There is no scenario where revision metadata exists but the head pointer is stale, because both are in the same transaction.
 
 **Recovery strategy:**
-- Reconciler verifies:
-  - Max revision per entity
-  - Head pointer correctness
-- Repairs head pointers automatically
+- N/A — prevented by transactional guarantees
 
 ---
 
 ## Transaction boundaries
 
-Transaction scope:
+All writes to MariaDB occur within a single ACID transaction:
 
-No distributed transactions
+- Atomicity — all steps succeed or all are rolled back
+- Consistency — constraints are enforced at the database level
+- Isolation — concurrent writes are serialized by MariaDB
+- Durability — committed data survives crashes
 
-Each step is independently durable
+No distributed transactions. No cross-system coordination. No reconciliation needed.
 
-Reconciliation guarantees convergence
+## S3 usage
 
-This replaces strict ACID with durable, repairable operations.
+S3 is used only for dump uploads (bulk data exports). These are:
 
-### Case: S3 succeeds, Vitess fails
-- Snapshot exists but is unpublished
-- Snapshot remains tagged `publication_state = pending`
-- Reconciler scans S3 for pending snapshots
-- Missing Vitess rows are recreated from snapshot metadata
-- Head pointer is advanced if the revision is newer
-- Snapshot tag updated to `published`
+- Non-critical operations that can be retried on failure
+- Independent of the entity write path
+- Not part of the consistency model
 
-### Case: Vitess insert succeeds, head update fails
-- Revision metadata exists but is not visible as head
-- Reconciler detects head lag
-- Head pointer advanced to highest published revision
+---
 
+## Final consistency guarantees
 
-# Final consistency guarantees
-- No data loss (S3 is authoritative)
+- No data loss (MariaDB is authoritative)
 - Heads never move backward
 - History is immutable
-- Readers see eventually consistent state
-- All inconsistencies are detectable and repairable
-- System converges automatically
-
+- Readers see strictly consistent state
+- All writes are atomic and durable
+- No reconciliation needed

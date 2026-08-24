@@ -372,6 +372,16 @@ class SchemaRepository(Repository):
 
             cursor.execute(
                 """
+                CREATE TABLE IF NOT EXISTS entity_revision_data (
+                    content_hash BIGINT UNSIGNED PRIMARY KEY,
+                    data JSON NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """
+            )
+
+            cursor.execute(
+                """
                 CREATE TABLE IF NOT EXISTS lexeme_terms (
                     entity_id VARCHAR(20) NOT NULL,
                     form_sense_id VARCHAR(20) NOT NULL,

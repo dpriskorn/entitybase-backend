@@ -1,46 +1,56 @@
 # Lexeme Update Process
 
+```mermaid
+flowchart TD
+    A[EntityUpdateHandler.update_lexeme] --> B[Validate Lexeme ID]
+    B -->|invalid| B1[Return 400]
+    B --> C[Check Entity Exists]
+    C -->|not found| C1[Return 404]
+    C --> D[Check Deletion Status]
+    D -->|deleted| D1[Return 410]
+    D --> E[Check Lock Status]
+    E -->|locked| E1[Return 423]
+    E --> F[Create Transaction]
+    F --> G[Get Head]
+    G --> H[Prepare Data]
+    H --> I[Process Lexeme Terms]
+    I --> J[Process Statements]
+    J --> K[Create Revision - CAS protected]
+    K --> L[Publish Event]
+    L --> M[Commit]
+    M --> N[Return EntityResponse]
+    J -->|failure| O[Rollback]
+    O --> P[Raise HTTP 500]
 ```
-[EntityUpdateHandler - update_lexeme()]
-+--> Validate Lexeme ID: re.match(r"^L\d+$", entity_id) -> Fail if invalid (400)
-+--> Check Entity Exists: vitess_client.entity_exists(entity_id) -> Fail if False (404)
-+--> Check Deletion Status: vitess_client.is_entity_deleted(entity_id) -> Fail if True (410)
-+--> Check Lock Status: vitess_client.is_entity_locked(entity_id) -> Fail if True (423)
-+--> Create Transaction: tx = UpdateTransaction()
-+--> Try:
-|    +--> Get Head: head_revision_id = vitess_client.get_head(entity_id)
-|    +--> Prepare Data: request_data["id"] = entity_id
-|    +--> Process Lexeme Terms: tx.process_lexeme_terms(forms, senses)
-|    |    +--> Extract Forms: request.data.get("forms", [])
-|    |    +--> Extract Senses: request.data.get("senses", [])
-|    |    +--> Hash Form Representations:
-|    |    |    +--> For each form.representations[lang].value:
-|    |    |    |    +--> Compute hash: MetadataExtractor.hash_string(text)
-|    |    |    |    +--> Store to S3: s3_client.store_form_representation(text, hash_val)
-|    |    |    |    +--> Register rollback: tx.lexeme_term_operations.append(lambda: rollback_form(hash))
-|    |    +--> Hash Sense Glosses:
-|    |    |    +--> For each sense.glosses[lang].value:
-|    |    |    |    +--> Compute hash: MetadataExtractor.hash_string(text)
-|    |    |    |    +--> Store to S3: s3_client.store_sense_gloss(text, hash_val)
-|    |    |    |    +--> Register rollback: tx.lexeme_term_operations.append(lambda: rollback_gloss(hash))
-|    |    +--> Update request_data with hashes: request_data["forms"] = forms, request_data["senses"] = senses
-|    +--> Process Statements: tx.process_statements(entity_id, request_data, vitess_client, s3_client)
-|    |    +--> Extract Properties: StatementExtractor.extract_properties_from_claims(claims)
-|    |    +--> Compute Property Counts: StatementExtractor.compute_property_counts_from_claims(claims)
-|    |    +--> Hash Statements: StatementHasher.compute_hash(statement) for each statement
-|    |    +--> Deduplicate and Store: deduplicate_and_store_statements(hash_result, vitess_client, s3_client)
-|    +--> Create Revision: tx.create_revision(entity_id, new_revision_id=head+1, ..., is_creation=False) [CAS protected]
-|    +--> Publish Event: tx.publish_event(entity_id, stream_producer)
-|    +--> Commit: tx.commit()
-+--> Except (Any Failure):
-|    +--> Rollback: tx.rollback()
-|    |    +--> Rollback Lexeme Terms (reversed order): for op in reversed(tx.lexeme_term_operations): op()
-|    |    |    +--> Delete form representations: s3_client._delete_metadata(FORM_REPRESENTATIONS, hash)
-|    |    |    +--> Delete sense glosses: s3_client._delete_metadata(SENSE_GLOSSES, hash)
-|    |    +--> Rollback Statements (reversed order): for op in reversed(tx.operations): op()
-|    |    |    +--> Decrement ref_count: vitess_client.decrement_ref_count(hash)
-|    |    |    +--> Delete from S3 if orphaned: s3_client.delete_statement(hash) when ref_count == 0
-|    |    +--> Rollback Revision: vitess_client.delete_revision(entity_id, revision_id)
-|    +--> Raise HTTP 500
-+--> Return: EntityResponse
+
+## Lexeme Term Processing Detail
+
+```mermaid
+flowchart TD
+    A[Extract Forms] --> B[For Each Form]
+    B --> C[Hash Form Representations]
+    C --> D[Store in MariaDB]
+    D --> E[Register Rollback]
+    E --> F[Extract Senses]
+    F --> G[For Each Sense]
+    G --> H[Hash Sense Glosses]
+    H --> I[Store in MariaDB]
+    I --> J[Register Rollback]
+    J --> K[Update request_data with hashes]
+```
+
+## Rollback Detail
+
+```mermaid
+flowchart TD
+    A[Rollback Lexeme Terms - reversed] --> B[For Each Operation]
+    B --> C[Delete form representations from MariaDB]
+    B --> D[Delete sense glosses from MariaDB]
+    A --> E[Rollback Statements - reversed]
+    E --> F[Decrement ref_count]
+    F --> G{ref_count == 0?}
+    G -->|Yes| H[Delete from MariaDB]
+    G -->|No| I[Skip]
+    A --> J[Rollback Revision]
+    J --> K[Delete from Vitess]
 ```

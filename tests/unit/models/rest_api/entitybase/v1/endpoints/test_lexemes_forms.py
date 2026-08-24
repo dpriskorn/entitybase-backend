@@ -37,7 +37,7 @@ class TestFormsAndSensesEndpoints:
             hash=123456,
             created_at="2023-01-01T12:00:00Z",
         )
-        mock_s3.read_revision.return_value = mock_revision_data
+        mock_state.read_revision_data.return_value = mock_revision_data
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -76,7 +76,7 @@ class TestFormsAndSensesEndpoints:
             hash=123456,
             created_at="2023-01-01T12:00:00Z",
         )
-        mock_s3.read_revision.return_value = mock_revision_data
+        mock_state.read_revision_data.return_value = mock_revision_data
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -109,7 +109,7 @@ class TestFormsAndSensesEndpoints:
             hash=123456,
             created_at="2023-01-01T12:00:00Z",
         )
-        mock_s3.read_revision.return_value = mock_revision_data
+        mock_state.read_revision_data.return_value = mock_revision_data
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -131,7 +131,7 @@ class TestFormsAndSensesEndpoints:
             hash=123456,
             created_at="2023-01-01T12:00:00Z",
         )
-        mock_s3.read_revision.return_value = mock_revision_data
+        mock_state.read_revision_data.return_value = mock_revision_data
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -163,7 +163,7 @@ class TestFormsAndSensesEndpoints:
             hash=123456,
             created_at="2023-01-01T12:00:00Z",
         )
-        mock_s3.read_revision.return_value = mock_revision_data
+        mock_state.read_revision_data.return_value = mock_revision_data
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -187,7 +187,7 @@ class TestFormsAndSensesEndpoints:
             hash=123456,
             created_at="2023-01-01T12:00:00Z",
         )
-        mock_s3.read_revision.return_value = mock_revision_data
+        mock_state.read_revision_data.return_value = mock_revision_data
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -224,7 +224,7 @@ class TestFormsAndSensesEndpoints:
             hash=123456,
             created_at="2023-01-01T12:00:00Z",
         )
-        mock_s3.read_revision.return_value = mock_revision_data
+        mock_state.read_revision_data.return_value = mock_revision_data
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -268,7 +268,7 @@ class TestFormsAndSensesEndpoints:
             hash=123456,
             created_at="2023-01-01T12:00:00Z",
         )
-        mock_s3.read_revision.return_value = mock_revision_data
+        mock_state.read_revision_data.return_value = mock_revision_data
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state

@@ -12,11 +12,6 @@ class TestSettingsResponse:
         """Test minimal instantiation with required fields only."""
         response = SettingsResponse(
             s3_endpoint="http://localhost:9000",
-            s3_revisions_bucket="revisions",
-            s3_snak_version="1.0.0",
-            s3_sitelink_version="1.0.0",
-            s3_qualifier_version="1.0.0",
-            s3_reference_version="1.0.0",
             s3_statement_version="1.0.0",
             s3_schema_revision_version="1.0.0",
             vitess_host="localhost",
@@ -70,11 +65,6 @@ class TestSettingsResponse:
         """Test model_dump()."""
         response = SettingsResponse(
             s3_endpoint="http://localhost:9000",
-            s3_revisions_bucket="revisions",
-            s3_snak_version="1.0.0",
-            s3_sitelink_version="1.0.0",
-            s3_qualifier_version="1.0.0",
-            s3_reference_version="1.0.0",
             s3_statement_version="1.0.0",
             s3_schema_revision_version="1.0.0",
             vitess_host="localhost",

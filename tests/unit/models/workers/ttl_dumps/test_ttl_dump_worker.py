@@ -180,41 +180,61 @@ class TestTtlDumpWorker:
         """Test successful entity fetch and conversion."""
         record = EntityDumpRecord(entity_id="Q1", internal_id=100, revision_id=1)
 
-        mock_revision_data = MagicMock()
-        mock_revision_data.revision = {
-            "id": "Q1",
-            "type": "item",
-            "labels": {},
-            "descriptions": {},
-            "aliases": {},
-            "sitelinks": {},
-            "claims": [],
-        }
-
-        mock_s3_client = MagicMock()
-        mock_s3_client.read_revision.return_value = mock_revision_data
-
         mock_converter = MagicMock()
         mock_converter.convert_to_turtle = MagicMock()
 
+        mock_db_client = MagicMock()
+        mock_db_client.id_resolver.resolve_id.return_value = 100
+
         worker = TtlDumpWorker()
-        worker.s3_client = mock_s3_client
+        worker.db_client = mock_db_client
         worker.converter = mock_converter
 
-        data = await worker._fetch_and_convert_entity(record, MagicMock())
-        assert data is not None
-        mock_converter.convert_to_turtle.assert_called_once()
+        mock_s3_data = {
+            "schema": "3.0.0",
+            "revision": {
+                "id": "Q1",
+                "type": "item",
+                "labels": {},
+                "descriptions": {},
+                "aliases": {},
+                "sitelinks": {},
+                "claims": [],
+            },
+            "hash": 123,
+            "created_at": "2025-01-01T00:00:00Z",
+        }
+
+        with (
+            patch(
+                "models.infrastructure.db.repositories.revision.RevisionRepository"
+            ) as mock_rev_repo_class,
+            patch(
+                "models.infrastructure.db.repositories.revision_data.RevisionDataRepository"
+            ) as mock_data_repo_class,
+        ):
+            mock_rev_repo = MagicMock()
+            mock_rev_repo.get_content_hash.return_value = 42
+            mock_rev_repo_class.return_value = mock_rev_repo
+
+            mock_data_repo = MagicMock()
+            mock_data_repo.load.return_value = mock_s3_data
+            mock_data_repo_class.return_value = mock_data_repo
+
+            data = await worker._fetch_and_convert_entity(record, MagicMock())
+            assert data is not None
+            mock_converter.convert_to_turtle.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_fetch_and_convert_entity_failure(self):
         """Test entity fetch and conversion with error."""
         record = EntityDumpRecord(entity_id="Q1", internal_id=100, revision_id=1)
 
-        mock_s3_client = MagicMock()
-        mock_s3_client.read_revision.side_effect = Exception("S3 error")
+        mock_db_client = MagicMock()
+        mock_db_client.id_resolver.resolve_id.side_effect = Exception("DB error")
 
         worker = TtlDumpWorker()
-        worker.s3_client = mock_s3_client
+        worker.db_client = mock_db_client
 
         data = await worker._fetch_and_convert_entity(record, MagicMock())
         assert data is None

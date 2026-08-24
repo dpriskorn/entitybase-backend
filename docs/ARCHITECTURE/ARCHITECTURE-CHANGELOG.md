@@ -1,6 +1,39 @@
 # Architecture Changelog
 
+> **Note**: This document is historical. The entries below describe the OLD architecture
+> where S3 was the system of record. As of 2026-08-24, MariaDB is the system of record
+> for all data including revision snapshots. S3 is only used for dump file uploads.
+> See [STORAGE-ARCHITECTURE.md](./STORAGE-ARCHITECTURE.md) for the current architecture.
+
 This file tracks architectural changes, feature additions, and modifications to entitybase-backend.
+
+## [2026-08-24] Revision Storage: S3 → MariaDB
+
+Revision snapshots have been moved from S3 (rustfs/MinIO) to MariaDB. This eliminates
+the need for S3 as the primary storage backend and solves the 1.5M empty directory problem
+caused by the Wikidata lexeme import.
+
+### What changed
+- New `entity_revision_data` table stores full revision JSON blobs, keyed by content hash
+- New `RevisionDataRepository` for CRUD on revision data
+- All 13+ call sites that read/write revisions now use MariaDB instead of S3
+- `MyS3Client` simplified — revision methods removed, only S3 dump uploads remain
+- S3 bucket creation removed from API startup
+- S3 health check removed from `/health` endpoint
+- Docker compose: `entitybase-api` no longer depends on `rustfs`
+- `s3_revisions_bucket` setting removed from config
+- `s3_snak_version`, `s3_sitelink_version`, `s3_qualifier_version`, `s3_reference_version` settings removed
+
+### What remains in S3
+- **Dump file uploads**: JSON and TTL dumps uploaded to `wikibase-dumps` bucket
+- Workers (json-dump-worker, ttl-dump-worker) still use S3 for dump uploads
+
+### Migration
+- No data migration — existing S3 revision data is orphaned
+- No fallback — direct rewrite to MariaDB
+
+### Tables affected
+- `entity_revision_data` (NEW): `content_hash BIGINT PK, data JSON, created_at TIMESTAMP`
 
 ## [2026-03-13] Elasticsearch Transformer Pydantic Models
 

@@ -2,58 +2,49 @@
 
 ## Term DELETE Path (Removing Labels/Descriptions for Language)
 
-```
-[Entitybase DELETE /entities/{type}/{id}/labels/{lang} or /descriptions/{lang} - entitybase/v1/*.py]
-+--> Receive DELETE Request for specific term type and language
-+--> Validate Clients: vitess and s3 initialized
-+--> Check Entity Exists: vitess.entity_exists(entity_id) == True
-+--> Check Not Deleted: vitess.is_entity_deleted(entity_id) == False
-+--> Check Permissions: not archived/locked/mass_edit_protected
-+--> Get Current Entity: EntityReadHandler.get_entity(entity_id, vitess, s3)
-+--> Extract Term Type: labels or descriptions from URL path
-+--> Check Term Exists: entity_data[term_type].get(language_code) is not None
-|    +--> If Term Doesn't Exist: Return current entity (idempotent success)
-|    +--> If Term Exists: Continue deletion
-+--> Remove Term from Entity Data: del entity_data[term_type][language_code]
-+--> Calculate New Revision ID: head_revision_id + 1
-+--> Prepare Revision Data: copy entity_data, set edit_type="term_delete"
-+--> Hash Entity Content: MetadataExtractor.hash_entity(entity_data)
-+--> Process Term Storage Updates:
-|    +--> For Labels: Remove from Vitess entity_terms table
-|    |    +--> Query existing hash for language: SELECT hash FROM entity_terms
-|    |    |                                      WHERE term_type='label' AND language=?
-|    |    +--> Delete from entity_terms: DELETE FROM entity_terms WHERE hash = ?
-|    |    +--> Remove from revision labels_hashes: del revision_data["labels_hashes"][language_code]
-|    +--> For Descriptions: Remove from S3 metadata storage
-|    |    +--> Load current description metadata from S3
-|    |    +--> Remove language entry: del metadata[language_code]
-|    |    +--> Write updated metadata back to S3
-|    |    +--> Remove from revision descriptions_hashes: del revision_data["descriptions_hashes"][language_code]
-+--> Write Revision to S3: s3.write_revision(entity_id, new_revision_id, revision_data)
-+--> Update Vitess Revision Table: vitess.create_revision(entity_id, new_revision_id, revision_data)
-+--> Update Head Pointer: vitess.update_head_revision(entity_id, new_revision_id)
-+--> Publish Change Event: stream_producer.publish_change(TERM_DELETE event)
-+--> Return EntityResponse with updated entity data
+```mermaid
+flowchart TD
+    A[Receive DELETE Request] --> B[Validate Clients: vitess and s3]
+    B --> C[Check Entity Exists]
+    C -->|not found| C1[Return 404]
+    C --> D[Check Not Deleted]
+    D -->|deleted| D1[Return 410]
+    D --> E[Check Permissions]
+    E -->|denied| E1[Return 403]
+    E --> F[Get Current Entity]
+    F --> G[Extract Term Type: labels or descriptions]
+    G --> H{Term Exists?}
+    H -->|No| H1[Return current entity - idempotent]
+    H -->|Yes| I[Remove Term from Entity Data]
+    I --> J[Calculate New Revision ID]
+    J --> K[Prepare Revision Data]
+    K --> L[Hash Entity Content]
+    L --> M[Process Term Storage Updates]
+    M --> N[Write Revision to MariaDB]
+    N --> O[Update Vitess Revision Table]
+    O --> P[Update Head Pointer]
+    P --> Q[Publish Change Event]
+    Q --> R[Return EntityResponse]
 ```
 
 ## Term DELETE Validation
 
-```
-[Entitybase DELETE endpoint validation]
-+--> Validate Entity ID: matches /^[A-Z]\d+$/
-+--> Validate Language Code: matches /^[a-z-]+$/
-+--> Validate Term Type: in ['labels', 'descriptions']
-+--> Check Entity State: not deleted, not locked/archived
-+--> Check User Permissions: can modify entity
+```mermaid
+flowchart TD
+    A[Validate Entity ID] -->|invalid| A1[Return 400]
+    A --> B[Validate Language Code]
+    B -->|invalid| B1[Return 400]
+    B --> C[Validate Term Type]
+    C -->|invalid| C1[Return 400]
+    C --> D[Check Entity State]
+    D --> E[Check User Permissions]
 ```
 
 ## Wikibase API Redirect
 
-```
-[Wikibase DELETE /entities/{type}/{id}/labels/{lang} or /descriptions/{lang} - wikibase/v1/*.py]
-+--> Receive Wikibase DELETE request
-+--> Return 307 Redirect to: /entitybase/v1/entities/{type}/{id}/{term_type}/{lang}
-+--> Preserve DELETE method
+```mermaid
+flowchart LR
+    A[Receive Wikibase DELETE] --> B[Return 307 Redirect to entitybase endpoint]
 ```
 
 ## Error Handling
@@ -77,8 +68,8 @@
 
 ## Performance Characteristics
 
-- **Read Operations**: 1 entity read, 1 S3 revision fetch
-- **Write Operations**: 1 S3 revision write, 1 Vitess term delete (for labels)
+- **Read Operations**: 1 entity read, 1 revision fetch from MariaDB
+- **Write Operations**: 1 revision write to MariaDB, 1 Vitess term delete (for labels)
 - **Hash Calculations**: Full entity re-hash (simpler than PATCH selective updates)
 - **Storage Impact**: Complete term removal vs array element modification
 

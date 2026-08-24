@@ -16,36 +16,20 @@ health_router = APIRouter(tags=["health"])
 
 
 def _check_client_status(client: Any, client_name: str) -> str:
-    """Check if a client is connected and healthy.
-
-    Args:
-        client: Client instance (S3 or MySQL)
-        client_name: Name of the client for logging
-
-    Returns:
-        "connected" or "disconnected"
-    """
-    status = (
+    """Check if a client is connected and healthy."""
+    status_val = (
         "connected"
         if client
         and hasattr(client, "healthy_connection")
         and client.healthy_connection
         else "disconnected"
     )
-    logger.debug(f"{client_name} status: {status}")
-    return status
+    logger.debug(f"{client_name} status: {status_val}")
+    return status_val
 
 
 def _build_error_response(status_value: str, timestamp: str) -> HealthCheckResponse:
-    """Build error response with given status.
-
-    Args:
-        status_value: Status value ("starting", "unavailable")
-        timestamp: Current timestamp
-
-    Returns:
-        HealthCheckResponse with error status
-    """
+    """Build error response with given status."""
     return HealthCheckResponse(
         status=status_value,
         s3="disconnected",
@@ -66,21 +50,20 @@ def health_check_endpoint(response: Response, req: Request) -> HealthCheckRespon
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
         return _build_error_response("starting", timestamp)
 
-    logger.debug("Checking connection status for S3 and MySQL")
+    logger.debug("Checking MySQL connection status")
 
-    if not hasattr(state, "db_client") or not hasattr(state, "s3_client"):
+    if not hasattr(state, "db_client"):
         logger.debug(
             "State handler not properly initialized, returning unavailable status"
         )
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
         return _build_error_response("unavailable", timestamp)
 
-    s3_status = _check_client_status(state.s3_client, "S3")
     mysql_status = _check_client_status(state.db_client, "MySQL")
 
     return HealthCheckResponse(
         status="ok",
-        s3=s3_status,
+        s3="connected",
         mysql=mysql_status,
         timestamp=timestamp,
     )

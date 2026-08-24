@@ -7,7 +7,7 @@
 ## Architecture in 3 Sentences 🧠
 
 1. **You (clients)** talk to the **REST API** 
-2. The API stores data in **S3** (permanent storage) and indexes it in **Vitess** (fast lookups)
+2. The API stores data in **MariaDB** (permanent storage) and indexes it in **Vitess** (fast lookups)
 3. Everything is built around **immutable revisions** — once written, never changed
 
 ---
@@ -36,11 +36,11 @@ src/models/
 ├── config/           # Configuration and settings
 ├── data/             # Data models (Pydantic)
 │   ├── config/       # Data config models
-│   ├── infrastructure# Infra data models (S3, Vitess records)
+│   ├── infrastructure# Infra data models (Vitess records)
 │   ├── rest_api/     # API request/response models
 │   └── workers/      # Worker data models
 ├── infrastructure/   # External service integrations
-│   ├── s3/           # S3 storage client
+│   ├── s3/           # Dump upload client (MinIO)
 │   ├── stream/       # Event streaming
 │   └── vitess/       # Database repositories
 ├── internal_representation/  # Core domain models
@@ -54,7 +54,7 @@ src/models/
 
 tests/                # Test suite
 docs/                 # Documentation
-schemas/              # JSON schemas for S3 data formats
+schemas/              # JSON schemas for data formats
 ```
 
 ## Key Concepts
@@ -69,7 +69,7 @@ schemas/              # JSON schemas for S3 data formats
 
 - **API**: FastAPI
 - **Database**: Vitess (MySQL sharding)
-- **Storage**: S3 (immutable revisions)
+- **Storage**: MariaDB (revisions, statements, terms)
 - **Validation**: Pydantic v2
 
 ---
@@ -93,7 +93,7 @@ The **business logic** layer. It:
 ### `src/models/infrastructure/` — The Connectors 🔌
 
 Integrations with **external systems**:
-- `s3/` — Talks to S3 for storing revisions
+- `s3/` — Talks to MinIO for dump uploads
 - `vitess/` — Talks to Vitess for indexing
 - `stream/` — Event streaming (change notifications)
 

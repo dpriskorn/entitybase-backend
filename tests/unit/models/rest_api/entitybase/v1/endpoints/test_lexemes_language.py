@@ -27,7 +27,7 @@ class TestLanguageEndpoints:
             hash=123456,
             created_at="2023-01-01T12:00:00Z",
         )
-        mock_s3.read_revision.return_value = mock_revision_data
+        mock_state.read_revision_data.return_value = mock_revision_data
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -52,7 +52,7 @@ class TestLanguageEndpoints:
             hash=123456,
             created_at="2023-01-01T12:00:00Z",
         )
-        mock_s3.read_revision.return_value = mock_revision_data
+        mock_state.read_revision_data.return_value = mock_revision_data
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -86,7 +86,7 @@ class TestLanguageEndpoints:
             hash=123456,
             created_at="2023-01-01T12:00:00Z",
         )
-        mock_s3.read_revision.return_value = mock_revision_data
+        mock_state.read_revision_data.return_value = mock_revision_data
 
         mock_state.validator = Mock()
         mock_update_handler.update_lexeme = AsyncMock(return_value=mock_entity)
@@ -129,7 +129,7 @@ class TestLanguageEndpoints:
             hash=123456,
             created_at="2023-01-01T12:00:00Z",
         )
-        mock_s3.read_revision.return_value = mock_revision_data
+        mock_state.read_revision_data.return_value = mock_revision_data
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -167,7 +167,7 @@ class TestLexicalCategoryEndpoints:
             hash=123456,
             created_at="2023-01-01T12:00:00Z",
         )
-        mock_s3.read_revision.return_value = mock_revision_data
+        mock_state.read_revision_data.return_value = mock_revision_data
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -196,7 +196,7 @@ class TestLexicalCategoryEndpoints:
             hash=123456,
             created_at="2023-01-01T12:00:00Z",
         )
-        mock_s3.read_revision.return_value = mock_revision_data
+        mock_state.read_revision_data.return_value = mock_revision_data
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -223,7 +223,7 @@ class TestLexicalCategoryEndpoints:
             hash=123456,
             created_at="2023-01-01T12:00:00Z",
         )
-        mock_s3.read_revision.return_value = mock_revision_data
+        mock_state.read_revision_data.return_value = mock_revision_data
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -259,7 +259,7 @@ class TestLexicalCategoryEndpoints:
             hash=123456,
             created_at="2023-01-01T12:00:00Z",
         )
-        mock_s3.read_revision.return_value = mock_revision_data
+        mock_state.read_revision_data.return_value = mock_revision_data
 
         mock_state.validator = Mock()
         mock_update_handler.update_lexeme = AsyncMock(return_value=mock_entity)
@@ -306,7 +306,7 @@ class TestLexicalCategoryEndpoints:
             hash=123456,
             created_at="2023-01-01T12:00:00Z",
         )
-        mock_s3.read_revision.return_value = mock_revision_data
+        mock_state.read_revision_data.return_value = mock_revision_data
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state

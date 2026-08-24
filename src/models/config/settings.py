@@ -23,19 +23,12 @@ class Settings(BaseModel):
 
     model_config = {"extra": "ignore"}
 
-    # s3
+    # s3 (for dump uploads only)
     s3_endpoint: str = "http://minio:9000"
     s3_access_key: str = "fakekey"
     s3_secret_key: str = "fakesecret"
 
-    # buckets
-    s3_revisions_bucket: str = "revisions"
-
-    # S3 versions
-    s3_snak_version: str = "1.0.0"
-    s3_sitelink_version: str = "1.0.0"
-    s3_qualifier_version: str = "1.0.0"
-    s3_reference_version: str = "1.0.0"
+    # S3 versions (statement/metadata schema versions)
     s3_statement_version: str = "1.0.0"
     s3_schema_revision_version: str = "4.0.0"
 
@@ -145,20 +138,6 @@ class Settings(BaseModel):
         self.s3_access_key = os.getenv("S3_ACCESS_KEY", self.s3_access_key)
         self.s3_secret_key = os.getenv("S3_SECRET_KEY", self.s3_secret_key)
 
-        self.s3_revisions_bucket = os.getenv(
-            "S3_REVISIONS_BUCKET", self.s3_revisions_bucket
-        )
-
-        self.s3_snak_version = os.getenv("S3_SNAK_VERSION", self.s3_snak_version)
-        self.s3_sitelink_version = os.getenv(
-            "S3_SITELINK_VERSION", self.s3_sitelink_version
-        )
-        self.s3_qualifier_version = os.getenv(
-            "S3_QUALIFIER_VERSION", self.s3_qualifier_version
-        )
-        self.s3_reference_version = os.getenv(
-            "S3_REFERENCE_VERSION", self.s3_reference_version
-        )
         self.s3_statement_version = os.getenv(
             "S3_STATEMENT_VERSION", self.s3_statement_version
         )
@@ -352,7 +331,7 @@ class Settings(BaseModel):
             endpoint_url=self.s3_endpoint,
             access_key=self.s3_access_key,
             secret_key=self.s3_secret_key,
-            bucket=self.s3_revisions_bucket,
+            bucket=self.s3_dump_bucket,
             region="us-east-1",
         )
 

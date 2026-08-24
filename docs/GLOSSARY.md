@@ -184,9 +184,9 @@ An **immutable snapshot** is data that, once written, can never be changed or de
 **Contrast with mutable data:**
 ```
 Mutable (traditional DB):    Immutable (Entitybase):
-┌─────────────┐              Rev 1: Q1 ──▶ S3
-│    Q1       │              Rev 2: Q1 ──▶ S3  
-│  (current)  │              Rev 3: Q1 ──▶ S3
+┌─────────────┐              Rev 1: Q1 ──▶ MariaDB
+│    Q1       │              Rev 2: Q1 ──▶ MariaDB
+│  (current)  │              Rev 3: Q1 ──▶ MariaDB
 └─────────────┘              (all preserved!)
   (overwrites!)
 ```

@@ -370,6 +370,14 @@ class SqliteSchemaRepository(Repository):
             )
 
             cursor.execute("""
+                CREATE TABLE IF NOT EXISTS entity_revision_data (
+                    content_hash INTEGER PRIMARY KEY,
+                    data TEXT NOT NULL,
+                    created_at TEXT DEFAULT (datetime('now'))
+                )
+            """)
+
+            cursor.execute("""
                 CREATE TABLE IF NOT EXISTS lexeme_terms (
                     entity_id TEXT NOT NULL,
                     form_sense_id TEXT NOT NULL,

@@ -171,29 +171,49 @@ class TestJsonDumpWorker:
         """Test successful entity data fetch."""
         record = EntityDumpRecord(entity_id="Q1", internal_id=100, revision_id=1)
 
-        mock_revision_data = MagicMock()
-        mock_revision_data.revision = {"id": "Q1", "type": "item"}
+        mock_s3_data = {
+            "schema": "3.0.0",
+            "revision": {"id": "Q1", "type": "item"},
+            "hash": 123,
+            "created_at": "2025-01-01T00:00:00Z",
+        }
 
-        mock_s3_client = MagicMock()
-        mock_s3_client.read_revision.return_value = mock_revision_data
+        mock_db_client = MagicMock()
+        mock_db_client.id_resolver.resolve_id.return_value = 100
 
         worker = JsonDumpWorker()
-        worker.s3_client = mock_s3_client
+        worker.db_client = mock_db_client
 
-        data = await worker._fetch_entity_data(record)
-        assert data is not None
-        assert data["id"] == "Q1"
+        with (
+            patch(
+                "models.infrastructure.db.repositories.revision.RevisionRepository"
+            ) as mock_rev_repo_class,
+            patch(
+                "models.infrastructure.db.repositories.revision_data.RevisionDataRepository"
+            ) as mock_data_repo_class,
+        ):
+            mock_rev_repo = MagicMock()
+            mock_rev_repo.get_content_hash.return_value = 42
+            mock_rev_repo_class.return_value = mock_rev_repo
+
+            mock_data_repo = MagicMock()
+            mock_data_repo.load.return_value = mock_s3_data
+            mock_data_repo_class.return_value = mock_data_repo
+
+            data = await worker._fetch_entity_data(record)
+            assert data is not None
+            assert data["id"] == "Q1"
 
     @pytest.mark.asyncio
     async def test_fetch_entity_data_failure(self):
         """Test entity data fetch with error."""
         record = EntityDumpRecord(entity_id="Q1", internal_id=100, revision_id=1)
 
-        mock_s3_client = MagicMock()
-        mock_s3_client.read_revision.side_effect = Exception("S3 error")
+        mock_db_client = MagicMock()
+        mock_db_client.id_resolver.resolve_id.side_effect = Exception("DB error")
 
         worker = JsonDumpWorker()
-        worker.s3_client = mock_s3_client
+        worker.db_client = mock_db_client
 
         data = await worker._fetch_entity_data(record)
         assert data is None

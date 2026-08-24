@@ -7,7 +7,6 @@ from models.data.infrastructure.s3.enums import DeleteType
 from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
 from models.data.rest_api.v1.entitybase.request import EntityDeleteRequest
 from models.data.rest_api.v1.entitybase.response import EntityDeleteResponse
-from models.infrastructure.s3.exceptions import S3NotFoundError
 from models.rest_api.entitybase.v1.handler import Handler
 from models.rest_api.entitybase.v1.services.delete_service import DeleteService
 from models.rest_api.utils import raise_validation_error
@@ -47,10 +46,10 @@ class EntityDeleteHandler(Handler):
         new_revision_id = head_revision_id + 1
 
         try:
-            current_revision = self.state.s3_client.read_revision(
+            current_revision = self.state.read_revision_data(
                 entity_id, head_revision_id
             )
-        except S3NotFoundError:
+        except Exception:
             raise_validation_error(
                 f"Entity revision not found: {entity_id}", status_code=404
             )

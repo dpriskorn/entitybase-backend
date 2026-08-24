@@ -9,11 +9,6 @@ class SettingsResponse(BaseModel):
     model_config = {"extra": "forbid"}
 
     s3_endpoint: str
-    s3_revisions_bucket: str
-    s3_snak_version: str
-    s3_sitelink_version: str
-    s3_qualifier_version: str
-    s3_reference_version: str
     s3_statement_version: str
     s3_schema_revision_version: str
     vitess_host: str

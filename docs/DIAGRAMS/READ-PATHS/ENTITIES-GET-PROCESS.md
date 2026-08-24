@@ -1,20 +1,26 @@
 # Entity Get Process
 
-```
-[EntityReadHandler.get_entity - read.py]
-+--> Validate Clients: Check vitess_client and s3_client are initialized (503 if not)
-+--> Validate Entity: Check entity_exists(entity_id) in Vitess (404 if not)
-+--> Get Head Revision: head_revision_id = vitess_client.get_head(entity_id) (404 if 0)
-+--> Read Revision: revision = s3_client.read_revision(entity_id, head_revision_id)
-+--> Check Deleted: If state.is_deleted is True, return 404
-+--> Build Response: EntityResponse with id, rev_id, data, and state flags
-+--> Return: EntityResponse
+```mermaid
+flowchart TD
+    A[EntityReadHandler.get_entity] --> B[Validate Clients]
+    B -->|vitess or s3 not initialized| B1[Return 503]
+    B --> C[Validate Entity]
+    C -->|entity not found| C1[Return 404]
+    C --> D[Get Head Revision]
+    D -->|head_revision_id == 0| D1[Return 404]
+    D --> E[Read Revision Data]
+    E -->|Revision not found| E1[Return 404]
+    E -->|Database read failure| E2[Return 500]
+    E --> F{Check Deleted}
+    F -->|is_deleted == True| F1[Return 404]
+    F --> G[Build EntityResponse]
+    G --> H[Return EntityResponse]
 ```
 
 ## Error Handling
-- Vitess/S3 not initialized → 503 Service Unavailable
+- Vitess not initialized → 503 Service Unavailable
 - Entity not found in Vitess → 404 Not Found
 - Head revision 0 → 404 Not Found
 - Entity marked as deleted → 404 Not Found
-- S3 revision not found (S3NotFoundError) → 404 Not Found
-- S3 read failure (other exception) → 500 Internal Server Error
+- Revision not found → 404 Not Found
+- Database read failure → 500 Internal Server Error

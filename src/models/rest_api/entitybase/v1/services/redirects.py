@@ -137,8 +137,9 @@ class RedirectService(Service):
             created_at=datetime.now(timezone.utc).isoformat(),
         )
 
-        logger.debug("Storing revision to S3")
-        self.state.s3_client.store_revision(content_hash, s3_revision_data)
+        logger.debug("Storing revision to MariaDB")
+        from models.infrastructure.db.repositories.revision_data import RevisionDataRepository
+        RevisionDataRepository(db_client=self.state.db_client).store(content_hash, s3_revision_data.model_dump(mode="json"))
 
         return redirect_revision_data, content_hash
 

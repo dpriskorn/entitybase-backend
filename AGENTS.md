@@ -90,7 +90,7 @@ New data models must be suffixed appropriately:
 - `*Request` - API request models
 - `*Response` - API response models
 - `*Record` - Vitess database records
-- `*Data` - S3 storage models
+- `*Data` - Storage models
 ```python
 class EntityJsonImportRequest(BaseModel):
     """Request model for JSON import operations."""
@@ -383,7 +383,7 @@ tests/
 #### Secrets Management
 - Never commit secrets or credentials
 - Use environment variables for sensitive configuration
-- Follow AWS IAM best practices for S3 access
+- Follow MinIO access best practices for dump uploads
 
 #### Logging Security
 - Don't log sensitive information (passwords, tokens, etc.)

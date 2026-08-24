@@ -1,5 +1,7 @@
 # Weekly RDF Dump Cost Estimation
 
+> **Note:** Dump upload costs in this document remain valid as S3 is still used for dump uploads. However, revision snapshot storage costs (referenced as the baseline from STORAGE-COST-ESTIMATIONS.md) have since moved to MariaDB. The baseline S3 storage comparison figures below are historical and no longer reflect the current architecture.
+
 ## Overview
 
 This document estimates the cost of generating and storing weekly RDF dumps for the Wikibase knowledge base. Weekly dumps provide complete snapshots for archival, distribution, and bulk import purposes.
@@ -236,6 +238,8 @@ $299,020 × 1.10 = $328,922
 ## Cost Comparison
 
 ### Baseline Storage Costs
+
+> **Historical reference:** The baseline S3 storage costs below reflect the original architecture where revision snapshots were stored in S3. Revision snapshots are now stored in MariaDB. These figures are kept for historical reference only.
 
 From STORAGE-COST-ESTIMATIONS.md:
 

@@ -66,7 +66,6 @@ from models.rest_api.entitybase.v1.endpoints.base import (
     get_statement_handler,
     get_backlink_handler,
 )
-from models.infrastructure.s3.exceptions import S3NotFoundError
 
 logger = logging.getLogger(__name__)
 
@@ -153,8 +152,8 @@ async def get_entity_ttl_revision(
 
     state = req.app.state.state_handler
     try:
-        revision_data = state.s3_client.read_revision(entity_id, revision_id)
-    except S3NotFoundError:
+        revision_data = state.read_revision_data(entity_id, revision_id)
+    except Exception:
         raise_validation_error(
             f"Revision content not found for entity {entity_id}, revision {revision_id}",
             status_code=404,
@@ -184,8 +183,8 @@ async def get_entity_json_revision(
     """Get JSON representation of a specific entity revision."""
     state = req.app.state.state_handler
     try:
-        revision_data = state.s3_client.read_revision(entity_id, revision_id)
-    except S3NotFoundError:
+        revision_data = state.read_revision_data(entity_id, revision_id)
+    except Exception:
         raise_validation_error(
             f"Revision content not found for entity {entity_id}, revision {revision_id}",
             status_code=404,

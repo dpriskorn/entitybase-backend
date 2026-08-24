@@ -1,23 +1,32 @@
 # Entity Create Process
 
+```mermaid
+flowchart TD
+    A[ItemCreateHandler] --> B[Validate JSON]
+    B --> C[Create Transaction]
+    C --> D[Allocate ID]
+    D --> E[Register Entity]
+    E --> F[Prepare Data]
+    F --> G[Process Statements]
+    G --> H[Create Revision - CAS protected]
+    H --> I[Publish Event]
+    I --> J[Commit]
+    J --> K[Return EntityResponse]
+    G -->|failure| L[Rollback]
+    L --> M[Raise HTTP 500]
 ```
-[ItemCreateHandler - types.py]
-+--> Validate JSON
-+--> Create Transaction: tx = CreationTransaction()
-+--> Try:
-|    +--> Allocate ID: entity_id = enumeration_service.get_next_entity_id("item")
-|    +--> Register Entity: tx.register_entity(vitess_client, entity_id)
-|    +--> Prepare Data
-|    +--> Process Statements: tx.process_statements(entity_id, request_data, vitess_client, s3_client)
-    |    |    +--> Extract Properties: StatementExtractor.extract_properties_from_claims(claims)
-    |    |    +--> Compute Property Counts: StatementExtractor.compute_property_counts_from_claims(claims)
-    |    |    +--> Hash Statements: StatementHasher.compute_hash(statement) for each statement
-    |    |    +--> Deduplicate and Store: deduplicate_and_store_statements(hash_result, vitess_client, s3_client)
-|    +--> Create Revision: tx.create_revision(entity_id, revision_data, vitess_client, s3_client) [CAS protected]
-|    +--> Publish Event: tx.publish_event(entity_id, stream_producer)
-|    +--> Commit: tx.commit()  // Mark success, confirm ID usage
-+--> Except (Any Failure):
-|    +--> Rollback: tx.rollback()  // Undo all operations
-|    +--> Raise HTTP 500
-+--> Return: EntityResponse
+
+## Statement Processing Detail
+
+```mermaid
+flowchart TD
+    A[Extract Properties from Claims] --> B[Compute Property Counts]
+    B --> C[Hash Statements]
+    C --> D[Deduplicate and Store]
+    D --> E[Check Vitess for Existence]
+    E -->|exists| F[Increment ref_count]
+    E -->|new| G[Write to MariaDB]
+    G --> H[Insert Statement Content in Vitess]
+    F --> I[Collect Hash for Entity Revision]
+    H --> I
 ```

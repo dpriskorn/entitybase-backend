@@ -61,71 +61,43 @@ All settings can be overridden using environment variables with the same name.
 
 ## Storage Settings
 
+> **Note:** S3 is now only used for dump uploads (JSON and RDF bulk exports).
+
 ### `s3_endpoint`
 
 - **Type**: `str`
 - **Default**: `'http://minio:9000'`
-- **Description**: s3
+- **Description**: S3-compatible storage endpoint (used for dump uploads)
 
 ### `s3_access_key`
 
 - **Type**: `str`
 - **Default**: `'fakekey'`
-- **Description**: No description available
+- **Description**: S3 access key
 
 ### `s3_secret_key`
 
 - **Type**: `str`
 - **Default**: `'fakesecret'`
-- **Description**: No description available
-
-### `s3_revisions_bucket`
-
-- **Type**: `str`
-- **Default**: `'revisions'`
-- **Description**: buckets
-
-### `s3_snak_version`
-
-- **Type**: `str`
-- **Default**: `'1.0.0'`
-- **Description**: S3 versions
-
-### `s3_sitelink_version`
-
-- **Type**: `str`
-- **Default**: `'1.0.0'`
-- **Description**: No description available
-
-### `s3_qualifier_version`
-
-- **Type**: `str`
-- **Default**: `'1.0.0'`
-- **Description**: No description available
-
-### `s3_reference_version`
-
-- **Type**: `str`
-- **Default**: `'1.0.0'`
-- **Description**: No description available
+- **Description**: S3 secret key
 
 ### `s3_statement_version`
 
 - **Type**: `str`
 - **Default**: `'1.0.0'`
-- **Description**: No description available
+- **Description**: S3 object version for statements in dump files
 
 ### `s3_schema_revision_version`
 
 - **Type**: `str`
 - **Default**: `'4.0.0'`
-- **Description**: No description available
+- **Description**: S3 object version for schema revisions in dump files
 
 ### `s3_dump_bucket`
 
 - **Type**: `str`
 - **Default**: `'wikibase-dumps'`
-- **Description**: No description available
+- **Description**: S3 bucket name for dump uploads
 
 ## API Settings
 
@@ -424,6 +396,6 @@ Key settings for Docker deployment:
 
 - `DB_HOST`: Database host (default: vitess)
 - `DB_PORT`: Database port (default: 15309)
-- `S3_ENDPOINT`: S3-compatible storage endpoint (default: http://minio:9000)
+- `S3_ENDPOINT`: S3-compatible storage endpoint for dump uploads (default: http://minio:9000)
 - `KAFKA_BROKERS`: Kafka broker addresses for change streaming
 

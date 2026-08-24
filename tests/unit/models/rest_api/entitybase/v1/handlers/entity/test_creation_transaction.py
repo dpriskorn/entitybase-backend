@@ -68,7 +68,6 @@ class TestCreationTransaction:
         assert isinstance(result.entity_data, object)
 
         mock_vitess.create_revision.assert_called_once()
-        mock_s3.store_revision.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_create_revision_with_properties(self) -> None:

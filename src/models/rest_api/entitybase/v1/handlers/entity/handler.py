@@ -21,7 +21,7 @@ from models.data.rest_api.v1.entitybase.response import (
 )
 from models.data.rest_api.v1.entitybase.response import StatementHashResult
 from models.infrastructure.s3.revision.revision_data import RevisionData
-from models.infrastructure.s3.exceptions import S3NotFoundError
+from models.infrastructure.db.repositories.revision_data import RevisionDataRepository
 from models.infrastructure.stream.event import EntityChangeEvent
 from models.rest_api.utils import raise_validation_error
 from .entity_hashing_service import EntityHashingService
@@ -332,7 +332,7 @@ class EntityHandler(Handler):
     async def _store_revision_s3_new(
         ctx: RevisionContext, revision_data: RevisionData
     ) -> int:
-        """Store revision data in S3 and return content hash."""
+        """Store revision data in MariaDB and return content hash."""
         import json
         from models.internal_representation.metadata_extractor import MetadataExtractor
         from models.data.infrastructure.s3.revision_data import S3RevisionData
@@ -348,7 +348,8 @@ class EntityHandler(Handler):
             created_at=datetime.now(timezone.utc).isoformat(),
         )
 
-        ctx.s3_client.store_revision(content_hash, s3_revision_data)
+        repo = RevisionDataRepository(db_client=ctx.db_client)
+        repo.store(content_hash, s3_revision_data.model_dump(mode="json"))
         return content_hash
 
     @staticmethod
@@ -401,9 +402,26 @@ class EntityHandler(Handler):
         if not result.success or not result.revision_id:
             raise_validation_error(result.error or "Revision creation failed")
 
-        # Read the created revision to build response
         try:
-            revision = ctx.s3_client.read_revision(ctx.entity_id, result.revision_id)
+            from models.data.infrastructure.s3.revision_data import S3RevisionData
+            from models.infrastructure.db.repositories.revision import RevisionRepository
+            from models.infrastructure.db.repositories.revision_data import RevisionDataRepository
+
+            internal_id = ctx.db_client.id_resolver.resolve_id(ctx.entity_id)
+            if not internal_id:
+                raise_validation_error("Entity not found", status_code=404)
+
+            revision_repo = RevisionRepository(db_client=ctx.db_client)
+            content_hash = revision_repo.get_content_hash(internal_id, result.revision_id)
+            if content_hash == 0:
+                raise_validation_error("Revision not found", status_code=404)
+
+            data_repo = RevisionDataRepository(db_client=ctx.db_client)
+            data = data_repo.load(content_hash)
+            if data is None:
+                raise_validation_error("Revision data not found", status_code=404)
+
+            revision = S3RevisionData.model_validate(data)
             return EntityResponse(
                 id=ctx.entity_id,
                 rev_id=result.revision_id,
@@ -423,13 +441,6 @@ class EntityHandler(Handler):
                         "is_mass_edit_protected", False
                     ),
                 ),
-            )
-        except S3NotFoundError:
-            logger.warning(
-                f"Created revision not found for {ctx.entity_id}, revision {result.revision_id}"
-            )
-            raise_validation_error(
-                f"Revision not found: {ctx.entity_id}", status_code=404
             )
         except Exception as e:
             logger.error(f"Failed to build response for {ctx.entity_id}: {e}")

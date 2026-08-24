@@ -146,7 +146,8 @@ class CreationTransaction(EntityTransaction):
             created_at=created_at,
         )
 
-        self.state.s3_client.store_revision(content_hash, s3_revision_data)
+        from models.infrastructure.db.repositories.revision_data import RevisionDataRepository
+        RevisionDataRepository(db_client=self.state.db_client).store(content_hash, s3_revision_data.model_dump(mode="json"))
 
         self.operations.append(lambda: self._rollback_revision(entity_id, 1))
 

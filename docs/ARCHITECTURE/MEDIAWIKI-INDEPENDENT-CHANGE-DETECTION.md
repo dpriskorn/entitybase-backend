@@ -2,44 +2,39 @@
 
 ## Overview
 
-MediaWiki-independent change detection enables computing recent entity changes without depending on MediaWiki EventBus. This system uses the existing S3 + Vitess storage infrastructure to detect changes by comparing immutable snapshots.
+MediaWiki-independent change detection enables computing recent entity changes without depending on MediaWiki EventBus. This system uses the existing MariaDB + Vitess storage infrastructure to detect changes by comparing revision data.
 
 ## Core Principle
 
-**Poll entity_head and fetch previous revision from entity_revisions, compare snapshots**
+**Poll entity_head and fetch previous revision from entity_revisions, compare revision data**
 
-Since S3 stores complete entity snapshots and Vitess provides ordered revision metadata, we can compute changes by:
+Since MariaDB stores complete entity revision data and Vitess provides ordered revision metadata, we can compute changes by:
 1. Polling entity_head for recently updated entities
 2. Querying entity_revisions for the previous revision
-3. Fetching both snapshots from S3
-4. Computing JSON diffs between snapshots
+3. Fetching both revisions from MariaDB
+4. Computing JSON diffs between revisions
 5. Emitting rdf_change events directly
 
 ## Architecture
 
-### Service: Snapshot Change Detector
+### Service: Revision Change Detector
 
-**Purpose**: Poll Vitess and compute recent entity changes using existing S3 snapshots
+**Purpose**: Poll Vitess and compute recent entity changes using MariaDB revision data
 
 ### Data Flow
 
-```
-                  Vitess (existing tables)
-                            ↓
-                Poll entity_head (recent updates)
-                            ↓
-                      Query entity_revisions for previous revision
-                            ↓
-                      Fetch both S3 snapshots
-                            ↓
-                      Compute JSON Diff
-                            ↓
-                      Emit json_change events
+```mermaid
+flowchart TD
+    A[Vitess / MariaDB] --> B[Poll entity_head for recent updates]
+    B --> C[Query entity_revisions for previous revision]
+    C --> D[Fetch both revisions from MariaDB]
+    D --> E[Compute JSON Diff]
+    E --> F[Emit json_change events]
 ```
 
 ## Algorithm Options
 
-### Algorithm 1: S3-Based Approach
+### Algorithm 1: MariaDB-Based Approach
 
 Recommended when MediaWiki events are unavailable or unreliable:
 
@@ -52,22 +47,22 @@ Recommended when MediaWiki events are unavailable or unreliable:
    LIMIT 100000;
 
 2. For each changed entity:
-   a. Get current revision snapshot URI from entity_head
+   a. Get current revision from entity_head
       current_rev_id = head_revision_id
-      current_snapshot = s3.fetch(snapshot_uri)
+      current_revision = mariadb.read(entity_id, current_rev_id)
 
    b. Query entity_revisions for previous revision:
-      SELECT revision_id, snapshot_uri
+      SELECT revision_id, entity_json
       FROM entity_revisions
       WHERE entity_id = ? AND revision_id < ?
       ORDER BY revision_id DESC
       LIMIT 1
 
-   c. Fetch previous revision snapshot:
+   c. Fetch previous revision from MariaDB:
       if previous_revision exists:
-         prev_snapshot = s3.fetch(previous_snapshot_uri)
+         prev_revision = mariadb.read(entity_id, previous_rev_id)
 
-   d. Compute JSON diff between snapshots:
+   d. Compute JSON diff between revisions:
       Use library: google-diff-match-patch, jsondiffpatch, or custom
 
    e. Emit json_change event if diff detected
@@ -80,14 +75,14 @@ Simpler option when MediaWiki is available and emitting events:
 ```
 1. Consume MediaWiki change events (from existing EventBus)
 2. Extract entity_id and revision_id from event
-3. Fetch S3 snapshot for that revision: s3.fetch(f"bucket/{entity_id}/r{rev_id}.json")
-4. Convert snapshot JSON to RDF (Turtle format)
+3. Fetch revision data from MariaDB: mariadb.read(entity_id, rev_id)
+4. Convert revision JSON to RDF (Turtle format)
 5. Emit rdf_change event with operation: import (for new entity) or diff (if tracking previous state)
 ```
 
 ### Recommendation
 
-Start with MediaWiki event-based approach if MediaWiki is available and emitting events. Use S3-based approach only if you need MediaWiki independence.
+Start with MediaWiki event-based approach if MediaWiki is available and emitting events. Use MariaDB-based approach only if you need MediaWiki independence.
 
 ## Key Design Decisions
 
@@ -95,11 +90,11 @@ Start with MediaWiki event-based approach if MediaWiki is available and emitting
 
 Uses existing `entity_head` and `entity_revisions` tables only:
 - `entity_head`: Always contains current head revision and last update time
-- `entity_revisions`: Ordered revision history with snapshot URIs
+- `entity_revisions`: Ordered revision history with entity JSON data
 
 ### No Change History Stored
 
-Just query for recent updates and previous revision. Change history is implicitly stored in S3 snapshots.
+Just query for recent updates and previous revision. Change history is implicitly stored in MariaDB revision data.
 
 ### Simple Checkpointing
 
@@ -210,26 +205,27 @@ def poll_with_checkpoint(vitess_client, checkpoint_file="checkpoint.json"):
         save_checkpoint(checkpoint_file, checkpoint)
 ```
 
-### S3 Snapshot Fetching
+### MariaDB Revision Fetching
 
 ```python
-def fetch_snapshots_batch(entity_ids, batch_size=1000):
-    """Fetch S3 snapshots in parallel batches"""
+def fetch_revisions_batch(entity_ids, batch_size=1000):
+    """Fetch revisions from MariaDB in parallel batches"""
     for batch_start in range(0, len(entity_ids), batch_size):
         batch = entity_ids[batch_start:batch_start + batch_size]
         
-        # Build S3 URIs
-        uris = [
-            f"s3://{bucket}/{entity_id}/r{revision_id}.json"
-            for entity_id, revision_id in batch
-        ]
+        # Query MariaDB for revision data
+        revisions = []
+        for entity_id, revision_id in batch:
+            result = db.query(
+                "SELECT entity_id, revision_id, entity_json "
+                "FROM entity_revisions "
+                "WHERE entity_id = %s AND revision_id = %s",
+                (entity_id, revision_id)
+            )
+            if result:
+                revisions.append(result[0])
         
-        # Fetch in parallel
-        with ThreadPoolExecutor(max_workers=50) as executor:
-            futures = [executor.submit(s3_client.get_object, uri) for uri in uris]
-            snapshots = [future.result() for future in futures]
-        
-        yield zip(batch, snapshots)
+        yield zip(batch, revisions)
 ```
 
 ### JSON Diff Computation
@@ -240,7 +236,7 @@ import jsondiffpatch
 diffpatcher = jsondiffpatch.diffpatcher()
 
 def compute_json_diff(prev_json, curr_json):
-    """Compute diff between two entity JSON snapshots"""
+    """Compute diff between two entity JSON revisions"""
     return diffpatcher.diff(prev_json, curr_json)
 
 def format_json_diff(diff):
@@ -274,7 +270,7 @@ def format_json_diff(diff):
 | Purpose | Library Options |
 |---------|-----------------|
 | Vitess client | `go-vitess`, `vtgate-client`, SQL proxy |
-| S3 client | AWS SDK, MinIO client |
+| Database client | MySQL/MariaDB connector, SQLAlchemy |
 | Diff library | `google-diff-match-patch`, `jsondiffpatch` |
 | Kafka producer | `confluent-kafka`, `sarama` |
 | RDF conversion | rdflib (Python), Jena (Java), RDF4J (Java) |
@@ -284,31 +280,35 @@ def format_json_diff(diff):
 | Option | Description | Default |
 |---------|-------------|---------|
 | `vitess_host` | Vitess VTGate host | localhost:15991 |
-| `s3_bucket` | S3 bucket for snapshots | wikibase-revisions |
+| `mariadb_host` | MariaDB host for revision data | localhost:3306 |
+| `mariadb_database` | MariaDB database name | entitybase |
 | `poll_interval` | How often to poll entity_head for changes | 300s (5 minutes) |
 | `batch_size` | Entities to process in parallel | 1000 |
 | `kafka_topic` | Topic to emit RDF changes | wikibase.rdf_change |
 | `change_detection_enabled` | Enable/disable change detection | true |
 | `use_mediawiki_events` | Consume MediaWiki events directly | false |
 | `checkpoint_file` | File to store processing checkpoint | checkpoint.json |
-| `max_workers` | Parallel S3 fetch threads | 50 |
 
 ## Error Handling
 
-### Snapshot Fetch Errors
+### Revision Fetch Errors
 
 ```python
-def fetch_snapshot_with_retry(s3_client, snapshot_uri, max_retries=3):
-    """Fetch snapshot with exponential backoff retry"""
+def fetch_revision_with_retry(db_client, entity_id, revision_id, max_retries=3):
+    """Fetch revision from MariaDB with exponential backoff retry"""
     for attempt in range(max_retries):
         try:
-            return s3_client.get_object(snapshot_uri)
+            return db_client.query(
+                "SELECT entity_json FROM entity_revisions "
+                "WHERE entity_id = %s AND revision_id = %s",
+                (entity_id, revision_id)
+            )
         except Exception as e:
             if attempt == max_retries - 1:
                 raise
             wait_time = 2 ** attempt
             time.sleep(wait_time)
-            logging.warning(f"Retry {attempt + 1} for {snapshot_uri}")
+            logging.warning(f"Retry {attempt + 1} for {entity_id}/r{revision_id}")
 ```
 
 ### Vitess Query Errors
@@ -333,7 +333,7 @@ def query_with_timeout(vitess_client, query, params, timeout=30):
 
 - **Poll latency**: Time between entity update and detection
 - **Processing throughput**: Entities processed per second
-- **S3 fetch latency**: Time to fetch snapshots from S3
+- **Revision fetch latency**: Time to fetch revisions from MariaDB
 - **Diff computation time**: Time to compute JSON diffs
 - **Kafka emission rate**: Events emitted per second
 - **Error rate**: Failed entity processing attempts
@@ -346,9 +346,9 @@ change_detection_poll_duration_seconds[summary]
 change_detection_entities_processed_total[counter]
 change_detection_entities_failed_total[counter]
 
-# S3 metrics
-s3_snapshot_fetch_duration_seconds[summary]
-s3_snapshot_fetch_bytes_total[counter]
+# MariaDB metrics
+revision_fetch_duration_seconds[summary]
+revision_fetch_total[counter]
 
 # Diff metrics
 json_diff_computation_duration_seconds[summary]
@@ -386,14 +386,14 @@ def backfill_changes(vitess_client, start_time, end_time):
 
 | Benefit | Description |
 |----------|-------------|
-| **MediaWiki Independence** | Compute changes directly from S3+Vitess, no MediaWiki API dependency |
+| **MediaWiki Independence** | Compute changes directly from MariaDB+Vitess, no MediaWiki API dependency |
 | **Backfill Capable** | Can process historical changes from any point in time |
-| **Deterministic** | Based on immutable snapshots and ordered revision metadata |
-| **Scalable** | All services can scale independently (S3, Vitess, Kafka) |
+| **Deterministic** | Based on immutable revision data and ordered revision metadata |
+| **Scalable** | All services can scale independently (MariaDB, Vitess, Kafka) |
 | **Resilient** | Can recover from failures by resuming from checkpoint |
 
 ## References
 
 - [CHANGE-DETECTION-RDF-GENERATION.md](CHANGE-STREAMING/CHANGE-DETECTION-RDF-GENERATION.md) - Complete change detection and RDF generation architecture
-- [STORAGE-ARCHITECTURE.md](STORAGE-ARCHITECTURE.md) - S3 + Vitess storage model
+- [STORAGE-ARCHITECTURE.md](STORAGE-ARCHITECTURE.md) - MariaDB + Vitess storage model
 - [RDF-DIFF-STRATEGY.md](RDF-BUILDER/RDF-DIFF-STRATEGY.md) - RDF diff strategy (Option A: Full Convert + Diff)

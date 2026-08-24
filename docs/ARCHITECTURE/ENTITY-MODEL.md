@@ -18,7 +18,7 @@ The **external entity ID** (e.g., `Q123`, `P42`, `L999`, `E100`) is the permanen
 - **RDF/JSON data**: Cross-entity references in claims use Q123
 - **RDF triples**: `<http://www.wikidata.org/entity/Q42> a wikibase:Item`
 - **RDF change events**: `entity_id: "Q42"` in event schemas
-- **S3 paths**: Human-readable inspection (e.g., `s3://wikibase-revisions/Q123/42.json`)
+- **MariaDB records**: Human-readable inspection (e.g., `entity_revisions` table for Q123/rev42)
 
 **Characteristics:**
 
@@ -150,11 +150,11 @@ API Layer (EntityCreateHandler)
 2. Create CreationTransaction
 3. Allocate next ID via EnumerationService (returns "Q123")
 4. Register entity in Vitess (entity_head)
-5. Process statements: hash, deduplicate, store in S3/Vitess (increment ref_counts)
-6. Create revision: store in S3/Vitess (entity_revisions)
+5. Process statements: hash, deduplicate, store in MariaDB (increment ref_counts)
+6. Create revision: store in MariaDB (entity_revisions)
 7. Publish change event (optional)
 8. Commit transaction (confirm ID usage to worker)
-9. On failure: Rollback all operations (delete from Vitess/S3, decrement ref_counts)
+9. On failure: Rollback all operations (delete from MariaDB, decrement ref_counts)
 ↓
 Client Response
 {
@@ -175,9 +175,9 @@ API Layer
    SELECT head_revision_id, updated_at FROM entity_head WHERE entity_id = "Q123"
 2. Query entity_revisions for content_hash:
    SELECT content_hash FROM entity_revisions WHERE entity_id = "Q123" AND revision_id = ?
-3. Fetch S3 snapshot:
-   GET s3://wikibase-revisions/123456789
-4. Reconstruct entity from S3 data + hash references
+3. Fetch MariaDB snapshot:
+    SELECT * FROM entity_revisions WHERE entity_id = "Q123" AND revision_id = ?
+4. Reconstruct entity from MariaDB data + hash references
 ↓
 Client Response
 {
@@ -217,20 +217,17 @@ Client Response
 ## Storage Example
 
 ```text
-S3 Object Path (content_hash-based):
-  s3://wikibase-revisions/123456789
-
-Vitess Tables:
-  entity_head:
-    entity_id: "Q123" (PRIMARY KEY)
-    head_revision_id: 42
-    updated_at: "2025-01-15T10:30:00Z"
-
+MariaDB Tables:
   entity_revisions:
     entity_id: "Q123"
     revision_id: 42
     content_hash: 123456789
     created_at: "2025-01-15T10:30:00Z"
+
+  entity_head:
+    entity_id: "Q123" (PRIMARY KEY)
+    head_revision_id: 42
+    updated_at: "2025-01-15T10:30:00Z"
 
   id_ranges:
     entity_type: "item"
@@ -268,6 +265,6 @@ Previous documentation described a hybrid ID strategy with `ulid-flake` internal
 
 ## References
 
-- [STORAGE-ARCHITECTURE.md](./STORAGE-ARCHITECTURE.md) - S3 and Vitess storage design
+- [STORAGE-ARCHITECTURE.md](./STORAGE-ARCHITECTURE.md) - MariaDB storage design
 - [ARCHITECTURE.md](./ARCHITECTURE.md) - Overall system architecture
 - [WORKERS.md](./WORKERS.md) - Worker architecture including IdGenerationWorker

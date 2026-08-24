@@ -11,7 +11,7 @@ Entitybase is a clean-room, billion-scale Wikibase-compatible backend designed t
 
 | Aspect | Wikibase (MediaWiki) | Entitybase |
 |--------|---------------------|------------|
-| Architecture | Legacy PHP + MySQL with page-based mutable state | Clean-room Python + S3 + Vitess with immutable snapshots |
+| Architecture | Legacy PHP + MySQL with page-based mutable state | Clean-room Python + MariaDB + Vitess with immutable snapshots |
 | Data Storage | No deduplication - each revision stores full JSON | Massive content deduplication (~90% storage savings) |
 | API Compatibility | Wikibase REST API, MediaWiki APIs | Custom API - NOT drop-in compatible |
 | Scalability | Struggles beyond 7M entities; exponential storage growth | Linear scaling to 2.84B+ entities over 10 years |
@@ -25,7 +25,7 @@ Entitybase is a clean-room, billion-scale Wikibase-compatible backend designed t
 ## 3. Key Technical Capabilities
 
 ### Storage Architecture:
-- **Immutable S3 snapshots** - Every revision written once, never modified
+- **Immutable snapshots** - Every revision written once, never modified
 - **Vitess indexing** - Lightweight metadata layer (no content storage)
 - **Hash-based deduplication** - Statements, references, qualifiers, snaks, terms, sitelinks all deduplicated across revisions
 - **93% storage cost reduction** ($2.28M → $152K over 10 years at 1B scale)
@@ -47,7 +47,7 @@ Entitybase is a clean-room, billion-scale Wikibase-compatible backend designed t
 ### Performance & Scale:
 - **777K+ entities/day** sustained creation rate
 - Range-based ID allocation - no write hotspots
-- Sub-second read performance via S3 + Vitess
+- Sub-second read performance via MariaDB + Vitess
 - Horizontal scaling via microservices (API, workers, dump generation)
 
 ---
@@ -55,7 +55,7 @@ Entitybase is a clean-room, billion-scale Wikibase-compatible backend designed t
 ## 4. What Makes Entitybase Unique/Special
 
 ### 🏗️ Immutable Revision Architecture
-The core innovation: "A revision is an immutable snapshot stored in S3. Once written, it never changes." This eliminates:
+The core innovation: "A revision is an immutable snapshot stored in MariaDB. Once written, it never changes." This eliminates:
 - Mutable state complexity
 - Revision conflict handling
 - Data corruption risks
@@ -75,7 +75,7 @@ The core innovation: "A revision is an immutable snapshot stored in S3. Once wri
 
 ### 🔬 Knowledge-Base First Design
 Unlike Wikibase (a MediaWiki extension), Entitybase is purpose-built for knowledge bases:
-- S3 as system of record - perfect for CDN distribution
+- MariaDB as system of record - perfect for CDN distribution
 - Vitess for metadata only - lightweight indexing layer
 - Event streaming - real-time change notifications
 - RDF-first - semantic web native, not an afterthought

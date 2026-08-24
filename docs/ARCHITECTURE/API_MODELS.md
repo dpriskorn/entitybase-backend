@@ -8,7 +8,7 @@ Response model for cleanup orphaned statements.
 
 **Fields**:
 
-- `cleaned_count` (int): Number of statements cleaned up from S3 and Vitess
+- `cleaned_count` (int): Number of statements cleaned up from MariaDB and Vitess
 - `failed_count` (int): Number of statements that failed to clean up
 - `errors` (list[str]): List of error messages for failed cleanups
 
@@ -281,7 +281,7 @@ Response model for entity data.
 
 - `id` (str): Entity ID. Example: 'Q42'.
 - `revision_id` (int): Revision ID of the entity. Example: 12345.
-- `entity_data` (S3RevisionData): Full entity JSON data. Example: {'id': 'Q42', 'type': 'item'}.
+- `entity_data` (MariaDBRevisionData): Full entity JSON data. Example: {'id': 'Q42', 'type': 'item'}.
 - `state` (EntityState | None): Entity state information (optional, may be None for revisions).
 
 ### EntitySitelinksResponse
@@ -475,7 +475,7 @@ Detailed response model for health check.
 **Fields**:
 
 - `status` (str): Overall health status
-- `s3` (str): S3 service health status. Example: 'healthy'.
+- `mariadb` (str): MariaDB service health status. Example: 'healthy'.
 - `vitess` (str): Vitess service health status. Example: 'healthy'.
 - `timestamp` (str): Timestamp of health check
 
@@ -795,9 +795,12 @@ Response model for settings endpoint (excludes sensitive values).
 
 **Fields**:
 
-- `s3_endpoint` (str): No description
-- `s3_revisions_bucket` (str): No description
-- `s3_snak_version` (str): No description
+- `mariadb_host` (str): No description
+- `mariadb_port` (int): No description
+- `mariadb_database` (str): No description
+- `mariadb_pool_size` (int): No description
+- `mariadb_max_overflow` (int): No description
+- `mariadb_pool_timeout` (int): No description
 - `s3_sitelink_version` (str): No description
 - `s3_qualifier_version` (str): No description
 - `s3_reference_version` (str): No description

@@ -176,7 +176,7 @@ curl "http://localhost:8000/v1/entitybase/rdf/entities.ttl"
 |---------|-----|
 | API | http://localhost:8000 |
 | API Docs | http://localhost:8000/docs |
-| MinIO Console | http://localhost:9001 |
+| MinIO Console (dump uploads) | http://localhost:9001 |
 | Vitess Admin | http://localhost:15100 |
 
 ---
@@ -185,14 +185,7 @@ curl "http://localhost:8000/v1/entitybase/rdf/entities.ttl"
 
 | Bucket | What it stores |
 |--------|---------------|
-| `terms` | Labels, descriptions, aliases |
-| `statements` | Statement content (deduplicated) |
-| `references` | Reference data |
-| `qualifiers` | Qualifier data |
-| `revisions` | Revision snapshots |
-| `sitelinks` | Site links |
-| `snaks` | Snak data |
-| `wikibase-dumps` | Entity exports |
+| `wikibase-dumps` | Entity exports for dump uploads |
 
 ---
 

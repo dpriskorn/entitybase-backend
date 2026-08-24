@@ -1,25 +1,37 @@
 # Entity Update Process
 
+```mermaid
+flowchart TD
+    A[EntityUpdateHandler] --> B[Check Entity Exists]
+    B -->|not found| B1[Return 404]
+    B --> C[Check Deletion Status]
+    C -->|deleted| C1[Return 410]
+    C --> D[Check Lock Status]
+    D -->|locked| D1[Return 423]
+    D --> E[Validate JSON]
+    E --> F[Create Transaction]
+    F --> G[Get Head]
+    G --> H[Prepare Data]
+    H --> I[Process Statements]
+    I --> J[Create Revision - CAS protected]
+    J --> K[Publish Event]
+    K --> L[Commit]
+    L --> M[Return EntityResponse]
+    I -->|failure| N[Rollback]
+    N --> O[Raise HTTP 500]
 ```
-[EntityUpdateHandler - update.py]
-+--> Check Entity Exists: vitess_client.entity_exists(entity_id) -> Fail if False (404)
-+--> Check Deletion Status: vitess_client.is_entity_deleted(entity_id) -> Fail if True (410)
-+--> Check Lock Status: vitess_client.is_entity_locked(entity_id) -> Fail if True (423)
-+--> Validate JSON: Pydantic on EntityUpdateRequest
-+--> Create Transaction: tx = UpdateTransaction()
-+--> Try:
-|    +--> Get Head: head_revision_id = vitess_client.get_head(entity_id)
-|    +--> Prepare Data: request_data["id"] = entity_id
-|    +--> Process Statements: tx.process_statements(entity_id, request_data, vitess_client, s3_client)
-    |    |    +--> Extract Properties: StatementExtractor.extract_properties_from_claims(claims)
-    |    |    +--> Compute Property Counts: StatementExtractor.compute_property_counts_from_claims(claims)
-    |    |    +--> Hash Statements: StatementHasher.compute_hash(statement) for each statement
-    |    |    +--> Deduplicate and Store: deduplicate_and_store_statements(hash_result, vitess_client, s3_client)
-|    +--> Create Revision: tx.create_revision(entity_id, new_revision_id=head+1, ..., is_creation=False) [CAS protected]
-|    +--> Publish Event: tx.publish_event(entity_id, stream_producer)
-|    +--> Commit: tx.commit()
-+--> Except (Any Failure):
-|    +--> Rollback: tx.rollback()  // Undo statements, revision
-|    +--> Raise HTTP 500
-+--> Return: EntityResponse
+
+## Statement Processing Detail
+
+```mermaid
+flowchart TD
+    A[Extract Properties from Claims] --> B[Compute Property Counts]
+    B --> C[Hash Statements]
+    C --> D[Deduplicate and Store]
+    D --> E[Check Vitess for Existence]
+    E -->|exists| F[Increment ref_count]
+    E -->|new| G[Write to MariaDB]
+    G --> H[Insert Statement Content in Vitess]
+    F --> I[Collect Hash for Entity Revision]
+    H --> I
 ```

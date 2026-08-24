@@ -2,139 +2,43 @@
 
 ## Overview
 
-Entitybase uses a hybrid storage architecture combining **S3 for immutable content** and **Vitess for metadata and indexing**.
+Entitybase uses **MariaDB as the system of record** for all entity data, with S3 used exclusively for dump file uploads.
 
 ### Core Principles
 
-- **S3 is the system of record**: All entity content stored as immutable snapshots
-- **Vitess is for metadata only**: Stores pointers, indexes, and relationships
+- **MariaDB is the system of record**: All entity content stored as immutable snapshots in `entity_revision_data`
+- **Content-hash addressing**: Revisions addressed by deterministic hashes (rapidhash)
 - **Content deduplication**: Statements, references, qualifiers, snaks, terms, and sitelinks deduplicated across revisions
-- **Hash-based references**: Content addressed by integer hashes for efficiency
+- **S3 for dumps only**: S3 stores RDF dump file uploads in the `wikibase-dumps` bucket
 
-> **A revision is an immutable snapshot stored in S3.**
-> It is written once and never changes.
+> **A revision is an immutable snapshot stored in MariaDB.**
+> Once written, it never changes.
 
 Consequences:
 - No mutable revisions
 - No stored diffs
 - No page-based state
 - Perfect audit trail
-- CDN-friendly for global distribution
+- Single database for all reads (no cross-system lookups)
 
 ---
 
-## 3.1 S3 Storage - System of Record
+## 3.1 MariaDB Storage - System of Record
 
-S3 stores **all entity content** as immutable snapshots.
+MariaDB stores **all entity content** as immutable snapshots.
 
-### Storage Buckets
+### Revision Data Storage
 
-| Bucket | Purpose | Schema Version | Content Type |
-|--------|---------|----------------|--------------|
-| `s3_revisions_bucket` | Entity revision snapshots | 4.0.0 | JSON (hash keys) |
-| `s3_statements_bucket` | Deduplicated statements | 1.0.0 | JSON |
-| `s3_references_bucket` | Deduplicated references | 1.0.0 | JSON |
-| `s3_qualifiers_bucket` | Deduplicated qualifiers | 1.0.0 | JSON |
-| `s3_snaks_bucket` | Deduplicated snaks | 1.0.0 | JSON |
-| `s3_terms_bucket` | Deduplicated terms (labels/descriptions/aliases) | - | UTF-8 text |
-| `s3_sitelinks_bucket` | Deduplicated sitelink titles | - | UTF-8 text |
-| `s3_lexeme_forms_bucket` | Deduplicated lexeme form representations | - | JSON |
-| `s3_lexeme_senses_bucket` | Deduplicated lexeme sense glosses | - | JSON |
-
-### S3 Object Paths
-
-**Revisions** (content_hash-based):
-```
-s3://wikibase-revisions/{content_hash}.json
-Example: s3://wikibase-revisions/123456789012345.json
-```
-
-**Statements**:
-```
-s3://wikibase-statements/{content_hash}.json
-```
-
-**References**:
-```
-s3://wikibase-references/{content_hash}.json
-```
-
-**Qualifiers**:
-```
-s3://wikibase-qualifiers/{content_hash}.json
-```
-
-**Snaks**:
-```
-s3://wikibase-snaks/{content_hash}.json
-```
-
-**Terms** (UTF-8 text):
-```
-s3://wikibase-terms/{content_hash}
-```
-
-**Sitelinks** (UTF-8 text):
-```
-s3://wikibase-sitelinks/{content_hash}
-```
-
-**Lexeme Forms**:
-```
-s3://wikibase-lexeme-forms/{content_hash}.json
-```
-
-**Lexeme Senses**:
-```
-s3://wikibase-lexeme-senses/{content_hash}.json
-```
-
-### Revision Schema 4.0.0
-
-Revision data stored in S3 as JSON:
-
-```json
-{
-  "schema_version": "4.0.0",
-  "entity": {
-    "id": "Q123",
-    "type": "item"
-  },
-  "labels_hashes": {"en": 123456789, "de": 234567890},
-  "descriptions_hashes": {"en": 345678901},
-  "aliases_hashes": {"en": [456789012, 567890123]},
-  "sitelinks_hashes": {"enwiki": 678901234},
-  "statements_hashes": {"P31": [789012345], "P569": [890123456]},
-  "redirects_to": "Q124"
-}
-```
-
-**Key Features:**
-- All content uses hash integer references (not inline objects)
-- Enables efficient deduplication across revisions
-- Reduces storage by ~90% through content sharing
-- Hash-based keys ideal for CDN caching
-
----
-
-## 3.2 Vitess Storage - Metadata and Indexing
-
-Vitess stores **pointers, metadata, and relationships**, never entity content.
-
-### Database Tables
-
-#### Entity Tables
-
-**entity_head** - Current state of each entity
+**entity_revision_data** - Immutable revision content
 ```sql
-CREATE TABLE entity_head (
-    entity_id VARCHAR(50) PRIMARY KEY,
-    head_revision_id BIGINT UNSIGNED NOT NULL,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+CREATE TABLE entity_revision_data (
+    content_hash BIGINT UNSIGNED PRIMARY KEY,
+    data JSON NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 ```
 
-**entity_revisions** - Revision metadata
+**entity_revisions** - Revision metadata with content reference
 ```sql
 CREATE TABLE entity_revisions (
     entity_id VARCHAR(50) NOT NULL,
@@ -145,7 +49,67 @@ CREATE TABLE entity_revisions (
     edit_summary VARCHAR(500) NOT NULL,
     is_mass_edit BOOLEAN NOT NULL DEFAULT FALSE,
     PRIMARY KEY (entity_id, revision_id),
-    INDEX idx_created_at (created_at)
+    INDEX idx_created_at (created_at),
+    INDEX idx_content_hash (content_hash)
+) ENGINE=InnoDB;
+```
+
+**entity_head** - Current state of each entity
+```sql
+CREATE TABLE entity_head (
+    entity_id VARCHAR(50) PRIMARY KEY,
+    head_revision_id BIGINT UNSIGNED NOT NULL,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+```
+
+### Revision Schema
+
+Each `entity_revision_data.data` row contains a full entity snapshot:
+
+```json
+{
+  "schema_version": "4.0.0",
+  "entity": {
+    "id": "Q123",
+    "type": "item"
+  },
+  "labels": {"en": "Earth", "de": "Erde"},
+  "descriptions": {"en": "planet in the Solar System"},
+  "aliases": {"en": ["Terra"]},
+  "sitelinks": {"enwiki": "Earth"},
+  "statements": {
+    "P31": [
+      {
+        "mainsnak": {"property": "P31", "datavalue": {"type": "wikibase-entityid", "value": {"id": "Q517"}}},
+        "qualifiers": {},
+        "references": []
+      }
+    ]
+  },
+  "redirects_to": null
+}
+```
+
+**Key Features:**
+- Full entity data stored inline in JSON (no hash references for content)
+- Content-hash addressing preserved: hash of full entity data is the `content_hash` key
+- Deterministic hashing via rapidhash ensures same content always produces same hash
+- Enables efficient deduplication across revisions via `entity_revision_data` dedup
+- All data in one place for fast reads
+
+### Deduplicated Content Tables
+
+Content is deduplicated across revisions by storing unique content once and referencing by hash.
+
+**statement_content** - Deduplicated statements
+```sql
+CREATE TABLE statement_content (
+    content_hash BIGINT UNSIGNED PRIMARY KEY,
+    data JSON NOT NULL,
+    ref_count BIGINT UNSIGNED NOT NULL DEFAULT 1,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_ref_count (ref_count)
 ) ENGINE=InnoDB;
 ```
 
@@ -171,7 +135,7 @@ CREATE TABLE entity_backlinks (
 ) ENGINE=InnoDB;
 ```
 
-#### ID Generation
+### ID Generation
 
 **id_ranges** - Range-based ID allocation
 ```sql
@@ -185,19 +149,7 @@ CREATE TABLE id_ranges (
 ) ENGINE=InnoDB;
 ```
 
-#### Statement Deduplication
-
-**statement_content** - Deduplicated statements
-```sql
-CREATE TABLE statement_content (
-    content_hash BIGINT UNSIGNED PRIMARY KEY,
-    ref_count BIGINT UNSIGNED NOT NULL DEFAULT 1,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_ref_count (ref_count)
-) ENGINE=InnoDB;
-```
-
-#### Lexeme Tables
+### Lexeme Tables
 
 **lexeme_terms** - Lexeme form representations and sense glosses
 ```sql
@@ -213,7 +165,7 @@ CREATE TABLE lexeme_terms (
 ) ENGINE=InnoDB;
 ```
 
-#### User and Social Features
+### User and Social Features
 
 **users** - User metadata
 ```sql
@@ -285,7 +237,7 @@ CREATE TABLE watchlist_notifications (
 ) ENGINE=InnoDB;
 ```
 
-#### Statistics Tables
+### Statistics Tables
 
 **user_daily_stats** - Daily user statistics
 ```sql
@@ -325,7 +277,7 @@ CREATE TABLE backlink_statistics (
 ) ENGINE=InnoDB;
 ```
 
-#### Metadata Tables
+### Metadata Tables
 
 **metadata** - Entity metadata
 ```sql
@@ -341,6 +293,32 @@ CREATE TABLE metadata (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 ```
+
+---
+
+## 3.2 S3 Storage - Dump File Uploads Only
+
+S3 is used **exclusively** for storing RDF dump files. It is **not** used as a system of record for any entity data.
+
+### Bucket
+
+| Bucket | Purpose | Content Type |
+|--------|---------|--------------|
+| `wikibase-dumps` | RDF dump file uploads | Turtle (.ttl) |
+
+### Object Paths
+
+**Dump files**:
+```
+s3://wikibase-dumps/{date}/{entity_id}.ttl
+Example: s3://wikibase-dumps/2026-04-10/Q123.ttl
+```
+
+### MyS3Client
+
+The `MyS3Client` class is simplified to handle only:
+- Uploading RDF dump files to the `wikibase-dumps` bucket
+- Coordinating statement/metadata storage via MariaDB (not S3)
 
 ---
 
@@ -360,39 +338,37 @@ API Handler (Create/Update)
 2. Create Transaction (CreationTransaction or UpdateTransaction)
   ↓
 3. Process content:
-   - Hash and deduplicate statements
-   - Hash and deduplicate references/qualifiers/snaks
-   - Hash terms (labels/descriptions/aliases)
-   - Hash sitelinks
-   - Store unique content to S3
+   - Hash and deduplicate statements via statement_content table
+   - Store statements in MariaDB (not S3)
   ↓
 4. Assign next revision_id (auto-increment in entity_revisions)
   ↓
-5. Write revision snapshot to S3 with content_hash as key
+5. Compute content_hash of full entity snapshot (rapidhash)
+   ↓
+6. Insert revision data into entity_revision_data (content_hash → JSON)
+   ↓
+7. Insert revision metadata into entity_revisions
   ↓
-6. Insert revision metadata into Vitess (entity_revisions)
-   - Store content_hash for retrieval
+8. CAS update entity_head (new revision becomes head)
   ↓
-7. CAS update entity_head (new revision becomes head)
+9. Update statement_content ref_counts
   ↓
-8. Update statement_content ref_counts
+10. Publish change event to Kafka (optional)
   ↓
-9. Publish change event to Kafka (optional)
+11. Confirm ID usage (for entity creation)
   ↓
-10. Confirm ID usage (for entity creation)
-  ↓
-11. Commit transaction
+12. Commit transaction
 
 On failure:
-  - Rollback Vitess changes
+  - Rollback MariaDB changes (automatic)
   - Decrement ref_counts for orphaned content
-  - Delete from S3 (for new content)
+  - Confirm ID usage failure (cancel reserved range)
 ```
 
 **Transaction Safety:**
-- All Vitess operations wrapped in database transaction
-- S3 operations tracked for rollback
-- Ref counts decremented on rollback
+- All MariaDB operations wrapped in ACID database transaction
+- No external system operations (S3) required for entity CRUD
+- Ref counts ensure consistency
 - ID ranges only confirmed after successful commit
 
 ### 4.2 Read Flows
@@ -401,38 +377,29 @@ On failure:
 ```
 1. Query entity_head for head_revision_id
 2. Query entity_revisions for content_hash
-3. Load revision from S3 using content_hash
-4. Load all hash-referenced content:
-   - Terms from s3_terms_bucket
-   - Sitelinks from s3_sitelinks_bucket
-   - Statements from s3_statements_bucket
-   - References from s3_references_bucket
-   - Qualifiers from s3_qualifiers_bucket
-   - Snaks from s3_snaks_bucket
-5. Reconstruct full entity response
-6. Return JSON
+3. Query entity_revision_data for JSON data
+4. Parse JSON and reconstruct full entity response
+5. Return JSON
 ```
 
 **GET /entities/{entity_id}/revision/{revision_id}**
 ```
 1. Query entity_revisions for content_hash
-2. Load revision from S3 using content_hash
-3. Load hash-referenced content (as above)
-4. Return JSON
+2. Query entity_revision_data for JSON data
+3. Return JSON
 ```
 
 **GET /entities/{entity_id}/history**
 ```
 1. Query entity_revisions for entity_id
-2. Return list of revision metadata (no S3 load needed)
+2. Return list of revision metadata (no entity_revision_data load needed)
 3. Response: revision_id, created_at, editor, edit_summary
 ```
 
 **GET /statements/{hash}**
 ```
 1. Check statement_content table exists and ref_count > 0
-2. Load statement from S3
-3. Return statement with reconstructed snaks
+2. Return statement data from statement_content.data
 ```
 
 **GET /entities/{entity_id}.ttl (RDF)**
@@ -450,14 +417,13 @@ On failure:
 
 All content is hashed using **rapidhash** for fast computation and good distribution:
 
+- **Revisions**: Hash of full entity JSON snapshot
 - **Statements**: Hash of mainsnak + qualifiers + references
 - **References**: Hash of snaks array
 - **Qualifiers**: Hash of snak hash array
 - **Snaks**: Hash of property_id + datavalue
 - **Terms**: Hash of language_code + value
 - **Sitelinks**: Hash of title
-- **Lexeme Forms**: Hash of representations hash array
-- **Lexeme Senses**: Hash of glosses hash array
 
 ### 5.2 Reference Counting
 
@@ -476,9 +442,6 @@ Cleanup: DELETE FROM statement_content WHERE ref_count = 0
 def cleanup_orphaned_statements():
     # Find statements with ref_count = 0
     orphans = query("SELECT content_hash FROM statement_content WHERE ref_count = 0")
-    # Delete from S3
-    for hash in orphans:
-        s3_client.delete_statement(hash)
     # Delete from database
     delete("DELETE FROM statement_content WHERE ref_count = 0")
 ```
@@ -498,38 +461,30 @@ Deduplication provides massive storage savings:
 
 ## 6. Schema Versioning
 
-All S3 content includes schema version for evolution:
+All revision data includes schema version for evolution:
 
 | Schema | Version | Status | Notes |
 |--------|---------|--------|-------|
-| Entity (response) | 2.0.0 | Current | Hash-based references |
-| Revision (storage) | 4.0.0 | Current | Full deduplication, hash keys |
+| Entity (response) | 2.0.0 | Current | Full entity JSON |
+| Revision (storage) | 4.0.0 | Current | Full entity snapshot in JSON |
 | Statement | 1.0.0 | Current | Hash-referenced snaks |
 | Reference | 1.0.0 | Current | Hash-referenced snaks |
 | Qualifier | 1.0.0 | Current | Hash-referenced snaks |
 | Snak | 1.0.0 | Current | Atomic datavalue |
 
-**Migration**: See [S3-REVISION-SCHEMA-CHANGELOG.md](./S3/S3-REVISION-SCHEMA-CHANGELOG.md) for detailed migration history.
-
 ---
 
 ## 7. Performance Characteristics
 
-### S3
-- **Write latency**: ~100-300ms per PUT
-- **Read latency**: ~50-200ms per GET
-- **Throughput**: Unlimited (horizontal scaling)
-- **CDN caching**: Enabled for all public buckets
-
-### Vitess
-- **Write latency**: ~10-50ms per transaction
-- **Read latency**: ~5-20ms per query
+### MariaDB
+- **Write latency**: ~10-50ms per transaction (all operations in single DB)
+- **Read latency**: ~5-20ms per query (no cross-system lookups)
 - **Sharding**: Not currently implemented (single shard)
 - **Connection pooling**: Configurable pool size
 
 ### Combined Read Path
-- **Total latency**: ~200-500ms per entity read
-- **Optimization**: Batch hash lookups reduce round-trips
+- **Total latency**: ~50-100ms per entity read (single database query chain)
+- **Optimization**: Content-hash deduplication reduces storage size
 - **Caching**: Entity responses cached in Redis (optional)
 
 ---
@@ -537,8 +492,8 @@ All S3 content includes schema version for evolution:
 ## 8. Data Integrity
 
 ### Transaction Safety
-- All Vitess writes wrapped in ACID transactions
-- S3 operations tracked for rollback
+- All MariaDB writes wrapped in ACID transactions
+- No external system operations required for entity CRUD
 - Ref counts ensure consistency
 
 ### Hash Verification
@@ -549,10 +504,9 @@ All S3 content includes schema version for evolution:
 ### Rollback Handling
 ```
 On transaction failure:
-1. Rollback Vitess transaction (automatic)
+1. Rollback MariaDB transaction (automatic)
 2. Decrement ref_counts for orphaned content
-3. Delete from S3 (new content only)
-4. Confirm ID usage failure (cancel reserved range)
+3. Confirm ID usage failure (cancel reserved range)
 ```
 
 ---

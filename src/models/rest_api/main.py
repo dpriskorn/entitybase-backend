@@ -89,7 +89,6 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan manager for startup and shutdown tasks."""
     try:
         state_handler = await _initialize_state_handler()
-        await _ensure_s3_bucket_exists(state_handler)
         state_handler.health_check()
         await _create_database_tables(state_handler)
         await _initialize_app_state(app_, state_handler)
@@ -108,24 +107,6 @@ async def _initialize_state_handler() -> StateHandler:
     state_handler = StateHandler(settings=settings)
     state_handler.start()
     return state_handler
-
-
-async def _ensure_s3_bucket_exists(state_handler: StateHandler) -> None:
-    """Create the S3 bucket if it doesn't exist."""
-    bucket = state_handler.s3_config.bucket
-    logger.info(f"Ensuring S3 bucket exists: {bucket}")
-    try:
-        state_handler.s3_client.connection_manager.connect()
-        state_handler.s3_client.connection_manager.boto_client.head_bucket(Bucket=bucket)
-        logger.info(f"S3 bucket already exists: {bucket}")
-    except Exception as e:
-        error_code = getattr(e, "response", {}).get("Error", {}).get("Code", "")
-        if error_code in {"404", "NoSuchBucket"}:
-            logger.info(f"S3 bucket not found, creating: {bucket}")
-            state_handler.s3_client.connection_manager.boto_client.create_bucket(Bucket=bucket)
-            logger.info(f"S3 bucket created: {bucket}")
-        else:
-            raise
 
 
 async def _create_database_tables(state_handler: StateHandler) -> None:

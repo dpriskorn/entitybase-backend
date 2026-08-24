@@ -7,7 +7,6 @@ from models.data.rest_api.v1.entitybase.response import TurtleResponse
 from models.rest_api.entitybase.v1.services.rdf_service import (
     serialize_entity_to_turtle,
 )
-from models.infrastructure.s3.exceptions import S3NotFoundError
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -34,10 +33,10 @@ class ExportHandler(Handler):
             raise_validation_error("Entity has no revisions", status_code=404)
 
         try:
-            revision = self.state.s3_client.read_revision(entity_id, head_revision_id)
+            revision = self.state.read_revision_data(entity_id, head_revision_id)
             entity_data = revision.revision.copy()
             entity_data["id"] = entity_id
-        except S3NotFoundError:
+        except Exception:
             raise_validation_error(
                 f"Entity revision not found: {entity_id}", status_code=404
             )

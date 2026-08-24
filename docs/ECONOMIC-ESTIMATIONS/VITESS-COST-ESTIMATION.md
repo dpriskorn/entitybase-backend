@@ -1,5 +1,7 @@
 # Vitess Database Cost Estimation
 
+> **Note:** This cost analysis reflects an earlier architecture where S3 was the primary storage for revision snapshots and Vitess served as the metadata/indexing layer. Revision snapshots have since been moved to MariaDB. The cost comparisons to S3 storage (referenced as the baseline) are historical and no longer reflect the current architecture.
+
 ## Overview
 
 This document estimates Vitess database and Kubernetes cluster costs for storing metadata and indexing for 1 billion Wikibase entities at scale.
@@ -267,6 +269,8 @@ $24,096 × 1.10 = $26,506/year
 ## Cost Comparison
 
 ### Vitess vs. S3 Storage
+
+> **Historical reference:** The S3 storage baseline below reflects the original architecture. Revision snapshots are now stored in MariaDB, not S3. These comparison figures are kept for historical reference.
 
 From STORAGE-COST-ESTIMATIONS.md:
 

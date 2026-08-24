@@ -5,7 +5,6 @@ import logging
 from fastapi import HTTPException
 from models.data.infrastructure.s3 import S3RevisionData
 from models.data.infrastructure.s3.entity_state import EntityState
-from models.infrastructure.s3.exceptions import S3NotFoundError
 from models.rest_api.entitybase.v1.handler import Handler
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.data.rest_api.v1.entitybase.response import EntityHistoryEntry
@@ -26,9 +25,6 @@ class EntityReadHandler(Handler):
         if self.state.db_client is None:
             raise_validation_error("Database not initialized", status_code=503)
 
-        if self.state.s3_client is None:
-            raise_validation_error("S3 not initialized", status_code=503)
-
         entity_exists = self.state.db_client.entity_exists(entity_id)
         logger.debug(f"get_entity({entity_id}): entity_exists = {entity_exists}")
         if not entity_exists:
@@ -40,7 +36,7 @@ class EntityReadHandler(Handler):
             raise_validation_error("Entity not found", status_code=404)
 
         try:
-            revision = self.state.s3_client.read_revision(entity_id, head_revision_id)
+            revision = self.state.read_revision_data(entity_id, head_revision_id)
             revision_dict = revision.revision
             state_data = revision_dict.get("state", {})
             logger.debug(f"Entity {entity_id} state_data: {state_data}")
@@ -62,11 +58,6 @@ class EntityReadHandler(Handler):
                 ),
             )
             return response
-        except S3NotFoundError:
-            logger.warning(
-                f"Entity revision not found for {entity_id}, revision {head_revision_id}"
-            )
-            raise_validation_error(f"Entity not found: {entity_id}", status_code=404)
         except HTTPException:
             raise  # Re-raise HTTP exceptions as-is
         except Exception as e:
@@ -104,24 +95,13 @@ class EntityReadHandler(Handler):
         revision_id: int,
     ) -> EntityResponse:
         """Get specific entity revision."""
-        if self.state.s3_client is None:
-            raise_validation_error("S3 not initialized", status_code=503)
-
         try:
-            revision = self.state.s3_client.read_revision(entity_id, revision_id)
+            revision = self.state.read_revision_data(entity_id, revision_id)
             return EntityResponse(
                 id=entity_id,
                 rev_id=revision_id,
                 data=revision,
                 state=None,
-            )
-        except S3NotFoundError:
-            logger.warning(
-                f"Entity revision not found for {entity_id}, revision {revision_id}"
-            )
-            raise_validation_error(
-                f"Revision not found: {entity_id} revision {revision_id}",
-                status_code=404,
             )
         except Exception as e:
             logger.error(

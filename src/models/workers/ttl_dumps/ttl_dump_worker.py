@@ -403,13 +403,29 @@ class TtlDumpWorker(Worker):
     async def _fetch_and_convert_entity(
         self, record: EntityDumpRecord, writers: TripleWriters
     ) -> str | None:
-        if not self.s3_client or not self.converter:
+        if not self.db_client or not self.converter:
             return None
 
         try:
-            revision_data = self.s3_client.read_revision(
-                record.entity_id, record.revision_id
-            )
+            from models.infrastructure.db.repositories.revision import RevisionRepository
+            from models.infrastructure.db.repositories.revision_data import RevisionDataRepository
+            from models.data.infrastructure.s3.revision_data import S3RevisionData
+
+            internal_id = self.db_client.id_resolver.resolve_id(record.entity_id)
+            if not internal_id:
+                return None
+
+            revision_repo = RevisionRepository(db_client=self.db_client)
+            content_hash = revision_repo.get_content_hash(internal_id, record.revision_id)
+            if content_hash == 0:
+                return None
+
+            data_repo = RevisionDataRepository(db_client=self.db_client)
+            data = data_repo.load(content_hash)
+            if data is None:
+                return None
+
+            revision_data = S3RevisionData.model_validate(data)
 
             from models.data.rest_api.v1.entitybase.response import (
                 EntityMetadataResponse,

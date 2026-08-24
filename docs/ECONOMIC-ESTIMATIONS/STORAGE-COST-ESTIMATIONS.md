@@ -1,5 +1,7 @@
 # Storage Cost Estimations
 
+> **Note:** This cost analysis was created when S3 was the primary storage. Revision snapshots have since been moved to MariaDB. S3 is now only used for dump uploads.
+
 ## Overview
 
 This document estimates storage costs for maintaining the Wikidata entity repository under the community's requirement to **keep all entity revisions indefinitely** with no expiration.
@@ -133,6 +135,8 @@ This document estimates storage costs for maintaining the Wikidata entity reposi
 | No compression | $2.28M | $714K |
 
 ## Cost Projections by Strategy
+
+> **Note:** The following S3-based cost projections reflect the historical architecture. Revision snapshots are now stored in MariaDB, so these figures serve as a historical reference only.
 
 ### Summary Comparison (Year 10, all revisions)
 

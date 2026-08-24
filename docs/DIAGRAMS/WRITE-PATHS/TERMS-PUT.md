@@ -2,58 +2,51 @@
 
 ## Term PUT Path (Setting Labels/Descriptions for Language)
 
-```
-[Entitybase PUT /entities/{type}/{id}/labels/{lang} or /descriptions/{lang} - entitybase/v1/*.py]
-+--> Receive PUT Request with term data payload
-|    +--> For Labels: Extract "value" field from request
-|    +--> For Descriptions: Extract "description" field from Wikibase format
-+--> Validate Clients: vitess and s3 initialized
-+--> Check Entity Exists: vitess.entity_exists(entity_id) == True
-+--> Check Not Deleted: vitess.is_entity_deleted(entity_id) == False
-+--> Check Permissions: not archived/locked/mass_edit_protected
-+--> Get Current Entity: EntityReadHandler.get_entity(entity_id, vitess, s3)
-+--> Extract Term Type: labels or descriptions from URL path
-+--> Validate Term Data: check required fields and format
-+--> Update Entity Data: entity_data[term_type][language_code] = new_term_value
-+--> Calculate New Revision ID: head_revision_id + 1
-+--> Prepare Revision Data: copy entity_data, set edit_type="term_put"
-+--> Hash Entity Content: MetadataExtractor.hash_entity(entity_data)
-+--> Process Term Storage Updates:
-|    +--> For Labels: Update Vitess entity_terms table
-|    |    +--> Hash new label: hash_string(new_label_value)
-|    |    +--> Insert/update in entity_terms: INSERT ... ON DUPLICATE KEY
-|    |    +--> Update revision labels_hashes: {language_code: new_hash}
-|    +--> For Descriptions: Update S3 metadata storage
-|    |    +--> Hash new description: hash_string(new_description_value)
-|    |    +--> Store in S3: s3.write_metadata("descriptions", hash, description_value)
-|    |    +--> Update revision descriptions_hashes: {language_code: new_hash}
-+--> Write Revision to S3: s3.write_revision(entity_id, new_revision_id, revision_data)
-+--> Update Vitess Revision Table: vitess.create_revision(entity_id, new_revision_id, revision_data)
-+--> Update Head Pointer: vitess.update_head_revision(entity_id, new_revision_id)
-+--> Publish Change Event: stream_producer.publish_change(TERM_PUT event)
-+--> Return EntityResponse with updated entity data
+```mermaid
+flowchart TD
+    A[Receive PUT Request] --> B[Extract term data]
+    B --> C[Validate Clients: vitess and s3]
+    C --> D[Check Entity Exists]
+    D -->|not found| D1[Return 404]
+    D --> E[Check Not Deleted]
+    E -->|deleted| E1[Return 410]
+    E --> F[Check Permissions]
+    F -->|denied| F1[Return 403]
+    F --> G[Get Current Entity]
+    G --> H[Extract Term Type: labels or descriptions]
+    H --> I[Validate Term Data]
+    I --> J[Update Entity Data]
+    J --> K[Calculate New Revision ID]
+    K --> L[Prepare Revision Data]
+    L --> M[Hash Entity Content]
+    M --> N[Process Term Storage Updates]
+    N --> O[Write Revision to MariaDB]
+    O --> P[Update Vitess Revision Table]
+    P --> Q[Update Head Pointer]
+    Q --> R[Publish Change Event]
+    R --> S[Return EntityResponse]
 ```
 
 ## Term PUT Validation
 
-```
-[Entitybase PUT endpoint validation]
-+--> Validate Entity ID: matches /^[A-Z]\d+$/
-+--> Validate Language Code: matches /^[a-z-]+$/
-+--> Validate Term Type: in ['labels', 'descriptions']
-+--> Validate Request Body:
-|    +--> For Labels: {"value": "string"} (1-250 chars)
-|    +--> For Descriptions: {"description": "string", "tags": [...], "bot": bool, "comment": "string"} (1-500 chars)
-+--> Check Entity State: not deleted, not locked/archived
-+--> Check User Permissions: can modify entity
+```mermaid
+flowchart TD
+    A[Validate Entity ID] -->|invalid| A1[Return 400]
+    A --> B[Validate Language Code]
+    B -->|invalid| B1[Return 400]
+    B --> C[Validate Term Type]
+    C -->|invalid| C1[Return 400]
+    C --> D[Validate Request Body]
+    D --> E[Check Entity State]
+    E --> F[Check User Permissions]
 ```
 
 ## Wikibase API Redirect
 
-[Wikibase PUT /entities/{type}/{id}/labels/{lang} or /descriptions/{lang} - wikibase/v1/*.py]
-+--> Receive Wikibase PUT request with full payload
-+--> Return 307 Redirect to: /entitybase/v1/entities/{type}/{id}/{term_type}/{lang}
-+--> Preserve request body and PUT method
+```mermaid
+flowchart LR
+    A[Receive Wikibase PUT] --> B[Return 307 Redirect to entitybase endpoint]
+```
 
 ## Request Format Examples
 
@@ -103,8 +96,8 @@
 
 ## Performance Characteristics
 
-- **Read Operations**: 1 entity read, 1 S3 revision fetch
-- **Write Operations**: 1 S3 revision write, 1 Vitess term insert (for labels)
+- **Read Operations**: 1 entity read, 1 revision fetch from MariaDB
+- **Write Operations**: 1 revision write to MariaDB, 1 Vitess term insert (for labels)
 - **Hash Calculations**: Full entity re-hash + individual term hash
 - **Storage Impact**: New term storage + updated revision metadata
 

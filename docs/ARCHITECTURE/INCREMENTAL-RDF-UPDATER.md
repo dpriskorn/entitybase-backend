@@ -6,30 +6,14 @@ The Incremental RDF Updater is a worker service that consumes entity change even
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    Incremental RDF Updater                         │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  ┌──────────────────┐    ┌───────────────────┐                     │
-│  │  Kafka Consumer  │───▶│ IncrementalRDF    │                     │
-│  │ (entity_change)  │    │ Worker            │                     │
-│  └──────────────────┘    └─────────┬─────────┘                     │
-│                                     │                               │
-│                                     ▼                               │
-│  ┌──────────────────┐    ┌───────────────────┐                     │
-│  │  Kafka Producer  │◀───│ IncrementalRDF    │                     │
-│  │ (incremental_    │    │ Updater            │                     │
-│  │  rdf_diff)       │    └───────────────────┘                     │
-│  └──────────────────┘                       │                       │
-│                                     ┌───────┴───────┐               │
-│                                     ▼               ▼               │
-│                              ┌─────────────┐  ┌─────────────┐       │
-│                              │  Vitess     │  │     S3      │       │
-│                              │  (metadata) │  │  (snapshots) │       │
-│                              └─────────────┘  └─────────────┘       │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
+```mermaid
+graph LR
+    subgraph IncrementalRDFUpdater
+        A[Kafka Consumer<br/>entity_change] --> B[Worker]
+        B --> C[Kafka Producer<br/>incremental_rdf_diff]
+    end
+    B --> D[(MariaDB<br/>revision data)]
+    B --> E[IncrementalRDFUpdater<br/>diff computation]
 ```
 
 ## Components
@@ -42,7 +26,7 @@ Main worker that orchestrates the pipeline:
 
 1. Consumes entity change events from `entitybase.entity_change` Kafka topic
 2. Looks up revision metadata in Vitess (MySQL) to get content hashes
-3. Fetches entity snapshots from S3 for both old and new revisions
+3. Fetches entity snapshots from MariaDB for both old and new revisions
 4. Computes RDF diffs using `IncrementalRDFUpdater`
 5. Publishes RDF change events to `incremental_rdf_diff` Kafka topic
 
@@ -89,7 +73,7 @@ Builds RDF change events following the `entity_diff/2.0.0` schema:
 ┌─────────────────┐     ┌─────────────────┐
 │ Fetch old       │     │ Fetch new      │
 │ revision from   │     │ revision from  │
-│ S3 (optional)   │     │ S3              │
+│ MariaDB (opt.)  │     │ MariaDB        │
 └────────┬────────┘     └────────┬────────┘
          │                        │
          └────────┬───────────────┘
@@ -133,10 +117,11 @@ Topic names are configurable via environment variables.
 | `KAFKA_INCREMENTAL_RDF_TOPIC` | `incremental_rdf_diff` | Output Kafka topic for RDF changes |
 | `KAFKA_ENTITY_CHANGE_TOPIC` | `entitybase.entity_change` | Input Kafka topic for entity changes |
 | `KAFKA_BOOTSTRAP_SERVERS` | - | Comma-separated list of Kafka broker addresses |
-| `S3_ENDPOINT` | - | S3 endpoint URL (e.g., http://localhost:9000) |
-| `S3_ACCESS_KEY` | - | S3 access key |
-| `S3_SECRET_KEY` | - | S3 secret key |
-| `S3_BUCKET` | - | S3 bucket name for entity snapshots |
+| `MYSQL_HOST` | - | MySQL host for revision data access |
+| `MYSQL_PORT` | `3306` | MySQL port |
+| `MYSQL_USER` | - | MySQL username |
+| `MYSQL_PASSWORD` | - | MySQL password |
+| `MYSQL_DATABASE` | - | MySQL database name |
 
 ## Output Schema
 
@@ -178,16 +163,16 @@ The output follows the `entity_diff/2.0.0` schema:
 
 ## Troubleshooting
 
-### Missing S3 Data
+### Missing MariaDB Data
 
 **Symptom**: Worker logs error "Failed to fetch entity data for Q42 rev 12345"
 
-**Cause**: The requested revision is not available in S3 storage
+**Cause**: The requested revision is not available in MariaDB storage
 
 **Solution**:
-- Verify S3 bucket contains the expected revision
-- Check S3 versioning configuration matches expected version
-- Ensure entity snapshots are being written to S3 on entity changes
+- Verify MariaDB contains the expected revision in `entity_revisions` table
+- Check that the entity snapshot was written to MariaDB on entity changes
+- Ensure the MySQL connection is configured correctly
 
 ### Missing from_revision_id
 
@@ -204,7 +189,7 @@ The output follows the `entity_diff/2.0.0` schema:
 **Cause**: Unable to convert entity data to internal representation
 
 **Solution**:
-- Check entity data format in S3 matches expected JSON structure
+- Check entity data format in MariaDB matches expected JSON structure
 - Review entity parsing errors in logs
 - The worker will publish a partial event even if diff computation fails
 
@@ -228,15 +213,15 @@ The output follows the `entity_diff/2.0.0` schema:
 **Solution**:
 - Scale worker horizontally (multiple consumer instances with same group ID)
 - Check worker resource usage (CPU, memory)
-- Review S3 fetch latency
+- Review MariaDB fetch latency
 
 ## Limitations
 
 1. **Simplified RDF Diff**: The current `IncrementalRDFUpdater` implementation produces simplified output (comment annotations) rather than actual RDF triples. This is a placeholder implementation.
 
-2. **S3 Dependency**: The worker requires entity snapshots to be stored in S3. If S3 is not configured or unavailable, the worker cannot process changes.
+2. **MariaDB Dependency**: The worker requires entity snapshots to be stored in MariaDB. If MariaDB is not configured or unavailable, the worker cannot process changes.
 
-3. **No Vitess Content Hash Lookup**: Currently, the worker fetches entity data directly from S3 without using Vitess content hashes for verification. Future versions may add this for improved consistency checking.
+3. **No Content Hash Lookup**: Currently, the worker fetches entity data directly from MariaDB without content hash verification. Future versions may add this for improved consistency checking.
 
 4. **Single-Part Events**: The current implementation always produces single-part events (`sequence_length: 1`). Large entity changes that require chunking are not yet supported.
 

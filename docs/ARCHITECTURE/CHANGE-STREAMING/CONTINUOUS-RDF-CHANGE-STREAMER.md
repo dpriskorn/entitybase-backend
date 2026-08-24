@@ -12,20 +12,14 @@ Convert entity changes to RDF patches and stream continuously to enable real-tim
 
 ### Data Flow
 
-```
-Change Detection Service (see [MEDIAWIKI-INDEPENDENT-CHANGE-DETECTION.md](../MEDIAWIKI-INDEPENDENT-CHANGE-DETECTION.md))
-            ↓ (entity change events: entity_id, from_revision_id, to_revision_id)
-       JSON→RDF Converter Service
-            ↓
-      Load both RDF representations (from and to revisions)
-            ↓
-      Compute RDF Diff (between two RDF graphs)
-            ↓
-       Emit rdf_change events (Kafka)
-            ↓
-   WDQS Consumer / Other Consumers
-            ↓
-        Apply patches to Blazegraph
+```mermaid
+flowchart TD
+    A[Change Detection Service] -->|entity change events| B[JSON→RDF Converter Service]
+    B --> C[Load both RDF representations - from and to revisions]
+    C --> D[Compute RDF Diff between two RDF graphs]
+    D --> E[Emit rdf_change events to Kafka]
+    E --> F[WDQS Consumer / Other Consumers]
+    F --> G[Apply patches to Blazegraph]
 ```
 
 ## Services Overview
@@ -77,8 +71,8 @@ def consume_entity_changes(kafka_config, topic):
 
 This service uses **Option A (Full RDF Convert + Diff)** as documented in [RDF-DIFF-STRATEGY.md](../RDF-BUILDER/RDF-DIFF-STRATEGY.md):
 
-1. Stream from_snapshot JSON → RDF (Turtle, line-by-line)
-2. Stream to_snapshot JSON → RDF (Turtle, line-by-line)
+1. Stream from_revision JSON → RDF (Turtle, line-by-line)
+2. Stream to_revision JSON → RDF (Turtle, line-by-line)
 3. Load both RDF into in-memory graph structures
 4. Compute RDF diff using proven library (Jena, RDF4J)
 5. Return added/deleted triples
@@ -231,18 +225,18 @@ def process_entity_change(change_event):
     from_rev_id = change_event["from_revision_id"]
     to_rev_id = change_event["to_revision_id"]
     
-    # Step 1: Fetch both snapshots from S3
-    from_snapshot = None
-    to_snapshot = fetch_snapshot_from_s3(entity_id, to_rev_id)
+    # Step 1: Fetch both revisions from MariaDB
+    from_revision = None
+    to_revision = fetch_revision_from_mariadb(entity_id, to_rev_id)
     
     if from_rev_id:
-        from_snapshot = fetch_snapshot_from_s3(entity_id, from_rev_id)
+        from_revision = fetch_revision_from_mariadb(entity_id, from_rev_id)
     
     # Step 2: Compute RDF diff
-    if from_snapshot:
+    if from_revision:
         added_turtle, deleted_turtle = compute_rdf_diff(
-            from_snapshot,
-            to_snapshot
+            from_revision,
+            to_revision
         )
         
         # Check if we should use import mode
@@ -274,7 +268,7 @@ def process_entity_change(change_event):
             })
     else:
         # New entity, use import mode
-        to_rdf = json_to_rdf_streaming(to_snapshot)
+        to_rdf = json_to_rdf_streaming(to_revision)
         emit_rdf_change_event({
             "entity_id": entity_id,
             "rev_id": to_rev_id,
@@ -294,7 +288,8 @@ def process_entity_change(change_event):
 | `input_topic` | Input topic for entity changes | wikibase.entity_change |
 | `output_kafka_bootstrap_servers` | Kafka brokers for RDF changes | localhost:9092 |
 | `output_topic` | Output topic for RDF changes | wikibase.rdf_change |
-| `s3_bucket` | S3 bucket for snapshots | wikibase-revisions |
+| `mariadb_host` | MariaDB host for revision data | localhost:3306 |
+| `mariadb_database` | MariaDB database name | entitybase |
 | `rdf_diff_library` | RDF library for diff computation | jena |
 | `import_mode_threshold` | Triple count threshold for import mode | 10000 |
 | `max_workers` | Parallel processing workers | 10 |
@@ -304,20 +299,21 @@ def process_entity_change(change_event):
 
 ## Error Handling
 
-### Snapshot Fetch Errors
+### Revision Fetch Errors
 
 ```python
-def fetch_snapshot_with_retry(entity_id, revision_id, max_retries=3):
-    """Fetch snapshot from S3 with retry logic"""
+def fetch_revision_with_retry(entity_id, revision_id, max_retries=3):
+    """Fetch revision from MariaDB with retry logic"""
     for attempt in range(max_retries):
         try:
-            return s3_client.get_object(
-                Bucket=bucket,
-                Key=f"{entity_id}/r{revision_id}.json"
+            return db.query(
+                "SELECT entity_json FROM entity_revisions "
+                "WHERE entity_id = %s AND revision_id = %s",
+                (entity_id, revision_id)
             )
         except Exception as e:
             if attempt == max_retries - 1:
-                logging.error(f"Failed to fetch snapshot for {entity_id}/r{revision_id}: {e}")
+                logging.error(f"Failed to fetch revision for {entity_id}/r{revision_id}: {e}")
                 raise
             time.sleep(2 ** attempt)  # Exponential backoff
 ```
@@ -325,15 +321,15 @@ def fetch_snapshot_with_retry(entity_id, revision_id, max_retries=3):
 ### RDF Diff Computation Errors
 
 ```python
-def safe_compute_rdf_diff(from_snapshot, to_snapshot):
+def safe_compute_rdf_diff(from_revision, to_revision):
     """Compute RDF diff with error handling"""
     try:
-        return compute_rdf_diff(from_snapshot, to_snapshot)
+        return compute_rdf_diff(from_revision, to_revision)
     except Exception as e:
         logging.error(f"RDF diff computation failed: {e}")
         
         # Fallback: emit import event for full entity
-        to_rdf = json_to_rdf_streaming(to_snapshot)
+        to_rdf = json_to_rdf_streaming(to_revision)
         return None, to_rdf
 ```
 
@@ -364,7 +360,7 @@ rdf_streamer_events_import_mode_total[counter]  # Events using import mode
 # Latency
 rdf_streamer_end_to_end_latency_seconds[summary]
 rdf_streamer_rdf_diff_computation_seconds[summary]
-rdf_streamer_s3_fetch_latency_seconds[summary]
+rdf_streamer_revision_fetch_latency_seconds[summary]
 
 # Throughput
 rdf_streamer_triples_generated_total[counter]
@@ -405,7 +401,7 @@ import_mode_used = Counter('rdf_streamer_events_import_mode_total', 'Events usin
 # Latency metrics
 end_to_end_latency = Summary('rdf_streamer_end_to_end_latency_seconds', 'End-to-end latency')
 rdf_diff_latency = Summary('rdf_streamer_rdf_diff_computation_seconds', 'RDF diff computation time')
-s3_fetch_latency = Summary('rdf_streamer_s3_fetch_latency_seconds', 'S3 fetch latency')
+revision_fetch_latency = Summary('rdf_streamer_revision_fetch_latency_seconds', 'MariaDB revision fetch latency')
 
 # Size metrics
 entity_triple_count = Histogram('rdf_streamer_entity_triple_count', 'Entity triple count', buckets=[100, 1000, 5000, 10000, 50000])
@@ -461,7 +457,7 @@ def emit_rdf_change_event(event):
 ### Caching Strategies
 
 1. **RDF Prefix Cache**: Cache frequently used RDF prefixes and templates
-2. **Entity Metadata Cache**: Cache entity metadata to avoid repeated S3 fetches
+2. **Entity Metadata Cache**: Cache entity metadata to avoid repeated MariaDB fetches
 3. **Diff Computation Cache**: Cache diff results for frequently accessed entities
 
 ```python
@@ -481,14 +477,14 @@ def batch_process_events(events, batch_size=100):
     for i in range(0, len(events), batch_size):
         batch = events[i:i + batch_size]
         
-        # Fetch all snapshots in parallel
+        # Fetch all revisions in parallel
         with ThreadPoolExecutor(max_workers=50) as executor:
-            futures = [executor.submit(fetch_snapshot, e) for e in batch]
-            snapshots = [f.result() for f in futures]
+            futures = [executor.submit(fetch_revision, e) for e in batch]
+            revisions = [f.result() for f in futures]
         
         # Process batch
-        for event, snapshot in zip(batch, snapshots):
-            process_entity_change(event, snapshot)
+        for event, revision in zip(batch, revisions):
+            process_entity_change(event, revision)
 ```
 
 ## Integration Points
@@ -598,8 +594,10 @@ spec:
           value: "wikibase.entity_change"
         - name: OUTPUT_TOPIC
           value: "wikibase.rdf_change"
-        - name: S3_BUCKET
-          value: "wikibase-revisions"
+        - name: MARIADB_HOST
+          value: "mariadb:3306"
+        - name: MARIADB_DATABASE
+          value: "entitybase"
         ports:
         - containerPort: 9090
         resources:

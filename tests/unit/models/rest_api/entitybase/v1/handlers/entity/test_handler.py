@@ -155,27 +155,38 @@ class TestEntityHandler:
             created_at="2023-01-01T12:00:00Z",
         )
 
-        mock_s3.read_revision.return_value = s3_revision_data
+        mock_vitess.id_resolver.resolve_id.return_value = 1
+        mock_cursor = MagicMock()
+        mock_cursor.fetchone.return_value = (123456789,)
+        mock_vitess.cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_vitess.cursor.__exit__ = MagicMock(return_value=False)
 
-        entity_id = "Q42"
-        result = RevisionResult(success=True, revision_id=1)
+        with patch(
+            "models.infrastructure.db.repositories.revision_data.RevisionDataRepository"
+        ) as mock_repo_cls:
+            mock_repo = MagicMock()
+            mock_repo.load.return_value = s3_revision_data.model_dump(mode="json")
+            mock_repo_cls.return_value = mock_repo
 
-        ctx = RevisionContext(
-            entity_id=entity_id,
-            request_data={},
-            entity_type=EntityType.ITEM,
-            edit_type=EditType.MANUAL_UPDATE,
-            edit_summary="Test",
-            is_creation=True,
-            db_client=mock_vitess,
-            s3_client=mock_s3,
-        )
+            entity_id = "Q42"
+            result = RevisionResult(success=True, revision_id=1)
 
-        response = await EntityHandler._build_entity_response(ctx, result)
+            ctx = RevisionContext(
+                entity_id=entity_id,
+                request_data={},
+                entity_type=EntityType.ITEM,
+                edit_type=EditType.MANUAL_UPDATE,
+                edit_summary="Test",
+                is_creation=True,
+                db_client=mock_vitess,
+                s3_client=mock_s3,
+            )
 
-        assert response.id == entity_id
-        assert response.revision_id == 1
-        assert isinstance(response.entity_data, S3RevisionData)
+            response = await EntityHandler._build_entity_response(ctx, result)
+
+            assert response.id == entity_id
+            assert response.revision_id == 1
+            assert isinstance(response.entity_data, S3RevisionData)
 
     @pytest.mark.asyncio
     async def test_build_entity_response_with_protection(self) -> None:
@@ -208,29 +219,40 @@ class TestEntityHandler:
             created_at="2023-01-01T12:00:00Z",
         )
 
-        mock_s3.read_revision.return_value = s3_revision_data
+        mock_vitess.id_resolver.resolve_id.return_value = 1
+        mock_cursor = MagicMock()
+        mock_cursor.fetchone.return_value = (123456789,)
+        mock_vitess.cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_vitess.cursor.__exit__ = MagicMock(return_value=False)
 
-        entity_id = "Q42"
-        result = RevisionResult(success=True, revision_id=1)
+        with patch(
+            "models.infrastructure.db.repositories.revision_data.RevisionDataRepository"
+        ) as mock_repo_cls:
+            mock_repo = MagicMock()
+            mock_repo.load.return_value = s3_revision_data.model_dump(mode="json")
+            mock_repo_cls.return_value = mock_repo
 
-        ctx = RevisionContext(
-            entity_id=entity_id,
-            request_data={},
-            entity_type=EntityType.ITEM,
-            edit_type=EditType.MANUAL_UPDATE,
-            edit_summary="Test",
-            is_creation=True,
-            db_client=mock_vitess,
-            s3_client=mock_s3,
-        )
+            entity_id = "Q42"
+            result = RevisionResult(success=True, revision_id=1)
 
-        response = await EntityHandler._build_entity_response(ctx, result)
+            ctx = RevisionContext(
+                entity_id=entity_id,
+                request_data={},
+                entity_type=EntityType.ITEM,
+                edit_type=EditType.MANUAL_UPDATE,
+                edit_summary="Test",
+                is_creation=True,
+                db_client=mock_vitess,
+                s3_client=mock_s3,
+            )
 
-        assert response.state.is_semi_protected is True
-        assert response.state.is_locked is False
-        assert response.state.is_archived is True
-        assert response.state.is_dangling is False
-        assert response.state.is_mass_edit_protected is True
+            response = await EntityHandler._build_entity_response(ctx, result)
+
+            assert response.state.is_semi_protected is True
+            assert response.state.is_locked is False
+            assert response.state.is_archived is True
+            assert response.state.is_dangling is False
+            assert response.state.is_mass_edit_protected is True
 
     @pytest.mark.asyncio
     async def test_process_entity_data_new(self) -> None:
@@ -333,15 +355,19 @@ class TestEntityHandler:
         assert isinstance(result, SitelinkHashes)
 
     @pytest.mark.asyncio
-    async def test_build_entity_response_s3_not_found(self) -> None:
-        """Test _build_entity_response when S3 object not found (404)."""
+    async def test_build_entity_response_revision_not_found(self) -> None:
+        """Test _build_entity_response when revision data not found in MariaDB."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
         mock_s3 = MagicMock()
         mock_state.db_client = mock_vitess
         mock_state.s3_client = mock_s3
 
-        mock_s3.read_revision.side_effect = S3NotFoundError("Object not found: 123456")
+        mock_vitess.id_resolver.resolve_id.return_value = 1
+        mock_cursor = MagicMock()
+        mock_cursor.fetchone.return_value = (0,)
+        mock_vitess.cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_vitess.cursor.__exit__ = MagicMock(return_value=False)
 
         entity_id = "Q42"
         result = RevisionResult(success=True, revision_id=1)
@@ -357,5 +383,5 @@ class TestEntityHandler:
             s3_client=mock_s3,
         )
 
-        with pytest.raises(Exception):  # Should raise validation error with 404
+        with pytest.raises(Exception):
             await EntityHandler._build_entity_response(ctx, result)

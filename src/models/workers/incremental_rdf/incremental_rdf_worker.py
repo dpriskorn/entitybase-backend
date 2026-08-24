@@ -271,14 +271,32 @@ class IncrementalRDFWorker(Worker):
     async def _fetch_entity_data(
         self, entity_id: str, revision_id: int
     ) -> Optional[dict[str, Any]]:
-        """Fetch entity data for a given revision from S3."""
-        if not self.s3_client:
-            logger.error("S3 client not initialized")
+        """Fetch entity data for a given revision from MariaDB."""
+        if not self.db_client:
+            logger.error("DB client not initialized")
             return None
 
         try:
-            s3_revision = self.s3_client.read_revision(entity_id, revision_id)
-            return s3_revision.revision
+            from models.infrastructure.db.repositories.revision import RevisionRepository
+            from models.infrastructure.db.repositories.revision_data import RevisionDataRepository
+            from models.data.infrastructure.s3.revision_data import S3RevisionData
+
+            internal_id = self.db_client.id_resolver.resolve_id(entity_id)
+            if not internal_id:
+                return None
+
+            revision_repo = RevisionRepository(db_client=self.db_client)
+            content_hash = revision_repo.get_content_hash(internal_id, revision_id)
+            if content_hash == 0:
+                return None
+
+            data_repo = RevisionDataRepository(db_client=self.db_client)
+            data = data_repo.load(content_hash)
+            if data is None:
+                return None
+
+            revision = S3RevisionData.model_validate(data)
+            return revision.revision
         except Exception as e:
             logger.error(
                 f"Failed to fetch entity data for {entity_id} rev {revision_id}: {e}"

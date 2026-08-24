@@ -42,14 +42,14 @@ First-class citizen with stable identifier (hash).
 **Creation**
 
 1. Hash computed: `rapidhash(statement_json)`
-2. S3 object created: `statements/{hash}.json`
+2. MariaDB record created in `statements` table
 3. Database record: `INSERT INTO statement_content (content_hash, created_at)`
 
 **Deduplication**
 
 If same statement content appears:
 1. Hash already exists in `statement_content` table
-2. S3 object already exists
+2. MariaDB record already exists
 3. Only ref_count increment needed
 
 **Usage Tracking**
@@ -62,18 +62,16 @@ When statement added to entity revision:
 
 1. `ref_count` decremented for all statements used by entity
 2. If `ref_count` reaches 0: cleanup job schedules deletion (180-day grace period)
-3. Statement object deleted from S3 and database
+3. Statement deleted from MariaDB
 4. Statement remains accessible via historical entity revisions
 
 ## Storage Architecture
 
-### S3 Storage
+### MariaDB Storage
 
 **Entity Revisions**
 
-```
-s3://wikibase-revisions/entity/Q42/rev100.json
-```
+Entity revisions are stored in the `entity_revisions` table with the following structure:
 
 ```json
 {
@@ -94,9 +92,7 @@ s3://wikibase-revisions/entity/Q42/rev100.json
 
 **Statements**
 
-```
-s3://wikibase-statements/987654321012345678.json
-```
+Statements are stored in the `statement_content` table:
 
 ```json
 {
@@ -185,7 +181,7 @@ entity_head (
 
 ### Statement Endpoints
 
-- `GET /statement/{hash}` → Full statement JSON from S3
+- `GET /statement/{hash}` → Full statement JSON from MariaDB
 - `POST /statements/batch` → Batch fetch multiple statements
 - `GET /statement/most_used` → Most referenced statements
 
@@ -248,7 +244,7 @@ WHERE entity_id = Q42_internal_id
 
 - Database schema supports hash-based statements
 - Entity revisions store hash arrays (not full statements)
-- Statement deduplication working (same content = one S3 object)
+- Statement deduplication working (same content = one MariaDB record)
 - Property-based loading implemented
 - Statement endpoints operational
 - Most-used statements endpoint functional
@@ -266,6 +262,5 @@ WHERE entity_id = Q42_internal_id
 
 **Cost (1T statements)**
 
-- S3: $536-$1,541/month
-- Vitess: ~$22,500/month
+- MariaDB storage: ~$22,500/month
 - Total: ~$23,000/month (Year 10)

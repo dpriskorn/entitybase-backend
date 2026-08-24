@@ -2,21 +2,27 @@
 
 ## Entity Delete Process
 
-```
-[EntityDeleteHandler - delete.py]
-+--> Validate Clients: vitess and s3 initialized
-+--> Check Entity Exists: vitess.entity_exists(entity_id) == True
-+--> Check Not Already Deleted: vitess.is_entity_deleted(entity_id) == False
-+--> Get Head Revision: head_revision_id = vitess.get_head(entity_id)
-+--> Check Protection: not archived or locked
-+--> Calculate New Revision: new_revision_id = head_revision_id + 1
-+--> Read Current Revision: current_revision = s3.read_revision(entity_id, head_revision_id)
-+--> Prepare Delete Revision Data: copy entity data, set is_deleted=True, edit_type="soft_delete" or "hard_delete"
-+--> For Hard Delete: Decrement ref_count for all statements
-+--> Write Delete Revision: s3.write_revision(entity_id, new_revision_id, revision_data)
-+--> Update Head Pointer: vitess.create_revision(entity_id, new_revision_id, revision_data, head_revision_id)
-+--> Publish Event: stream_producer.publish_change(EntityChangeEvent with SOFT_DELETE or HARD_DELETE)
-+--> Return EntityDeleteResponse
+```mermaid
+flowchart TD
+    A[EntityDeleteHandler] --> B[Validate Clients]
+    B --> C[Check Entity Exists]
+    C -->|not found| C1[Return 404]
+    C --> D[Check Not Already Deleted]
+    D -->|already deleted| D1[Return 410]
+    D --> E[Get Head Revision]
+    E --> F[Check Protection]
+    F -->|archived or locked| F1[Return 409]
+    F --> G[Calculate New Revision]
+    G --> H[Read Current Revision from MariaDB]
+    H -->|revision not found| H1[Return 404]
+    H --> I[Prepare Delete Revision Data]
+    I --> J{Hard Delete?}
+    J -->|Yes| K[Decrement ref_count for all statements]
+    J -->|No| L[Write Delete Revision to MariaDB]
+    K --> L
+    L --> M[Update Head Pointer]
+    M --> N[Publish Event]
+    N --> O[Return EntityDeleteResponse]
 ```
 
 ## Entity Undelete Process

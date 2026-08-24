@@ -8,7 +8,7 @@ This directory contains test fixtures for integration and unit testing.
 test_data/
 ├── json/
 │   ├── entities/          # Wikibase JSON (external/Wikidata API format)
-│   ├── revisions/         # S3 revision schema (internal format)
+│   ├── revisions/         # Revision schema (MariaDB, internal format)
 │   ├── errors/            # Error response fixtures
 │   └── change/           # RDF change events
 ├── rdf/                  # RDF test data (Turtle, NTriples)
@@ -77,7 +77,7 @@ Files in `json/entities/` represent the **Wikidata API JSON response format**.
 
 Files in other directories use snake_case:
 
-- `json/revisions/` - S3 revision storage format
+- `json/revisions/` - Revision storage format (MariaDB)
 - `json/errors/` - Error responses
 
 ## API Request Format Support

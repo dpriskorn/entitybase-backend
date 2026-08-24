@@ -3298,13 +3298,6 @@ Response model for settings endpoint (excludes sensitive values).
 | Field | Type | Description |
 |-------|------|-------------|
 | `s3_endpoint` | string |  *(required)* |
-| `s3_revisions_bucket` | string |  *(required)* |
-| `s3_snak_version` | string |  *(required)* |
-| `s3_sitelink_version` | string |  *(required)* |
-| `s3_qualifier_version` | string |  *(required)* |
-| `s3_reference_version` | string |  *(required)* |
-| `s3_statement_version` | string |  *(required)* |
-| `s3_schema_revision_version` | string |  *(required)* |
 | `vitess_host` | string |  *(required)* |
 | `vitess_port` | integer |  *(required)* |
 | `vitess_database` | string |  *(required)* |

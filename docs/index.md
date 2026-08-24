@@ -28,7 +28,7 @@ Entitybase is perfect for:
 
 > **Entitybase = Git for structured knowledge**
 > 
-> Every edit creates an immutable snapshot in S3. Vitess handles fast lookups. REST API gives you full CRUD. Built for 1 billion+ entities and 1 trillion statements.
+> Every edit creates an immutable snapshot in MariaDB. Vitess handles fast lookups. REST API gives you full CRUD. Built for 1 billion+ entities and 1 trillion statements.
 
 ## TL;DR Quick Facts ⚡
 
@@ -40,7 +40,7 @@ Entitybase is perfect for:
 | **Statements** | 1T+ unique statements |
 | **Revisions** | Immutable (never overwritten) 🔒 |
 | **API** | 122 REST endpoints |
-| **Storage** | S3 (snapshots) + Vitess (indexing) |
+| **Storage** | MariaDB (revisions, statements, terms) + Vitess (indexing) |
 | **Exports** | JSON, Turtle (RDF) 🐢 |
 | **Version** | 0.1.0 🚧 |
 
@@ -48,7 +48,7 @@ Entitybase is perfect for:
 
 ```
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│    You      │───▶│   REST API  │───▶│    S3       │
+│    You      │───▶│   REST API  │───▶│  MariaDB    │
 │  (clients)  │    │  (FastAPI)  │    │  (storage)  │
 └─────────────┘    └─────────────┘    └─────────────┘
                            │
@@ -61,10 +61,10 @@ Entitybase is perfect for:
 
 1. **You (clients)** — API calls from your app, scripts, or frontend
 2. **REST API (FastAPI)** — Validates, processes, and routes requests
-3. **S3 (storage)** — Immutable snapshots of every entity revision
+3. **MariaDB (storage)** — Revisions, statements, and terms
 4. **Vitess (indexing)** — Lightning-fast lookups and queries
 
-> 💡 **Think of it like this**: S3 is the permanent record (📜), Vitess is the index in the back of the book (📑), and the API is the librarian (👩‍🏫)
+> 💡 **Think of it like this**: MariaDB is the permanent record (📜), Vitess is the index in the back of the book (📑), and the API is the librarian (👩‍🏫)
 
 ## Key Features ✨
 
@@ -75,7 +75,7 @@ Entitybase is perfect for:
 - **RDF Export** — Turtle format for semantic web integration 🐢
 - **Entity Protection** — Full locks, semi-protection, archiving, and mass-edit protection
 - **User Features** — Watchlists, endorsements, thanks, and activity tracking
-- **Horizontal Scaling** — Vitess sharding + S3 for infinite scale
+- **Horizontal Scaling** — Vitess sharding + MariaDB for infinite scale
 
 ## Why This Design? 🧠
 
@@ -86,9 +86,9 @@ You might ask: "Why not just use MySQL like everyone else?"
 ```
 Traditional database:     Entitybase:
 ┌─────────────┐         ┌─────────────┐
-│   Item Q1   │         │ Rev 1: Q1   │──▶ S3 snapshot
-│  (current)  │         │ Rev 2: Q1   │──▶ S3 snapshot
-└─────────────┘         │ Rev 3: Q1   │──▶ S3 snapshot
+│   Item Q1   │         │ Rev 1: Q1   │──▶ MariaDB
+│  (current)  │         │ Rev 2: Q1   │──▶ MariaDB
+└─────────────┘         │ Rev 3: Q1   │──▶ MariaDB
   (overwrites!)         └─────────────┘
                          (append-only!)
 ```
@@ -127,7 +127,7 @@ This can reduce storage by 50%+ for typical Wikibase datasets!
 | **Frontend** | ❌ None | ✅ Wikibase UI (Vue) |
 | **Authentication** | ❌ None (planned) | ✅ Full user system |
 | **Capacity** | 1B+ entities, 1T+ statements | ~100M entities (Wikidata) |
-| **Storage** | Immutable S3 snapshots + Vitess | MySQL + blob storage |
+| **Storage** | MariaDB (revisions, statements, terms) + Vitess | MySQL + blob storage |
 | **Statement Deduplication** | Hash-based (~50%+ storage reduction) | None |
 | **JSON Output** | `/entities/{id}.json` | `wbgetentities` API |
 | **TTL Output** | Turtle (alpha) | Full support |

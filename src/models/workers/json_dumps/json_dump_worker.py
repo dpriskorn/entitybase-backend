@@ -318,14 +318,30 @@ class JsonDumpWorker(Worker):
     async def _fetch_entity_data(
         self, record: EntityDumpRecord
     ) -> dict[str, Any] | None:
-        if not self.s3_client:
+        if not self.db_client:
             return None
 
         try:
-            revision_data = self.s3_client.read_revision(
-                record.entity_id, record.revision_id
-            )
-            return revision_data.revision  # type: ignore[no-any-return]
+            from models.infrastructure.db.repositories.revision import RevisionRepository
+            from models.infrastructure.db.repositories.revision_data import RevisionDataRepository
+            from models.data.infrastructure.s3.revision_data import S3RevisionData
+
+            internal_id = self.db_client.id_resolver.resolve_id(record.entity_id)
+            if not internal_id:
+                return None
+
+            revision_repo = RevisionRepository(db_client=self.db_client)
+            content_hash = revision_repo.get_content_hash(internal_id, record.revision_id)
+            if content_hash == 0:
+                return None
+
+            data_repo = RevisionDataRepository(db_client=self.db_client)
+            data = data_repo.load(content_hash)
+            if data is None:
+                return None
+
+            revision = S3RevisionData.model_validate(data)
+            return revision.revision
         except Exception as e:
             logger.error(f"Error fetching {record.entity_id}: {e}")
             return None

@@ -28,6 +28,7 @@ from models.data.rest_api.v1.entitybase.response.entity.entity_status import (
 )
 from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.internal_representation.metadata_extractor import MetadataExtractor
+from models.infrastructure.db.repositories.revision_data import RevisionDataRepository
 from models.rest_api.entitybase.v1.service import Service
 from models.rest_api.utils import raise_validation_error
 
@@ -155,7 +156,7 @@ class StatusService(Service):
         head_revision_id = self.validate_entity_exists(entity_id)
 
         try:
-            current_revision = self.state.s3_client.read_revision(
+            current_revision = self.state.read_revision_data(
                 entity_id, head_revision_id
             )
         except Exception:
@@ -360,7 +361,7 @@ class StatusService(Service):
     def _store_revision(
         self, revision_data: RevisionData
     ) -> tuple[int, S3RevisionData]:
-        """Store the revision to S3."""
+        """Store the revision to MariaDB."""
         revision_dict = revision_data.model_dump(mode="json")
         revision_json = json.dumps(revision_dict, sort_keys=True)
         content_hash = MetadataExtractor.hash_string(revision_json)
@@ -372,5 +373,6 @@ class StatusService(Service):
             created_at=datetime.now(timezone.utc).isoformat(),
         )
 
-        self.state.s3_client.store_revision(content_hash, s3_revision_data)
+        repo = RevisionDataRepository(db_client=self.state.db_client)
+        repo.store(content_hash, s3_revision_data.model_dump(mode="json"))
         return content_hash, s3_revision_data

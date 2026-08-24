@@ -6,44 +6,13 @@ Entitybase uses multiple cache layers to achieve sub-second response times while
 
 ## Cache Architecture
 
-```
-Client Request
-    ↓
-┌───────────────────────────────────────┐
-│ 1. Browser/Client Cache           │
-│    - HTTP caching headers            │
-│    - ETag / Last-Modified        │
-│    - Max-age directives           │
-└───────────────────────────────────────┘
-    ↓ (cache miss)
-┌───────────────────────────────────────┐
-│ 2. CDN Cache                     │
-│    - CloudFront / Cloudflare      │
-│    - Edge location caching         │
-│    - S3 snapshots (immutable)     │
-│    - Cache-Control: public, max-age=31536000 (1 year) │
-└───────────────────────────────────────┘
-    ↓ (CDN miss)
-┌───────────────────────────────────────┐
-│ 3. Application Object Cache          │
-│    - Valkey / Memcached           │
-│    - entity_id_mapping lookups     │ ← NEW: Hybrid ID translation
-│    - entity_head lookups         │
-│    - entity metadata              │
-└───────────────────────────────────────┘
-    ↓ (object cache miss)
-┌───────────────────────────────────────┐
-│ 4. Vitess Database                │
-│    - entity_id_mapping table      │
-│    - entity_head table            │
-│    - entity_revisions table        │
-└───────────────────────────────────────┘
-    ↓ (database miss)
-┌───────────────────────────────────────┐
-│ 5. S3 Object Store               │
-│    - Immutable snapshots           │
-│    - S3 GET operations           │
-└───────────────────────────────────────┘
+```mermaid
+flowchart TD
+    A[Client Request] --> B[1. Browser/Client Cache]
+    B -->|cache miss| C[2. CDN Cache]
+    C -->|CDN miss| D[3. Application Object Cache - Valkey/Memcached]
+    D -->|object cache miss| E[4. Vitess Database]
+    E -->|database miss| F[5. MariaDB - Revision Data]
 ```
 
 ## Cache Layers
@@ -70,24 +39,15 @@ Last-Modified: revision.created_at
 
 ### Layer 2: CDN Cache (Optional)
 
-**Purpose:** Serve immutable snapshots from edge locations worldwide
+**Purpose:** Serve immutable revision data from edge locations worldwide
 
 **Key characteristics:**
-- **Immutable snapshots**: S3 objects never change after write
+- **Immutable revisions**: Revision data never changes after write
 - **Infinite cacheability**: No invalidation needed
 - **Edge delivery**: Sub-50ms latency globally
 
-**S3 Cache Configuration:**
-```yaml
-S3 Object Metadata:
-  Cache-Control: "public, max-age=31536000, immutable"  # 1 year
-  Expires: 1 year from now
-  x-amz-meta-revision-id: "42"
-  x-amz-meta-content-hash: "sha256:..."
-```
-
 **CDN Configuration (CloudFront/Cloudflare):**
-- Cache S3 GET responses for 1 year
+- Cache GET responses for 1 year
 - Enable Gzip/Brotli compression
 - Enable HTTP/2 and HTTP/3
 
@@ -262,16 +222,16 @@ SET GLOBAL query_cache_type = ON;
 
 ---
 
-### Layer 5: S3 Object Store
+### Layer 5: MariaDB Object Store
 
-**Purpose:** System of record for all entity snapshots
+**Purpose:** System of record for all entity revision data
 
 **Characteristics:**
 - **Immutable**: Never modified after write
 - **Cache-friendly**: CDN caches for 1 year
-- **Global replication**: Multi-region S3 for low latency
+- **Global replication**: Multi-region for low latency
 
-**No caching strategy needed** at S3 layer due to immutability.
+**No caching strategy needed** at MariaDB layer due to immutability.
 
 ---
 
@@ -279,7 +239,7 @@ SET GLOBAL query_cache_type = ON;
 
 ### Immutable Data (No Invalidation)
 
-**S3 Snapshots:**
+**MariaDB Revision Data:**
 - **Never invalidated** - immutable by design
 - If content is wrong, create new revision
 
@@ -315,15 +275,18 @@ class CacheInvalidator:
         valkey_client.delete(entity_meta_cache_key)
         
         # 4. Clear CDN cache (if needed)
-        # Note: S3 snapshots are immutable, no CDN invalidation needed
+        # Note: MariaDB revisions are immutable, no CDN invalidation needed
 
 # Example: Invalidate after entity update
 def update_entity(entity_data: dict):
     external_id = entity_data['external_id']
     internal_id = entity_data['internal_id']
     
-    # Write new S3 snapshot
-    s3.put(f"revisions/{external_id}/r{entity_data['revision_id']}.json", entity_data)
+    # Write new revision to MariaDB
+    db.execute(
+        "INSERT INTO entity_revisions (entity_id, revision_id, entity_json) VALUES (%s, %s, %s)",
+        (external_id, entity_data['revision_id'], json.dumps(entity_data))
+    )
     
     # Update Vitess (CAS update entity_head)
     db.update_entity_head(internal_id, entity_data['revision_id'])
@@ -359,7 +322,7 @@ GET /entity/Q123 (hot entity, not in client cache)
 GET /entity/Q123 (cold entity)
     ↓ CDN MISS → object cache HIT:  60ms
     ↓ Object cache MISS → Vitess:     100ms
-    ↓ Vitess → S3:                        200ms (total P99)
+    ↓ Vitess → MariaDB:                 200ms (total P99)
 ```
 
 ---
@@ -380,23 +343,23 @@ GET /entity/Q123 (cold entity)
 #### 2. Long TTLs for Immutable Data
 
 **Strategy:**
-- S3 snapshots: 1 year (never invalidated)
+- MariaDB revision data: 1 year (never invalidated)
 - entity_id_mapping: 1 hour (rarely changes)
 
 **Cost impact:**
 - Reduces database queries by >90% for hot entities
 - Estimated savings: $500-2000/month at scale
 
-#### 3. CDN Over Direct S3 Access
+#### 3. CDN Over Direct Database Access
 
 **Strategy:**
 - All public reads go through CDN (CloudFront/Cloudflare)
-- CDN caching reduces S3 GET operations by 80%
+- CDN caching reduces direct database reads by 80%
 
 **Cost impact:**
-- CDN: $0.085/GB (vs S3: $0.09/GB)
+- CDN: $0.085/GB (similar to direct access)
 - Data transfer cost similar, but performance much better
-- S3 operations reduced significantly
+- Database reads reduced significantly
 
 #### 4. Optimize Cache Memory Usage
 
@@ -481,7 +444,7 @@ valkey_memory_usage_bytes
 #### Cost Metrics
 
 ```
-s3_get_operations_total
+mariadb_read_operations_total
   - counter: ~1M/week (baseline)
   - alert: >2M/week (cache not effective)
 
@@ -624,6 +587,6 @@ def backfill_entity_id_cache():
 
 ## References
 
-- [STORAGE-ARCHITECTURE.md](STORAGE-ARCHITECTURE.md) - S3 + Vitess storage design
+- [STORAGE-ARCHITECTURE.md](STORAGE-ARCHITECTURE.md) - MariaDB + Vitess storage design
 - [ENTITY-MODEL.md](ENTITY-MODEL.md) - Entity identifiers and usage patterns
 - [SCALING-PROPERTIES.md](SCALING-PROPERTIES.md) - System scaling characteristics

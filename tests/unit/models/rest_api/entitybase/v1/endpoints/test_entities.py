@@ -10,7 +10,6 @@ from models.rest_api.entitybase.v1.endpoints.entities import (
     get_entity_ttl_revision,
 )
 from models.data.infrastructure.s3 import S3RevisionData
-from models.infrastructure.s3.exceptions import S3NotFoundError
 
 
 class TestEntityTTLRevisionEndpoint:
@@ -32,7 +31,7 @@ class TestEntityTTLRevisionEndpoint:
             hash=123456,
             created_at="2023-01-01T12:00:00Z",
         )
-        mock_s3.read_revision.return_value = mock_revision_data
+        mock_state.read_revision_data.return_value = mock_revision_data
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -46,7 +45,7 @@ class TestEntityTTLRevisionEndpoint:
 
             assert result.status_code == 200
             assert result.media_type == "text/turtle"
-            mock_s3.read_revision.assert_called_once_with("Q123", 1)
+            mock_state.read_revision_data.assert_called_once_with("Q123", 1)
             mock_serialize.assert_called_once()
 
     @pytest.mark.asyncio
@@ -54,7 +53,7 @@ class TestEntityTTLRevisionEndpoint:
         """Test getting TTL revision when S3 content is not found."""
         mock_state, mock_vitess, mock_s3 = mock_entity_read_state
 
-        mock_s3.read_revision.side_effect = S3NotFoundError("Object not found: 123456")
+        mock_state.read_revision_data.side_effect = Exception("Object not found: 123456")
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -85,7 +84,7 @@ class TestEntityTTLRevisionEndpoint:
             hash=123456,
             created_at="2023-01-01T12:00:00Z",
         )
-        mock_s3.read_revision.return_value = mock_revision_data
+        mock_state.read_revision_data.return_value = mock_revision_data
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -126,7 +125,7 @@ class TestEntityJsonRevisionEndpoint:
             hash=123456,
             created_at="2023-01-01T12:00:00Z",
         )
-        mock_s3.read_revision.return_value = mock_revision_data
+        mock_state.read_revision_data.return_value = mock_revision_data
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -137,14 +136,14 @@ class TestEntityJsonRevisionEndpoint:
 
         assert result.data["id"] == "Q123"
         assert result.data["labels"]["en"]["value"] == "Test"
-        mock_s3.read_revision.assert_called_once_with("Q123", 1)
+        mock_state.read_revision_data.assert_called_once_with("Q123", 1)
 
     @pytest.mark.asyncio
     async def test_get_entity_json_revision_s3_not_found(self, mock_entity_read_state):
         """Test getting JSON revision when S3 content is not found."""
         mock_state, mock_vitess, mock_s3 = mock_entity_read_state
 
-        mock_s3.read_revision.side_effect = S3NotFoundError("Object not found: 123456")
+        mock_state.read_revision_data.side_effect = Exception("Object not found: 123456")
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -196,7 +195,7 @@ class TestEntityJsonRevisionEndpoint:
             hash=789012,
             created_at="2023-01-01T12:00:00Z",
         )
-        mock_s3.read_revision.return_value = mock_revision_data
+        mock_state.read_revision_data.return_value = mock_revision_data
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state

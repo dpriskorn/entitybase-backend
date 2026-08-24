@@ -28,6 +28,7 @@ from models.data.rest_api.v1.entitybase.request import (
 from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.infrastructure.stream.event import EntityChangeEvent
 from models.internal_representation.metadata_extractor import MetadataExtractor
+from models.infrastructure.db.repositories.revision_data import RevisionDataRepository
 from models.rest_api.entitybase.v1.service import Service
 from models.rest_api.utils import raise_validation_error
 
@@ -245,7 +246,7 @@ class DeleteService(Service):
     def store_deletion_revision(
         self, revision_data: RevisionData
     ) -> tuple[int, S3RevisionData]:
-        """Store the deletion revision to S3.
+        """Store the deletion revision to MariaDB.
 
         Args:
             revision_data: The revision data to store
@@ -264,7 +265,8 @@ class DeleteService(Service):
             created_at=datetime.now(timezone.utc).isoformat(),
         )
 
-        self.state.s3_client.store_revision(content_hash, s3_revision_data)
+        repo = RevisionDataRepository(db_client=self.db_client)
+        repo.store(content_hash, s3_revision_data.model_dump(mode="json"))
         return content_hash, s3_revision_data
 
     async def publish_delete_event(

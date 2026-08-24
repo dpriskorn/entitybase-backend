@@ -42,7 +42,7 @@ This approach:
             │ CDN Cache (Optional) │
             │ 70-85% hit rate    │
             │ 1 year TTL            │
-            │ S3 immutable snapshots  │
+            │ Immutable revisions    │
             └──────────┬─────────────┘
                        ↓
               (cache miss)
@@ -74,8 +74,8 @@ This approach:
               Turtle RDF
                     ↓
          ┌────────────────────────────────┐
-         │ S3 Object Store (NEW)       │
-         │ Store for immutable snapshots   │
+         │ MariaDB (Revision Data)     │
+         │ Store for immutable revisions  │
          └─────────────────────────────┘
                     ↓
             ┌────────────────────────────────┐
@@ -94,10 +94,9 @@ This approach:
 - **TTL:** 1 hour
 
 ### Layer 2: CDN Cache (Optional)
-- S3 snapshots (immutable) for 1 year
+- Immutable revisions (MariaDB) for 1 year
 - Cache-Control: public, max-age=31536000 (1 year)
 - CDN CloudFront/Cloudflare edge caching
-- S3 GET operations only
 - **Expected hit rate:** 70-85% for hot entities
 - **Use case:** Serve static content without application involvement
 
@@ -196,30 +195,30 @@ SET GLOBAL query_cache_type = ON;
 **Expected hit rate:** 30-40% for repetitive queries
 - **TTL:** Managed by Vitess (query plan cache)
 
-### Layer 4: S3 Object Store (NEW)
+### Layer 4: MariaDB (Revision Data)
 
-**Purpose:** System of record for all entity snapshots
+**Purpose:** System of record for all entity revision data
 
 **Characteristics:**
 - **Immutable:** Never modified after write
 - **Cache-friendly:** CDN caches for 1 year
-- **Global replication:** Multi-region S3 for low latency
+- **Global replication:** Multi-region for low latency
 - **No caching strategy needed:** Immutable by design
 
 **Use case:**
-- Store immutable entity snapshots (JSON)
+- Store immutable entity revision data (JSON)
 - Serve via CDN with 1-year cache
-- Reduce S3 GET operations
+- Reduce direct database reads
 
 **Storage pattern:**
 ```
-revisions/{external_id}/r{revision_id}.json
+entity_revisions table: entity_id, revision_id, entity_json
 ```
 
 Examples:
 ```
-revisions/Q123/r42.json
-revisions/P42/r1.json
+entity_id=Q123, revision_id=42
+entity_id=P42, revision_id=1
 ```
 
 ### Layer 5: Vitess Database Query
@@ -301,9 +300,12 @@ def update_entity(entity_data: dict):
     entity_meta_cache_key = f"entity_meta:{internal_id}"
     valkey_client.delete(entity_meta_cache_key)
 
-    # 3. Write new S3 snapshot
+    # 3. Write new revision to MariaDB
     revision_id = get_next_revision_id()  # Generate new revision ID
-    s3.put(f"revisions/{external_id}/r{revision_id}.json", entity_data)
+    db.execute(
+        "INSERT INTO entity_revisions (entity_id, revision_id, entity_json) VALUES (%s, %s, %s)",
+        (external_id, revision_id, json.dumps(entity_data))
+    )
 
     # 4. Update entity_head in Vitess
     db.update_entity_head(internal_id, revision_id)
@@ -394,7 +396,7 @@ Response time: 300-500ms
 ### Strategy 2: Long TTLs for Immutable Data
 
 **Strategy:**
-- S3 snapshots: 1 year (never invalidated)
+- MariaDB revision data: 1 year (never invalidated)
 - entity_id_mapping: 1 hour (never invalidated)
 - entity_head: 5 minutes (rarely invalidated)
 
@@ -402,17 +404,17 @@ Response time: 300-500ms
 - Reduces database queries by >90% for hot entities (Q42, Q5, etc.)
 - Estimated savings: $500-2000/month at scale
 
-### Strategy 3: CDN Over Direct S3 Access
+### Strategy 3: CDN Over Direct Database Access
 
 **Strategy:**
 - All public reads go through CDN (CloudFront/Cloudflare)
-- CDN caches S3 snapshots for 1 year
-- Application only serves cache misses (via S3)
+- CDN caches revision data for 1 year
+- Application only serves cache misses (via database)
 
 **Cost impact:**
-- CDN: $0.085/GB vs S3: $0.09/GB
+- CDN: $0.085/GB vs direct: $0.09/GB
 - Data transfer cost similar, but performance much better
-- S3 operations reduced significantly
+- Database reads reduced significantly
 
 ### Strategy 4: Optimize Cache Memory Usage
 
@@ -581,7 +583,7 @@ valkey_memory_usage_bytes
 #### Cost Metrics
 
 ```
-s3_get_operations_total
+mariadb_read_operations_total
   - counter: ~1M/week (baseline)
   - alert: >2M/week (cache not effective)
 
@@ -594,7 +596,7 @@ vitess_query_latency_p99
 
 ### Phase 1: Infrastructure Setup (Week 1-2)
 - [ ] Configure Valkey/Memcached cluster
-- [ ] Set up S3 bucket with lifecycle policies
+- [ ] Set up MariaDB with lifecycle policies
 - [ ] Configure CDN (CloudFront/Cloudflare)
 - [ ] Create Vitess tables (entity_id_mapping, entity_head, entity_revisions)
 - [ ] Create entity metadata tables (labels, descriptions)
@@ -618,8 +620,8 @@ vitess_query_latency_p99
 - [ ] Add Prometheus metrics
 - [ ] Load testing and optimization
 
-### Phase 4: S3 Integration (Week 7-8)
-- [ ] Implement S3 snapshot writer
+### Phase 4: MariaDB Integration (Week 7-8)
+- [ ] Implement MariaDB revision writer
 - [ ] Configure CDN distribution
 - [ ] Set up lifecycle policies
 - [ ] Create revision storage pattern
@@ -667,7 +669,7 @@ When to use which cache layer:
 | External ID → Internal ID | entity_id_mapping | Never changes, cache indefinitely |
 | Entity head | entity_head cache | Changes frequently, need short TTL (5 min) |
 | Entity labels/descriptions | entity_metadata cache | Change occasionally, medium TTL (30 min) |
-| Entity data | S3 (immutable) | Generate on-demand, cache only via CDN |
+| Entity data | MariaDB (immutable) | Generate on-demand, cache only via CDN |
 
 ### Change Detection and Propagation
 
@@ -700,7 +702,7 @@ When to use which cache layer:
 **What's NOT in scope:**
 - Entity head cache
 - Entity metadata cache
-- S3 snapshots
+- MariaDB revision storage
 - CDN distribution
 - Warm-up scripts
 
@@ -722,10 +724,10 @@ When to use which cache layer:
 4. Load testing and optimization
 5. CDN integration (optional)
 
-**Week 5+:** S3 Integration (Optional)
+**Week 5+:** MariaDB Integration (Optional)
 
 **Scope:**
-1. S3 snapshot writer
+1. MariaDB revision writer
 2. CDN configuration
 3. Lifecycle policies
 4. Global replication
@@ -745,7 +747,7 @@ When to use which cache layer:
 
 - [ ] < 100ms Vitess query latency (cache hit)
 - [ ] Valkey cost < $200/month at target scale
-- [ ] S3 cost < $100/month at target scale
+- [ ] MariaDB cost < $100/month at target scale
 - [ ] CDN cost < $50/month (if used)
 
 ### Reliability
@@ -757,7 +759,7 @@ When to use which cache layer:
 ## Next Steps
 
 1. **Review this document** with team to validate architecture
-2. **Estimate infrastructure requirements** (Valkey size, S3 storage, bandwidth)
+2. **Estimate infrastructure requirements** (Valkey size, MariaDB storage, bandwidth)
 3. **Create detailed implementation plan** for MVP (Week 1)
 4. **Set up monitoring strategy** (Prometheus, Grafana, alerting)
 5. **Prioritize features** based on business value (latency vs. cost)
@@ -765,6 +767,6 @@ When to use which cache layer:
 ## References
 
 - **[CACHING-STRATEGY.md](../CACHING-STRATEGY.md)** - Detailed caching strategy
-- **[STORAGE-ARCHITECTURE.md](../STORAGE-ARCHITECTURE.md)** - Vitess database design
+- **[STORAGE-ARCHITECTURE.md](../STORAGE-ARCHITECTURE.md)** - MariaDB + Vitess storage design
 - **[ENTITY-MODEL.md](../ENTITY-MODEL.md)** - Entity data model
 - **[SCALING-PROPERTIES.md](../SCALING-PROPERTIES.md)** - System scaling characteristics

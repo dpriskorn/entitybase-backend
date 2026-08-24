@@ -1,60 +1,53 @@
 # S3 Storage Architecture
 
-This document outlines how Entitybase stores data in S3-compatible storage, including revision snapshots, metadata, and deduplicated content.
+S3 (rustfs/MinIO) is used exclusively for **dump file uploads**. All other data — revisions, statements, terms, sitelinks, and entity snapshots — lives in MariaDB.
 
-## Overview
+## Bucket
 
-S3 is used for immutable storage of entity revisions and deduplicated metadata. Data is organized into buckets with structured paths for efficient retrieval.
+| Bucket | Purpose |
+|--------|---------|
+| `wikibase-dumps` | Periodic full dumps of entity data |
 
-## Buckets
+## Dump Types
 
-### wikibase-revisions
-Stores entity revision snapshots.
+| Format | Workers | Content-Type | Description |
+|--------|---------|--------------|-------------|
+| JSON | `json-dump-worker` | `application/json` | Full entity export in Wikibase JSON format |
+| TTL/RDF | `ttl-dump-worker` | `text/turtle` | Full entity export in Turtle RDF format |
 
-- **Path**: `{entity_id}/{revision_id}`
-- **Format**: YAML (schema-validated)
-- **Content**: Full entity snapshot with hashes for deduplicated parts (terms, sitelinks, statements)
-- **Example**: `Q42/42` contains revision data with `sitelinks_hashes`, `statements_hashes`, etc.
+Dumps may be gzip-compressed (`application/gzip`) depending on worker configuration.
 
-### wikibase-statements
-Stores deduplicated statement (claim) data.
+## Object Path Convention
 
-- **Path**: `{hash}`
-- **Format**: JSON
-- **Content**: Statement objects (mainsnak, qualifiers, references)
-- **Example**: `123456789` contains `{"mainsnak": {...}, "qualifiers": {...}}`
+```
+weekly/{date}/{filename}
+```
 
-### wikibase-terms
-Stores deduplicated term metadata (labels, descriptions, aliases).
+Examples:
+```
+weekly/2026-08-24/full.json.gz
+weekly/2026-08-24/full.ttl.gz
+```
 
-- **Path**: `{language}:{hash}`
-- **Format**: Plain UTF-8 text
-- **Content**: Raw term value (e.g., "Douglas Adams")
-- **Example**: `en:987654321` contains `Douglas Adams`
+The `date` component follows ISO 8601 format (`YYYY-MM-DD`) and corresponds to the dump generation date.
 
-### wikibase-sitelinks
-Stores deduplicated sitelink titles.
+## Object Metadata
 
-- **Path**: `{hash}`
-- **Format**: Plain UTF-8 text
-- **Content**: Raw title (e.g., "Main Page")
-- **Example**: `876543210` contains `Main Page`
+Each S3 object stores the following metadata:
 
-### wikibase-dumps
-Stores periodic RDF dumps.
+| Key | Description |
+|-----|-------------|
+| `x-amz-meta-sha256` | SHA-256 checksum of the uncompressed dump content |
 
-- **Path**: `{date}/{entity_id}.ttl`
-- **Format**: Turtle RDF
-- **Content**: Entity RDF export
+This checksum allows downstream consumers to verify dump integrity independent of the transport layer.
 
-## Deduplication
+## Upload Flow
 
-- **Terms/Sitelinks**: Hashed values stored as plain text; revisions reference hashes.
-- **Statements**: Hashed and stored as JSON; revisions use `statements_hashes`.
-- **Revisions**: Contain minimal entity data + hashes for reconstruction.
+1. A dump worker (`json-dump-worker` or `ttl-dump-worker`) reads entity data from MariaDB.
+2. The worker streams the dump file to the `wikibase-dumps` bucket using boto3.
+3. The SHA-256 checksum of the uncompressed content is attached as S3 object metadata.
+4. The S3 key follows the `weekly/{date}/{filename}` convention.
 
-## Performance Considerations
+## Design Rationale
 
-- Plain text for terms/sitelinks minimizes size (no JSON overhead).
-- Hashes ensure integrity without schemas.
-- Batch endpoints reduce round-trips for metadata lookups.
+Keeping S3 reserved for dump uploads keeps the hot path (reads and writes for revisions, statements, terms) entirely within MariaDB, avoiding S3 latency for entity operations. Dumps are inherently bulk, read-heavy, and consumed by external tooling — a natural fit for object storage.

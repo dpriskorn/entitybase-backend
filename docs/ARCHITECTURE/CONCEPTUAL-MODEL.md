@@ -25,13 +25,13 @@ A revision is a complete, immutable snapshot of an entity.
 - `entity_id`
 - `revision_id` (monotonic per entity or content-hash based)
 - `created_at`
-- `snapshot_uri` (S3 object path)
+- `revision_data` (MariaDB entity_revisions row)
 
 Example:
 
-s3://wikibase-revisions/Q123/r0000000042.json
+entity_revisions row: entity_id=Q123, revision_id=42, entity_json={...}
 
-Snapshot properties:
+Revision properties:
 - Full canonical JSON
 - Deterministic ordering
 - Schema version embedded
@@ -43,7 +43,7 @@ A revision is a complete snapshot of an entity.
 - `entity_id`
 - `revision_id` (monotonic per entity)
 - `created_at`
-- `snapshot_uri` (S3)
+- `revision_data` (MariaDB)
 - `schema_version`
 - `content_hash`
 

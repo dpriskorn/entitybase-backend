@@ -187,7 +187,7 @@ class TestStatusService:
             deleted=False,
         )
         mock_revision = self.create_mock_revision(current_state)
-        mock_state.s3_client.read_revision.return_value = mock_revision
+        mock_state.read_revision_data.return_value = mock_revision
 
         service = StatusService(state=mock_state)
         request = EntityStatusRequest()
@@ -215,7 +215,7 @@ class TestStatusService:
             deleted=False,
         )
         mock_revision = self.create_mock_revision(current_state)
-        mock_state.s3_client.read_revision.return_value = mock_revision
+        mock_state.read_revision_data.return_value = mock_revision
 
         service = StatusService(state=mock_state)
         request = EntityStatusRequest()
@@ -243,7 +243,7 @@ class TestStatusService:
             deleted=False,
         )
         mock_revision = self.create_mock_revision(current_state)
-        mock_state.s3_client.read_revision.return_value = mock_revision
+        mock_state.read_revision_data.return_value = mock_revision
 
         service = StatusService(state=mock_state)
         request = EntityStatusRequest()
@@ -271,7 +271,7 @@ class TestStatusService:
             deleted=False,
         )
         mock_revision = self.create_mock_revision(current_state)
-        mock_state.s3_client.read_revision.return_value = mock_revision
+        mock_state.read_revision_data.return_value = mock_revision
 
         service = StatusService(state=mock_state)
         request = EntityStatusRequest()
@@ -299,7 +299,7 @@ class TestStatusService:
             deleted=False,
         )
         mock_revision = self.create_mock_revision(current_state)
-        mock_state.s3_client.read_revision.return_value = mock_revision
+        mock_state.read_revision_data.return_value = mock_revision
 
         service = StatusService(state=mock_state)
         request = EntityStatusRequest()

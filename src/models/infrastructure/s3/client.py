@@ -1,4 +1,4 @@
-"""S3 storage client for entity and statement data."""
+"""S3 storage client for dump uploads and statement/metadata coordination."""
 
 import logging
 from typing import TYPE_CHECKING, Any, List, Optional, cast
@@ -11,7 +11,6 @@ from models.data.infrastructure.s3 import (
     DictLoadResponse,
     LoadResponse,
     StringLoadResponse,
-    S3RevisionData,
 )
 
 if TYPE_CHECKING:
@@ -24,9 +23,6 @@ from models.data.infrastructure.s3.reference_data import S3ReferenceData
 from models.data.infrastructure.s3.snak_data import S3SnakData
 from models.infrastructure.client import Client
 from models.infrastructure.s3.connection import S3ConnectionManager
-from models.infrastructure.s3.revision.revision_data import RevisionData
-from models.infrastructure.s3.storage.revision_storage import RevisionStorage
-from models.infrastructure.db.repositories.revision import RevisionRepository
 from models.infrastructure.db.storage.qualifier_storage import (
     QualifierVitessStorage,
 )
@@ -48,7 +44,12 @@ logger = logging.getLogger(__name__)
 
 
 class MyS3Client(Client):
-    """Client for S3 storage operations."""
+    """Client for S3 dump uploads and statement/metadata coordination.
+
+    Revision storage has been moved to MariaDB. This client retains S3
+    connectivity for dump file uploads and coordinates statement/metadata
+    storage via Vitess/MySQL.
+    """
 
     db_client: Optional[Any] = Field(default=None, exclude=True)
     vitess_statements: Any = Field(default=None, exclude=True)
@@ -60,7 +61,6 @@ class MyS3Client(Client):
     connection_manager: Optional[S3ConnectionManager] = Field(
         default=None, exclude=True
     )  # type: ignore[override]
-    revisions: Any = Field(default=None, exclude=True)
 
     def model_post_init(self, context: Any) -> None:
         # noinspection PyTypeChecker
@@ -69,12 +69,6 @@ class MyS3Client(Client):
             raise_validation_error("S3 service unavailable", status_code=503)
         self.connection_manager = manager  # type: ignore[assignment]
         self.connection_manager.connect()
-        # self._ensure_bucket_exists()
-
-        # Initialize S3 storage components (revisions only now, metadata moved to Vitess)
-        from models.infrastructure.s3.storage.revision_storage import RevisionStorage
-
-        self.revisions = RevisionStorage(connection_manager=self.connection_manager)
 
         # Initialize Vitess storage components (statements, qualifiers, refs, snaks, metadata)
         if self.db_client is not None:
@@ -94,47 +88,6 @@ class MyS3Client(Client):
             self.vitess_sitelinks = SitelinkVitessStorage(
                 db_client=self.db_client
             )
-
-    def write_revision(
-        self,
-        data: RevisionData,
-    ) -> OperationResult[None]:
-        """Write entity revision data to S3."""
-        import json
-        from models.internal_representation.metadata_extractor import MetadataExtractor
-        from models.data.infrastructure.s3.revision_data import S3RevisionData
-
-        revision_dict = data.model_dump(mode="json")
-        revision_json = json.dumps(revision_dict, sort_keys=True)
-        content_hash = MetadataExtractor.hash_string(revision_json)
-
-        s3_revision_data = S3RevisionData(
-            schema=data.schema_version,
-            revision=revision_dict,
-            hash=content_hash,
-            created_at=data.created_at,
-        )
-
-        return self.revisions.store_revision(content_hash, s3_revision_data)  # type: ignore[no-any-return]
-
-    def read_revision(self, entity_id: str, revision_id: int) -> S3RevisionData:
-        """Read S3 object and return parsed JSON."""
-        if self.db_client is None:
-            raise_validation_error("Vitess client not configured", status_code=503)
-        db_client = cast(Any, self.db_client)
-        internal_id = db_client.id_resolver.resolve_id(entity_id)
-        if not internal_id:
-            raise_validation_error("Entity not found", status_code=404)
-
-        revision_repo = RevisionRepository(db_client=self.db_client)
-        content_hash = revision_repo.get_content_hash(internal_id, revision_id)
-        if content_hash == 0:
-            raise_validation_error("Revision not found", status_code=404)
-
-        return cast(S3RevisionData, self.revisions.load_revision(content_hash))
-
-    read_full_revision = read_revision
-    write_entity_revision = write_revision
 
     def delete_statement(self, content_hash: int) -> None:
         """Delete statement from Vitess storage."""
@@ -327,16 +280,6 @@ class MyS3Client(Client):
             self.vitess_snaks.load_snaks_batch(content_hashes),
         )
 
-    def store_revision(self, content_hash: int, revision_data: S3RevisionData) -> None:
-        """Store a revision by its content hash."""
-        from models.infrastructure.s3.storage.revision_storage import RevisionStorage
-
-        if not hasattr(self, "revisions") or self.revisions is None:
-            self.revisions = RevisionStorage(connection_manager=self.connection_manager)
-        result = self.revisions.store_revision(content_hash, revision_data)
-        if not result.success:
-            raise_validation_error("S3 storage service unavailable", status_code=503)
-
     def store_lemma(self, text: str, content_hash: int) -> None:
         """Store lemma text in Vitess."""
         if not hasattr(self, "vitess_metadata") or not self.vitess_metadata:
@@ -346,14 +289,6 @@ class MyS3Client(Client):
             raise_validation_error(
                 "Vitess storage service unavailable", status_code=503
             )
-
-    def load_revision(self, content_hash: int) -> S3RevisionData:
-        """Load a revision by its content hash."""
-        from models.infrastructure.s3.storage.revision_storage import RevisionStorage
-
-        if not hasattr(self, "revisions") or self.revisions is None:
-            self.revisions = RevisionStorage(connection_manager=self.connection_manager)
-        return cast(S3RevisionData, self.revisions.load_revision(content_hash))
 
     def store_form_representation(self, text: str, content_hash: int) -> None:
         """Store form representation text in Vitess."""

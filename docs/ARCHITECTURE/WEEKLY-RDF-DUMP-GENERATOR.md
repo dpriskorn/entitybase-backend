@@ -16,20 +16,14 @@ Generate weekly dumps of all entities in both JSON and RDF formats as standalone
 
 ### Data Flow
 
-```
-Weekly Scheduler (Cron/Airflow)
-          ↓
-     Query entity_head: Get all entities
-          ↓
-     Batch fetch S3 snapshots (parallel, 1000s at a time)
-          ↓
-     ┌──────────────────────────────────┐
-     ↓                              ↓
-Convert to JSON Dump           Convert to RDF (Turtle) - Streaming
-     ↓                              ↓
-Write to S3:                     Write to S3:
-  dump/YYYY-MM-DD/full.json       dump/YYYY-MM-DD/full.ttl
-  (optional partitioned)          (optional partitioned)
+```mermaid
+flowchart TD
+    A[Weekly Scheduler - Cron/Airflow] --> B[Query entity_head: Get all entities]
+    B --> C[Batch fetch revisions from MariaDB]
+    C --> D[Convert to JSON Dump]
+    C --> E[Convert to RDF Turtle - Streaming]
+    D --> F[Write to S3: dump/YYYY-MM-DD/full.json]
+    E --> G[Write to S3: dump/YYYY-MM-DD/full.ttl]
 ```
 
 ## Implementation Design
@@ -43,42 +37,42 @@ WHERE h.updated_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
 ORDER BY h.updated_at ASC;
 ```
 
-### Step 2: Batch Fetch S3 Snapshots
+### Step 2: Batch Fetch Revisions from MariaDB
 
 ```python
 from concurrent.futures import ThreadPoolExecutor
-import boto3
+import mysql.connector
 
-s3_client = boto3.client('s3')
-
-def fetch_snapshots_in_batches(entities, batch_size=1000):
-    """Fetch S3 snapshots in parallel batches"""
+def fetch_revisions_in_batches(entities, batch_size=1000):
+    """Fetch revisions from MariaDB in parallel batches"""
     for batch_start in range(0, len(entities), batch_size):
         batch = entities[batch_start:batch_start + batch_size]
         
-        # Build S3 URIs
-        uris = [
-            f"s3://{bucket}/{entity_id}/r{revision_id}.json"
-            for entity_id, revision_id in batch
-        ]
-        
-        # Fetch in parallel
+        # Fetch in parallel using database connection pool
         with ThreadPoolExecutor(max_workers=50) as executor:
             futures = [
-                executor.submit(fetch_snapshot, entity_id, revision_id)
+                executor.submit(fetch_revision, entity_id, revision_id)
                 for entity_id, revision_id in batch
             ]
-            snapshots = [future.result() for future in futures]
+            revisions = [future.result() for future in futures]
         
         # Yield batch for processing
-        yield zip(batch, snapshots)
+        yield zip(batch, revisions)
 
 
-def fetch_snapshot(entity_id, revision_id, bucket="wikibase-revisions"):
-    """Fetch single snapshot from S3"""
-    key = f"{entity_id}/r{revision_id}.json"
-    response = s3_client.get_object(Bucket=bucket, Key=key)
-    return json.loads(response['Body'].read().decode('utf-8'))
+def fetch_revision(entity_id, revision_id):
+    """Fetch single revision from MariaDB"""
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute(
+        "SELECT entity_json FROM entity_revisions "
+        "WHERE entity_id = %s AND revision_id = %s",
+        (entity_id, revision_id)
+    )
+    row = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    return json.loads(row['entity_json']) if row else None
 ```
 
 ### Step 3: Generate JSON Dump
@@ -109,7 +103,7 @@ def fetch_snapshot(entity_id, revision_id, bucket="wikibase-revisions"):
       "metadata": {
         "revision_id": 327,
         "entity_id": "Q42",
-        "s3_uri": "s3://bucket/Q42/r327.json",
+        "revision_source": "MariaDB entity_revisions",
         "updated_at": "2025-01-15T10:30:00Z"
       }
     },
@@ -144,7 +138,7 @@ def generate_json_dump(entities, output_path, compress=True):
             "metadata": {
                 "revision_id": revision_id,
                 "entity_id": entity_id,
-                "s3_uri": f"s3://wikibase-revisions/{entity_id}/r{revision_id}.json",
+                "revision_source": "MariaDB entity_revisions",
                 "updated_at": entity_json.get("modified")
             }
         })
@@ -504,7 +498,8 @@ def generate_partitioned_dump(entities, output_dir, base_filename, format='ttl')
 | Option | Description | Default |
 |---------|-------------|---------|
 | `schedule` | Cron expression for weekly dumps | `0 2 * * 0` (Sunday 2AM) |
-| `s3_source_bucket` | S3 bucket for entity snapshots | wikibase-revisions |
+| `mariadb_host` | MariaDB host for revision data | localhost:3306 |
+| `mariadb_database` | MariaDB database name | entitybase |
 | `s3_dump_bucket` | S3 bucket for dumps | wikibase-dumps |
 | `batch_size` | Entities per batch | 1000 |
 | `parallel_workers` | Parallel conversion threads | 50 |
@@ -517,19 +512,19 @@ def generate_partitioned_dump(entities, output_dir, base_filename, format='ttl')
 
 ## Error Handling
 
-### Snapshot Fetch Errors
+### Revision Fetch Errors
 
 ```python
-def fetch_snapshots_with_retry(entities, max_retries=3):
-    """Fetch snapshots with retry logic"""
+def fetch_revisions_with_retry(entities, max_retries=3):
+    """Fetch revisions with retry logic"""
     fetched = []
     failed = []
     
     for entity_id, revision_id in entities:
         for attempt in range(max_retries):
             try:
-                snapshot = fetch_snapshot(entity_id, revision_id)
-                fetched.append((entity_id, snapshot, revision_id))
+                revision = fetch_revision(entity_id, revision_id)
+                fetched.append((entity_id, revision, revision_id))
                 break
             except Exception as e:
                 if attempt == max_retries - 1:
@@ -745,7 +740,7 @@ def parallel_fetch_and_convert(entities, max_workers=50):
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         # Submit all fetch tasks
         future_to_entity = {
-            executor.submit(fetch_snapshot, entity_id, revision_id): (entity_id, revision_id)
+            executor.submit(fetch_revision, entity_id, revision_id): (entity_id, revision_id)
             for entity_id, revision_id in entities
         }
         
@@ -969,7 +964,7 @@ spec:
 ## References
 
 - [ARCHITECTURE.md](ARCHITECTURE.md) - Core architecture principles
-- [STORAGE-ARCHITECTURE.md](STORAGE-ARCHITECTURE.md) - S3 + Vitess storage model
+- [STORAGE-ARCHITECTURE.md](STORAGE-ARCHITECTURE.md) - MariaDB + Vitess storage model
 - [CHANGE-DETECTION-RDF-GENERATION.md](CHANGE-STREAMING/CHANGE-DETECTION-RDF-GENERATION.md) - RDF generation architecture
 - [ENTITY-MODEL.md](ENTITY-MODEL.md) - Entity model documentation
 - [RDF-DIFF-STRATEGY.md](RDF-BUILDER/RDF-DIFF-STRATEGY.md) - RDF diff strategy documentation

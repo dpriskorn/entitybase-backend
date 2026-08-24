@@ -160,22 +160,28 @@ class TestDeleteService:
 
     # store_deletion_revision
     def test_store_deletion_revision_success(self) -> None:
-        """Test storing deletion revision to S3."""
+        """Test storing deletion revision to MariaDB."""
         mock_state = MagicMock()
-        mock_s3 = MagicMock()
-        mock_state.s3_client = mock_s3
-        mock_s3.store_revision = MagicMock()
+        mock_vitess = MagicMock()
+        mock_state.db_client = mock_vitess
 
         mock_revision_data = MagicMock()
         mock_revision_data.revision_id = 3
         mock_revision_data.model_dump = MagicMock(return_value={})
 
         service = DeleteService(state=mock_state)
-        content_hash, s3_data = service.store_deletion_revision(mock_revision_data)
 
-        assert content_hash is not None
-        assert s3_data is not None
-        mock_s3.store_revision.assert_called_once()
+        with patch(
+            "models.rest_api.entitybase.v1.services.delete_service.RevisionDataRepository"
+        ) as mock_repo_class:
+            mock_repo = MagicMock()
+            mock_repo_class.return_value = mock_repo
+
+            content_hash, s3_data = service.store_deletion_revision(mock_revision_data)
+
+            assert content_hash is not None
+            assert s3_data is not None
+            mock_repo.store.assert_called_once()
 
     # publish_delete_event
     @pytest.mark.asyncio

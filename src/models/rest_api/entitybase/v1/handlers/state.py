@@ -15,6 +15,8 @@ from models.data.config.mysql import MysqlConfig
 from models.infrastructure.s3.client import MyS3Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.db.client import MysqlClient
+from models.infrastructure.db.repositories.revision_data import RevisionDataRepository
+from models.infrastructure.db.repositories.revision import RevisionRepository
 from models.rdf_builder.property_registry.loader import load_property_registry
 from models.rdf_builder.property_registry.registry import PropertyRegistry
 from models.rest_api.entitybase.v1.services.enumeration_service import (
@@ -66,26 +68,11 @@ class StateHandler(BaseModel):
     def health_check(self) -> None:
         """Check if clients work"""
         logger.debug("=== health_check() START ===")
-        logger.debug("Checking S3 connection...")
-        if self.s3_config and self.s3_client.healthy_connection:
-            logger.debug("S3 client connected successfully")
-        else:
-            raise RuntimeError("S3 client connection failed — check S3_ENDPOINT, credentials, and bucket")
         logger.debug("Checking MySQL connection...")
         if self.mysql_config and self.db_client.healthy_connection:
             logger.debug("MySQL client connected successfully")
         else:
             logger.warning("MySQL client connection failed")
-        # todo create healthy_connection method
-        # if self.streaming_enabled and self.entitychange_stream_producer.healthy_connection:
-        #     logger.debug("Kafka entitychange client connected successfully")
-        # else:
-        #     logger.warning("Kafka entitychange connection failed")
-        # if self.streaming_enabled and self.entitydiff_stream_producer.healthy_connection:
-        #     logger.debug("Kafka entitydiff client connected successfully")
-        # else:
-        #     logger.warning("Kafka entitydiff connection failed")
-
         logger.debug("Clients initialized successfully")
         logger.debug("=== health_check() END ===")
 
@@ -151,6 +138,32 @@ class StateHandler(BaseModel):
             )
             logger.debug("=== s3_client property: MyS3Client created ===")
         return self.cached_s3_client
+
+    def read_revision_data(self, entity_id: str, revision_id: int) -> Any:
+        """Read revision data from MariaDB.
+
+        Resolves entity_id to internal_id, looks up content_hash from
+        entity_revisions, then loads the full revision JSON from
+        entity_revision_data.
+        """
+        from models.data.infrastructure.s3.revision_data import S3RevisionData
+        from models.rest_api.utils import raise_validation_error
+
+        internal_id = self.db_client.id_resolver.resolve_id(entity_id)
+        if not internal_id:
+            raise_validation_error("Entity not found", status_code=404)
+
+        revision_repo = RevisionRepository(db_client=self.db_client)
+        content_hash = revision_repo.get_content_hash(internal_id, revision_id)
+        if content_hash == 0:
+            raise_validation_error("Revision not found", status_code=404)
+
+        revision_data_repo = RevisionDataRepository(db_client=self.db_client)
+        data = revision_data_repo.load(content_hash)
+        if data is None:
+            raise_validation_error("Revision data not found", status_code=404)
+
+        return S3RevisionData.model_validate(data)
 
     @property
     def entity_change_stream_producer(self) -> StreamProducerClient | None:

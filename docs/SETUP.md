@@ -7,7 +7,7 @@ Complete environment setup for Entitybase Backend.
 - Python 3.13+
 - Docker & Docker Compose
 - Poetry
-- AWS credentials (for S3)
+- MinIO credentials (for dump uploads only)
 
 ## Environment Variables
 
@@ -21,11 +21,9 @@ DATABASE_USER=root
 DATABASE_PASSWORD=password
 DATABASE_NAME=wikibase
 
-# S3
+# S3 (dump uploads only)
 AWS_ACCESS_KEY_ID=your_key
 AWS_SECRET_ACCESS_KEY=your_secret
-S3_BUCKET=your-bucket
-S3_REGION=us-east-1
 
 # API
 API_HOST=0.0.0.0

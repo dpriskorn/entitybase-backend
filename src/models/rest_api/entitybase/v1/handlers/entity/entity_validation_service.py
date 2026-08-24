@@ -6,7 +6,6 @@ from pydantic import BaseModel
 
 from models.data.infrastructure.s3.entity_state import EntityState
 from models.data.rest_api.v1.entitybase.response import EntityResponse
-from models.infrastructure.s3.exceptions import S3NotFoundError
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -33,7 +32,6 @@ class EntityValidationService(BaseModel):
         entity_id: str,
         head_revision_id: int,
         content_hash: int,
-        # request_data: Dict[str, Any],
     ) -> EntityResponse | None:
         """Check if request is idempotent."""
         if head_revision_id == 0:
@@ -41,7 +39,7 @@ class EntityValidationService(BaseModel):
 
         logger.debug(f"Checking idempotency against head revision {head_revision_id}")
         try:
-            head_revision = self.state.s3_client.read_revision(
+            head_revision = self.state.read_revision_data(
                 entity_id, head_revision_id
             )
             head_content_hash = head_revision.content_hash
@@ -65,10 +63,6 @@ class EntityValidationService(BaseModel):
                         mep=state_data.get("is_mass_edit_protected", False),
                     ),
                 )
-        except S3NotFoundError:
-            logger.debug(
-                f"Head revision not found for idempotency check on {entity_id}"
-            )
         except Exception as e:
             logger.warning(f"Failed to read head revision for idempotency check: {e}")
 

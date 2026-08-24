@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes services for generating RDF from entity snapshots and producing both continuous RDF change streams and weekly entity dumps (JSON + RDF formats).
+This document describes services for generating RDF from entity revisions and producing both continuous RDF change streams and weekly entity dumps (JSON + RDF formats).
 
 Related documentation:
 - [JSON-RDF-CONVERTER.md](../RDF-BUILDER/JSON-RDF-CONVERTER.md) - JSON→RDF converter service
@@ -14,7 +14,7 @@ Related documentation:
 
 1. **Weekly Dumps**: Generate complete dumps of all recent entities in both JSON and RDF formats weekly
 2. **Continuous Streaming**: Stream recent changes as RDF patches in real-time
-3. **Architecture Alignment**: Integrate with existing S3 + Vitess storage model
+3. **Architecture Alignment**: Integrate with existing MariaDB + Vitess storage model
 
 ---
 
@@ -22,7 +22,7 @@ Related documentation:
 
 See [JSON-RDF-CONVERTER.md](../RDF-BUILDER/JSON-RDF-CONVERTER.md) for complete documentation.
 
-**Purpose**: Convert Wikibase JSON snapshots to RDF (Turtle format) using streaming generation
+**Purpose**: Convert Wikibase JSON revisions to RDF (Turtle format) using streaming generation
 
 **Key Features**:
 - Streaming approach for memory efficiency (1M+ entities/week scale)
@@ -41,23 +41,17 @@ See [JSON-RDF-CONVERTER.md](../RDF-BUILDER/JSON-RDF-CONVERTER.md) for complete d
 
 See [WEEKLY-RDF-DUMP-GENERATOR.md](../WEEKLY-RDF-DUMP-GENERATOR.md) for complete documentation.
 
-**Purpose**: Generate weekly dumps of all entities in both JSON and RDF formats as standalone S3 files
+**Purpose**: Generate weekly dumps of all entities in both JSON and RDF formats as standalone S3 dump files
 
 **Data Flow**:
-```
-Weekly Scheduler (Cron/Airflow)
-          ↓
-     Query entity_head: Get all entities
-          ↓
-     Batch fetch S3 snapshots (parallel, 1000s at a time)
-          ↓
-     ┌──────────────────────────────────┐
-     ↓                              ↓
-Convert to JSON Dump           Convert to RDF (Turtle) - Streaming
-     ↓                              ↓
-Write to S3:                     Write to S3:
-  dump/YYYY-MM-DD/full.json       dump/YYYY-MM-DD/full.ttl
-  (optional partitioned)          (optional partitioned)
+```mermaid
+flowchart TD
+    A[Weekly Scheduler - Cron/Airflow] --> B[Query entity_head: Get all entities]
+    B --> C[Batch fetch revisions from MariaDB]
+    C --> D[Convert to JSON Dump]
+    C --> E[Convert to RDF Turtle - Streaming]
+    D --> F[Write to S3: dump/YYYY-MM-DD/full.json]
+    E --> G[Write to S3: dump/YYYY-MM-DD/full.ttl]
 ```
 
 **Key Features**:
@@ -66,7 +60,7 @@ Write to S3:                     Write to S3:
 - Streaming generation for memory efficiency
 - Automatic partitioning for large datasets
 - Compression support (gzip)
-- S3 lifecycle management and retention policies
+- S3 dump lifecycle management and retention policies
 - Comprehensive validation and checksums
 
 ---
@@ -85,9 +79,9 @@ The diagram shows the current architecture with workers, services, and data flow
 
 | Component | Inputs | Outputs | Technology |
 |-----------|--------|---------|------------|
-| **Change Detection** | entity_head + entity_revisions + S3 snapshots | Entity change events | See [MEDIAWIKI-INDEPENDENT-CHANGE-DETECTION.md](../MEDIAWIKI-INDEPENDENT-CHANGE-DETECTION.md) |
-| **JSON→RDF Converter** | Entity JSON snapshots | RDF (Turtle format) | See [JSON-RDF-CONVERTER.md](../RDF-BUILDER/JSON-RDF-CONVERTER.md) |
-| **Weekly RDF Dump Service** | entity_head + S3 snapshots (all recent entities) | S3: weekly JSON + RDF dump files | See [WEEKLY-RDF-DUMP-GENERATOR.md](../WEEKLY-RDF-DUMP-GENERATOR.md) |
+| **Change Detection** | entity_head + entity_revisions + MariaDB revision data | Entity change events | See [MEDIAWIKI-INDEPENDENT-CHANGE-DETECTION.md](../MEDIAWIKI-INDEPENDENT-CHANGE-DETECTION.md) |
+| **JSON→RDF Converter** | Entity JSON revisions | RDF (Turtle format) | See [JSON-RDF-CONVERTER.md](../RDF-BUILDER/JSON-RDF-CONVERTER.md) |
+| **Weekly RDF Dump Service** | entity_head + MariaDB revision data (all recent entities) | S3: weekly JSON + RDF dump files | See [WEEKLY-RDF-DUMP-GENERATOR.md](../WEEKLY-RDF-DUMP-GENERATOR.md) |
 | **Continuous RDF Change Streamer** | Entity change events | `rdf_change` events (Kafka) | See [CONTINUOUS-RDF-CHANGE-STREAMER.md](CONTINUOUS-RDF-CHANGE-STREAMER.md) |
 | **Existing WDQS Consumer** | `rdf_change` events (Kafka) | Apply patches to Blazegraph | Java (existing) |
 
@@ -131,9 +125,9 @@ The diagram shows the current architecture with workers, services, and data flow
 |----------|-------------|
 | **MediaWiki Independence** | See [MEDIAWIKI-INDEPENDENT-CHANGE-DETECTION.md](../MEDIAWIKI-INDEPENDENT-CHANGE-DETECTION.md) |
 | **Backfill Capable** | Can process historical changes from any point in time |
-| **Deterministic** | Based on immutable snapshots and ordered revision metadata |
-| **Scalable** | All services can scale independently (S3, Vitess, Kafka) |
-| **Dual Output** | Supports both continuous streaming (diffs) and batch dumps (full snapshots) |
+| **Deterministic** | Based on immutable revision data and ordered revision metadata |
+| **Scalable** | All services can scale independently (MariaDB, Vitess, Kafka) |
+| **Dual Output** | Supports both continuous streaming (diffs) and batch dumps (full revisions) |
 | **Flexible** | Multiple consumers can use outputs (WDQS, search, analytics, mirrors) |
 
 ---
@@ -191,7 +185,7 @@ The diagram shows the current architecture with workers, services, and data flow
 ## Open Questions
 
 1. **Change Granularity**: Entity-level diffs or claim-level diffs for RDF stream? entity-level diffs
-2. **Snapshot Retention**: How long to keep weekly dumps in S3? Lifecycle rules? 1y rolling
+2. **Dump Retention**: How long to keep weekly dumps in S3? Lifecycle rules? 1y rolling
 3. **Weekly Dump Partitioning**: Single file vs. multiple partitions at 1M entities/week scale? Multiple
 
 ---
@@ -202,8 +196,11 @@ The diagram shows the current architecture with workers, services, and data flow
 
 If MediaWiki EventBus continues emitting change events, the Continuous RDF Change Streamer can consume them directly:
 
-```
-MediaWiki Events → Fetch Entity from S3 → Convert to RDF → Emit rdf_change
+```mermaid
+flowchart LR
+    A[MediaWiki Events] --> B[Fetch Entity from MariaDB]
+    B --> C[Convert to RDF]
+    C --> D[Emit rdf_change]
 ```
 
 This is documented in [CONTINUOUS-RDF-CHANGE-STREAMER.md](CONTINUOUS-RDF-CHANGE-STREAMER.md) as an alternative input source.
@@ -211,7 +208,7 @@ This is documented in [CONTINUOUS-RDF-CHANGE-STREAMER.md](CONTINUOUS-RDF-CHANGE-
 ## References
 
 - [ARCHITECTURE.md](../ARCHITECTURE.md) - Core architecture principles
-- [STORAGE-ARCHITECTURE.md](../STORAGE-ARCHITECTURE.md) - S3 + Vitess storage model
+- [STORAGE-ARCHITECTURE.md](../STORAGE-ARCHITECTURE.md) - MariaDB + Vitess storage model
 - [JSON-RDF-CONVERTER.md](../RDF-BUILDER/JSON-RDF-CONVERTER.md) - JSON→RDF converter service
 - [MEDIAWIKI-INDEPENDENT-CHANGE-DETECTION.md](../MEDIAWIKI-INDEPENDENT-CHANGE-DETECTION.md) - Change detection service documentation
 - [CONTINUOUS-RDF-CHANGE-STREAMER.md](CONTINUOUS-RDF-CHANGE-STREAMER.md) - Continuous RDF change streamer service

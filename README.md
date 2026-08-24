@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/dpriskorn/entitybase-backend/branch/main/graph/badge.svg)](https://codecov.io/gh/dpriskorn/entitybase-backend)
 
 A clean-room, billion-scale Wikibase JSON and RDF schema compatible backend architecture 
-based on immutable S3 snapshots and Vitess indexing.
+based on immutable revision snapshots and MariaDB indexing.
 
 It is designed to support 1bn+ entities and 1tn unique statements.
 
@@ -12,7 +12,7 @@ It is designed to support 1bn+ entities and 1tn unique statements.
 
 **The Immutable Revision Invariant:**
 
-A revision is an immutable snapshot stored in S3. Once written, it never changes.
+A revision is an immutable snapshot stored in MariaDB. Once written, it never changes.
 
 - No mutable revisions
 - No diff storage
@@ -37,41 +37,20 @@ flowchart TB
     end
 
     subgraph Storage["Storage Stack"]
-        S3[("S3<br/>Immutable<br/>Snapshots")]
-        Vitess[(Vitess<br/>Indexing)]
+        MariaDB[(MariaDB<br/>Revisions<br/>Statements<br/>Terms<br/>Indexing)]
+        S3[("S3<br/>Dump Uploads")]
         Kafka[("Event<br/>Streaming")]
-    end
-
-    subgraph Buckets["S3 Buckets"]
-        B1[terms]
-        B2[statements]
-        B3[references]
-        B4[qualifiers]
-        B5[revisions]
-        B6[sitelinks]
-        B7[snaks]
-        B8[wikibase-dumps]
     end
 
     API --> ID
     API --> Dump
     API --> Dev
-    API --> S3
-    API --> Vitess
+    API --> MariaDB
     API --> Kafka
-    
-    ID --> Vitess
+
+    ID --> MariaDB
     Dump --> S3
-    Dev --> S3
-    
-    S3 --> B1
-    S3 --> B2
-    S3 --> B3
-    S3 --> B4
-    S3 --> B5
-    S3 --> B6
-    S3 --> B7
-    S3 --> B8
+    Dev --> MariaDB
 ```
 
 ### Service Components
@@ -90,7 +69,7 @@ flowchart TB
 #### **ID Generator Worker**
 - **Range-based ID allocation** to prevent database write hotspots
 - **Scalable to 777K+ entities/day** (10 edits/sec, 90% new entities)
-- **Atomic operations** via Vitess optimistic locking
+- **Atomic operations** via MariaDB locking
 - **Auto-scaling** via Docker Compose replicas
 - **Health monitoring** and range utilization tracking
 
@@ -98,22 +77,21 @@ flowchart TB
 - **JSONL Entity Dumps**: Generate complete entity exports in JSON Lines format
 - **S3 Integration**: Store dumps in dedicated S3 bucket
 - **Raw Revision Data**: Export full revision content without manipulation
-- **Shard-based Processing** (Planned): Process entities by Vitess shard for scalability
+- **Shard-based Processing** (Planned): Process entities by shard for scalability
 - **Parallel Processing** (Planned): Large-scale dump generation
 
 ### Storage Stack
 
-#### **S3 (System of Record)**
-- **Immutable snapshots**: All entity content stored as immutable S3 objects
+#### **MariaDB (System of Record)**
+- **All data**: Revisions, statements, terms, sitelinks, references, qualifiers, snaks
+- **Immutable snapshots**: Entity content stored as immutable revision rows
 - **Versioned storage**: Complete revision history with perfect auditability
-- **RDF exports**: Generated TTL files for semantic web consumption
-- **Statement deduplication**: Shared statement objects to reduce storage
+- **Statement deduplication**: Shared statement objects with reference counting
+- **Indexing**: Entity metadata, head pointers, timestamps, ID ranges, redirects
 
-#### **Vitess (Indexing Layer)**
-- **Entity metadata**: Head pointers, timestamps, protection status
-- **Statement indexing**: Deduplicated statement references with ref_counts
-- **ID range management**: Atomic allocation of entity ID ranges
-- **Redirect tracking**: Bidirectional redirect relationships
+#### **S3 (Dump Uploads Only)**
+- **JSONL exports**: Generated entity dumps for download
+- **No primary storage**: All entity data lives in MariaDB
 
 #### **Event Streaming**
 - **Change notifications**: Real-time entity change events
@@ -123,8 +101,8 @@ flowchart TB
 ### Key Concepts
 
 - **Entity**: A logical identifier (Q123, P456, etc.) with no intrinsic state
-- **Revision**: Complete, immutable S3 snapshot of entity state
-- **Head Pointer**: Current revision managed via compare-and-swap in Vitess
+- **Revision**: Complete, immutable snapshot stored in MariaDB
+- **Head Pointer**: Current revision managed via compare-and-swap in MariaDB
 - **Statement Deduplication**: Shared statement objects with reference counting
 - **ID Ranges**: Pre-allocated blocks of entity IDs to prevent write hotspots
 
@@ -132,19 +110,19 @@ flowchart TB
 
 - **Entity Creation**: 777K/day sustained (10 edits/sec, 90% new entities)
 - **Storage Growth**: 2.84B entities over 10 years
-- **Read Performance**: Sub-millisecond via S3 + Vitess caching
+- **Read Performance**: Sub-millisecond via MariaDB indexing and caching
 - **Write Performance**: Range-based ID allocation eliminates bottlenecks
 
 ### Service Components
 
 #### **Dev Worker Service** ✅
-- **Bucket Management**: Automated MinIO bucket creation and health checks
+- **Database Setup**: Automated MariaDB schema creation and health checks
 - **Environment Setup**: Development infrastructure provisioning
-- **CLI Interface**: Command-line tools for bucket operations
-- **Health Monitoring**: Bucket accessibility and status reporting
+- **CLI Interface**: Command-line tools for setup operations
+- **Health Monitoring**: Database accessibility and status reporting
 
 **Key Features**:
-- Eight specialized buckets (terms, statements, references, qualifiers, revisions, sitelinks, snaks, wikibase-dumps)
+- Automated MariaDB schema initialization (revisions, statements, terms, etc.)
 - Idempotent setup operations
 - Development workflow integration
 - Incremental change streaming for real-time RDF updates
@@ -155,7 +133,7 @@ flowchart TB
 #### **Additional Services (Future)**
 - **Analytics Service**: Usage statistics and performance monitoring
 - **Replication Service**: Cross-region data replication
-- **Backup Service**: Automated S3/Vitess backup coordination
+- **Backup Service**: Automated MariaDB backup coordination
 
 ## Getting Started
 
@@ -168,30 +146,22 @@ Start with [ARCHITECTURE.md](./doc/ARCHITECTURE/ARCHITECTURE.md) for the complet
 docker-compose up -d
 
 # API available at http://localhost:8000
-# MinIO console at http://localhost:9001
-# Vitess admin at http://localhost:15100
+# MariaDB at http://localhost:3306
 ```
 
 #### MinIO Bucket Setup
 
-The system uses eight S3-compatible buckets for different data types:
+The system uses one S3-compatible bucket for dump uploads:
 
-- **`terms`**: Stores entity metadata (labels, descriptions, aliases)
-- **`statements`**: Stores statement content with deduplication
-- **`references`**: Stores reference data
-- **`qualifiers`**: Stores qualifier data
-- **`revisions`**: Stores revision data and metadata
-- **`sitelinks`**: Stores sitelink data
-- **`snaks`**: Stores snak data
 - **`wikibase-dumps`**: Stores entity export dumps
 
-Use either the setup script or dev worker CLI to create these buckets automatically.
+Use either the setup script or dev worker CLI to create this bucket automatically.
 
 ### Design Philosophy
 
-- **Immutability**: All content is stored as immutable snapshots
+- **Immutability**: All content is stored as immutable snapshots in MariaDB
 - **Eventual consistency**: With reconciliation guarantees and no data loss
-- **Horizontal scalability**: S3 for storage, Vitess for indexing, workers for specialized tasks
+- **Horizontal scalability**: MariaDB for storage and indexing, workers for specialized tasks
 - **Microservices architecture**: Dedicated services for API, ID generation, and dump processing
 - **Auditability**: Perfect revision history by design
 - **Decoupling**: MediaWiki + Wikibase becomes a stateless API client
@@ -204,11 +174,11 @@ Use either the setup script or dev worker CLI to create these buckets automatica
 - **Create redirects**: Entity API endpoint to mark entities as redirects to other entities
 - **Revert redirects**: Entity API endpoint to revert redirects back to normal entities using revision-based restore
 - **RDF generation**: RDF builder generates `owl:sameAs` statements for all incoming redirects
-- **Vitess integration**: Redirects stored in Vitess `entity_redirects` table for efficient querying
-- **S3 schema v1.1.0**: Added `redirects_to` field to mark redirect entities
+- **MariaDB integration**: Redirects stored in MariaDB `entity_redirects` table for efficient querying
+- **Schema v1.1.0**: Added `redirects_to` field to mark redirect entities
 - **Immutable tombstones**: Redirect entities have empty entity data with only `redirects_to` field
-- **Authoritative source**: Vitess is the single source of truth for redirect relationships
-- **Test cache fallback**: File-based cache for testing without Vitess connection
+- **Authoritative source**: MariaDB is the single source of truth for redirect relationships
+- **Test cache fallback**: File-based cache for testing without MariaDB connection
 
 ### Statement Deduplication
 - **Hash-based storage**: All statements stored as deduplicated objects with hash-based references
