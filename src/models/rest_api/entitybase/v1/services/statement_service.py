@@ -390,7 +390,7 @@ class StatementService(Service):
                     new_snaks.append((snak_key, snak_value))
             ref_dict["snaks"] = dict(new_snaks)
         snaks_order = ref_dict.pop("snaks-order", [])
-        return S3ReferenceSnaks(snaks=ref_dict["snaks"], snaks_order=snaks_order)
+        return S3ReferenceSnaks(snaks=ref_dict.get("snaks", {}), snaks_order=snaks_order)
 
     def _process_single_reference(
         self, ref: S3ReferenceData | dict | int, snak_handler: SnakHandler
