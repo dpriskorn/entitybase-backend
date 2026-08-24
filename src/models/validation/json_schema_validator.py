@@ -24,18 +24,15 @@ class JsonSchemaValidator(BaseModel):
     s3_statement_version: str = Field(
         default_factory=lambda: settings.s3_statement_version
     )
-    s3_snak_version: str = Field(default_factory=lambda: settings.s3_snak_version)
     entity_change_version: str = Field(
         default_factory=lambda: settings.streaming_entity_change_version
     )
     entity_revision_schema: JsonSchema | None = Field(default=None)
     statement_schema: JsonSchema | None = Field(default=None)
     recentchange_schema: JsonSchema | None = Field(default=None)
-    snak_schema: JsonSchema | None = Field(default=None)
     entity_validator: Draft202012Validator | None = Field(default=None)
     statement_validator: Draft202012Validator | None = Field(default=None)
     recentchange_validator: Draft202012Validator | None = Field(default=None)
-    snak_validator: Draft202012Validator | None = Field(default=None)
 
     model_config = {"arbitrary_types_allowed": True}
 
@@ -83,14 +80,6 @@ class JsonSchemaValidator(BaseModel):
             self.recentchange_schema = self._load_schema(str(schema_path))
         return self.recentchange_schema
 
-    def _get_snak_schema(self) -> JsonSchema:
-        if self.snak_schema is None:
-            schema_path = Path(
-                f"schemas/entitybase/s3/snak/{self.s3_snak_version}/schema.yaml"
-            )
-            self.snak_schema = self._load_schema(str(schema_path))
-        return self.snak_schema
-
     def _get_entity_validator(self) -> Draft202012Validator:
         if self.entity_validator is None:
             schema = self._get_entity_revision_schema().data
@@ -108,12 +97,6 @@ class JsonSchemaValidator(BaseModel):
             schema = self._get_recentchange_schema().data
             self.recentchange_validator = Draft202012Validator(schema)
         return self.recentchange_validator
-
-    def _get_snak_validator(self) -> Draft202012Validator:
-        if self.snak_validator is None:
-            schema = self._get_snak_schema().data
-            self.snak_validator = Draft202012Validator(schema)
-        return self.snak_validator
 
     def validate_statement(self, data: dict) -> None:
         """Validate statement data against schema."""

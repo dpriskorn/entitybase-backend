@@ -174,7 +174,6 @@ load_entity_metadata
 wikibase_predicates
 load_entity_redirects_batch
 _get_entity_validator
-_get_snak_validator
 validate_recentchange
 compute_diff_from_entity_data
 diff_rdf_content
