@@ -104,6 +104,21 @@ class EntityHandler(Handler):
         hash_result = await self._process_entity_data_new(rev_ctx)
         logger.debug(f"Entity data processed for {ctx.entity_id}")
 
+        # 3b. Store statements, snaks, refs, qualifiers in MySQL
+        if hash_result.statements:
+            ss = StatementService(state=self.state)
+            store_result = ss.deduplicate_and_store_statements(
+                hash_result=hash_result,
+                validator=rev_ctx.validator,
+                schema_version=settings.s3_statement_version,
+            )
+            if not store_result.success:
+                raise_validation_error(
+                    store_result.error or "Failed to store statements",
+                    status_code=500,
+                )
+            logger.debug(f"Statements stored for {ctx.entity_id}")
+
         # 4. Create revision
         result = await self._create_revision_new(rev_ctx, hash_result)
         logger.debug(f"Revision created for {ctx.entity_id}: {result.revision_id}")
