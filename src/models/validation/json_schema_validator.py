@@ -59,16 +59,18 @@ class JsonSchemaValidator(BaseModel):
     def _get_entity_revision_schema(self) -> JsonSchema:
         if self.entity_revision_schema is None:
             schema_path = Path(
-                f"schemas/entitybase/s3/revision/{self.s3_revision_version}/schema.yaml"
+                f"schemas/entitybase/entity/{self.s3_revision_version}/schema.yaml"
             )
             self.entity_revision_schema = self._load_schema(str(schema_path))
         return self.entity_revision_schema
 
-    def _get_statement_schema(self) -> JsonSchema:
+    def _get_statement_schema(self) -> JsonSchema | None:
         if self.statement_schema is None:
             schema_path = Path(
                 f"schemas/entitybase/s3/statement/{self.s3_statement_version}/schema.yaml"
             )
+            if not schema_path.exists():
+                return None
             self.statement_schema = self._load_schema(str(schema_path))
         return self.statement_schema
 
@@ -86,10 +88,12 @@ class JsonSchemaValidator(BaseModel):
             self.entity_validator = Draft202012Validator(schema)
         return self.entity_validator
 
-    def _get_statement_validator(self) -> Draft202012Validator:
+    def _get_statement_validator(self) -> Draft202012Validator | None:
         if self.statement_validator is None:
-            schema = self._get_statement_schema().data
-            self.statement_validator = Draft202012Validator(schema)
+            schema = self._get_statement_schema()
+            if schema is None:
+                return None
+            self.statement_validator = Draft202012Validator(schema.data)
         return self.statement_validator
 
     def _get_recentchange_validator(self) -> Draft202012Validator:
@@ -101,6 +105,8 @@ class JsonSchemaValidator(BaseModel):
     def validate_statement(self, data: dict) -> None:
         """Validate statement data against schema."""
         validator = self._get_statement_validator()
+        if validator is None:
+            return
         errors = list(validator.iter_errors(data))
         if errors:
             error_messages = [
