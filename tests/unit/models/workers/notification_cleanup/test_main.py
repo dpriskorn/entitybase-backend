@@ -39,7 +39,7 @@ class TestNotificationCleanupWorker:
         mock_connection.cursor.return_value.__exit__ = MagicMock(return_value=False)
 
         mock_connection_manager = MagicMock()
-        mock_connection_manager.connection = mock_connection
+        mock_connection_manager.conn = mock_connection
 
         mock_db_client = MagicMock()
         mock_db_client.connection_manager = mock_connection_manager
@@ -67,7 +67,7 @@ class TestNotificationCleanupWorker:
         mock_connection.cursor.return_value.__exit__ = MagicMock(return_value=False)
 
         mock_connection_manager = MagicMock()
-        mock_connection_manager.connection = mock_connection
+        mock_connection_manager.conn = mock_connection
 
         mock_db_client = MagicMock()
         mock_db_client.connection_manager = mock_connection_manager
@@ -89,7 +89,7 @@ class TestNotificationCleanupWorker:
         mock_connection.cursor.return_value.__exit__ = MagicMock(return_value=False)
 
         mock_connection_manager = MagicMock()
-        mock_connection_manager.connection = mock_connection
+        mock_connection_manager.conn = mock_connection
 
         mock_db_client = MagicMock()
         mock_db_client.connection_manager = mock_connection_manager
@@ -116,7 +116,7 @@ class TestNotificationCleanupWorker:
         mock_connection.cursor.return_value.__exit__ = MagicMock(return_value=False)
 
         mock_connection_manager = MagicMock()
-        mock_connection_manager.connection = mock_connection
+        mock_connection_manager.conn = mock_connection
 
         mock_db_client = MagicMock()
         mock_db_client.connection_manager = mock_connection_manager
@@ -141,7 +141,7 @@ class TestNotificationCleanupWorker:
         mock_connection.cursor.return_value.__exit__ = MagicMock(return_value=False)
 
         mock_connection_manager = MagicMock()
-        mock_connection_manager.connection = mock_connection
+        mock_connection_manager.conn = mock_connection
 
         mock_db_client = MagicMock()
         mock_db_client.connection_manager = mock_connection_manager
@@ -170,7 +170,7 @@ class TestNotificationCleanupWorker:
         mock_connection.cursor.return_value.__exit__ = MagicMock(return_value=False)
 
         mock_connection_manager = MagicMock()
-        mock_connection_manager.connection = mock_connection
+        mock_connection_manager.conn = mock_connection
 
         mock_db_client = MagicMock()
         mock_db_client.connection_manager = mock_connection_manager
